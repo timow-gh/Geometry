@@ -1,0 +1,19 @@
+add_executable(Test_Intersection_Line Test_Intersection_Line.cpp)
+target_link_libraries(Test_Intersection_Line PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Intersection_Line COMMAND Test_Intersection_Line)
+
+add_executable(Test_Intersection_Plane Test_Intersection_Plane.cpp)
+target_link_libraries(Test_Intersection_Plane PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Intersection_Plane COMMAND Test_Intersection_Plane)
+
+add_executable(Test_Intersection_Interval Test_Intersection_Interval.cpp)
+target_link_libraries(Test_Intersection_Interval PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Intersection_Interval COMMAND Test_Intersection_Interval)
+
+add_executable(Test_Intersection_Segment Test_Intersection_Segment.cpp)
+target_link_libraries(Test_Intersection_Segment PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Intersection_Segment COMMAND Test_Intersection_Segment)
+
+add_executable(Test_Intersection_Sphere Test_Intersection_Sphere.cpp)
+target_link_libraries(Test_Intersection_Sphere PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Intersection_Sphere COMMAND Test_Intersection_Sphere)

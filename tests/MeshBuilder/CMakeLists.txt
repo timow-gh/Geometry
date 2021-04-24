@@ -1,0 +1,3 @@
+add_executable(Test_MeshBuilder Test_MeshBuilder.cpp)
+target_link_libraries(Test_MeshBuilder PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_MeshBuilder COMMAND Test_MeshBuilder)

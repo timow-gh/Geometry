@@ -1,0 +1,5 @@
+BasedOnStyle: LLVM
+---
+Language: Proto
+# Don't format .proto files.
+DisableFormat: true
