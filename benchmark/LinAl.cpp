@@ -6,7 +6,11 @@
 #include "LinAl/LinearAlgebra.hpp"
 
 #include "blaze/Math.h"
+
+//#define EIGEN_BENCHMARKS
+#ifdef EIGEN_BENCHMARKS
 #include "eigen3/Eigen/Eigen"
+#endif
 
 static void BM_Vector3dAdd(benchmark::State &state) {
   LinAl::Vec3d lhs(0.0);
@@ -93,6 +97,7 @@ static void BM_blaze_vec3i_add(benchmark::State &state) {
   }
 }
 
+#ifdef EIGEN_BENCHMARKS
 static void BM_eigen3_vec3i_add(benchmark::State &state) {
   Eigen::Vector3i a(1, 2, 3);
   Eigen::Vector3i b(1, 2, 3);
@@ -102,6 +107,7 @@ static void BM_eigen3_vec3i_add(benchmark::State &state) {
     escape(&c);
   }
 }
+#endif
 
 static void BM_blaze_vec3d_add(benchmark::State &state) {
   blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned,
@@ -119,6 +125,7 @@ static void BM_blaze_vec3d_add(benchmark::State &state) {
   }
 }
 
+#ifdef EIGEN_BENCHMARKS
 static void BM_eigen3_vec3d_add(benchmark::State &state) {
   Eigen::Vector3d a(1, 2, 3);
   Eigen::Vector3d b(1, 2, 3);
@@ -128,6 +135,7 @@ static void BM_eigen3_vec3d_add(benchmark::State &state) {
     escape(&c);
   }
 }
+#endif
 
 double_t c{0.0};
 
@@ -144,6 +152,7 @@ static void BM_blaze_vec3d_dot(benchmark::State &state) {
   }
 }
 
+#ifdef EIGEN_BENCHMARKS
 static void BM_eigen3_vec3d_dot(benchmark::State &state) {
   Eigen::Vector3d a(1, 2, 3);
   Eigen::Vector3d b(1, 2, 3);
@@ -152,6 +161,7 @@ static void BM_eigen3_vec3d_dot(benchmark::State &state) {
     escape(&c);
   }
 }
+#endif
 
 static void BM_linearalgebra_vec3d_dot(benchmark::State &state) {
   LinAl::Vec3d a{1, 2, 3};
@@ -194,6 +204,7 @@ static void BM_blaze_vec3f_cross(benchmark::State &state) {
   }
 }
 
+#ifdef EIGEN_BENCHMARKS
 static void BM_eigen3_vec3d_cross(benchmark::State &state) {
   Eigen::Vector3d a(1, 2, 3);
   Eigen::Vector3d b(1, 2, 3);
@@ -203,6 +214,7 @@ static void BM_eigen3_vec3d_cross(benchmark::State &state) {
     escape(&d);
   }
 }
+#endif
 
 static void BM_linearalgebra_vec3d_cross(benchmark::State &state) {
   LinAl::Vec3d a{1, 2, 3};
@@ -227,6 +239,7 @@ static void BM_blaze_vec3f_normalize(benchmark::State &state) {
   }
 }
 
+#ifdef EIGEN_BENCHMARKS
 static void BM_eigen3_vec3d_normalize(benchmark::State &state) {
   Eigen::Vector3d a(1, 2, 3);
   Eigen::Vector3d b(1, 2, 3);
@@ -235,6 +248,7 @@ static void BM_eigen3_vec3d_normalize(benchmark::State &state) {
     escape(&b);
   }
 }
+#endif
 
 static void BM_linearalgebra_vec3d_projection(benchmark::State &state) {
   LinAl::Vec3d a{1, 1, 1};
@@ -258,25 +272,28 @@ static void BM_linearalgebra_vec3d_rejection(benchmark::State &state) {
 
 BENCHMARK(BM_blaze_vec3i_add_unaligned_unpadded);
 BENCHMARK(BM_blaze_vec3i_add);
-BENCHMARK(BM_eigen3_vec3i_add);
 
 BENCHMARK(BM_blaze_vec3d_add);
-BENCHMARK(BM_eigen3_vec3d_add);
 
 BENCHMARK(BM_blaze_vec3d_dot);
-BENCHMARK(BM_eigen3_vec3d_dot);
 BENCHMARK(BM_linearalgebra_vec3d_dot);
 
 BENCHMARK(BM_blaze_vec3d_cross);
 BENCHMARK(BM_blaze_vec3f_cross);
-BENCHMARK(BM_eigen3_vec3d_cross);
 BENCHMARK(BM_linearalgebra_vec3d_cross);
 
 BENCHMARK(BM_blaze_vec3f_normalize);
-BENCHMARK(BM_eigen3_vec3d_normalize);
 
 BENCHMARK(BM_linearalgebra_vec3d_projection);
 BENCHMARK(BM_linearalgebra_vec3d_rejection);
+
+#ifdef EIGEN_BENCHMARKS
+BENCHMARK(BM_eigen3_vec3i_add);
+BENCHMARK(BM_eigen3_vec3d_add);
+BENCHMARK(BM_eigen3_vec3d_dot);
+BENCHMARK(BM_eigen3_vec3d_cross);
+BENCHMARK(BM_eigen3_vec3d_normalize);
+#endif
 
 // Run the benchmark
 BENCHMARK_MAIN();

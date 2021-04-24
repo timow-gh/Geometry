@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_package(benchmark CONFIG REQUIRED)
 
-set(LIBS benchmark::benchmark Core::Core LinAl::LinAl Geometry::Geometry)
+set(LIBS Core::Types LinAl::LinAl Geometry::Geometry benchmark::benchmark)
 
 add_executable(Benchmark_LinAl LinAl.cpp)
 target_link_libraries(Benchmark_LinAl "${LIBS}")

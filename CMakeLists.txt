@@ -17,6 +17,7 @@ include(CTest)
 
 option(${PROJECT_NAME}_INSTALL "Enable install rule" ON)
 option(${PROJECT_NAME}_BUILD_TESTS "Enable Core tests" ON)
+option(${PROJECT_NAME}_BUILD_BENCHMARKS "Enable Core tests" ON)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
