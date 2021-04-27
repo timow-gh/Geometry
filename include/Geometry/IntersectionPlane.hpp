@@ -1,6 +1,8 @@
 #ifndef GEOMETRY_INTERSECTIONPLANE_HPP
 #define GEOMETRY_INTERSECTIONPLANE_HPP
 
+#include <optional>
+
 #include "Core/Math/Eps.hpp"
 
 #include "LinAl/LinearAlgebra.hpp"

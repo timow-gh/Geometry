@@ -6,6 +6,7 @@
 #include "LinAl/LinearAlgebra.hpp"
 
 #include "Geometry/HalfedgeMesh/HalfedgeMeshBuilder.hpp"
+#include "Geometry/Cube.hpp"
 
 using namespace Geometry;
 using namespace LinAl;
@@ -18,7 +19,7 @@ TEST(MeshBuiler, CubeMesh) {
 
 TEST(MeshBuiler, SphereMesh) {
   auto sphere =
-      HalfedgeMeshBuilder::buildMesh(Sphere<double_t>{ZERO_VEC3D, 1.0});
+      HalfedgeMeshBuilder::buildMesh<double_t>(Sphere<double_t>{ZERO_VEC3D, 1.0});
   ASSERT_NO_THROW(sphere);
 }
 

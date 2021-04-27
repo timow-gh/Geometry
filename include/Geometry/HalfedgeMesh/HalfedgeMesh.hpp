@@ -34,7 +34,7 @@ public:
   HalfedgeMesh &operator=(const HalfedgeMesh &rhs) = delete;
 
   explicit HalfedgeMesh(HalfedgeMesh &&rhs) noexcept = default;
-  HalfedgeMesh &operator=(HalfedgeMesh &rhs) noexcept = default;
+  HalfedgeMesh &operator=(HalfedgeMesh &&rhs) noexcept = default;
 
   [[nodiscard]] LinAl::Vec3Vector<T> &getVertexPoints();
   [[nodiscard]] const LinAl::Vec3Vector<T> &getVertexPoints() const;

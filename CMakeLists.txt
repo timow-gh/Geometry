@@ -4,6 +4,9 @@ project("Geometry"
         VERSION 0.1.0
         LANGUAGES CXX)
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "No build type selected, default to Release")
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
@@ -17,7 +20,7 @@ include(CTest)
 
 option(${PROJECT_NAME}_INSTALL "Enable install rule" ON)
 option(${PROJECT_NAME}_BUILD_TESTS "Enable Core tests" ON)
-option(${PROJECT_NAME}_BUILD_BENCHMARKS "Enable Core tests" ON)
+option(${PROJECT_NAME}_BUILD_BENCHMARKS "Enable Core tests" OFF)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
@@ -85,7 +88,8 @@ set_target_properties(tw_geometry
                       EXPORT_NAME ${TARGET_ALIAS})
 target_link_libraries(tw_geometry INTERFACE Core::Types CrossGuid::CrossGuid LinAl::LinAl)
 if (MSVC)
-    setMSVCOutputDirectories(Core_Types)
+    include(HelperFunctions)
+    setMSVCOutputDirectories(tw_geometry)
 endif ()
 
 if (${PROJECT_NAME}_BUILD_BENCHMARKS)

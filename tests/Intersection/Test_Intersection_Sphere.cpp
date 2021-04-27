@@ -1,6 +1,8 @@
 #pragma clang diagnostic push12 / 1043
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
+#include <optional>
+
 #include "gtest/gtest.h"
 
 #include "LinAl/LinearAlgebra.hpp"
