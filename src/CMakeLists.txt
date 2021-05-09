@@ -1,7 +1,3 @@
-find_package(CrossGuid CONFIG REQUIRED)
-find_package(Core CONFIG REQUIRED)
-find_package(LinAl CONFIG REQUIRED)
-
 set(geometry_TARGET_HEADER
     include/Geometry/HalfedgeMesh/Vertex.hpp
     include/Geometry/HalfedgeMesh/Halfedge.hpp
@@ -42,7 +38,7 @@ add_library(${PROJECT_NAME}::${TARGET_ALIAS} ALIAS tw_geometry)
 set_target_properties(tw_geometry
                       PROPERTIES
                       EXPORT_NAME ${TARGET_ALIAS})
-target_link_libraries(tw_geometry INTERFACE Core::Types CrossGuid::CrossGuid LinAl::LinAl)
+target_link_libraries(tw_geometry INTERFACE Core::Types Core::Math CrossGuid::CrossGuid LinAl::LinAl)
 if (MSVC)
     include(HelperFunctions)
     setMSVCOutputDirectories(tw_geometry)

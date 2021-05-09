@@ -13,10 +13,11 @@ set(BUILD_SHARED_LIBS ON)
 option(${PROJECT_NAME}_INSTALL "Enable install rule" ON)
 if ((CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR))
     option(${PROJECT_NAME}_BUILD_TESTS "Enable tests" ON)
+    option(${PROJECT_NAME}_BUILD_BENCHMARKS "Enable Core tests" ON)
 else ()
     option(${PROJECT_NAME}_BUILD_TESTS "Enable tests" OFF)
+    option(${PROJECT_NAME}_BUILD_BENCHMARKS "Enable Core tests" OFF)
 endif ()
-option(${PROJECT_NAME}_BUILD_BENCHMARKS "Enable Core tests" OFF)
 
 if (NOT CMAKE_BUILD_TYPE)
     message(STATUS "No build type selected, default to Release")
@@ -38,6 +39,8 @@ if (${PROJECT_NAME}_INSTALL)
         set(CMAKE_INSTALL_RPATH $ORIGIN $ORIGIN/${relDir})
     endif ()
 endif ()
+
+add_subdirectory(depenencies)
 
 add_subdirectory(src)
 
