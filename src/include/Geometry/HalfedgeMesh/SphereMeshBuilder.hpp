@@ -4,6 +4,8 @@
 #include <cmath>
 #include <memory>
 
+#include "Core/Math/Constants.h"
+
 #include "LinAl/LinearAlgebra.hpp"
 
 #include "Geometry/Sphere.hpp"
@@ -17,14 +19,8 @@ std::unique_ptr<HalfedgeMesh<T>> buildSphereMesh(const Sphere<T> &sphere) {
   constexpr T CHORD_RADIUS_RATIO = T(0.1);
   const T deltaAngle = std::asin(T(0.5) * CHORD_RADIUS_RATIO) * T(2);
 
-  // TODO Math contant M_PI is not crossplatform. _USE_MATH_DEFINES doesn't work
-  // on VS2019 <cmath> but maybe on <math.h>
-  /*
-   *  Math contants are not defined in Standard C++. To use them (MSVC),
-   * _USE_MATH_DEFINES must be defined
-   */
-  std::size_t thetaSteps = M_PI / deltaAngle;
-  std::size_t phiSteps = 2 * M_PI / deltaAngle + 1;
+  std::size_t thetaSteps = Core::PI / deltaAngle;
+  std::size_t phiSteps = Core::PI_2 / deltaAngle + 1;
 
   // TODO use TArray
   Core::TVector<Triangle<T, 3>> triangles;
