@@ -4,7 +4,7 @@
 #include <cmath>
 #include <memory>
 
-#include "Core/Math/Constants.h"
+#include "Core/Math/Constants.hpp"
 
 #include "LinAl/LinearAlgebra.hpp"
 
