@@ -2,7 +2,7 @@
 #define GLFWTESTAPP_VERTEX_H
 
 #include "Geometry/HalfedgeMesh/Halfedge.hpp"
-#include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
+#include "HalfedgeMesh.hpp"
 #include "LinAl/LinearAlgebra.hpp"
 #include <cstdio>
 

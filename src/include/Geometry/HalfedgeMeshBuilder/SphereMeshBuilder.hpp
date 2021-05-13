@@ -11,7 +11,7 @@
 #include "Geometry/Sphere.hpp"
 #include "Geometry/Triangle.hpp"
 
-#include "HalfedgeMesh.hpp"
+#include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
 
 namespace Geometry {
 template <typename T>
@@ -27,13 +27,6 @@ std::unique_ptr<HalfedgeMesh<T>> buildSphereMesh(const Sphere<T> &sphere) {
 
   // TODO Build Angle classes and conversions
   // TODO Build spherical lcs system and conversion to cartesian lcs
-  // TODO Learn about the math functions, do they use radiant or deg (prob
-  // radiant)
-
-  // TODO Build a function that create quaads and then triangles from the points
-  // of two circles
-  // TODO The function needs to create a triangle from the first and last points
-  // of the vector/array, too
 
   const LinAl::Vec3<T> origin = sphere.getOrigin();
   const T radius = sphere.getRadius();

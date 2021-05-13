@@ -5,17 +5,9 @@ set(geometry_TARGET_HEADER
     include/Geometry/HalfedgeMesh/FacetUtils.hpp
     include/Geometry/HalfedgeMesh/MeshPoints.hpp
     include/Geometry/HalfedgeMesh/HalfedgeMesh.hpp
-    include/Geometry/HalfedgeMesh/HalfedgeMeshBuilder.hpp
-    include/Geometry/AABB.hpp
-    include/Geometry/Cube.hpp
-    include/Geometry/Segment.hpp
-    include/Geometry/Lcs.hpp
-    include/Geometry/Sphere.hpp
-    include/Geometry/Line.hpp
-    include/Geometry/Plane.hpp
-    include/Geometry/Polygon.hpp
-    include/Geometry/Cylinder.hpp
-    include/Geometry/Interval.hpp
+    include/Geometry/HalfedgeMeshBuilder/HalfedgeMeshBuilder.hpp
+    include/Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp
+    include/Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp
     include/Geometry/Distance/DistanceLine.hpp
     include/Geometry/Distance/DistanceRay.hpp
     include/Geometry/Distance/DistanceSegment.hpp
@@ -24,8 +16,16 @@ set(geometry_TARGET_HEADER
     include/Geometry/Intersection/IntersectionPlane.hpp
     include/Geometry/Intersection/IntersectionSegment.hpp
     include/Geometry/Intersection/IntersectionSphere.hpp
-    include/Geometry/HalfedgeMesh/CubeMeshBuilder.hpp
-    include/Geometry/HalfedgeMesh/SphereMeshBuilder.hpp
+    include/Geometry/AABB.hpp
+    include/Geometry/Cuboid.hpp
+    include/Geometry/Segment.hpp
+    include/Geometry/Lcs.hpp
+    include/Geometry/Sphere.hpp
+    include/Geometry/Line.hpp
+    include/Geometry/Plane.hpp
+    include/Geometry/Polygon.hpp
+    include/Geometry/Cylinder.hpp
+    include/Geometry/Interval.hpp
     include/Geometry/Triangle.hpp
     include/Geometry/InvalidIndex.hpp
     )

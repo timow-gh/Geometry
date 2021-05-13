@@ -5,15 +5,15 @@
 
 #include "LinAl/LinearAlgebra.hpp"
 
-#include "Geometry/HalfedgeMesh/HalfedgeMeshBuilder.hpp"
-#include "Geometry/Cube.hpp"
+#include "Geometry/Cuboid.hpp"
+#include "Geometry/HalfedgeMeshBuilder/HalfedgeMeshBuilder.hpp"
 
 using namespace Geometry;
 using namespace LinAl;
 
 TEST(MeshBuiler, CubeMesh) {
   auto cube = HalfedgeMeshBuilder::buildMesh(
-      Cube<double_t>{ZERO_VEC3D, Vec3d{1, 1, 1}});
+      Cuboid<double_t>{ZERO_VEC3D, Vec3d{1, 1, 1}});
   ASSERT_NO_THROW(cube);
 }
 
