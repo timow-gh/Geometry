@@ -7,7 +7,7 @@
 
 #include "LinAl/LinearAlgebra.hpp"
 
-#include "Geometry/IntersectionSphere.hpp"
+#include "Geometry/Intersection/IntersectionSphere.hpp"
 #include "Geometry/Line.hpp"
 #include "Geometry/Segment.hpp"
 

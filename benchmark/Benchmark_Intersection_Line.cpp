@@ -3,7 +3,7 @@
 
 #include <benchmark/benchmark.h>
 
-#include "Geometry/IntersectionLine.hpp"
+#include "Geometry/Intersection/IntersectionLine.hpp"
 #include "Geometry/Line.hpp"
 
 using namespace Geometry;

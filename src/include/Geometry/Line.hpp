@@ -5,9 +5,9 @@
 
 #include <LinAl/LinearAlgebra.hpp>
 
-#include "DistanceLine.hpp"
-#include "IntersectionPlane.hpp"
-#include "IntersectionSegment.hpp"
+#include "Geometry/Distance/DistanceLine.hpp"
+#include "Geometry/Intersection/IntersectionPlane.hpp"
+#include "Geometry/Intersection/IntersectionSegment.hpp"
 
 namespace Geometry {
 template <typename T, std::size_t D> class Line {

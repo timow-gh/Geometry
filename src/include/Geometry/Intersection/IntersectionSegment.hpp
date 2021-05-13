@@ -5,9 +5,9 @@
 
 #include "LinAl/LinearAlgebra.hpp"
 
-#include "Fwd.hpp"
-#include "Interval.hpp"
-#include "Plane.hpp"
+#include "Geometry/Fwd.hpp"
+#include "Geometry/Interval.hpp"
+#include "Geometry/Plane.hpp"
 
 namespace Geometry {
 //! Line-Line intersection (Schneider - Geometric Tools for Computer Graphics)

@@ -5,7 +5,7 @@
 
 #include "LinAl/LinearAlgebra.hpp"
 
-#include "Geometry/DistanceSegment.hpp"
+#include "Geometry/Distance/DistanceSegment.hpp"
 #include "Geometry/Segment.hpp"
 
 using namespace Geometry;

@@ -5,7 +5,7 @@
 
 #include "LinAl/LinearAlgebra.hpp"
 
-#include "Geometry/DistancePlane.hpp"
+#include "Geometry/Distance/DistancePlane.hpp"
 #include "Geometry/Plane.hpp"
 
 using namespace Geometry;

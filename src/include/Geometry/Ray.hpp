@@ -5,7 +5,7 @@
 
 #include "LinAl/LinearAlgebra.hpp"
 
-#include "DistanceRay.hpp"
+#include "Geometry/Distance/DistanceRay.hpp"
 
 namespace Geometry {
 

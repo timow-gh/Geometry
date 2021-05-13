@@ -5,8 +5,8 @@
 
 #include "LinAl/LinearAlgebra.hpp"
 
-#include "DistancePlane.hpp"
-#include "IntersectionPlane.hpp"
+#include "Geometry/Distance/DistancePlane.hpp"
+#include "Geometry/Intersection/IntersectionPlane.hpp"
 #include "Line.hpp"
 #include "Ray.hpp"
 

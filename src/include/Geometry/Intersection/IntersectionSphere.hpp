@@ -7,8 +7,8 @@
 
 #include "LinAl/LinearAlgebra.hpp"
 
-#include "Fwd.hpp"
-#include "Sphere.hpp"
+#include "Geometry/Fwd.hpp"
+#include "Geometry/Sphere.hpp"
 
 namespace Geometry {
 

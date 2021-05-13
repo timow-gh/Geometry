@@ -16,14 +16,14 @@ set(geometry_TARGET_HEADER
     include/Geometry/Polygon.hpp
     include/Geometry/Cylinder.hpp
     include/Geometry/Interval.hpp
-    include/Geometry/DistanceLine.hpp
-    include/Geometry/DistanceRay.hpp
-    include/Geometry/DistanceSegment.hpp
-    include/Geometry/DistancePlane.hpp
-    include/Geometry/IntersectionLine.hpp
-    include/Geometry/IntersectionPlane.hpp
-    include/Geometry/IntersectionSegment.hpp
-    include/Geometry/IntersectionSphere.hpp
+    include/Geometry/Distance/DistanceLine.hpp
+    include/Geometry/Distance/DistanceRay.hpp
+    include/Geometry/Distance/DistanceSegment.hpp
+    include/Geometry/Distance/DistancePlane.hpp
+    include/Geometry/Intersection/IntersectionLine.hpp
+    include/Geometry/Intersection/IntersectionPlane.hpp
+    include/Geometry/Intersection/IntersectionSegment.hpp
+    include/Geometry/Intersection/IntersectionSphere.hpp
     include/Geometry/HalfedgeMesh/CubeMeshBuilder.hpp
     include/Geometry/HalfedgeMesh/SphereMeshBuilder.hpp
     include/Geometry/Triangle.hpp

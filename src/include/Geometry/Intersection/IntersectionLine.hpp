@@ -7,9 +7,9 @@
 
 #include "LinAl/LinearAlgebra.hpp"
 
-#include "Fwd.hpp"
+#include "Geometry/Fwd.hpp"
+#include "Geometry/Plane.hpp"
 #include "IntersectionPlane.hpp"
-#include "Plane.hpp"
 
 namespace Geometry {
 //! Line-Line intersection (Schneider - Geometric Tools for Computer Graphics)
