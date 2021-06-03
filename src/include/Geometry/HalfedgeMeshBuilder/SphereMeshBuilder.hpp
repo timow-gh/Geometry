@@ -1,106 +1,125 @@
 #ifndef GEOMETRY_SPHEREMESHBUILDER_HPP
 #define GEOMETRY_SPHEREMESHBUILDER_HPP
 
+#include "Core/Math/Constants.hpp"
+#include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
+#include "Geometry/Sphere.hpp"
+#include "Geometry/Triangle.hpp"
+#include "LinAl/LinearAlgebra.hpp"
 #include <cmath>
 #include <memory>
 
-#include "Core/Math/Constants.hpp"
-
-#include "LinAl/LinearAlgebra.hpp"
-
-#include "Geometry/Sphere.hpp"
-#include "Geometry/Triangle.hpp"
-
-#include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
-
-namespace Geometry {
+namespace Geometry
+{
 template <typename T>
-std::unique_ptr<HalfedgeMesh<T>> buildSphereMesh(const Sphere<T> &sphere) {
-  constexpr T CHORD_RADIUS_RATIO = T(0.1);
-  const T deltaAngle = std::asin(T(0.5) * CHORD_RADIUS_RATIO) * T(2);
+std::unique_ptr<HalfedgeMesh<T>> buildSphereMesh(const Sphere<T>& sphere)
+{
+    constexpr T CHORD_RADIUS_RATIO = T(0.1);
+    const T deltaAngle = std::asin(T(0.5) * CHORD_RADIUS_RATIO) * T(2);
 
-  std::size_t thetaSteps = Core::PI / deltaAngle;
-  std::size_t phiSteps = Core::PI_2 / deltaAngle + 1;
+    std::size_t thetaSteps = Core::PI / deltaAngle;
+    std::size_t phiSteps = Core::PI_2 / deltaAngle + 1;
 
-  // TODO use TArray
-  Core::TVector<Triangle<T, 3>> triangles;
+    // TODO use TArray
+    Core::TVector<Triangle<T, 3>> triangles;
 
-  // TODO Build Angle classes and conversions
-  // TODO Build spherical lcs system and conversion to cartesian lcs
+    // TODO Build Angle classes and conversions
+    // TODO Build spherical lcs system and conversion to cartesian lcs
 
-  const LinAl::Vec3<T> origin = sphere.getOrigin();
-  const T radius = sphere.getRadius();
+    const LinAl::Vec3<T> origin = sphere.getOrigin();
+    const T radius = sphere.getRadius();
 
-  Core::TVector<LinAl::Vec3Vector<T>> circles;
+    Core::TVector<LinAl::Vec3Vector<T>> circles;
 
-  for (std::size_t j{1}; j < thetaSteps; ++j) {
-    LinAl::Vec3Vector<T> circle;
+    for (std::size_t j{1}; j < thetaSteps; ++j)
+    {
+        LinAl::Vec3Vector<T> circle;
 
-    const T theta = j * deltaAngle;
-    const T sinTheta = std::sin(theta);
-    const T cosTheta = std::cos(theta);
+        const T theta = j * deltaAngle;
+        const T sinTheta = std::sin(theta);
+        const T cosTheta = std::cos(theta);
 
-    for (std::size_t j{0}; j < phiSteps; ++j) {
-      const T phi = j * deltaAngle;
-      const T sinPhi = std::sin(phi);
-      const T cosPhi = std::cos(phi);
-      circle.push_back(LinAl::Vec3<T>{origin[0] + radius * sinTheta * cosPhi,
-                                      origin[1] + radius * sinTheta * sinPhi,
-                                      origin[2] + radius * cosTheta});
-    }
-    circles.push_back(circle);
-  }
-
-  for (std::size_t i{0}; i < circles.size(); i++) {
-    const std::size_t circlePointsSize = circles[i].size();
-    const LinAl::Vec3Vector<T> &circlePoints = circles[i];
-
-    if (i == 0) {
-      const LinAl::Vec3<T> northPole =
-          sphere.getOrigin() + LinAl::Vec3<T>{0, 0, 1} * radius;
-
-      for (std::size_t j{0}; j < circlePointsSize - 1; ++j) {
-        triangles.push_back(
-            Triangle<T, 3>(northPole, circlePoints[j], circlePoints[j + 1]));
-      }
-      triangles.push_back(Triangle<T, 3>(
-          northPole, circlePoints[circlePointsSize - 1], circlePoints[0]));
-    } else {
-      const LinAl::Vec3Vector<T> &prevCirclePoints = circles[i - 1];
-
-      for (std::size_t j{0}; j < circlePointsSize - 1; ++j) {
-        triangles.push_back(Triangle<T, 3>(prevCirclePoints[j], circlePoints[j],
-                                           circlePoints[j + 1]));
-        triangles.push_back(Triangle<T, 3>(
-            circlePoints[j + 1], prevCirclePoints[j + 1], prevCirclePoints[j]));
-      }
-
-      triangles.push_back(Triangle<T, 3>(prevCirclePoints[circlePointsSize - 1],
-                                         circlePoints[circlePointsSize - 1],
-                                         circlePoints[0]));
-      triangles.push_back(
-          Triangle<T, 3>(circlePoints[0], prevCirclePoints[0],
-                         prevCirclePoints[circlePointsSize - 1]));
-
-      if (i == circles.size() - 1) {
-        const LinAl::Vec3<T> southPole =
-            sphere.getOrigin() - LinAl::Vec3<T>{0, 0, 1} * radius;
-
-        for (std::size_t j{0}; j < circlePointsSize - 1; ++j) {
-          triangles.push_back(
-              Triangle<T, 3>(southPole, circlePoints[j + 1], circlePoints[j]));
+        for (std::size_t j{0}; j < phiSteps; ++j)
+        {
+            const T phi = j * deltaAngle;
+            const T sinPhi = std::sin(phi);
+            const T cosPhi = std::cos(phi);
+            circle.push_back(
+                LinAl::Vec3<T>{origin[0] + radius * sinTheta * cosPhi,
+                               origin[1] + radius * sinTheta * sinPhi,
+                               origin[2] + radius * cosTheta});
         }
-        triangles.push_back(Triangle<T, 3>(southPole, circlePoints[0],
-                                           circlePoints[circlePointsSize - 1]));
-      }
+        circles.push_back(circle);
     }
-  }
 
-  auto sphereMesh = HalfedgeMesh<T>::create();
-  for (const auto &triangle : triangles)
-    sphereMesh->addTriangle(triangle);
-  return sphereMesh;
-  return {};
+    for (std::size_t i{0}; i < circles.size(); i++)
+    {
+        const std::size_t circlePointsSize = circles[i].size();
+        const LinAl::Vec3Vector<T>& circlePoints = circles[i];
+
+        if (i == 0)
+        {
+            const LinAl::Vec3<T> northPole =
+                sphere.getOrigin() + LinAl::Vec3<T>{0, 0, 1} * radius;
+
+            for (std::size_t j{0}; j < circlePointsSize - 1; ++j)
+            {
+                triangles.push_back(Triangle<T, 3>(northPole,
+                                                   circlePoints[j],
+                                                   circlePoints[j + 1]));
+            }
+            triangles.push_back(
+                Triangle<T, 3>(northPole,
+                               circlePoints[circlePointsSize - 1],
+                               circlePoints[0]));
+        }
+        else
+        {
+            const LinAl::Vec3Vector<T>& prevCirclePoints = circles[i - 1];
+
+            for (std::size_t j{0}; j < circlePointsSize - 1; ++j)
+            {
+                triangles.push_back(Triangle<T, 3>(prevCirclePoints[j],
+                                                   circlePoints[j],
+                                                   circlePoints[j + 1]));
+                triangles.push_back(Triangle<T, 3>(circlePoints[j + 1],
+                                                   prevCirclePoints[j + 1],
+                                                   prevCirclePoints[j]));
+            }
+
+            triangles.push_back(
+                Triangle<T, 3>(prevCirclePoints[circlePointsSize - 1],
+                               circlePoints[circlePointsSize - 1],
+                               circlePoints[0]));
+            triangles.push_back(
+                Triangle<T, 3>(circlePoints[0],
+                               prevCirclePoints[0],
+                               prevCirclePoints[circlePointsSize - 1]));
+
+            if (i == circles.size() - 1)
+            {
+                const LinAl::Vec3<T> southPole =
+                    sphere.getOrigin() - LinAl::Vec3<T>{0, 0, 1} * radius;
+
+                for (std::size_t j{0}; j < circlePointsSize - 1; ++j)
+                {
+                    triangles.push_back(Triangle<T, 3>(southPole,
+                                                       circlePoints[j + 1],
+                                                       circlePoints[j]));
+                }
+                triangles.push_back(
+                    Triangle<T, 3>(southPole,
+                                   circlePoints[0],
+                                   circlePoints[circlePointsSize - 1]));
+            }
+        }
+    }
+
+    auto sphereMesh = HalfedgeMesh<T>::create();
+    for (const auto& triangle: triangles)
+        sphereMesh->addTriangle(triangle);
+    return sphereMesh;
+    return {};
 }
 } // namespace Geometry
 

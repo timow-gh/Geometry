@@ -2,44 +2,47 @@
 #define GLFWTESTAPP_FACETUTILS_H
 
 #include "Core/Types/TVector.hpp"
-
 #include "Facet.hpp"
 #include "Geometry/HalfedgeMesh/Halfedge.hpp"
 
-
-namespace Geometry {
-
-template <typename T>
-Core::TVector<const Halfedge<T> *> calcHalfedges(const Facet<T> &facet);
+namespace Geometry
+{
 
 template <typename T>
-Core::TVector<const Halfedge<T> *> calcHalfedges(const Facet<T> &facet) {
-  Core::TVector<const Halfedge<T> *> result;
+Core::TVector<const Halfedge<T>*> calcHalfedges(const Facet<T>& facet);
 
-  const Halfedge<T> *halfedge = &facet.halfedge();
-  result.push_back(halfedge);
-  halfedge = halfedge->next();
-  result.push_back(halfedge);
+template <typename T>
+Core::TVector<const Halfedge<T>*> calcHalfedges(const Facet<T>& facet)
+{
+    Core::TVector<const Halfedge<T>*> result;
 
-  while (facet.halfedge() != *halfedge->next()) {
+    const Halfedge<T>* halfedge = &facet.halfedge();
+    result.push_back(halfedge);
     halfedge = halfedge->next();
     result.push_back(halfedge);
-  };
-  return result;
+
+    while (facet.halfedge() != *halfedge->next())
+    {
+        halfedge = halfedge->next();
+        result.push_back(halfedge);
+    };
+    return result;
 }
 
 template <typename T>
 Core::TVector<Vertex<T>>
-calcVertices(const Core::TVector<const Halfedge<T> *> &halfedges) {
-  Core::TVector<Vertex<T>> result;
-  for (const Halfedge<T> *halfedge : halfedges)
-    result.push_back(halfedge->vertex());
-  return result;
+calcVertices(const Core::TVector<const Halfedge<T>*>& halfedges)
+{
+    Core::TVector<Vertex<T>> result;
+    for (const Halfedge<T>* halfedge: halfedges)
+        result.push_back(halfedge->vertex());
+    return result;
 }
 
 template <typename T>
-Core::TVector<Vertex<T>> calcVertices(const Facet<T> &facet) {
-  return calcVertices(calcHalfedges(facet));
+Core::TVector<Vertex<T>> calcVertices(const Facet<T>& facet)
+{
+    return calcVertices(calcHalfedges(facet));
 }
 
 } // namespace Geometry
