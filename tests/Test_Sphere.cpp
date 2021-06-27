@@ -32,4 +32,29 @@ TEST(Sphere, Inequality)
     EXPECT_NE(sphereA, sphereB);
 }
 
+class Sphere_Contains_Fixture
+    : public ::testing::Test
+{
+  protected:
+    Sphere<double_t> m_sphere{LinAl::ZERO_VEC3D, 1.0};
+};
+
+TEST_F(Sphere_Contains_Fixture, inside)
+{
+    bool contains = m_sphere.contains(LinAl::Vec3d{0.5, 0, 0});
+    EXPECT_TRUE(contains);
+}
+
+TEST_F(Sphere_Contains_Fixture, boundary)
+{
+    bool contains = m_sphere.contains(LinAl::Vec3d{1.0, 0, 0});
+    EXPECT_TRUE(contains);
+}
+
+TEST_F(Sphere_Contains_Fixture, outside)
+{
+    bool contains = m_sphere.contains(LinAl::Vec3d{1.5, 0, 0});
+    EXPECT_FALSE(contains);
+}
+
 #pragma clang diagnostic pop

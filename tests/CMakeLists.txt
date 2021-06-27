@@ -27,19 +27,22 @@ add_subdirectory(Distance)
 add_subdirectory(Intersection)
 add_subdirectory(MeshBuilder)
 
-set(TEST_GEOMETRY_SOURCES
-    Test_Ray.cpp
-    Test_VecOperations.cpp
-    Test_Sphere.cpp
-    Test_Cylinder.cpp
-    Test_Lcs.cpp
-    )
+add_executable(Test_Sphere Test_Sphere.cpp)
+target_link_libraries(Test_Sphere PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Sphere COMMAND Test_Sphere)
 
-add_executable(test_geometry ${TEST_GEOMETRY_SOURCES})
-target_link_libraries(test_geometry
-                      PRIVATE
-                      gtest_main
-                      Geometry::Geometry
-                      )
-add_test(NAME test_geometry COMMAND test_geometry)
+add_executable(Test_Ray Test_Ray.cpp)
+target_link_libraries(Test_Ray PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Ray COMMAND Test_Ray)
 
+add_executable(Test_Cylinder Test_Cylinder.cpp)
+target_link_libraries(Test_Cylinder PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Cylinder COMMAND Test_Cylinder)
+
+add_executable(Test_Lcs Test_Lcs.cpp)
+target_link_libraries(Test_Lcs PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Lcs COMMAND Test_Lcs)
+
+add_executable(Test_VecOperations Test_VecOperations.cpp)
+target_link_libraries(Test_VecOperations PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_VecOperations COMMAND Test_VecOperations)
