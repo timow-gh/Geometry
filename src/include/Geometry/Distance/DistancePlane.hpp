@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_DISTANCEPLANE_HPP
 #define GEOMETRY_DISTANCEPLANE_HPP
 
-#include "Geometry/Fwd.hpp"
+#include "Geometry/FwdGeometry.hpp"
 #include "LinAl/LinearAlgebra.hpp"
 
 namespace Geometry

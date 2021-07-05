@@ -2,7 +2,7 @@
 #define GEOMETRY_INTERSECTIONSPHERE_HPP
 
 #include "Core/Math/Eps.hpp"
-#include "Geometry/Fwd.hpp"
+#include "Geometry/FwdGeometry.hpp"
 #include "Geometry/Sphere.hpp"
 #include "LinAl/LinearAlgebra.hpp"
 #include <optional>

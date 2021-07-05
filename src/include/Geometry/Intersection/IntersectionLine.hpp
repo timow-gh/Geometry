@@ -2,7 +2,7 @@
 #define GEOMETRY_INTERSECTIONLINE_HPP
 
 #include "Core/Math/Eps.hpp"
-#include "Geometry/Fwd.hpp"
+#include "Geometry/FwdGeometry.hpp"
 #include "Geometry/Plane.hpp"
 #include "IntersectionPlane.hpp"
 #include "LinAl/LinearAlgebra.hpp"

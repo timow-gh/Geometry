@@ -2,7 +2,7 @@
 #define GEOMETRY_DISTANCELINE_HPP
 
 #include "Core/Math/Eps.hpp"
-#include "Geometry/Fwd.hpp"
+#include "Geometry/FwdGeometry.hpp"
 #include "LinAl/LinearAlgebra.hpp"
 
 namespace Geometry

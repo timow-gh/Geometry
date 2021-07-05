@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_FWD_HPP
-#define GEOMETRY_FWD_HPP
+#ifndef GEOMETRY_FWDGEOMETRY_HPP
+#define GEOMETRY_FWDGEOMETRY_HPP
 
 #include <cstddef>
 
@@ -27,4 +27,4 @@ template <typename T>
 class Sphere;
 } // namespace Geometry
 
-#endif // GEOMETRY_FWD_HPP
+#endif // GEOMETRY_FWDGEOMETRY_HPP
