@@ -28,6 +28,7 @@ set(geometry_TARGET_HEADER
     include/Geometry/Interval.hpp
     include/Geometry/Triangle.hpp
     include/Geometry/InvalidIndex.hpp
+    include/Geometry/PolyLine.hpp
     )
 
 add_library(tw_geometry INTERFACE)
