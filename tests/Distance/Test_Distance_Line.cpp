@@ -2,18 +2,29 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include "Geometry/Line.hpp"
-#include "LinAl/LinearAlgebra.hpp"
 #include "gtest/gtest.h"
 #include <iostream>
 
 using namespace Geometry;
 using namespace LinAl;
 
-TEST(Vec_Line_Distance, DistTestA)
+class Vec_Line_Distance_Test
+    : public ::testing::Test
 {
+  protected:
     Vec3d vec{2, 2, 0};
     Line3d line{ZERO_VEC3D, X_VEC3D};
+};
+
+TEST_F(Vec_Line_Distance_Test, DistTestA)
+{
     double_t dist = distance(vec, line);
+    EXPECT_DOUBLE_EQ(dist, 2);
+}
+
+TEST_F(Vec_Line_Distance_Test, DistTestA_ArgOrder)
+{
+    double_t dist = distance(line, vec);
     EXPECT_DOUBLE_EQ(dist, 2);
 }
 

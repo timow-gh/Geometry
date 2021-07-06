@@ -14,6 +14,13 @@ template <typename T, std::size_t D>
         LinAl::rejection(LinAl::Vec<T, D>{line.getOrigin() - vec},
                          line.getDirection()));
 }
+
+template <typename T, std::size_t D>
+[[nodiscard]] T distance(const Line<T, D>& line, const LinAl::Vec<T, D>& vec)
+{
+    return distance(vec, line);
+}
+
 template <typename T, std::size_t D>
 [[nodiscard]] T distance(const Line<T, D>& lhs, const Line<T, D>& rhs)
 {
@@ -25,6 +32,7 @@ template <typename T, std::size_t D>
     LinAl::Vec<T, D> originToOrigin = lhs.getOrigin() - rhs.getOrigin();
     return LinAl::dot(originToOrigin, cross) / crossLen;
 }
+
 } // namespace Geometry
 
 #endif // GEOMETRY_DISTANCELINE_HPP

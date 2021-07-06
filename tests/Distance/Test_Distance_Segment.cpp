@@ -9,63 +9,69 @@
 using namespace Geometry;
 using namespace LinAl;
 
-class Segment_VecDistanceTestFixture
+class Segment_VecDistance_Test
     : public ::testing::Test
 {
   protected:
     Segment3d m_segment3d{Vec3d{}, LinAl::X_VEC3D};
+    LinAl::Vec3d m_point{0};
 };
 
-TEST_F(Segment_VecDistanceTestFixture, PointAtSegSource)
+TEST_F(Segment_VecDistance_Test, PointAtSegSource)
 {
-    LinAl::Vec3d point{0};
-    double_t dist = distance(m_segment3d, point);
+    double_t dist = distance(m_segment3d, m_point);
     EXPECT_DOUBLE_EQ(dist, 0);
 }
 
-TEST_F(Segment_VecDistanceTestFixture, PointAtSegTarget)
+TEST_F(Segment_VecDistance_Test, PointAtSegSource_ArgOrder)
+{
+    double_t dist = distance(m_point, m_segment3d);
+    EXPECT_DOUBLE_EQ(dist, 0);
+}
+
+TEST_F(Segment_VecDistance_Test, PointAtSegTarget)
 {
     LinAl::Vec3d point = LinAl::Vec3d{1, 0, 0};
     double_t dist = distance(m_segment3d, point);
     EXPECT_DOUBLE_EQ(dist, 0);
 }
 
-TEST_F(Segment_VecDistanceTestFixture, PointUnitDistAtSegSource)
+TEST_F(Segment_VecDistance_Test, PointUnitDistAtSegSource)
 {
     LinAl::Vec3d point{0, 1, 0};
     double_t dist = distance(m_segment3d, point);
     EXPECT_DOUBLE_EQ(dist, 1);
 }
 
-TEST_F(Segment_VecDistanceTestFixture, PointUnitDistAtSegTarget)
+TEST_F(Segment_VecDistance_Test, PointUnitDistAtSegTarget)
 {
     LinAl::Vec3d point{1, 1, 0};
     double_t dist = distance(m_segment3d, point);
     EXPECT_DOUBLE_EQ(dist, 1);
 }
 
-TEST_F(Segment_VecDistanceTestFixture, PointAtSegMidPoint)
+TEST_F(Segment_VecDistance_Test, PointAtSegMidPoint)
 {
     LinAl::Vec3d point{0.5, 0, 0};
     double_t dist = distance(m_segment3d, point);
     EXPECT_DOUBLE_EQ(dist, 0);
 }
 
-TEST_F(Segment_VecDistanceTestFixture, PointCollinearBeforeSegment)
+TEST_F(Segment_VecDistance_Test, PointCollinearBeforeSegment)
 {
     LinAl::Vec3d point{-3, 0, 0};
     double_t dist = distance(m_segment3d, point);
     EXPECT_DOUBLE_EQ(dist, 3);
 }
 
-TEST_F(Segment_VecDistanceTestFixture, PointCollinearAfterSegment)
+TEST_F(Segment_VecDistance_Test, PointCollinearAfterSegment)
 {
     LinAl::Vec3d point{3, 0, 0};
     double_t dist = distance(m_segment3d, point);
     EXPECT_DOUBLE_EQ(dist, 2);
 }
 
-TEST_F(Segment_VecDistanceTestFixture, PointOffsetAtSegmentMidPoint)
+TEST_F(Segment_VecDistance_Test, PointOffsetAtSegmentMidPoint)
 {
     LinAl::Vec3d point{0.5, 3, 0};
     double_t dist = distance(m_segment3d, point);
@@ -76,7 +82,7 @@ TEST_F(Segment_VecDistanceTestFixture, PointOffsetAtSegmentMidPoint)
     EXPECT_DOUBLE_EQ(dist, 3);
 }
 
-TEST_F(Segment_VecDistanceTestFixture, memberFunction)
+TEST_F(Segment_VecDistance_Test, memberFunction)
 {
     LinAl::Vec3d point{0.5, 3, 0};
     auto dist = m_segment3d.distance(point);

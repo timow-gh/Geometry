@@ -2,7 +2,7 @@
 #define GEOMETRY_INTERSECTIONSEGMENT_HPP
 
 #include "Core/Math/Eps.hpp"
-#include "Geometry/Fwd.hpp"
+#include "Geometry/FwdGeometry.hpp"
 #include "Geometry/Interval.hpp"
 #include "Geometry/Plane.hpp"
 #include "LinAl/LinearAlgebra.hpp"

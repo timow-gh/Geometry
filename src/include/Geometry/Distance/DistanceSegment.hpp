@@ -18,6 +18,12 @@ T distance(const Segment<T, D>& segment, const LinAl::Vec<T, D>& vec)
     LinAl::Vec<T, D> projVec{source + projParamter * ts};
     return LinAl::norm2(LinAl::Vec<T, D>{projVec - vec});
 }
+
+template <typename T, std::size_t D>
+T distance(const LinAl::Vec<T, D>& vec, const Segment<T, D>& segment)
+{
+    return distance(segment, vec);
+}
 } // namespace Geometry
 
 #endif // GEOMETRY_DISTANCESEGMENT_HPP

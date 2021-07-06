@@ -9,11 +9,23 @@
 using namespace Geometry;
 using namespace LinAl;
 
-TEST(Distance_Ray, PointAtRayStart)
+class Distance_Ray_Test
+    : public ::testing::Test
 {
+  protected:
     Vec3d source{1, 1, 1};
     Ray3d ray{source, X_VEC3D};
+};
+
+TEST_F(Distance_Ray_Test, PointAtRayStart)
+{
     double_t dist = distance(ray, source);
+    EXPECT_DOUBLE_EQ(dist, 0.0);
+}
+
+TEST_F(Distance_Ray_Test, PointAtRayStart_ArgOrder)
+{
+    double_t dist = distance(source, ray);
     EXPECT_DOUBLE_EQ(dist, 0.0);
 }
 

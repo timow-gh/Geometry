@@ -27,6 +27,12 @@ T distance(const Ray<T, D>& ray, const LinAl::Vec<T, D>& vec)
     return LinAl::norm2(distanceVec);
 }
 
+template <typename T, std::size_t D>
+T distance(const LinAl::Vec<T, D>& vec, const Ray<T, D>& ray)
+{
+    return distance(ray, vec);
+}
+
 } // namespace Geometry
 
 #endif // GEOMETRY_DISTANCERAY_HPP
