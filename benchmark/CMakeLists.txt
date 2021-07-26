@@ -1,20 +1,15 @@
-cmake_minimum_required(VERSION 3.16)
-project(Benchmarks)
-
-set(CMAKE_CXX_STANDARD 17)
-
 find_package(benchmark CONFIG REQUIRED)
 
-set(LIBS Core::Types LinAl::LinAl Geometry::Geometry benchmark::benchmark)
+set(LIBS Core::Types LinAl::LinAl Geometry::Geometry benchmark::benchmark benchmark::benchmark_main)
 
 add_executable(Benchmark_LinAl LinAl.cpp)
-target_link_libraries(Benchmark_LinAl "${LIBS}")
+target_link_libraries(Benchmark_LinAl PRIVATE "${LIBS}")
 
 add_executable(Benchmark_Intersection_Line Benchmark_Intersection_Line.cpp)
-target_link_libraries(Benchmark_Intersection_Line "${LIBS}")
+target_link_libraries(Benchmark_Intersection_Line PRIVATE  "${LIBS}")
 
 add_executable(Benchmark_Intersection_Segment Benchmark_Intersection_Segment.cpp)
-target_link_libraries(Benchmark_Intersection_Segment "${LIBS}")
+target_link_libraries(Benchmark_Intersection_Segment PRIVATE "${LIBS}")
 
 add_executable(Benchmark_Intersection_Plane Benchmark_Intersection_Plane.cpp)
-target_link_libraries(Benchmark_Intersection_Plane "${LIBS}")
+target_link_libraries(Benchmark_Intersection_Plane PRIVATE "${LIBS}")

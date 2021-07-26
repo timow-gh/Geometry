@@ -43,9 +43,9 @@ add_executable(Test_Lcs Test_Lcs.cpp)
 target_link_libraries(Test_Lcs PRIVATE gtest_main Geometry::Geometry)
 add_test(NAME Test_Lcs COMMAND Test_Lcs)
 
-add_executable(Test_VecOperations Test_VecOperations.cpp)
-target_link_libraries(Test_VecOperations PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_VecOperations COMMAND Test_VecOperations)
+add_executable(Test_VecOperations_FIXME Test_VecOperations.cpp)
+target_link_libraries(Test_VecOperations_FIXME PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_VecOperations_FIXME COMMAND Test_VecOperations_FIXME)
 
 add_executable(Test_PolyLine Test_PolyLine.cpp)
 target_link_libraries(Test_PolyLine PRIVATE gtest_main Geometry::Geometry)
