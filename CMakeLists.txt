@@ -19,8 +19,8 @@ project("Geometry"
 
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
-option(${PROJECT_NAME}_BUILD_TESTS "Enable tests" ON)
-option(${PROJECT_NAME}_BUILD_BENCHMARKS "Enable Core tests" ON)
+option(${PROJECT_NAME}_BUILD_TESTS "Enable tests" OFF)
+option(${PROJECT_NAME}_BUILD_BENCHMARKS "Enable Core tests" OFF)
 
 preamble()
 
