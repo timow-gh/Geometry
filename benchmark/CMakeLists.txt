@@ -7,11 +7,13 @@ FetchContent_MakeAvailable(benchmark)
 
 set(LIBS Core::Types Geometry::Geometry benchmark::benchmark benchmark::benchmark_main)
 
-add_executable(Benchmark_LinAl LinAl.cpp)
-target_link_libraries(Benchmark_LinAl PRIVATE "${LIBS}")
+if (NOT MSVC)
+    add_executable(Benchmark_LinAl LinAl.cpp)
+    target_link_libraries(Benchmark_LinAl PRIVATE "${LIBS}")
+endif ()
 
 add_executable(Benchmark_Intersection_Line Benchmark_Intersection_Line.cpp)
-target_link_libraries(Benchmark_Intersection_Line PRIVATE  "${LIBS}")
+target_link_libraries(Benchmark_Intersection_Line PRIVATE "${LIBS}")
 
 add_executable(Benchmark_Intersection_Segment Benchmark_Intersection_Segment.cpp)
 target_link_libraries(Benchmark_Intersection_Segment PRIVATE "${LIBS}")
