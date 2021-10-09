@@ -9,6 +9,8 @@
 #include "Geometry/HalfedgeMesh/Vertex.hpp"
 #include "Geometry/Triangle.hpp"
 #include "LinAl/LinearAlgebra.hpp"
+#include <Core/Types/TArray.hpp>
+#include <Core/Types/TVector.hpp>
 
 namespace Geometry
 {
