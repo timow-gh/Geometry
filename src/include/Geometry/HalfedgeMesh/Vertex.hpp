@@ -46,7 +46,7 @@ class Vertex
 template <typename T>
 Vertex<T>::Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) noexcept
     : m_vectorIndex(meshPointIndex)
-    , m_halfedgeIndex(Core::INVALID_INDEX)
+    , m_halfedgeIndex(INVALID_INDEX)
     , m_mesh(mesh)
 {
 }
@@ -105,8 +105,8 @@ bool Vertex<T>::operator!=(const Vertex& rhs) const
 template <typename T>
 bool Vertex<T>::isValid() const
 {
-    if (m_vectorIndex != Core::INVALID_INDEX &&
-        m_halfedgeIndex != Core::INVALID_INDEX && m_mesh->contains(*this))
+    if (m_vectorIndex != INVALID_INDEX &&
+        m_halfedgeIndex != INVALID_INDEX && m_mesh->contains(*this))
         return true;
     return false;
 }

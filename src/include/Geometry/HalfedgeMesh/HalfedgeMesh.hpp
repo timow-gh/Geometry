@@ -234,7 +234,7 @@ void HalfedgeMesh<T>::addTriangle(const Triangle<T, 3>& triangle)
     for (const std::size_t vIndex: vertexIndices)
     {
         m_halfedges.emplace_back(vIndex, this);
-        if (m_vertices[vIndex].getHalfedgeIndex() == Core::INVALID_INDEX)
+        if (m_vertices[vIndex].getHalfedgeIndex() == INVALID_INDEX)
             m_vertices[vIndex].setHalfedgeIndex(m_halfedges.size() - 1);
     }
 
