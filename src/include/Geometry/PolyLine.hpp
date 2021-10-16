@@ -12,7 +12,7 @@ class PolyLine
 
   public:
     PolyLine(const LinAl::VecVector<T, D>& mPoints);
-    [[nodicard]] const LinAl::VecVector<T, D>& getPoints() const;
+    [[nodiscard]] const LinAl::VecVector<T, D>& getPoints() const;
 };
 
 template <typename T, std::size_t D>
