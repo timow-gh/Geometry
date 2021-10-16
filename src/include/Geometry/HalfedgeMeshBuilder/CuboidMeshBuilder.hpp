@@ -33,7 +33,7 @@ void calcCuboidFaceTriangles(Core::TArray<Triangle<T, 3>, 12>& triangles,
 }
 
 template <typename T>
-std::unique_ptr<HalfedgeMesh<T>> buildCuboidMesh(const Cuboid<T>& cube)
+Core::TArray<Triangle<T, 3>, 12> calcCuboidTriangles(const Cuboid<T>& cube)
 {
     auto sides = cube.sideVectors();
     LinAl::Vec3d defaultOrigin(0);
@@ -65,10 +65,7 @@ std::unique_ptr<HalfedgeMesh<T>> buildCuboidMesh(const Cuboid<T>& cube)
                             z,
                             8);
 
-    auto cubeMesh = HalfedgeMesh<T>::create();
-    for (const auto& triangle: triangles)
-        cubeMesh->addTriangle(triangle);
-    return cubeMesh;
+    return triangles;
 }
 
 } // namespace Geometry

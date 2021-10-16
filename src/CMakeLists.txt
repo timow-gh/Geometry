@@ -12,6 +12,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Distance/DistanceRay.hpp
         include/Geometry/Distance/DistanceSegment.hpp
         include/Geometry/Distance/DistancePlane.hpp
+        include/Geometry/Distance/DistanceSphere.hpp
         include/Geometry/Intersection/IntersectionLine.hpp
         include/Geometry/Intersection/IntersectionPlane.hpp
         include/Geometry/Intersection/IntersectionSegment.hpp
@@ -35,7 +36,7 @@ add_library(tw_geometry INTERFACE)
 target_include_directories(tw_geometry
         INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
 set(TARGET_ALIAS Geometry)
-add_library(${PROJECT_NAME}::${TARGET_ALIAS} ALIAS tw_geometry)
+add_library(${PROJECT_NAME}::${TARGET_ALIAS} ALIAS tw_geometry )
 set_target_properties(tw_geometry
         PROPERTIES
         LANGUAGE CXX

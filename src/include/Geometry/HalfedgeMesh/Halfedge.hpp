@@ -1,6 +1,7 @@
 #ifndef GLFWTESTAPP_HALFEDGE_H
 #define GLFWTESTAPP_HALFEDGE_H
 
+#include <Geometry/InvalidIndex.hpp>
 #include <limits>
 
 namespace Geometry
@@ -19,7 +20,7 @@ template <typename T>
 class Halfedge
 {
   public:
-    explicit Halfedge(std::size_t vertexIndex, HalfedgeMesh<T>* mesh) noexcept;
+    Halfedge(std::size_t vertexIndex, HalfedgeMesh<T>* mesh) noexcept;
 
     [[nodiscard]] const Facet<T>* facet() const;
     [[nodiscard]] std::size_t getFacetIndex() const;

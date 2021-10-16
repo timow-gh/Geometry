@@ -19,7 +19,7 @@ template <typename T>
 class Facet
 {
   public:
-    explicit Facet(std::size_t halfedgeIndex, HalfedgeMesh<T>* mesh) noexcept;
+    Facet(std::size_t halfedgeIndex, HalfedgeMesh<T>* mesh) noexcept;
 
     [[nodiscard]] const Halfedge<T>& halfedge() const;
     Halfedge<T>& halfedge();

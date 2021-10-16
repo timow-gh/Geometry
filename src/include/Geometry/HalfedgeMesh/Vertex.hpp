@@ -19,12 +19,13 @@ template <typename T>
 class Vertex
 {
   public:
-    explicit Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) noexcept;
-    explicit Vertex(std::size_t meshPointIndex,
-                    std::size_t halfedgeIndex,
-                    HalfedgeMesh<T>* mesh) noexcept;
+    Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) noexcept;
+    Vertex(std::size_t meshPointIndex,
+           std::size_t halfedgeIndex,
+           HalfedgeMesh<T>* mesh) noexcept;
 
-    [[nodiscard]] LinAl::Vec3<T> vector3d() const;
+    [[nodiscard]] LinAl::Vec3<T> getPoint() const;
+    [[nodiscard]] std::size_t getIndex() const;
 
     [[nodiscard]] const Halfedge<T>* halfedge() const;
     Halfedge<T>* halfedge();
@@ -38,16 +39,16 @@ class Vertex
     [[nodiscard]] bool isValid() const;
 
   private:
-    std::size_t m_vectorIndex;
+    std::size_t m_index;
     std::size_t m_halfedgeIndex;
-    HalfedgeMesh<T>* m_mesh;
+    HalfedgeMesh<T>* halfedgeMesh;
 };
 
 template <typename T>
 Vertex<T>::Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) noexcept
-    : m_vectorIndex(meshPointIndex)
+    : m_index(meshPointIndex)
     , m_halfedgeIndex(INVALID_INDEX)
-    , m_mesh(mesh)
+    , halfedgeMesh(mesh)
 {
 }
 
@@ -55,28 +56,34 @@ template <typename T>
 Vertex<T>::Vertex(std::size_t meshPointIndex,
                   std::size_t halfedgeIndex,
                   HalfedgeMesh<T>* mesh) noexcept
-    : m_vectorIndex(meshPointIndex)
+    : m_index(meshPointIndex)
     , m_halfedgeIndex(halfedgeIndex)
-    , m_mesh(mesh)
+    , halfedgeMesh(mesh)
 {
 }
 
 template <typename T>
-LinAl::Vec3<T> Vertex<T>::vector3d() const
+LinAl::Vec3<T> Vertex<T>::getPoint() const
 {
-    return m_mesh->getVertexPoints()[m_vectorIndex];
+    return halfedgeMesh->getVertexPoints()[m_index];
+}
+
+template <typename T>
+size_t Vertex<T>::getIndex() const
+{
+    return m_index;
 }
 
 template <typename T>
 const Halfedge<T>* Vertex<T>::halfedge() const
 {
-    return &m_mesh->getHalfedges()[m_halfedgeIndex];
+    return &halfedgeMesh->getHalfedges()[m_halfedgeIndex];
 }
 
 template <typename T>
 Halfedge<T>* Vertex<T>::halfedge()
 {
-    return &m_mesh->getHalfedges()[m_halfedgeIndex];
+    return &halfedgeMesh->getHalfedges()[m_halfedgeIndex];
 }
 
 template <typename T>
@@ -93,8 +100,8 @@ void Vertex<T>::setHalfedgeIndex(std::size_t halfedgeIndex)
 template <typename T>
 bool Vertex<T>::operator==(const Vertex& rhs) const
 {
-    return m_vectorIndex == rhs.m_vectorIndex &&
-           m_halfedgeIndex == rhs.m_halfedgeIndex && m_mesh == rhs.m_mesh;
+    return m_index == rhs.m_index && m_halfedgeIndex == rhs.m_halfedgeIndex &&
+           halfedgeMesh == rhs.halfedgeMesh;
 }
 template <typename T>
 bool Vertex<T>::operator!=(const Vertex& rhs) const
@@ -105,8 +112,8 @@ bool Vertex<T>::operator!=(const Vertex& rhs) const
 template <typename T>
 bool Vertex<T>::isValid() const
 {
-    if (m_vectorIndex != INVALID_INDEX &&
-        m_halfedgeIndex != INVALID_INDEX && m_mesh->contains(*this))
+    if (m_index != INVALID_INDEX && m_halfedgeIndex != INVALID_INDEX &&
+        halfedgeMesh->contains(*this))
         return true;
     return false;
 }

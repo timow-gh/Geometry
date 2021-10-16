@@ -11,8 +11,60 @@
 
 namespace Geometry
 {
+
+class SphereMeshBuilder
+{
+    std::size_t m_thetaCount{10};
+    std::size_t m_phiCount{20};
+
+  public:
+    SphereMeshBuilder& setThetaCount(std::size_t thetaCount)
+    {
+        m_thetaCount = thetaCount;
+        return *this;
+    }
+    SphereMeshBuilder& setTPhiCount(std::size_t phiCount)
+    {
+        m_phiCount = phiCount;
+        return *this;
+    }
+
+    template <typename T>
+    std::unique_ptr<HalfedgeMesh<T>> buildHalfedgeMesh(const Sphere<T>& sphere)
+    {
+        Core::TVector<LinAl::Vec3<T>> points;
+
+        T thetaSteps = 2.0 * Core::PI / static_cast<double_t>(m_thetaCount);
+        T phiSteps = 2.0 * Core::PI / static_cast<double_t>(m_thetaCount);
+
+        T thetaAngle{0};
+        T phiAngle{0};
+
+        const T radius = sphere.getRadius();
+        for (std::size_t i{0}; i <= m_thetaCount; ++i)
+        {
+            thetaAngle = Core::PI / 2 - i * thetaSteps;
+            T z = radius * std::cos(thetaAngle);
+            T xyPlaneProj = radius * std::sin(thetaAngle);
+
+            for (std::size_t j{0}; j <= m_phiCount; ++j)
+            {
+                phiAngle = j * phiSteps;
+
+                T x = xyPlaneProj * std::cos(phiAngle);
+                T y = xyPlaneProj * std::sin(phiAngle);
+
+                points.push_back(LinAl::Vec3<T>{x, y, z});
+            }
+        }
+
+        return HalfedgeMesh<T>::create(std::move(points));
+    }
+};
+
 template <typename T>
-std::unique_ptr<HalfedgeMesh<T>> buildSphereMesh(const Sphere<T>& sphere)
+[[deprecated]] Core::TVector<Triangle<T, 3>>
+calcSphereTriangles(const Sphere<T>& sphere)
 {
     constexpr T CHORD_RADIUS_RATIO = T(0.1);
     const T deltaAngle = std::asin(T(0.5) * CHORD_RADIUS_RATIO) * T(2);
@@ -115,11 +167,7 @@ std::unique_ptr<HalfedgeMesh<T>> buildSphereMesh(const Sphere<T>& sphere)
         }
     }
 
-    auto sphereMesh = HalfedgeMesh<T>::create();
-    for (const auto& triangle: triangles)
-        sphereMesh->addTriangle(triangle);
-    return sphereMesh;
-    return {};
+    return triangles;
 }
 } // namespace Geometry
 

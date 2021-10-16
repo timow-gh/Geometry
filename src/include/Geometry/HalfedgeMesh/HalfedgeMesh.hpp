@@ -22,17 +22,21 @@ class Halfedge;
 template <typename T>
 class Facet;
 
+class HalfedgeMeshBuilder;
+
 template <typename T>
 class HalfedgeMesh
 {
     Core::TVector<Vertex<T>> m_vertices;
     Core::TVector<Halfedge<T>> m_halfedges;
     Core::TVector<Facet<T>> m_facets;
-    MeshPoints<T> m_triangleMesh;
+    MeshPoints<T> meshPoints;
     xg::Guid m_guid;
 
   public:
-    static std::unique_ptr<HalfedgeMesh<T>> create();
+    explicit HalfedgeMesh(const xg::Guid& guid);
+    // TODO Build HeMesh from a vector of points.
+    // explicit HalfedgeMesh(Core::TVector<LinAl::Vec3<T>>&& points);
 
     HalfedgeMesh() = delete;
     explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
@@ -67,29 +71,23 @@ class HalfedgeMesh
 
     [[nodiscard]] const xg::Guid& getGuid() const;
 
-    void addTriangle(const Triangle<T, 3>& triangle);
-
-  private:
-    explicit HalfedgeMesh(const xg::Guid& guid);
+    friend HalfedgeMeshBuilder;
 };
 
 template <typename T>
-std::unique_ptr<HalfedgeMesh<T>> HalfedgeMesh<T>::create()
+HalfedgeMesh<T>::HalfedgeMesh(const xg::Guid& guid) : m_guid(guid)
 {
-    auto guid = xg::newGuid();
-    return std::make_unique<Geometry::HalfedgeMesh<T>>(
-        Geometry::HalfedgeMesh<T>(guid));
 }
 
 template <typename T>
 LinAl::Vec3Vector<T>& HalfedgeMesh<T>::getVertexPoints()
 {
-    return m_triangleMesh.getPoints();
+    return meshPoints.getPoints();
 }
 template <typename T>
 const LinAl::Vec3Vector<T>& HalfedgeMesh<T>::getVertexPoints() const
 {
-    return m_triangleMesh.getPoints();
+    return meshPoints.getPoints();
 }
 
 template <typename T>
@@ -132,13 +130,13 @@ const Core::TVector<Geometry::Facet<T>>& HalfedgeMesh<T>::getFacets() const
 template <typename T>
 MeshPoints<T>& HalfedgeMesh<T>::getTriangleMesh()
 {
-    return m_triangleMesh;
+    return meshPoints;
 }
 
 template <typename T>
 const MeshPoints<T>& HalfedgeMesh<T>::getTriangleMesh() const
 {
-    return m_triangleMesh;
+    return meshPoints;
 }
 
 template <typename T>
@@ -187,7 +185,7 @@ bool HalfedgeMesh<T>::contains(const Facet<T>& facet) const
 template <typename T>
 bool HalfedgeMesh<T>::contains(const LinAl::Vec3<T>& vector) const
 {
-    return m_triangleMesh.contains(vector);
+    return meshPoints.contains(vector);
 }
 
 template <typename T, typename U>
@@ -210,87 +208,6 @@ const xg::Guid& HalfedgeMesh<T>::getGuid() const
 {
     return m_guid;
 }
-
-template <typename T>
-void HalfedgeMesh<T>::addTriangle(const Triangle<T, 3>& triangle)
-{
-    // Create or find the Vertex of the LinAl::Vec3
-    const LinAl::VecArray<T, 3, 3> trianglePoints =
-        triangle.getTrianglePoints();
-    Core::TArray<std::size_t, 3> vertexIndices;
-    for (std::size_t i = 0; i < 3; ++i)
-    {
-        std::size_t vertexIndex;
-        if (!m_triangleMesh.contains(trianglePoints[i], vertexIndex))
-        {
-            vertexIndex = m_triangleMesh.add(trianglePoints[i]);
-            m_vertices.emplace_back(vertexIndex, this);
-        }
-        vertexIndices[i] = vertexIndex;
-    }
-
-    std::size_t halfedgeIndex =
-        m_halfedges.size() == 0 ? 0 : m_halfedges.size();
-
-    // Create the Halfedges and set the Halfedges for Vertices
-    for (const std::size_t vIndex: vertexIndices)
-    {
-        m_halfedges.emplace_back(vIndex, this);
-        if (m_vertices[vIndex].getHalfedgeIndex() == INVALID_INDEX)
-            m_vertices[vIndex].setHalfedgeIndex(m_halfedges.size() - 1);
-    }
-
-    m_facets.emplace_back(halfedgeIndex, this);
-
-    // Fill the facet, the next and the previous pointer for each Halfedge of
-    // the Facet
-    const std::size_t facetIdx = m_facets.size() - 1;
-    for (std::size_t i = halfedgeIndex; i < m_halfedges.size(); ++i)
-    {
-        m_halfedges[i].setFacet(facetIdx);
-        auto nextHeIndex = i == m_halfedges.size() - 1 ? halfedgeIndex : i + 1;
-        m_halfedges[i].setNextIndex(nextHeIndex);
-        auto previousHeIndex =
-            i == halfedgeIndex ? m_halfedges.size() - 1 : i - 1;
-        m_halfedges[i].setPreviousIndex(previousHeIndex);
-    }
-
-    // Find and set the opposite Halfedges for each Halfedge of the Facet
-    for (std::size_t i = halfedgeIndex; i < m_halfedges.size(); ++i)
-    {
-        Halfedge<T>& halfedge = m_halfedges[i];
-
-        Halfedge<T>* he = halfedge.vertex().halfedge();
-        if (!he)
-            continue;
-
-        Halfedge<T>* oppHeCandidate = he->previous();
-        std::size_t oppHeCandidateIndex =
-            halfedge.vertex().halfedge()->getPreviousIndex();
-
-        if (!oppHeCandidate)
-            continue;
-
-        auto nextVertex = halfedge.nextVertex();
-        auto oppNextVertex = oppHeCandidate->nextVertex();
-
-        if (!nextVertex || !oppNextVertex)
-            continue;
-
-        if (halfedge.vertex() == *oppNextVertex &&
-            *nextVertex == oppHeCandidate->vertex())
-        {
-            halfedge.setOppositeIndex(oppHeCandidateIndex);
-            oppHeCandidate->setOppositeIndex(i);
-        }
-    }
-}
-
-template <typename T>
-HalfedgeMesh<T>::HalfedgeMesh(const xg::Guid& guid) : m_guid(guid)
-{
-}
-
 } // namespace Geometry
 
 #endif // GLFWTESTAPP_HALFEDGEMESH_H

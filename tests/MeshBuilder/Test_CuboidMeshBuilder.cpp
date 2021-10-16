@@ -1,4 +1,4 @@
-#pragma clang diagnostic push12 / 1043
+#pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include "Geometry/Cuboid.hpp"
@@ -11,16 +11,9 @@ using namespace LinAl;
 
 TEST(MeshBuiler, CubeMesh)
 {
-    auto cube = HalfedgeMeshBuilder::buildMesh(
+    auto cube = HalfedgeMeshBuilder().buildMesh(
         Cuboid<double_t>{ZERO_VEC3D, Vec3d{1, 1, 1}});
-    ASSERT_NO_THROW(cube);
-}
-
-TEST(MeshBuiler, SphereMesh)
-{
-    auto sphere = HalfedgeMeshBuilder::buildMesh<double_t>(
-        Sphere<double_t>{ZERO_VEC3D, 1.0});
-    ASSERT_NO_THROW(sphere);
+    EXPECT_TRUE(cube);
 }
 
 #pragma clang diagnostic pop
