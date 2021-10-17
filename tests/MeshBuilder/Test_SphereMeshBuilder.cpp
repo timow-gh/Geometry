@@ -23,7 +23,8 @@ class Test_MeshBuilder_Sphere
 
     Test_MeshBuilder_Sphere() : m_sphere({ZERO_VEC3D, 3.0})
     {
-        SphereMeshBuilder<double_t>().setSphere(m_sphere).build();
+        m_sphereMesh =
+            SphereMeshBuilder<double_t>().setSphere(m_sphere).build();
     }
 };
 

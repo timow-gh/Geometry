@@ -16,20 +16,20 @@ namespace Geometry
 template <typename T>
 class SphereMeshBuilder
 {
-    std::size_t m_thetaCount{10};
-    std::size_t m_phiCount{20};
+    std::size_t m_polarCount{10};
+    std::size_t m_azimuthCount{20};
     std::optional<Sphere<T>> m_sphere;
 
   public:
-    SphereMeshBuilder& setThetaCount(std::size_t thetaCount)
+    SphereMeshBuilder& setPolarCount(std::size_t polarCount)
     {
-        m_thetaCount = thetaCount;
+        m_polarCount = polarCount;
         return *this;
     }
 
-    SphereMeshBuilder& setTPhiCount(std::size_t phiCount)
+    SphereMeshBuilder& setAzimuthCount(std::size_t azimuthCount)
     {
-        m_phiCount = phiCount;
+        m_azimuthCount = azimuthCount;
         return *this;
     }
 
@@ -41,32 +41,26 @@ class SphereMeshBuilder
 
     std::unique_ptr<HalfedgeMesh<T>> build()
     {
-        return nullptr;
-        // TODO sphere halfedge mesh
-        //        if (!m_sphere)
-        //            return nullptr;
-        //
-        //        auto heMesh =
-        //        std::make_unique<HalfedgeMesh<T>>(xg::newGuid()); auto&
-        //        meshPoints = heMesh->meshPoints;
-        //        meshPoints.setPoints(calcSpherePoints(*m_sphere));
-        //
-        //        std::size_t pointsSize = meshPoints.size();
-        //        for (std::size_t i{0}; i < pointsSize; ++i)
-        //            heMesh->m_vertices.emplace_back(i, heMesh.get());
-        //
-        //        auto& vertices = heMesh->m_vertices;
-        //        auto& halfedges = heMesh->m_halfedges;
-        //        for (std::size_t i{0}; i < pointsSize; ++i)
-        //        {
-        //            halfedges.emplace_back(vertices[i].getIndex(),
-        //            heMesh.get()); if (i % 2 == 0)
-        //            {
-        //                asdf
-        //            }
-        //        }
-        //
-        //        return heMesh;
+        if (!m_sphere)
+            return nullptr;
+
+        auto heMesh = std::make_unique<HalfedgeMesh<T>>(xg::newGuid());
+        auto& meshPoints = heMesh->meshPoints;
+        meshPoints.setPoints(calcSpherePoints(*m_sphere));
+
+        auto triangleIndices =
+            calcSphereTriangleIndices(meshPoints.getPoints());
+
+        auto& points = meshPoints.getPoints();
+        std::size_t size = triangleIndices.size();
+        for (std::size_t i{2}; i < size; i += 3)
+        {
+            addTriangle(
+                heMesh.get(),
+                Triangle<T, 3>(points[i - 2], points[i - 1], points[i]));
+        }
+
+        return heMesh;
     }
 
   private:
@@ -74,34 +68,92 @@ class SphereMeshBuilder
     {
         LinAl::Vec3Vector<T> points;
 
-        T thetaSteps = 2.0 * Core::PI / static_cast<double_t>(m_thetaCount);
-        T phiSteps = 2.0 * Core::PI / static_cast<double_t>(m_thetaCount);
+        T polarStep = Core::PI / static_cast<double_t>(m_polarCount);
+        T azimuthStep = 2.0 * Core::PI / static_cast<double_t>(m_azimuthCount);
+        T radius = m_sphere->getRadius();
 
-        T thetaAngle{0};
-        T phiAngle{0};
-
-        const T radius = sphere.getRadius();
-        for (std::size_t i{0}; i <= m_thetaCount; ++i)
+        for (uint32_t i{1}; i < m_polarCount; ++i)
         {
-            thetaAngle = Core::PI / 2 - i * thetaSteps;
-            T z = radius * std::cos(thetaAngle);
-            T xyPlaneProj = radius * std::sin(thetaAngle);
+            T polarAngle = i * polarStep;
+            T z = radius * std::cos(polarAngle);
+            T projRadius = radius * std::sin(polarAngle);
 
-            for (std::size_t j{0}; j <= m_phiCount; ++j)
+            for (uint32_t j{0}; j < m_azimuthCount; ++j)
             {
-                phiAngle = j * phiSteps;
-
-                T x = xyPlaneProj * std::cos(phiAngle);
-                T y = xyPlaneProj * std::sin(phiAngle);
-
+                T azimuthAngle = j * azimuthStep;
+                T x = projRadius * std::cos(azimuthAngle);
+                T y = projRadius * std::sin(azimuthAngle);
                 points.push_back(LinAl::Vec3<T>{x, y, z});
             }
         }
 
+        points.push_back(LinAl::Vec3<T>{0, 0, radius});
+        points.push_back(LinAl::Vec3<T>{0, 0, -radius});
+
         return points;
     }
 
-    Core::TVector<T> calcSphereTriangleIndices() {}
+    Core::TVector<uint32_t>
+    calcSphereTriangleIndices(const LinAl::Vec3Vector<T>& spherePoints)
+    {
+        auto toIdx = [azimuthCount =
+                          m_azimuthCount](std::size_t i,
+                                          std::size_t j) -> std::size_t
+        {
+            return i * azimuthCount + j;
+        };
+
+        Core::TVector<uint32_t> triangleIndices;
+
+        // Top and bottom triangles
+        const std::size_t pointsSize = spherePoints.size();
+
+        const std::size_t topiIdx = 0;
+        const std::size_t topIdx = pointsSize - 2;
+
+        const std::size_t bottomiIdx = m_polarCount - 1;
+        const std::size_t bottomIdx = pointsSize - 1;
+
+        for (std::size_t j{0}; j < m_azimuthCount; ++j)
+        {
+            std::size_t jIdx = toIdx(topiIdx, j);
+            std::size_t jprevIdx = toIdx(topiIdx, j - 1);
+
+            triangleIndices.push_back(topIdx);
+            triangleIndices.push_back(jprevIdx);
+            triangleIndices.push_back(jIdx);
+
+            jIdx = toIdx(bottomiIdx, j);
+            jprevIdx = toIdx(bottomiIdx, j - 1);
+
+            triangleIndices.push_back(jIdx);
+            triangleIndices.push_back(jprevIdx);
+            triangleIndices.push_back(bottomIdx);
+        }
+
+        // Sphere body triangles
+        for (std::size_t i{2}; i < m_polarCount; ++i)
+        {
+            const std::size_t iprev = i - 1;
+            for (std::size_t j{1}; j < m_azimuthCount; ++j)
+            {
+                const std::size_t jprev = j - 1;
+
+                const std::size_t iprevj = toIdx(iprev, j);
+                const std::size_t ijprev = toIdx(i, jprev);
+
+                triangleIndices.push_back(iprevj);
+                triangleIndices.push_back(toIdx(iprev, jprev));
+                triangleIndices.push_back(ijprev);
+
+                triangleIndices.push_back(ijprev);
+                triangleIndices.push_back(toIdx(i, j));
+                triangleIndices.push_back(iprevj);
+            }
+        }
+
+        return triangleIndices;
+    }
 };
 
 template <typename T>

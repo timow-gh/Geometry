@@ -84,8 +84,8 @@ class HalfedgeMesh
             if (!mesh->meshPoints.contains(trianglePoints[i], vertexIndex))
             {
                 vertexIndex = mesh->meshPoints.add(trianglePoints[i]);
-                mesh->m_vertices.emplace_back(vertexIndex, mesh);
             }
+            mesh->m_vertices.emplace_back(vertexIndex, mesh);
             vertexIndices[i] = vertexIndex;
         }
 
