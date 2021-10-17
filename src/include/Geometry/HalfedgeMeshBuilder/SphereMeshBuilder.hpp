@@ -92,6 +92,11 @@ class SphereMeshBuilder
         points.push_back(LinAl::Vec3<T>{0, 0, radius});
         points.push_back(LinAl::Vec3<T>{0, 0, -radius});
 
+        const auto& sphereOrigin = sphere.getOrigin();
+        if (sphereOrigin != LinAl::ZERO_VEC3D)
+            for (auto& point: points)
+                point += sphereOrigin;
+
         return points;
     }
 
@@ -113,34 +118,32 @@ class SphereMeshBuilder
         const std::size_t topiIdx = 0;
         const std::size_t topIdx = pointsSize - 2;
 
-        const std::size_t bottomiIdx = m_polarCount - 1;
+        const std::size_t bottomiIdx = m_polarCount - 2;
         const std::size_t bottomIdx = pointsSize - 1;
 
         // First top triangle
-        //        triangleIndices.push_back(topIdx);
-        //        triangleIndices.push_back(toIdx(topiIdx, 0));
-        //        triangleIndices.push_back(toIdx(topiIdx, m_azimuthCount - 1));
+        triangleIndices.push_back(topIdx);
+        triangleIndices.push_back(toIdx(topiIdx, 0));
+        triangleIndices.push_back(toIdx(topiIdx, m_azimuthCount - 1));
         // First bottom triangle
         triangleIndices.push_back(bottomIdx);
         triangleIndices.push_back(toIdx(bottomiIdx, m_azimuthCount - 1));
         triangleIndices.push_back(toIdx(bottomiIdx, 0));
         for (std::size_t j{1}; j < m_azimuthCount; ++j)
         {
-            //            if (j % 2)
-            //                continue;
-            //            std::size_t jIdx = toIdx(topiIdx, j);
-            //            std::size_t jprevIdx = toIdx(topiIdx, j - 1);
-            //
-            //            triangleIndices.push_back(topIdx);
-            //            triangleIndices.push_back(jprevIdx);
-            //            triangleIndices.push_back(jIdx);
+            std::size_t jIdx = toIdx(topiIdx, j);
+            std::size_t jprevIdx = toIdx(topiIdx, j - 1);
 
-            //            jIdx = toIdx(bottomiIdx, j);
-            //            jprevIdx = toIdx(bottomiIdx, j - 1);
-            //
-            //            triangleIndices.push_back(jIdx);
-            //            triangleIndices.push_back(jprevIdx);
-            //            triangleIndices.push_back(bottomIdx);
+            triangleIndices.push_back(topIdx);
+            triangleIndices.push_back(jprevIdx);
+            triangleIndices.push_back(jIdx);
+
+            jIdx = toIdx(bottomiIdx, j);
+            jprevIdx = toIdx(bottomiIdx, j - 1);
+
+            triangleIndices.push_back(jIdx);
+            triangleIndices.push_back(jprevIdx);
+            triangleIndices.push_back(bottomIdx);
         }
 
         // Sphere body triangles
