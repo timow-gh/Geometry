@@ -45,19 +45,21 @@ class SphereMeshBuilder
             return nullptr;
 
         auto heMesh = std::make_unique<HalfedgeMesh<T>>(xg::newGuid());
-        auto& meshPoints = heMesh->meshPoints;
-        meshPoints.setPoints(calcSpherePoints(*m_sphere));
 
-        auto triangleIndices =
-            calcSphereTriangleIndices(meshPoints.getPoints());
+        auto spherePoints = calcSpherePoints(*m_sphere);
+        auto triangleIndices = calcSphereTriangleIndices(spherePoints);
 
-        auto& points = meshPoints.getPoints();
         std::size_t size = triangleIndices.size();
         for (std::size_t i{2}; i < size; i += 3)
         {
-            addTriangle(
-                heMesh.get(),
-                Triangle<T, 3>(points[i - 2], points[i - 1], points[i]));
+            std::size_t a = triangleIndices[i - 2];
+            std::size_t b = triangleIndices[i - 1];
+            std::size_t c = triangleIndices[i];
+
+            addTriangle(heMesh.get(),
+                        Triangle<T, 3>(spherePoints[a],
+                                       spherePoints[b],
+                                       spherePoints[c]));
         }
 
         return heMesh;
@@ -114,25 +116,35 @@ class SphereMeshBuilder
         const std::size_t bottomiIdx = m_polarCount - 1;
         const std::size_t bottomIdx = pointsSize - 1;
 
-        for (std::size_t j{0}; j < m_azimuthCount; ++j)
+        // First top triangle
+        //        triangleIndices.push_back(topIdx);
+        //        triangleIndices.push_back(toIdx(topiIdx, 0));
+        //        triangleIndices.push_back(toIdx(topiIdx, m_azimuthCount - 1));
+        // First bottom triangle
+        triangleIndices.push_back(bottomIdx);
+        triangleIndices.push_back(toIdx(bottomiIdx, m_azimuthCount - 1));
+        triangleIndices.push_back(toIdx(bottomiIdx, 0));
+        for (std::size_t j{1}; j < m_azimuthCount; ++j)
         {
-            std::size_t jIdx = toIdx(topiIdx, j);
-            std::size_t jprevIdx = toIdx(topiIdx, j - 1);
+            //            if (j % 2)
+            //                continue;
+            //            std::size_t jIdx = toIdx(topiIdx, j);
+            //            std::size_t jprevIdx = toIdx(topiIdx, j - 1);
+            //
+            //            triangleIndices.push_back(topIdx);
+            //            triangleIndices.push_back(jprevIdx);
+            //            triangleIndices.push_back(jIdx);
 
-            triangleIndices.push_back(topIdx);
-            triangleIndices.push_back(jprevIdx);
-            triangleIndices.push_back(jIdx);
-
-            jIdx = toIdx(bottomiIdx, j);
-            jprevIdx = toIdx(bottomiIdx, j - 1);
-
-            triangleIndices.push_back(jIdx);
-            triangleIndices.push_back(jprevIdx);
-            triangleIndices.push_back(bottomIdx);
+            //            jIdx = toIdx(bottomiIdx, j);
+            //            jprevIdx = toIdx(bottomiIdx, j - 1);
+            //
+            //            triangleIndices.push_back(jIdx);
+            //            triangleIndices.push_back(jprevIdx);
+            //            triangleIndices.push_back(bottomIdx);
         }
 
         // Sphere body triangles
-        for (std::size_t i{2}; i < m_polarCount; ++i)
+        for (std::size_t i{1}; i < m_polarCount - 1; ++i)
         {
             const std::size_t iprev = i - 1;
             for (std::size_t j{1}; j < m_azimuthCount; ++j)
@@ -150,6 +162,15 @@ class SphereMeshBuilder
                 triangleIndices.push_back(toIdx(i, j));
                 triangleIndices.push_back(iprevj);
             }
+
+            // Triangles from first and last points in the sphere point array
+            triangleIndices.push_back(toIdx(i, m_azimuthCount - 1));
+            triangleIndices.push_back(toIdx(iprev, 0));
+            triangleIndices.push_back(toIdx(iprev, m_azimuthCount - 1));
+
+            triangleIndices.push_back(toIdx(i, 0));
+            triangleIndices.push_back(toIdx(iprev, 0));
+            triangleIndices.push_back(toIdx(i, m_azimuthCount - 1));
         }
 
         return triangleIndices;
