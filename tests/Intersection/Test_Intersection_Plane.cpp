@@ -33,7 +33,7 @@ TEST(PlaneLine, Orthogonal)
     Line3d line(Vec3d{1, 1, 0}, Vec3d{0, 0, 1});
     Plane<double_t> plane(Vec3d{0}, Vec3d{0, 0, 1});
     auto intersection = plane.intersection(line);
-    ASSERT_NO_THROW(intersection);
+    EXPECT_TRUE(intersection);
     constexpr Vec3d expIntersection{1, 1, 0};
     EXPECT_EQ(intersection, expIntersection);
 }
@@ -45,7 +45,7 @@ TEST(PlaneLine, Intersection_Origin)
     Line3d line(lineOrigin, originDir);
     Plane<double_t> plane(ZERO_VEC3D, Z_VEC3D);
     auto intersection = plane.intersection(line);
-    ASSERT_NO_THROW(intersection);
+    EXPECT_TRUE(intersection);
     constexpr Vec3d expIntersection{1, 1, 0};
     EXPECT_EQ(intersection, expIntersection);
 }
@@ -55,7 +55,7 @@ TEST(PlaneLine, viewPlaneBug)
     Line3f line(Vec3f{0, 0, 0}, Vec3f{-0.3, 0.2, -1.9});
     Plane<float_t> plane(Vec3f{0, 0, -0.1}, Vec3f{0, 0, 1});
     auto intersection = plane.intersection(line);
-    ASSERT_NO_THROW(intersection);
+    EXPECT_TRUE(intersection);
 }
 
 TEST(PlaneSegment3f, Orthogonal)
@@ -63,7 +63,7 @@ TEST(PlaneSegment3f, Orthogonal)
     Plane<float_t> plane(Vec3f{0, 0, 1}, Vec3f{0, 0, 1});
     Segment3f seg{Vec3f{0, 0, -1}, Vec3f{0, 0, 2}};
     auto intersection = plane.intersection(seg);
-    ASSERT_NO_THROW(intersection);
+    EXPECT_TRUE(intersection);
     EXPECT_EQ(intersection.value(), (Vec3f{0, 0, 1}));
 }
 

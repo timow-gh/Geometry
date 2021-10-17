@@ -5,7 +5,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/FacetUtils.hpp
         include/Geometry/HalfedgeMesh/MeshPoints.hpp
         include/Geometry/HalfedgeMesh/HalfedgeMesh.hpp
-        include/Geometry/HalfedgeMeshBuilder/HalfedgeMeshBuilder.hpp
         include/Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp
         include/Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp
         include/Geometry/Distance/DistanceLine.hpp
@@ -48,7 +47,6 @@ target_link_libraries(tw_geometry
         Core::Math
         CrossGuid::CrossGuid
         LinAl::LinAl)
-target_compile_features(tw_geometry INTERFACE cxx_std_17)
 
 install(DIRECTORY "include/Geometry" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 

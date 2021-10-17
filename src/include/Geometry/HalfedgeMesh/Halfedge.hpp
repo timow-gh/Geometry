@@ -27,12 +27,12 @@ class Halfedge
     void setFacet(std::size_t facet);
 
     [[nodiscard]] const Halfedge<T>* next() const;
-    Halfedge<T>* next();
+    [[nodiscard]] Halfedge<T>* next();
     [[nodiscard]] std::size_t getNextIndex() const;
     void setNextIndex(std::size_t index);
 
     [[nodiscard]] const Halfedge<T>* previous() const;
-    Halfedge<T>* previous();
+    [[nodiscard]] Halfedge<T>* previous();
     [[nodiscard]] std::size_t getPreviousIndex() const;
     void setPreviousIndex(std::size_t index);
 
@@ -41,7 +41,7 @@ class Halfedge
     void setOppositeIndex(std::size_t index);
 
     [[nodiscard]] const Vertex<T>& vertex() const;
-    Vertex<T>& vertex();
+    [[nodiscard]] Vertex<T>& vertex();
     [[nodiscard]] std::size_t getVertexIndex() const;
 
     [[nodiscard]] const Vertex<T>* nextVertex() const;

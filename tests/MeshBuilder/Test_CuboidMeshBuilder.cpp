@@ -2,7 +2,7 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include "Geometry/Cuboid.hpp"
-#include "Geometry/HalfedgeMeshBuilder/HalfedgeMeshBuilder.hpp"
+#include "Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp"
 #include "LinAl/LinearAlgebra.hpp"
 #include "gtest/gtest.h"
 
@@ -11,8 +11,9 @@ using namespace LinAl;
 
 TEST(MeshBuiler, CubeMesh)
 {
-    auto cube = HalfedgeMeshBuilder().buildMesh(
-        Cuboid<double_t>{ZERO_VEC3D, Vec3d{1, 1, 1}});
+    auto cube = CuboidMeshBuilder<double_t>()
+                    .setCuboid(Cuboid<double_t>{ZERO_VEC3D, Vec3d{1, 1, 1}})
+                    .build();
     EXPECT_TRUE(cube);
 }
 

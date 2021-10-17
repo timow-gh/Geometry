@@ -8,14 +8,17 @@
 #include "LinAl/LinearAlgebra.hpp"
 #include <cmath>
 #include <memory>
+#include <optional>
 
 namespace Geometry
 {
 
+template <typename T>
 class SphereMeshBuilder
 {
     std::size_t m_thetaCount{10};
     std::size_t m_phiCount{20};
+    std::optional<Sphere<T>> m_sphere;
 
   public:
     SphereMeshBuilder& setThetaCount(std::size_t thetaCount)
@@ -23,16 +26,53 @@ class SphereMeshBuilder
         m_thetaCount = thetaCount;
         return *this;
     }
+
     SphereMeshBuilder& setTPhiCount(std::size_t phiCount)
     {
         m_phiCount = phiCount;
         return *this;
     }
 
-    template <typename T>
-    std::unique_ptr<HalfedgeMesh<T>> buildHalfedgeMesh(const Sphere<T>& sphere)
+    SphereMeshBuilder& setSphere(const Sphere<T>& sphere)
     {
-        Core::TVector<LinAl::Vec3<T>> points;
+        m_sphere = sphere;
+        return *this;
+    }
+
+    std::unique_ptr<HalfedgeMesh<T>> build()
+    {
+        return nullptr;
+        // TODO sphere halfedge mesh
+        //        if (!m_sphere)
+        //            return nullptr;
+        //
+        //        auto heMesh =
+        //        std::make_unique<HalfedgeMesh<T>>(xg::newGuid()); auto&
+        //        meshPoints = heMesh->meshPoints;
+        //        meshPoints.setPoints(calcSpherePoints(*m_sphere));
+        //
+        //        std::size_t pointsSize = meshPoints.size();
+        //        for (std::size_t i{0}; i < pointsSize; ++i)
+        //            heMesh->m_vertices.emplace_back(i, heMesh.get());
+        //
+        //        auto& vertices = heMesh->m_vertices;
+        //        auto& halfedges = heMesh->m_halfedges;
+        //        for (std::size_t i{0}; i < pointsSize; ++i)
+        //        {
+        //            halfedges.emplace_back(vertices[i].getIndex(),
+        //            heMesh.get()); if (i % 2 == 0)
+        //            {
+        //                asdf
+        //            }
+        //        }
+        //
+        //        return heMesh;
+    }
+
+  private:
+    LinAl::Vec3Vector<T> calcSpherePoints(const Sphere<T>& sphere)
+    {
+        LinAl::Vec3Vector<T> points;
 
         T thetaSteps = 2.0 * Core::PI / static_cast<double_t>(m_thetaCount);
         T phiSteps = 2.0 * Core::PI / static_cast<double_t>(m_thetaCount);
@@ -58,8 +98,10 @@ class SphereMeshBuilder
             }
         }
 
-        return HalfedgeMesh<T>::create(std::move(points));
+        return points;
     }
+
+    Core::TVector<T> calcSphereTriangleIndices() {}
 };
 
 template <typename T>
@@ -72,11 +114,7 @@ calcSphereTriangles(const Sphere<T>& sphere)
     std::size_t thetaSteps = Core::PI / deltaAngle;
     std::size_t phiSteps = Core::PI_2 / deltaAngle + 1;
 
-    // TODO use TArray
     Core::TVector<Triangle<T, 3>> triangles;
-
-    // TODO Build Angle classes and conversions
-    // TODO Build spherical lcs system and conversion to cartesian lcs
 
     const LinAl::Vec3<T> origin = sphere.getOrigin();
     const T radius = sphere.getRadius();

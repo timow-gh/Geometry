@@ -19,10 +19,11 @@ class MeshPoints
 
     [[nodiscard]] LinAl::Vec3Vector<T>& getPoints();
     [[nodiscard]] const LinAl::Vec3Vector<T>& getPoints() const;
+    void setPoints(const LinAl::Vec3Vector<T>& points);
 
     [[nodiscard]] bool contains(const LinAl::Vec3<T>& vector,
                                 std::size_t& index);
-    [[nodiscard]] LinAl::Vec3<T> getVector3d(std::size_t index) const;
+    [[nodiscard]] LinAl::Vec3<T> getPoint(std::size_t index) const;
 
     [[nodiscard]] std::size_t size() const;
 
@@ -57,7 +58,7 @@ bool MeshPoints<T>::contains(const LinAl::Vec3<T>& vector, std::size_t& index)
 }
 
 template <typename T>
-LinAl::Vec3<T> MeshPoints<T>::getVector3d(std::size_t index) const
+LinAl::Vec3<T> MeshPoints<T>::getPoint(std::size_t index) const
 {
     return m_points[index];
 }
@@ -81,6 +82,11 @@ template <typename T>
 LinAl::Vec3Vector<T>& MeshPoints<T>::getPoints()
 {
     return m_points;
+}
+template <typename T>
+void MeshPoints<T>::setPoints(const LinAl::Vec3Vector<T>& points)
+{
+    m_points = points;
 }
 
 template <typename T, typename U>

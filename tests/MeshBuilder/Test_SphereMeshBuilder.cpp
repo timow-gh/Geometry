@@ -3,7 +3,7 @@
 
 #include "Core/Math/Eps.hpp"
 #include "Geometry/HalfedgeMesh/Vertex.hpp"
-#include "Geometry/HalfedgeMeshBuilder/HalfedgeMeshBuilder.hpp"
+#include "Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp"
 #include "Geometry/Sphere.hpp"
 #include "LinAl/LinearAlgebra.hpp"
 #include "MeshTestHelper.h"
@@ -21,10 +21,9 @@ class Test_MeshBuilder_Sphere
     Sphere<double_t> m_sphere;
     std::unique_ptr<HalfedgeMesh<double_t>> m_sphereMesh;
 
-    Test_MeshBuilder_Sphere()
-        : m_sphere({ZERO_VEC3D, 3.0})
-        , m_sphereMesh(HalfedgeMeshBuilder().buildMesh(m_sphere))
+    Test_MeshBuilder_Sphere() : m_sphere({ZERO_VEC3D, 3.0})
     {
+        SphereMeshBuilder<double_t>().setSphere(m_sphere).build();
     }
 };
 

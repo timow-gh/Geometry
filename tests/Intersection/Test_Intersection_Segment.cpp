@@ -1,4 +1,4 @@
-#pragma clang diagnostic push12 / 1043
+#pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include "Geometry/Intersection/IntersectionSegment.hpp"

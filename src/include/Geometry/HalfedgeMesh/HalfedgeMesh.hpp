@@ -22,7 +22,8 @@ class Halfedge;
 template <typename T>
 class Facet;
 
-class HalfedgeMeshBuilder;
+template <typename T>
+class SphereMeshBuilder;
 
 template <typename T>
 class HalfedgeMesh
@@ -35,14 +36,12 @@ class HalfedgeMesh
 
   public:
     explicit HalfedgeMesh(const xg::Guid& guid);
-    // TODO Build HeMesh from a vector of points.
-    // explicit HalfedgeMesh(Core::TVector<LinAl::Vec3<T>>&& points);
 
     HalfedgeMesh() = delete;
     explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
     HalfedgeMesh& operator=(const HalfedgeMesh& rhs) = delete;
 
-    explicit HalfedgeMesh(HalfedgeMesh&& rhs) noexcept = default;
+    HalfedgeMesh(HalfedgeMesh&& rhs) noexcept = default;
     HalfedgeMesh& operator=(HalfedgeMesh&& rhs) noexcept = default;
 
     [[nodiscard]] LinAl::Vec3Vector<T>& getVertexPoints();
@@ -71,7 +70,85 @@ class HalfedgeMesh
 
     [[nodiscard]] const xg::Guid& getGuid() const;
 
-    friend HalfedgeMeshBuilder;
+    template <typename K>
+    friend void addTriangle(HalfedgeMesh<K>* mesh,
+                            const Triangle<K, 3>& triangle)
+    {
+        // Create or find the Vertex of the LinAl::Vec3
+        const LinAl::VecArray<K, 3, 3> trianglePoints =
+            triangle.getTrianglePoints();
+        Core::TArray<std::size_t, 3> vertexIndices;
+        for (std::size_t i = 0; i < 3; ++i)
+        {
+            std::size_t vertexIndex;
+            if (!mesh->meshPoints.contains(trianglePoints[i], vertexIndex))
+            {
+                vertexIndex = mesh->meshPoints.add(trianglePoints[i]);
+                mesh->m_vertices.emplace_back(vertexIndex, mesh);
+            }
+            vertexIndices[i] = vertexIndex;
+        }
+
+        std::size_t halfedgeIndex =
+            mesh->m_halfedges.size() == 0 ? 0 : mesh->m_halfedges.size();
+
+        // Create the Halfedges and set the Halfedges for Vertices
+        for (const std::size_t vIndex: vertexIndices)
+        {
+            mesh->m_halfedges.emplace_back(vIndex, mesh);
+            if (mesh->m_vertices[vIndex].getHalfedgeIndex() == INVALID_INDEX)
+                mesh->m_vertices[vIndex].setHalfedgeIndex(
+                    mesh->m_halfedges.size() - 1);
+        }
+
+        mesh->m_facets.emplace_back(halfedgeIndex, mesh);
+
+        // Fill the facet, the next and the previous pointer for each Halfedge
+        // of the Facet
+        const std::size_t facetIdx = mesh->m_facets.size() - 1;
+        for (std::size_t i = halfedgeIndex; i < mesh->m_halfedges.size(); ++i)
+        {
+            mesh->m_halfedges[i].setFacet(facetIdx);
+            auto nextHeIndex =
+                i == mesh->m_halfedges.size() - 1 ? halfedgeIndex : i + 1;
+            mesh->m_halfedges[i].setNextIndex(nextHeIndex);
+            auto previousHeIndex =
+                i == halfedgeIndex ? mesh->m_halfedges.size() - 1 : i - 1;
+            mesh->m_halfedges[i].setPreviousIndex(previousHeIndex);
+        }
+
+        // Find and set the opposite Halfedges for each Halfedge of the Facet
+        for (std::size_t i = halfedgeIndex; i < mesh->m_halfedges.size(); ++i)
+        {
+            Halfedge<K>& halfedge = mesh->m_halfedges[i];
+
+            Halfedge<K>* he = halfedge.vertex().halfedge();
+            if (!he)
+                continue;
+
+            Halfedge<K>* oppHeCandidate = he->previous();
+            std::size_t oppHeCandidateIndex =
+                halfedge.vertex().halfedge()->getPreviousIndex();
+
+            if (!oppHeCandidate)
+                continue;
+
+            auto nextVertex = halfedge.nextVertex();
+            auto oppNextVertex = oppHeCandidate->nextVertex();
+
+            if (!nextVertex || !oppNextVertex)
+                continue;
+
+            if (halfedge.vertex() == *oppNextVertex &&
+                *nextVertex == oppHeCandidate->vertex())
+            {
+                halfedge.setOppositeIndex(oppHeCandidateIndex);
+                oppHeCandidate->setOppositeIndex(i);
+            }
+        }
+    }
+
+    friend SphereMeshBuilder<T>;
 };
 
 template <typename T>
@@ -208,6 +285,7 @@ const xg::Guid& HalfedgeMesh<T>::getGuid() const
 {
     return m_guid;
 }
+
 } // namespace Geometry
 
 #endif // GLFWTESTAPP_HALFEDGEMESH_H
