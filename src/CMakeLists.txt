@@ -1,6 +1,7 @@
 set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/Vertex.hpp
         include/Geometry/HalfedgeMesh/Halfedge.hpp
+        include/Geometry/HalfedgeMesh/HalfedgeIndices.hpp
         include/Geometry/HalfedgeMesh/Facet.hpp
         include/Geometry/HalfedgeMesh/FacetUtils.hpp
         include/Geometry/HalfedgeMesh/MeshPoints.hpp
@@ -35,7 +36,7 @@ add_library(tw_geometry INTERFACE)
 target_include_directories(tw_geometry
         INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
 set(TARGET_ALIAS Geometry)
-add_library(${PROJECT_NAME}::${TARGET_ALIAS} ALIAS tw_geometry )
+add_library(${PROJECT_NAME}::${TARGET_ALIAS} ALIAS tw_geometry)
 set_target_properties(tw_geometry
         PROPERTIES
         LANGUAGE CXX
