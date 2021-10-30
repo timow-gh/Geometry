@@ -89,6 +89,7 @@ class SphereMeshBuilder
             }
         }
 
+        // Poles
         points.push_back(LinAl::Vec3<T>{0, 0, radius});
         points.push_back(LinAl::Vec3<T>{0, 0, -radius});
 
@@ -112,7 +113,6 @@ class SphereMeshBuilder
 
         Core::TVector<uint32_t> triangleIndices;
 
-        // Top and bottom triangles
         const std::size_t pointsSize = spherePoints.size();
 
         const std::size_t topiIdx = 0;
@@ -175,7 +175,6 @@ class SphereMeshBuilder
             triangleIndices.push_back(toIdx(iprev, 0));
             triangleIndices.push_back(toIdx(i, m_azimuthCount - 1));
         }
-
         return triangleIndices;
     }
 };
