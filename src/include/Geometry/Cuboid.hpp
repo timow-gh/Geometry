@@ -15,8 +15,8 @@ class Cuboid
     Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal);
     explicit Cuboid(const LinAl::Vec3<T>& diagonal);
 
-    const LinAl::Vec3<T>& origin() const;
-    const LinAl::Vec3Array<T, 3>& sideVectors() const;
+    [[nodiscard]] const LinAl::Vec3<T>& origin() const;
+    [[nodiscard]] const LinAl::Vec3Array<T, 3>& sideVectors() const;
 
     bool operator==(const Cuboid& rhs) const;
     bool operator!=(const Cuboid& rhs) const;

@@ -18,6 +18,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Intersection/IntersectionSegment.hpp
         include/Geometry/Intersection/IntersectionSphere.hpp
         include/Geometry/AABB.hpp
+        include/Geometry/Cone.hpp
         include/Geometry/Cuboid.hpp
         include/Geometry/Segment.hpp
         include/Geometry/Lcs.hpp
@@ -32,7 +33,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/PolyLine.hpp
         )
 
-add_library(tw_geometry INTERFACE)
+add_library(tw_geometry INTERFACE ${geometry_TARGET_HEADER})
 target_include_directories(tw_geometry
         INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
 set(TARGET_ALIAS Geometry)
