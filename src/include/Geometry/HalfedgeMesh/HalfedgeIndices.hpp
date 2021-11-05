@@ -20,7 +20,8 @@ struct SegmentIndices
 };
 
 template <typename T>
-Core::TVector<SegmentIndices> calcSegmentIndices(const HalfedgeMesh<T>& mesh)
+Core::TVector<SegmentIndices>
+calcMeshSegmentIndices(const HalfedgeMesh<T>& mesh)
 {
     Core::TVector<SegmentIndices> result;
     for (const Halfedge<T>& halfedge: mesh.getHalfedges())

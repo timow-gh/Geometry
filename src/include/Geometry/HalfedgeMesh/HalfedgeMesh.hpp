@@ -32,12 +32,9 @@ class HalfedgeMesh
     Core::TVector<Halfedge<T>> m_halfedges;
     Core::TVector<Facet<T>> m_facets;
     MeshPoints<T> meshPoints;
-    xg::Guid m_guid;
 
   public:
-    explicit HalfedgeMesh(const xg::Guid& guid);
-
-    HalfedgeMesh() = delete;
+    HalfedgeMesh() = default;
     explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
     HalfedgeMesh& operator=(const HalfedgeMesh& rhs) = delete;
 
@@ -67,8 +64,6 @@ class HalfedgeMesh
     [[nodiscard]] bool contains(const Halfedge<T>& halfedge) const;
     [[nodiscard]] bool contains(const Facet<T>& facet) const;
     [[nodiscard]] bool contains(const LinAl::Vec3<T>& point) const;
-
-    [[nodiscard]] const xg::Guid& getGuid() const;
 
     template <typename K>
     friend void addTriangle(HalfedgeMesh<K>* mesh,
@@ -150,11 +145,6 @@ class HalfedgeMesh
 
     friend SphereMeshBuilder<T>;
 };
-
-template <typename T>
-HalfedgeMesh<T>::HalfedgeMesh(const xg::Guid& guid) : m_guid(guid)
-{
-}
 
 template <typename T>
 LinAl::Vec3Vector<T>& HalfedgeMesh<T>::getVertexPoints()
@@ -278,12 +268,6 @@ Core::TVector<U> calcTriangleIndices(const Core::TVector<Facet<T>>& facets)
         }
     }
     return result;
-}
-
-template <typename T>
-const xg::Guid& HalfedgeMesh<T>::getGuid() const
-{
-    return m_guid;
 }
 
 } // namespace Geometry

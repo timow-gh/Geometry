@@ -1,11 +1,12 @@
 #ifndef GEOMETRY_SPHEREMESHBUILDER_HPP
 #define GEOMETRY_SPHEREMESHBUILDER_HPP
 
-#include "Core/Math/Constants.hpp"
-#include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
-#include "Geometry/Sphere.hpp"
-#include "Geometry/Triangle.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Math/Constants.hpp>
+#include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
+#include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
+#include <Geometry/Sphere.hpp>
+#include <Geometry/Triangle.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 #include <cmath>
 #include <memory>
 #include <optional>
@@ -15,6 +16,7 @@ namespace Geometry
 
 template <typename T>
 class SphereMeshBuilder
+    : public MeshBuilderBase<T>
 {
     std::size_t m_polarCount{10};
     std::size_t m_azimuthCount{20};
@@ -44,25 +46,11 @@ class SphereMeshBuilder
         if (!m_sphere)
             return nullptr;
 
-        auto heMesh = std::make_unique<HalfedgeMesh<T>>(xg::newGuid());
-
         auto spherePoints = calcSpherePoints(*m_sphere);
         auto triangleIndices = calcSphereTriangleIndices(spherePoints);
 
-        std::size_t size = triangleIndices.size();
-        for (std::size_t i{2}; i < size; i += 3)
-        {
-            std::size_t a = triangleIndices[i - 2];
-            std::size_t b = triangleIndices[i - 1];
-            std::size_t c = triangleIndices[i];
-
-            addTriangle(heMesh.get(),
-                        Triangle<T, 3>(spherePoints[a],
-                                       spherePoints[b],
-                                       spherePoints[c]));
-        }
-
-        return heMesh;
+        return MeshBuilderBase<T>::buildTriangleHeMesh(spherePoints,
+                                                       triangleIndices);
     }
 
   private:
@@ -72,7 +60,7 @@ class SphereMeshBuilder
 
         T polarStep = Core::PI / static_cast<double_t>(m_polarCount);
         T azimuthStep = 2.0 * Core::PI / static_cast<double_t>(m_azimuthCount);
-        T radius = m_sphere->getRadius();
+        T radius = sphere.getRadius();
 
         for (uint32_t i{1}; i < m_polarCount; ++i)
         {

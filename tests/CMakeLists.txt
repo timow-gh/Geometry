@@ -50,3 +50,7 @@ add_test(NAME Test_VecOperations_FIXME COMMAND Test_VecOperations_FIXME)
 add_executable(Test_PolyLine Test_PolyLine.cpp)
 target_link_libraries(Test_PolyLine PRIVATE gtest_main Geometry::Geometry)
 add_test(NAME Test_PolyLine COMMAND Test_PolyLine)
+
+add_executable(Test_Cone Test_Cone.cpp)
+target_link_libraries(Test_Cone PRIVATE gtest_main Geometry::Geometry)
+add_test(NAME Test_Cone COMMAND Test_Cone)

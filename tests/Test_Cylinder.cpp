@@ -18,25 +18,4 @@ TEST(Cylinder, Constructor)
     EXPECT_EQ(cylinder.getRadius(), RADIUS);
 }
 
-TEST(Cylinder, Equality)
-{
-    constexpr double_t HEIGHT = 5;
-    constexpr double_t RADIUS = 1;
-    const auto originLcs = Lcs<double_t>();
-    Cylinder cylinderA{originLcs, HEIGHT, RADIUS};
-    Cylinder cylinderB{originLcs, HEIGHT, RADIUS};
-    EXPECT_EQ(cylinderA, cylinderB);
-}
-
-TEST(Cylinder, Inequality)
-{
-    constexpr double_t HEIGHT = 5;
-    constexpr double_t RADIUS_A = 1;
-    constexpr double_t RADIUS_B = 2;
-    const auto originLcs = Lcs<double_t>();
-    Cylinder cylinderA{originLcs, HEIGHT, RADIUS_A};
-    Cylinder cylinderB{originLcs, HEIGHT, RADIUS_B};
-    EXPECT_NE(cylinderA, cylinderB);
-}
-
 #pragma clang diagnostic pop
