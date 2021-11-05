@@ -1,0 +1,68 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        config:
+          - {
+            name: "WindowsVisualStudio162019",
+            os: windows-latest,
+            build_type: "Release",
+            cc: "cl",
+            cxx: "cl",
+            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
+            generators: "Visual Studio 16 2019",
+            architecture: "-A x64"
+          }
+          - {
+            name: "UbuntuGCCLatest",
+            os: ubuntu-latest,
+            build_type: "Release",
+            cc: "gcc",
+            cxx: "g++",
+            generators: "Ninja",
+            architecture: ""
+          }
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install GCC
+        if: startsWith(matrix.config.name, 'UbuntuGCCLatest')
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Install cmake
+        if: startsWith(matrix.config.name, 'UbuntuGCCLatest')
+        run: |
+          sudo apt install ninja-build cmake
+          cmake --version
+
+      - name: Install ninja
+        if: startsWith(matrix.config.name, 'UbuntuGCCLatest')
+        run: |
+          sudo apt install ninja-build
+          ninja --version
+
+      - name: Configure CMake
+        run: |
+          cmake -B ${{ github.workspace }}/build -G "${{ matrix.config.generators }}" ${{ matrix.config.architecture }} -DGeometry_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCXX_STANDARD=C++20
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{ matrix.config.build_type }}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C ${{ matrix.config.build_type }}
