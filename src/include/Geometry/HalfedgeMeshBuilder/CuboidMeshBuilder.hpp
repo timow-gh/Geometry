@@ -32,7 +32,7 @@ class CuboidMeshBuilder
         Core::TArray<Triangle<T, 3>, 12> triangles = calcCuboidTriangles();
         auto heMesh = std::make_unique<HalfedgeMesh<T>>();
         for (const auto& triangle: triangles)
-            addTriangle<T>(heMesh.get(), triangle);
+            addTriangle(heMesh.get(), triangle);
         return std::move(heMesh);
     }
 
