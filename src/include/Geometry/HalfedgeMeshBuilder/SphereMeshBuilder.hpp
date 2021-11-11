@@ -16,7 +16,7 @@ namespace Geometry
 
 template <typename T>
 class SphereMeshBuilder
-    : public MeshBuilderBase<T>
+    : public MeshBuilderBase<T, SphereMeshBuilder<T>>
 {
     std::size_t m_polarCount{10};
     std::size_t m_azimuthCount{20};
@@ -49,8 +49,9 @@ class SphereMeshBuilder
         auto spherePoints = calcSpherePoints(*m_sphere);
         auto triangleIndices = calcSphereTriangleIndices(spherePoints);
 
-        return MeshBuilderBase<T>::buildTriangleHeMesh(spherePoints,
-                                                       triangleIndices);
+        return MeshBuilderBase<T, SphereMeshBuilder<T>>::buildTriangleHeMesh(
+            spherePoints,
+            triangleIndices);
     }
 
   private:

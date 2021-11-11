@@ -11,7 +11,7 @@ namespace Geometry
 {
 template <typename T>
 class ConeMeshBuilder
-    : public MeshBuilderBase<T>
+    : public MeshBuilderBase<T, ConeMeshBuilder<T>>
 {
     std::optional<Cone<T>> m_cone;
     std::size_t m_azimuthCount{20};
@@ -35,10 +35,19 @@ class ConeMeshBuilder
         if (!m_cone)
             return nullptr;
 
+        const auto coneSeg = m_cone->getSegment();
+
+        LinAl::HMatrixd hTrafo =
+            LinAl::rotationAlign(LinAl::Z_HVECD,
+                                 LinAl::vec3ToHVec(coneSeg.direction()));
+        LinAl::setTranslation(hTrafo, coneSeg.getSource());
+        MeshBuilderBase<T, ConeMeshBuilder<T>>::setTransformation(hTrafo);
+
         auto conePoints = calcConePoints(*m_cone);
         auto coneTriangleIndices = calcConeTriangleIndices(conePoints);
-        return MeshBuilderBase<T>::buildTriangleHeMesh(conePoints,
-                                                       coneTriangleIndices);
+        return MeshBuilderBase<T, ConeMeshBuilder<T>>::buildTriangleHeMesh(
+            conePoints,
+            coneTriangleIndices);
     }
 
   private:

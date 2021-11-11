@@ -27,6 +27,8 @@ class Segment
     [[nodiscard]] T distance(const LinAl::Vec<T, D>& vec) const;
 
     [[nodiscard]] T length() const;
+    //! Returns vector of length one.
+    [[nodiscard]] LinAl::Vec<T, D> direction() const;
 
     bool operator==(const Segment& rhs) const;
     bool operator!=(const Segment& rhs) const;
@@ -71,6 +73,13 @@ template <typename T, std::size_t D>
 T Segment<T, D>::length() const
 {
     return LinAl::norm2(LinAl::Vec<T, D>{m_target - m_source});
+}
+
+template <typename T, std::size_t D>
+LinAl::Vec<T, D> Segment<T, D>::direction() const
+{
+    LinAl::Vec<T, D> segVec{m_target - m_source};
+    return segVec / LinAl::norm2(segVec);
 }
 
 template <typename T, std::size_t D>

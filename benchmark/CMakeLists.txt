@@ -12,11 +12,11 @@ if (NOT MSVC)
     target_link_libraries(Benchmark_LinAl PRIVATE "${LIBS}")
 endif ()
 
-add_executable(Benchmark_Intersection_Line Benchmark_Intersection_Line.cpp)
-target_link_libraries(Benchmark_Intersection_Line PRIVATE "${LIBS}")
+function(create_geometry_benchmark benchMarkName)
+    add_executable(${benchMarkName} ${benchMarkName}.cpp)
+    target_link_libraries(${benchMarkName} PRIVATE "${LIBS}")
+endfunction()
 
-add_executable(Benchmark_Intersection_Segment Benchmark_Intersection_Segment.cpp)
-target_link_libraries(Benchmark_Intersection_Segment PRIVATE "${LIBS}")
-
-add_executable(Benchmark_Intersection_Plane Benchmark_Intersection_Plane.cpp)
-target_link_libraries(Benchmark_Intersection_Plane PRIVATE "${LIBS}")
+create_geometry_benchmark(Benchmark_Intersection_Plane)
+create_geometry_benchmark(Benchmark_Intersection_Line)
+create_geometry_benchmark(Benchmark_Intersection_Segment)
