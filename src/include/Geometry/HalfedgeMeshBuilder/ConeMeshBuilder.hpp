@@ -60,9 +60,10 @@ class ConeMeshBuilder
         for (std::size_t i{0}; i < m_azimuthCount; ++i)
         {
             T azimuthAngle = i * azimuthStep;
-            points.push_back(LinAl::Vec3<T>{std::cos(azimuthAngle),
-                                            std::sin(azimuthAngle),
-                                            0.0});
+            points.push_back(
+                LinAl::Vec3<T>{std::cos(azimuthAngle) * circleRadius,
+                               std::sin(azimuthAngle) * circleRadius,
+                               0.0});
         }
 
         points.push_back(LinAl::Vec3<T>{0, 0, 0});
