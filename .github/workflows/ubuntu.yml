@@ -16,10 +16,11 @@ jobs:
         config:
           - {
             name: "GCCLatest",
-            build_type: "Release", "Debug"
+            build_type: ["Release", "Debug"]
             cc: "gcc",
             cxx: "g++",
             generators: "Ninja",
+            architecture: ""
           }
 
     steps:
