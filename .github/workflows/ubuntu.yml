@@ -1,0 +1,53 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        config:
+          - {
+            name: "GCCLatest",
+            build_type: "Release", "Debug"
+            cc: "gcc",
+            cxx: "g++",
+            generators: "Ninja",
+          }
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install GCC
+        uses: egor-tensin/setup-gcc@v1
+        with:
+          version: latest
+          platform: x64
+
+      - name: Install cmake
+        run: |
+          sudo apt install ninja-build cmake
+          cmake --version
+
+      - name: Install ninja
+        run: |
+          sudo apt install ninja-build
+          ninja --version
+
+      - name: Configure CMake
+        run: |
+          cmake -B ${{ github.workspace }}/build -G "${{ matrix.config.generators }}" -DGeometry_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCXX_STANDARD=C++20
+
+      - name: Build
+        run: cmake --build ${{github.workspace}}/build --config ${{ matrix.config.build_type }}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C ${{ matrix.config.build_type }}
