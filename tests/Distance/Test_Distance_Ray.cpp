@@ -2,6 +2,7 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include "Core/Types/TVector.hpp"
+#include "Geometry/Line.hpp"
 #include "Geometry/Ray.hpp"
 #include "LinAl/LinearAlgebra.hpp"
 #include "gtest/gtest.h"
