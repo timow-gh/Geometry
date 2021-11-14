@@ -3,14 +3,14 @@ target_link_libraries(meshBuilderTestHelper PUBLIC gtest Geometry::Geometry)
 
 add_executable(Test_MeshBuilderHelper Test_MeshBuilderHelper.cpp)
 target_link_libraries(Test_MeshBuilderHelper PRIVATE gtest_main Geometry::Geometry meshBuilderTestHelper)
-add_test(NAME Test_MeshBuilderHelper COMMAND Test_MeshBuilderHelper)
+add_test(NAME Geometry.Test_MeshBuilderHelper COMMAND Test_MeshBuilderHelper)
 
 create_geometry_test(Test_CuboidMeshBuilder)
 
 add_executable(Test_SphereMeshBuilder Test_SphereMeshBuilder.cpp)
 target_link_libraries(Test_SphereMeshBuilder PRIVATE gtest_main Geometry::Geometry meshBuilderTestHelper)
-add_test(NAME Test_SphereMeshBuilder COMMAND Test_SphereMeshBuilder)
+add_test(NAME Geometry.Test_SphereMeshBuilder COMMAND Test_SphereMeshBuilder)
 
 add_executable(Test_ConeMeshBuilder Test_ConeMeshBuilder.cpp)
 target_link_libraries(Test_ConeMeshBuilder PRIVATE gtest_main Geometry::Geometry Core::Math)
-add_test(NAME Test_ConeMeshBuilder COMMAND Test_ConeMeshBuilder)
+add_test(NAME Geometry.Test_ConeMeshBuilder COMMAND Test_ConeMeshBuilder)

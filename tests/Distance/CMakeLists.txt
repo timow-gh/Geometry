@@ -1,6 +1,5 @@
 create_geometry_test(Test_Distance_Line)
 create_geometry_test(Test_Distance_Ray)
-create_geometry_test(Test_Distance_RayLine)
 create_geometry_test(Test_Distance_Plane)
 create_geometry_test(Test_Distance_Segment)
 create_geometry_test(Test_Distance_SegmentLine)
