@@ -10,8 +10,8 @@
 namespace Geometry
 {
 template <typename T>
-    class CylinderMeshBuilder : public MeshBuilderBase < T
-    , CylinderMeshBuilder<T>
+class CylinderMeshBuilder
+    : public MeshBuilderBase<T, CylinderMeshBuilder<T>>
 {
     std::optional<Cylinder<T>> m_cylinder;
     std::size_t m_azimuthCount{20};
@@ -36,7 +36,7 @@ template <typename T>
         if (!m_cylinder)
             return nullptr;
 
-        const auto cylinderSeg = m_cone->getSegment();
+        const auto cylinderSeg = m_cylinder->getSegment();
 
         LinAl::HMatrixd hTrafo =
             LinAl::rotationAlign(LinAl::Z_HVECD,
@@ -46,7 +46,7 @@ template <typename T>
 
         LinAl::Vec3Vector<T> cylPoints = calcCylinderPoints();
         const auto cylinderTriangleIndices =
-            calcCylinderTriangleIndices(cylinderPoints);
+            calcCylinderTriangleIndices(cylPoints);
         return MeshBuilderBase<T, CylinderMeshBuilder<T>>::buildTriangleHeMesh(
             cylPoints,
             cylinderTriangleIndices);
@@ -58,8 +58,8 @@ template <typename T>
         LinAl::Vec3Vector<T> points;
         points.reserve(2 * m_azimuthCount + 2);
 
-        const Segment<T>& segment = m_cylinder->getSegment();
-        calcCirclePoints(points, cone.getRadius(), m_azimuthCount);
+        const Segment3<T>& segment = m_cylinder->getSegment();
+        calcCirclePoints(points, m_cylinder->getRadius(), m_azimuthCount);
 
         std::size_t circlePointsSize = points.size();
         double_t segLength = m_cylinder->getSegment().length();
@@ -69,14 +69,13 @@ template <typename T>
             points.back()[2] += segLength;
         }
 
-        points.push_back(segment.getSource());
-        points.push_back(segment.getTarget());
+        points.push_back(LinAl::Vec3<T>{0, 0, 0});
+        points.push_back(LinAl::Vec3<T>{0, 0, segLength});
 
         return points;
     }
 
     void calcCircleBufferIndices(Core::TVector<uint32_t>& indices,
-                                 const LinAl::Vec3Vector<T>& cylinderPoints,
                                  const std::size_t midPointIdx,
                                  const std::size_t circleStartIdx,
                                  const std::size_t circleEndIdx) const
@@ -84,30 +83,34 @@ template <typename T>
         for (std::size_t i{circleStartIdx + 1}; i < circleEndIdx; i++)
         {
             indices.push_back(midPointIdx);
-            indices.push_back(cylinderPoints[i - 1]);
-            indices.push_back(cylinderPoints[i]);
+            indices.push_back(i - 1);
+            indices.push_back(i);
         }
+        indices.push_back(midPointIdx);
+        indices.push_back(circleStartIdx);
+        indices.push_back(circleEndIdx - 1);
     }
 
     Core::TVector<uint32_t> calcCylinderTriangleIndices(
         const LinAl::Vec3Vector<T>& cylinderPoints) const
     {
+        // Bottom circle
         Core::TVector<uint32_t> indices;
         const std::size_t cylPointsSize = cylinderPoints.size();
 
-        const std::size_t bottomMidPointIdx = cylinderPoints[cylPointsSize - 2];
+        const std::size_t bottomMidPointIdx = cylPointsSize - 2;
         const std::size_t bottomCircleStartIdx = 0;
         const std::size_t bottomCircleEndIdx = 0 + m_azimuthCount;
         calcCircleBufferIndices(indices,
-                                cylinderPoints,
                                 bottomMidPointIdx,
                                 bottomCircleStartIdx,
                                 bottomCircleEndIdx);
 
+        // Outer surface
         for (std::size_t i{1}; i < m_azimuthCount; ++i)
         {
-            std::size_t topIdx = i + m_azimuthCount;
-            std::size_t topIdxMOne = i + m_azimuthCount - 1;
+            const std::size_t topIdx = i + m_azimuthCount;
+            const std::size_t topIdxMOne = i + m_azimuthCount - 1;
             indices.push_back(i);
             indices.push_back(topIdx);
             indices.push_back(topIdxMOne);
@@ -116,17 +119,26 @@ template <typename T>
             indices.push_back(topIdxMOne);
             indices.push_back(i - 1);
         }
+        const std::size_t topIdxStart = m_azimuthCount;
+        const std::size_t topIdxEnd = 2 * m_azimuthCount - 1;
+        indices.push_back(topIdxEnd);
+        indices.push_back(topIdxStart - 1);
+        indices.push_back(0);
+        indices.push_back(topIdxEnd);
+        indices.push_back(0);
+        indices.push_back(topIdxStart);
 
-        const std::size_t topMidPointIdx = cylinderPoints[cylPointsSize - 1];
+        // Top circle
+        const std::size_t topMidPointIdx = cylPointsSize - 1;
         const std::size_t topCircleStartIdx = m_azimuthCount;
         const std::size_t topCircleEndIdx = 2 * m_azimuthCount;
         calcCircleBufferIndices(indices,
-                                cylinderPoints,
                                 topMidPointIdx,
                                 topCircleStartIdx,
                                 topCircleEndIdx);
+
+        return indices;
     }
-}
 };
 } // namespace Geometry
 

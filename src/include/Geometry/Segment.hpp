@@ -16,7 +16,8 @@ class Segment
 
   public:
     Segment() = default;
-    Segment(const LinAl::Vec<T, D>& source, const LinAl::Vec<T, D>& target);
+    constexpr Segment(const LinAl::Vec<T, D>& source,
+                      const LinAl::Vec<T, D>& target);
 
     [[nodiscard]] const LinAl::Vec<T, D>& getSource() const;
     [[nodiscard]] const LinAl::Vec<T, D>& getTarget() const;
@@ -35,8 +36,8 @@ class Segment
 };
 
 template <typename T, std::size_t D>
-Segment<T, D>::Segment(const LinAl::Vec<T, D>& source,
-                       const LinAl::Vec<T, D>& target)
+constexpr Segment<T, D>::Segment(const LinAl::Vec<T, D>& source,
+                                 const LinAl::Vec<T, D>& target)
     : m_source(source), m_target(target)
 {
 }
