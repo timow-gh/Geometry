@@ -16,7 +16,7 @@ jobs:
         config:
           - {
             name: "GCCLatest",
-            build_type: "Release",
+            build_type: ["Release", "Debug"],
             cc: "gcc",
             cxx: "g++",
             generators: "Ninja",
