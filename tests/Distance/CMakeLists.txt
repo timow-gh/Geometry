@@ -1,19 +1,5 @@
-add_executable(Test_Distance_Line Test_Distance_Line.cpp)
-target_link_libraries(Test_Distance_Line PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Distance_Line COMMAND Test_Distance_Line)
-
-add_executable(Test_Distance_Ray Test_Distance_Ray.cpp)
-target_link_libraries(Test_Distance_Ray PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Distance_Ray COMMAND Test_Distance_Ray)
-
-add_executable(Test_Distance_Plane Test_Distance_Plane.cpp)
-target_link_libraries(Test_Distance_Plane PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Distance_Plane COMMAND Test_Distance_Plane)
-
-add_executable(Test_Distance_Segment Test_Distance_Segment.cpp)
-target_link_libraries(Test_Distance_Segment PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Distance_Segment COMMAND Test_Distance_Segment)
-
-add_executable(Test_Distance_Sphere Test_Distance_Sphere.cpp)
-target_link_libraries(Test_Distance_Sphere PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Distance_Sphere COMMAND Test_Distance_Sphere)
+create_geometry_test(Test_Distance_Line)
+create_geometry_test(Test_Distance_Ray)
+create_geometry_test(Test_Distance_Plane)
+create_geometry_test(Test_Distance_Segment)
+create_geometry_test(Test_Distance_Sphere)

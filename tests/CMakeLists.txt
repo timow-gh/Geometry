@@ -21,36 +21,19 @@ mark_as_advanced(FETCHCONTENT_SOURCE_DIR_GOOGLETEST)
 mark_as_advanced(FETCHCONTENT_UPDATES_DISCONNECTED)
 mark_as_advanced(FETCHCONTENT_UPDATES_DISCONNECTED_GOOGLETEST)
 
-set(CMAKE_CXX_STANDARD 17)
+function(create_geometry_test testName)
+    add_executable(${testName} ${testName}.cpp)
+    target_link_libraries(${testName} PRIVATE gtest_main Geometry::Geometry)
+    add_test(NAME Geometry.${testName} COMMAND ${testName})
+endfunction()
 
 add_subdirectory(Distance)
 add_subdirectory(Intersection)
 add_subdirectory(MeshBuilder)
 
-add_executable(Test_Sphere Test_Sphere.cpp)
-target_link_libraries(Test_Sphere PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Sphere COMMAND Test_Sphere)
-
-add_executable(Test_Ray Test_Ray.cpp)
-target_link_libraries(Test_Ray PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Ray COMMAND Test_Ray)
-
-add_executable(Test_Cylinder Test_Cylinder.cpp)
-target_link_libraries(Test_Cylinder PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Cylinder COMMAND Test_Cylinder)
-
-add_executable(Test_Lcs Test_Lcs.cpp)
-target_link_libraries(Test_Lcs PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Lcs COMMAND Test_Lcs)
-
-add_executable(Test_VecOperations_FIXME Test_VecOperations.cpp)
-target_link_libraries(Test_VecOperations_FIXME PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_VecOperations_FIXME COMMAND Test_VecOperations_FIXME)
-
-add_executable(Test_PolyLine Test_PolyLine.cpp)
-target_link_libraries(Test_PolyLine PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_PolyLine COMMAND Test_PolyLine)
-
-add_executable(Test_Cone Test_Cone.cpp)
-target_link_libraries(Test_Cone PRIVATE gtest_main Geometry::Geometry)
-add_test(NAME Test_Cone COMMAND Test_Cone)
+create_geometry_test(Test_Sphere)
+create_geometry_test(Test_Ray)
+create_geometry_test(Test_Lcs)
+create_geometry_test(Test_VecOperations)
+create_geometry_test(Test_PolyLine)
+create_geometry_test(Test_Cone)
