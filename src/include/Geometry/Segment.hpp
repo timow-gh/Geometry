@@ -15,7 +15,7 @@ class Segment
     LinAl::Vec<T, D> m_target;
 
   public:
-    Segment() = default;
+    constexpr Segment() = default;
     constexpr Segment(const LinAl::Vec<T, D>& source,
                       const LinAl::Vec<T, D>& target);
 

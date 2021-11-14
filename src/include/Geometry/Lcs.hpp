@@ -15,14 +15,14 @@ class Lcs
     LinAl::Vec3Array<T, 3> m_coordVec;
 
   public:
-    Lcs();
-    Lcs(const LinAl::Vec3<T>& origin,
-        const LinAl::Vec3<T>& x,
-        const LinAl::Vec3<T>& y);
-    Lcs(const LinAl::Vec3<T>& origin,
-        const LinAl::Vec3<T>& x,
-        const LinAl::Vec3<T>& y,
-        const LinAl::Vec3<T>& z);
+    constexpr Lcs();
+    constexpr Lcs(const LinAl::Vec3<T>& origin,
+                  const LinAl::Vec3<T>& x,
+                  const LinAl::Vec3<T>& y);
+    constexpr Lcs(const LinAl::Vec3<T>& origin,
+                  const LinAl::Vec3<T>& x,
+                  const LinAl::Vec3<T>& y,
+                  const LinAl::Vec3<T>& z);
 
     bool operator==(const Lcs& rhs) const;
     bool operator!=(const Lcs& rhs) const;
@@ -44,7 +44,7 @@ class Lcs
 };
 
 template <typename T>
-Lcs<T>::Lcs()
+constexpr Lcs<T>::Lcs()
     : m_origin(LinAl::Vec3<T>{0})
     , m_coordVec{LinAl::Vec3<T>{1, 0, 0},
                  LinAl::Vec3<T>{0, 1, 0},
@@ -53,9 +53,9 @@ Lcs<T>::Lcs()
 }
 
 template <typename T>
-Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
-            const LinAl::Vec3<T>& x,
-            const LinAl::Vec3<T>& y)
+constexpr Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
+                      const LinAl::Vec3<T>& x,
+                      const LinAl::Vec3<T>& y)
     : m_origin(origin)
 {
     m_coordVec[0] = x;
@@ -65,10 +65,10 @@ Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
 }
 
 template <typename T>
-Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
-            const LinAl::Vec3<T>& x,
-            const LinAl::Vec3<T>& y,
-            const LinAl::Vec3<T>& z)
+constexpr Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
+                      const LinAl::Vec3<T>& x,
+                      const LinAl::Vec3<T>& y,
+                      const LinAl::Vec3<T>& z)
     : m_origin(origin), m_coordVec({x, y, z})
 {
     normalizeCoordVectors();

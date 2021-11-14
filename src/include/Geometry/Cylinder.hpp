@@ -14,7 +14,7 @@ class Cylinder
     T m_radius;
 
   public:
-    Cylinder(const Segment3<T>& segment, T radius);
+    constexpr Cylinder(const Segment3<T>& segment, T radius);
 
     [[nodiscard]] const Segment3<T>& getSegment() const;
     [[nodiscard]] T getRadius() const;
@@ -26,7 +26,7 @@ class Cylinder
 };
 
 template <typename T>
-Cylinder<T>::Cylinder(const Segment3<T>& segment, T radius)
+constexpr Cylinder<T>::Cylinder(const Segment3<T>& segment, T radius)
     : m_segment(segment), m_radius(radius)
 {
 }

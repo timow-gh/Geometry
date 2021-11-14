@@ -11,24 +11,25 @@ class Triangle
     LinAl::VecArray<T, D, 3> m_trianglePoints;
 
   public:
-    Triangle() = default;
-    explicit Triangle(const LinAl::VecArray<T, D, 3>& trianglePoints);
-    Triangle(const LinAl::Vec<T, D>& first,
-             const LinAl::Vec<T, D>& second,
-             const LinAl::Vec<T, D>& third);
+    constexpr Triangle() = default;
+    constexpr explicit Triangle(const LinAl::VecArray<T, D, 3>& trianglePoints);
+    constexpr Triangle(const LinAl::Vec<T, D>& first,
+                       const LinAl::Vec<T, D>& second,
+                       const LinAl::Vec<T, D>& third);
 
     const LinAl::VecArray<T, D, 3>& getTrianglePoints() const;
 };
 template <typename T, std::size_t D>
-Triangle<T, D>::Triangle(const LinAl::VecArray<T, D, 3>& trianglePoints)
+constexpr Triangle<T, D>::Triangle(
+    const LinAl::VecArray<T, D, 3>& trianglePoints)
     : m_trianglePoints(trianglePoints)
 {
 }
 
 template <typename T, std::size_t D>
-Triangle<T, D>::Triangle(const LinAl::Vec<T, D>& first,
-                         const LinAl::Vec<T, D>& second,
-                         const LinAl::Vec<T, D>& third)
+constexpr Triangle<T, D>::Triangle(const LinAl::Vec<T, D>& first,
+                                   const LinAl::Vec<T, D>& second,
+                                   const LinAl::Vec<T, D>& third)
     : m_trianglePoints({first, second, third})
 {
 }

@@ -11,12 +11,13 @@ class PolyLine
     LinAl::VecVector<T, D> m_points;
 
   public:
-    PolyLine(const LinAl::VecVector<T, D>& mPoints);
+    constexpr PolyLine(const LinAl::VecVector<T, D>& mPoints);
+
     [[nodiscard]] const LinAl::VecVector<T, D>& getPoints() const;
 };
 
 template <typename T, std::size_t D>
-PolyLine<T, D>::PolyLine(const LinAl::VecVector<T, D>& mPoints)
+constexpr PolyLine<T, D>::PolyLine(const LinAl::VecVector<T, D>& mPoints)
     : m_points(mPoints)
 {
 }

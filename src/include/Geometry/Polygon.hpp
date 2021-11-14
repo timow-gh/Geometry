@@ -11,7 +11,7 @@ class Polygon
     LinAl::VecVector<T, D> m_points;
 
   public:
-    explicit Polygon(const LinAl::VecVector<T, D>& points);
+    constexpr explicit Polygon(const LinAl::VecVector<T, D>& points);
 
     bool operator==(const Polygon& rhs) const;
     bool operator!=(const Polygon& rhs) const;
@@ -20,7 +20,8 @@ class Polygon
 };
 
 template <typename T, std::size_t D>
-Polygon<T, D>::Polygon(const LinAl::VecVector<T, D>& points) : m_points(points)
+constexpr Polygon<T, D>::Polygon(const LinAl::VecVector<T, D>& points)
+    : m_points(points)
 {
 }
 

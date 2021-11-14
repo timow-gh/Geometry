@@ -13,10 +13,10 @@ class Cone
     T m_radius;
 
   public:
-    Cone(const LinAl::Vec3<T>& circleMidPoint,
-         const LinAl::Vec3<T>& peak,
-         const T& radius);
-    Cone(const Segment3<T>& segment, const T& radius);
+    constexpr Cone(const LinAl::Vec3<T>& circleMidPoint,
+                   const LinAl::Vec3<T>& peak,
+                   const T& radius);
+    constexpr Cone(const Segment3<T>& segment, const T& radius);
 
     [[nodiscard]] const Geometry::Segment3<T>& getSegment() const;
     [[nodiscard]] const T& getRadius() const;
@@ -30,15 +30,15 @@ class Cone
 };
 
 template <typename T>
-Cone<T>::Cone(const LinAl::Vec3<T>& circleMidPoint,
-              const LinAl::Vec3<T>& peak,
-              const T& radius)
+constexpr Cone<T>::Cone(const LinAl::Vec3<T>& circleMidPoint,
+                        const LinAl::Vec3<T>& peak,
+                        const T& radius)
     : m_segment(Segment3<T>{circleMidPoint, peak}), m_radius(radius)
 {
 }
 
 template <typename T>
-Cone<T>::Cone(const Geometry::Segment3<T>& segment, const T& radius)
+constexpr Cone<T>::Cone(const Geometry::Segment3<T>& segment, const T& radius)
     : m_segment(segment), m_radius(radius)
 {
 }

@@ -12,8 +12,8 @@ class Interval
     T m_end;
 
   public:
-    Interval() = default;
-    Interval(T start, T end);
+    constexpr Interval() = default;
+    constexpr Interval(T start, T end);
 
     [[nodiscard]] T getStart() const;
     [[nodiscard]] T getEnd() const;
@@ -32,7 +32,7 @@ class Interval
     bool operator!=(const Interval& rhs) const;
 };
 template <typename T>
-Interval<T>::Interval(T start, T end) : m_start(start), m_end(end)
+constexpr Interval<T>::Interval(T start, T end) : m_start(start), m_end(end)
 {
 }
 template <typename T>

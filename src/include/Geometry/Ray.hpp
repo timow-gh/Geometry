@@ -15,7 +15,8 @@ class Ray
     LinAl::Vec<T, D> m_direction;
 
   public:
-    Ray(const LinAl::Vec<T, D>& origin, const LinAl::Vec<T, D>& direction);
+    constexpr Ray(const LinAl::Vec<T, D>& origin,
+                  const LinAl::Vec<T, D>& direction);
 
     bool operator==(const Ray& rhs) const;
     bool operator!=(const Ray& rhs) const;
@@ -29,8 +30,8 @@ class Ray
 };
 
 template <typename T, std::size_t D>
-Ray<T, D>::Ray(const LinAl::Vec<T, D>& origin,
-               const LinAl::Vec<T, D>& direction)
+constexpr Ray<T, D>::Ray(const LinAl::Vec<T, D>& origin,
+                         const LinAl::Vec<T, D>& direction)
     : m_origin(origin), m_direction(direction)
 {
 }

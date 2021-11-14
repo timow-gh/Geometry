@@ -10,10 +10,11 @@ template <typename T>
 class Cuboid
 {
   public:
-    Cuboid(const LinAl::Vec3<T>& origin,
-           const LinAl::Vec3Array<T, 3>& sideVectors);
-    Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal);
-    explicit Cuboid(const LinAl::Vec3<T>& diagonal);
+    constexpr Cuboid(const LinAl::Vec3<T>& origin,
+                     const LinAl::Vec3Array<T, 3>& sideVectors);
+    constexpr Cuboid(const LinAl::Vec3<T>& origin,
+                     const LinAl::Vec3<T>& diagonal);
+    constexpr explicit Cuboid(const LinAl::Vec3<T>& diagonal);
 
     [[nodiscard]] const LinAl::Vec3<T>& origin() const;
     [[nodiscard]] const LinAl::Vec3Array<T, 3>& sideVectors() const;
@@ -27,14 +28,15 @@ class Cuboid
 };
 
 template <typename T>
-Cuboid<T>::Cuboid(const LinAl::Vec3<T>& origin,
-                  const LinAl::Vec3Array<T, 3>& sideVectors)
+constexpr Cuboid<T>::Cuboid(const LinAl::Vec3<T>& origin,
+                            const LinAl::Vec3Array<T, 3>& sideVectors)
     : m_origin(origin), m_sideVectors(sideVectors)
 {
 }
 
 template <typename T>
-Cuboid<T>::Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal)
+constexpr Cuboid<T>::Cuboid(const LinAl::Vec3<T>& origin,
+                            const LinAl::Vec3<T>& diagonal)
     : m_origin(origin)
 {
     LinAl::Vec3Array<T, 3> unitVectors = {
@@ -47,7 +49,7 @@ Cuboid<T>::Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal)
 }
 
 template <typename T>
-Cuboid<T>::Cuboid(const LinAl::Vec3<T>& diagonal)
+constexpr Cuboid<T>::Cuboid(const LinAl::Vec3<T>& diagonal)
     : Cuboid(LinAl::Vec3<T>{0, 0, 0}, diagonal)
 {
 }
