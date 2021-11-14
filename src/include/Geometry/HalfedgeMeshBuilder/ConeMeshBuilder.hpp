@@ -4,6 +4,7 @@
 #include <Core/Math/Constants.hpp>
 #include <Geometry/Cone.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
+#include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
 #include <optional>
 
@@ -24,7 +25,7 @@ class ConeMeshBuilder
         return *this;
     }
 
-    ConeMeshBuilder& setAzimuth(std::size_t azimuthCount)
+    ConeMeshBuilder& setAzimuthCount(std::size_t azimuthCount)
     {
         m_azimuthCount = azimuthCount;
         return *this;
@@ -51,20 +52,10 @@ class ConeMeshBuilder
     }
 
   private:
-    LinAl::Vec3Vector<T> calcConePoints(const Geometry::Cone<T>& cone)
+    LinAl::Vec3Vector<T> calcConePoints(const Geometry::Cone<T>& cone) const
     {
-        T azimuthStep = 2.0 * Core::PI / static_cast<double_t>(m_azimuthCount);
-        T circleRadius = cone.getRadius();
-
         LinAl::Vec3Vector<T> points;
-        for (std::size_t i{0}; i < m_azimuthCount; ++i)
-        {
-            T azimuthAngle = i * azimuthStep;
-            points.push_back(
-                LinAl::Vec3<T>{std::cos(azimuthAngle) * circleRadius,
-                               std::sin(azimuthAngle) * circleRadius,
-                               0.0});
-        }
+        calcCirclePoints(points, cone.getRadius(), m_azimuthCount);
 
         points.push_back(LinAl::Vec3<T>{0, 0, 0});
         points.push_back(LinAl::Vec3<T>{0, 0, cone.getSegment().length()});
@@ -72,7 +63,7 @@ class ConeMeshBuilder
         return points;
     }
     Core::TVector<uint32_t>
-    calcConeTriangleIndices(const LinAl::Vec3Vector<T>& conePoints)
+    calcConeTriangleIndices(const LinAl::Vec3Vector<T>& conePoints) const
     {
         Core::TVector<uint32_t> indices;
         std::size_t size = conePoints.size();

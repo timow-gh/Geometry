@@ -6,8 +6,10 @@ set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/FacetUtils.hpp
         include/Geometry/HalfedgeMesh/MeshPoints.hpp
         include/Geometry/HalfedgeMesh/HalfedgeMesh.hpp
+        include/Geometry/HalfedgeMeshBuilder/CirclePoints.hpp
         include/Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp
         include/Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp
+        include/Geometry/HalfedgeMeshBuilder/CylinderMeshBuilder.hpp
         include/Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp
         include/Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp
         include/Geometry/Distance/DistanceLine.hpp
