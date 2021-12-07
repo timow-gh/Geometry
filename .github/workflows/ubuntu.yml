@@ -15,27 +15,24 @@ jobs:
       matrix:
         config:
           - {
-            name: "GCCLatest",
+            name: "GCC",
             build_type: ["Release", "Debug"],
             cc: "gcc",
             cxx: "g++",
             generators: "Ninja",
             architecture: ""
           }
+          - {
+            name: "Clang",
+            build_type: ["Release", "Debug"],
+            cc: "clang",
+            cxx: "clang++",
+            generators: "Ninja",
+            architecture: ""
+          }
 
     steps:
       - uses: actions/checkout@v2
-
-      - name: Install GCC
-        uses: egor-tensin/setup-gcc@v1
-        with:
-          version: latest
-          platform: x64
-
-      - name: Install cmake
-        run: |
-          sudo apt install ninja-build cmake
-          cmake --version
 
       - name: Install ninja
         run: |
