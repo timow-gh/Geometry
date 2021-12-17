@@ -59,8 +59,8 @@ class SphereMeshBuilder
     {
         LinAl::Vec3Vector<T> points;
 
-        T polarStep = Core::PI / static_cast<double_t>(m_polarCount);
-        T azimuthStep = 2.0 * Core::PI / static_cast<double_t>(m_azimuthCount);
+        T polarStep = Core::PI<T> / static_cast<double_t>(m_polarCount);
+        T azimuthStep = 2.0 * Core::PI<T> / static_cast<double_t>(m_azimuthCount);
         T radius = sphere.getRadius();
 
         for (uint32_t i{1}; i < m_polarCount; ++i)

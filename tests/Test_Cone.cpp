@@ -8,9 +8,7 @@
 using namespace Geometry;
 using namespace LinAl;
 
-class Fixture_Cone
-    : public ::testing::Test
-{
+class Fixture_Cone : public ::testing::Test {
   protected:
     Cone<double_t> m_cone{Segment3d{ZERO_VEC3D, Z_VEC3D}, 1.0};
 };
@@ -31,7 +29,7 @@ TEST_F(Fixture_Cone, openingAngle)
 {
     auto openingAngle = m_cone.openingAngle();
     // rad = 90 * Core::PI / 180
-    EXPECT_DOUBLE_EQ(openingAngle, 90 * Core::PI / 180);
+    EXPECT_DOUBLE_EQ(openingAngle, 90 * Core::PI<double_t> / 180);
 }
 
 #pragma clang diagnostic pop
