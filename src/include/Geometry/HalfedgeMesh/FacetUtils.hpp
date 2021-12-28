@@ -30,8 +30,7 @@ Core::TVector<const Halfedge<T>*> calcHalfedges(const Facet<T>& facet)
 }
 
 template <typename T>
-Core::TVector<Vertex<T>>
-calcVertices(const Core::TVector<const Halfedge<T>*>& halfedges)
+Core::TVector<Vertex<T>> calcVertices(const Core::TVector<const Halfedge<T>*>& halfedges)
 {
     Core::TVector<Vertex<T>> result;
     for (const Halfedge<T>* halfedge: halfedges)

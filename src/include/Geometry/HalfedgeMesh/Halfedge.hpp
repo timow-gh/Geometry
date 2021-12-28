@@ -61,8 +61,7 @@ class Halfedge {
 };
 
 template <typename T>
-Halfedge<T>::Halfedge(std::size_t vertexIndex,
-                      HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
+Halfedge<T>::Halfedge(std::size_t vertexIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
     : m_facet(INVALID_INDEX)
     , m_vertex(vertexIndex)
     , m_next(INVALID_INDEX)
@@ -184,9 +183,8 @@ const Vertex<T>* Halfedge<T>::nextVertex() const
 template <typename T>
 bool Halfedge<T>::operator==(const Halfedge& rhs) const
 {
-    return m_facet == rhs.m_facet && m_vertex == rhs.m_vertex &&
-           m_next == rhs.m_next && m_previous == rhs.m_previous &&
-           m_opposite == rhs.m_opposite && m_mesh == rhs.m_mesh;
+    return m_facet == rhs.m_facet && m_vertex == rhs.m_vertex && m_next == rhs.m_next &&
+           m_previous == rhs.m_previous && m_opposite == rhs.m_opposite && m_mesh == rhs.m_mesh;
 }
 
 template <typename T>
@@ -198,9 +196,8 @@ bool Halfedge<T>::operator!=(const Halfedge& rhs) const
 template <typename T>
 bool Halfedge<T>::isValid() const
 {
-    if (m_facet != INVALID_INDEX && m_vertex != INVALID_INDEX &&
-        m_next != INVALID_INDEX && m_previous != INVALID_INDEX &&
-        m_mesh->contains(*this))
+    if (m_facet != INVALID_INDEX && m_vertex != INVALID_INDEX && m_next != INVALID_INDEX &&
+        m_previous != INVALID_INDEX && m_mesh->contains(*this))
         return true;
     return false;
 }

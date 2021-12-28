@@ -38,14 +38,12 @@ class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
         const auto cylinderSeg = m_cylinder->getSegment();
 
         LinAl::HMatrixd hTrafo =
-            LinAl::rotationAlign(LinAl::Z_HVECD,
-                                 LinAl::vec3ToHVec(cylinderSeg.direction()));
+            LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(cylinderSeg.direction()));
         LinAl::setTranslation(hTrafo, cylinderSeg.getSource());
         MeshBuilderBase<T, CylinderMeshBuilder<T>>::setTransformation(hTrafo);
 
         LinAl::Vec3Vector<T> cylPoints = calcCylinderPoints();
-        const auto cylinderTriangleIndices =
-            calcCylinderTriangleIndices(cylPoints);
+        const auto cylinderTriangleIndices = calcCylinderTriangleIndices(cylPoints);
         return MeshBuilderBase<T, CylinderMeshBuilder<T>>::buildTriangleHeMesh(
             cylPoints,
             cylinderTriangleIndices);
@@ -90,8 +88,8 @@ class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
         indices.push_back(circleEndIdx - 1);
     }
 
-    Core::TVector<uint32_t> calcCylinderTriangleIndices(
-        const LinAl::Vec3Vector<T>& cylinderPoints) const
+    Core::TVector<uint32_t>
+    calcCylinderTriangleIndices(const LinAl::Vec3Vector<T>& cylinderPoints) const
     {
         // Bottom circle
         Core::TVector<uint32_t> indices;
@@ -131,10 +129,7 @@ class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
         const std::size_t topMidPointIdx = cylPointsSize - 1;
         const std::size_t topCircleStartIdx = m_azimuthCount;
         const std::size_t topCircleEndIdx = 2 * m_azimuthCount;
-        calcCircleBufferIndices(indices,
-                                topMidPointIdx,
-                                topCircleStartIdx,
-                                topCircleEndIdx);
+        calcCircleBufferIndices(indices, topMidPointIdx, topCircleStartIdx, topCircleEndIdx);
 
         return indices;
     }

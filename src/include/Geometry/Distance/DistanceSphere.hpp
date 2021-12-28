@@ -8,11 +8,9 @@
 namespace Geometry
 {
 template <typename T>
-CORE_NODISCARD T signedDistance(const LinAl::Vec3<T>& vec,
-                                const Sphere<T>& sphere)
+CORE_NODISCARD T signedDistance(const LinAl::Vec3<T>& vec, const Sphere<T>& sphere)
 {
-    return LinAl::norm2(LinAl::Vec3<T>{vec - sphere.getOrigin()}) -
-           sphere.getRadius();
+    return LinAl::norm2(LinAl::Vec3<T>{vec - sphere.getOrigin()}) - sphere.getRadius();
 }
 template <typename T>
 CORE_NODISCARD T distance(const LinAl::Vec3<T>& vec, const Sphere<T>& sphere)

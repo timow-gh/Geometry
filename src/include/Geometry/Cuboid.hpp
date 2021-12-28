@@ -10,17 +10,15 @@ namespace Geometry
 template <typename T>
 class Cuboid {
   public:
-    CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin,
-                          const LinAl::Vec3Array<T, 3>& sideVectors);
-    CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin,
-                          const LinAl::Vec3<T>& diagonal);
+    CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3Array<T, 3>& sideVectors);
+    CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal);
     CORE_CONSTEXPR explicit Cuboid(const LinAl::Vec3<T>& diagonal);
 
-    CORE_NODISCARD const LinAl::Vec3<T>& origin() const;
-    CORE_NODISCARD const LinAl::Vec3Array<T, 3>& sideVectors() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& origin() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& sideVectors() const;
 
-    bool operator==(const Cuboid& rhs) const;
-    bool operator!=(const Cuboid& rhs) const;
+    CORE_CONSTEXPR bool operator==(const Cuboid& rhs) const;
+    CORE_CONSTEXPR bool operator!=(const Cuboid& rhs) const;
 
   private:
     LinAl::Vec3<T> m_origin;
@@ -35,8 +33,7 @@ CORE_CONSTEXPR Cuboid<T>::Cuboid(const LinAl::Vec3<T>& origin,
 }
 
 template <typename T>
-CORE_CONSTEXPR Cuboid<T>::Cuboid(const LinAl::Vec3<T>& origin,
-                                 const LinAl::Vec3<T>& diagonal)
+CORE_CONSTEXPR Cuboid<T>::Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal)
     : m_origin(origin)
 {
     LinAl::Vec3Array<T, 3> unitVectors = {
@@ -53,23 +50,27 @@ CORE_CONSTEXPR Cuboid<T>::Cuboid(const LinAl::Vec3<T>& diagonal)
     : Cuboid(LinAl::Vec3<T>{0, 0, 0}, diagonal)
 {
 }
+
 template <typename T>
-const LinAl::Vec3<T>& Cuboid<T>::origin() const
+CORE_CONSTEXPR const LinAl::Vec3<T>& Cuboid<T>::origin() const
 {
     return m_origin;
 }
+
 template <typename T>
-const LinAl::Vec3Array<T, 3>& Cuboid<T>::sideVectors() const
+CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& Cuboid<T>::sideVectors() const
 {
     return m_sideVectors;
 }
+
 template <typename T>
-bool Cuboid<T>::operator==(const Cuboid& rhs) const
+CORE_CONSTEXPR bool Cuboid<T>::operator==(const Cuboid& rhs) const
 {
     return m_origin == rhs.m_origin && m_sideVectors == rhs.m_sideVectors;
 }
+
 template <typename T>
-bool Cuboid<T>::operator!=(const Cuboid& rhs) const
+CORE_CONSTEXPR bool Cuboid<T>::operator!=(const Cuboid& rhs) const
 {
     return !(rhs == *this);
 }

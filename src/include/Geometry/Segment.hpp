@@ -16,23 +16,22 @@ class Segment {
 
   public:
     CORE_CONSTEXPR Segment() = default;
-    CORE_CONSTEXPR Segment(const LinAl::Vec<T, D>& source,
-                           const LinAl::Vec<T, D>& target);
+    CORE_CONSTEXPR Segment(const LinAl::Vec<T, D>& source, const LinAl::Vec<T, D>& target);
 
-    CORE_NODISCARD const LinAl::Vec<T, D>& getSource() const;
-    CORE_NODISCARD const LinAl::Vec<T, D>& getTarget() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getSource() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getTarget() const;
 
-    void setSource(const LinAl::Vec<T, D>& source);
-    void setTarget(const LinAl::Vec<T, D>& target);
+    CORE_CONSTEXPR void setSource(const LinAl::Vec<T, D>& source);
+    CORE_CONSTEXPR void setTarget(const LinAl::Vec<T, D>& target);
 
-    CORE_NODISCARD T distance(const LinAl::Vec<T, D>& vec) const;
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const;
 
-    CORE_NODISCARD T length() const;
+    CORE_NODISCARD CORE_CONSTEXPR T length() const;
     //! Returns vector of length one.
-    CORE_NODISCARD LinAl::Vec<T, D> direction() const;
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> direction() const;
 
-    bool operator==(const Segment& rhs) const;
-    bool operator!=(const Segment& rhs) const;
+    CORE_CONSTEXPR bool operator==(const Segment& rhs) const;
+    CORE_CONSTEXPR bool operator!=(const Segment& rhs) const;
 };
 
 template <typename T, std::size_t D>
@@ -43,53 +42,55 @@ CORE_CONSTEXPR Segment<T, D>::Segment(const LinAl::Vec<T, D>& source,
 }
 
 template <typename T, std::size_t D>
-const LinAl::Vec<T, D>& Segment<T, D>::getSource() const
+CORE_CONSTEXPR const LinAl::Vec<T, D>& Segment<T, D>::getSource() const
 {
     return m_source;
 }
+
 template <typename T, std::size_t D>
-const LinAl::Vec<T, D>& Segment<T, D>::getTarget() const
+CORE_CONSTEXPR const LinAl::Vec<T, D>& Segment<T, D>::getTarget() const
 {
     return m_target;
 }
 
 template <typename T, std::size_t D>
-void Segment<T, D>::setSource(const LinAl::Vec<T, D>& source)
+CORE_CONSTEXPR void Segment<T, D>::setSource(const LinAl::Vec<T, D>& source)
 {
     m_source = source;
 }
 template <typename T, std::size_t D>
-void Segment<T, D>::setTarget(const LinAl::Vec<T, D>& target)
+CORE_CONSTEXPR void Segment<T, D>::setTarget(const LinAl::Vec<T, D>& target)
 {
     m_target = target;
 }
 
 template <typename T, std::size_t D>
-T Segment<T, D>::distance(const LinAl::Vec<T, D>& vec) const
+CORE_CONSTEXPR T Segment<T, D>::distance(const LinAl::Vec<T, D>& vec) const
 {
     return Geometry::distance(*this, vec);
 }
 
 template <typename T, std::size_t D>
-T Segment<T, D>::length() const
+CORE_CONSTEXPR T Segment<T, D>::length() const
 {
     return LinAl::norm2(LinAl::Vec<T, D>{m_target - m_source});
 }
 
 template <typename T, std::size_t D>
-LinAl::Vec<T, D> Segment<T, D>::direction() const
+CORE_CONSTEXPR LinAl::Vec<T, D> Segment<T, D>::direction() const
 {
     LinAl::Vec<T, D> segVec{m_target - m_source};
     return segVec / LinAl::norm2(segVec);
 }
 
 template <typename T, std::size_t D>
-bool Segment<T, D>::operator==(const Segment& rhs) const
+CORE_CONSTEXPR bool Segment<T, D>::operator==(const Segment& rhs) const
 {
     return m_source == rhs.m_source && m_target == rhs.m_target;
 }
+
 template <typename T, std::size_t D>
-bool Segment<T, D>::operator!=(const Segment& rhs) const
+CORE_CONSTEXPR bool Segment<T, D>::operator!=(const Segment& rhs) const
 {
     return !(rhs == *this);
 }

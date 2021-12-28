@@ -47,9 +47,8 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         auto spherePoints = calcSpherePoints(*m_sphere);
         auto triangleIndices = calcSphereTriangleIndices(spherePoints);
 
-        return MeshBuilderBase<T, SphereMeshBuilder<T>>::buildTriangleHeMesh(
-            spherePoints,
-            triangleIndices);
+        return MeshBuilderBase<T, SphereMeshBuilder<T>>::buildTriangleHeMesh(spherePoints,
+                                                                             triangleIndices);
     }
 
   private:
@@ -58,8 +57,7 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         LinAl::Vec3Vector<T> points;
 
         T polarStep = Core::PI<T> / static_cast<double_t>(m_polarCount);
-        T azimuthStep =
-            2.0 * Core::PI<T> / static_cast<double_t>(m_azimuthCount);
+        T azimuthStep = 2.0 * Core::PI<T> / static_cast<double_t>(m_azimuthCount);
         T radius = sphere.getRadius();
 
         for (uint32_t i{1}; i < m_polarCount; ++i)
@@ -89,12 +87,9 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         return points;
     }
 
-    Core::TVector<uint32_t>
-    calcSphereTriangleIndices(const LinAl::Vec3Vector<T>& spherePoints)
+    Core::TVector<uint32_t> calcSphereTriangleIndices(const LinAl::Vec3Vector<T>& spherePoints)
     {
-        auto toIdx = [azimuthCount =
-                          m_azimuthCount](std::size_t i,
-                                          std::size_t j) -> std::size_t
+        auto toIdx = [azimuthCount = m_azimuthCount](std::size_t i, std::size_t j) -> std::size_t
         {
             return i * azimuthCount + j;
         };

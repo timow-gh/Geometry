@@ -18,7 +18,7 @@ class MeshBuilderBase {
 
     std::unique_ptr<HalfedgeMesh<T>>
     buildTriangleHeMesh(const LinAl::Vec3Vector<T>& points,
-                        const Core::TVector<uint32_t>& triangleIndices)
+                        const Core::TVector<uint32_t>& triangleIndices) const
     {
         auto heMesh = std::make_unique<HalfedgeMesh<T>>();
         std::size_t size = triangleIndices.size();
@@ -34,10 +34,8 @@ class MeshBuilderBase {
                 const std::size_t idx = triangleIndices[i - j];
                 const LinAl::Vec3<T>& point = points[idx];
                 LinAl::HVec<T> tPoint =
-                    m_transformation *
-                    LinAl::HVec<T>{point[0], point[1], point[2], 1.0};
-                trianglePoints[j] =
-                    LinAl::Vec3<T>{tPoint[0], tPoint[1], tPoint[2]};
+                    m_transformation * LinAl::HVec<T>{point[0], point[1], point[2], 1.0};
+                trianglePoints[j] = LinAl::Vec3<T>{tPoint[0], tPoint[1], tPoint[2]};
             }
 
             addTriangle(heMesh.get(), Triangle<T, 3>(trianglePoints));

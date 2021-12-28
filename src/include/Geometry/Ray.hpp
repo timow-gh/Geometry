@@ -15,59 +15,57 @@ class Ray {
     LinAl::Vec<T, D> m_direction;
 
   public:
-    CORE_CONSTEXPR Ray(const LinAl::Vec<T, D>& origin,
-                       const LinAl::Vec<T, D>& direction);
+    CORE_CONSTEXPR Ray(const LinAl::Vec<T, D>& origin, const LinAl::Vec<T, D>& direction);
 
-    bool operator==(const Ray& rhs) const;
-    bool operator!=(const Ray& rhs) const;
+    CORE_CONSTEXPR bool operator==(const Ray& rhs) const;
+    CORE_CONSTEXPR bool operator!=(const Ray& rhs) const;
 
-    CORE_NODISCARD const LinAl::Vec<T, D>& getOrigin() const;
-    CORE_NODISCARD const LinAl::Vec<T, D>& getDirection() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getOrigin() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const;
 
-    CORE_NODISCARD T distance(const Ray<T, D>& ray,
-                              const LinAl::Vec<T, D>& vec) const;
-    CORE_NODISCARD T distance(const LinAl::Vec<T, D>& vec) const;
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const Ray<T, D>& ray,
+                                             const LinAl::Vec<T, D>& vec) const;
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const;
 };
 
 template <typename T, std::size_t D>
-CORE_CONSTEXPR Ray<T, D>::Ray(const LinAl::Vec<T, D>& origin,
-                              const LinAl::Vec<T, D>& direction)
+CORE_CONSTEXPR Ray<T, D>::Ray(const LinAl::Vec<T, D>& origin, const LinAl::Vec<T, D>& direction)
     : m_origin(origin), m_direction(direction)
 {
 }
 
 template <typename T, std::size_t D>
-bool Ray<T, D>::operator==(const Ray& rhs) const
+CORE_CONSTEXPR bool Ray<T, D>::operator==(const Ray& rhs) const
 {
     return m_origin == rhs.m_origin && m_direction == rhs.m_direction;
 }
+
 template <typename T, std::size_t D>
-bool Ray<T, D>::operator!=(const Ray& rhs) const
+CORE_CONSTEXPR bool Ray<T, D>::operator!=(const Ray& rhs) const
 {
     return !(rhs == *this);
 }
 
 template <typename T, std::size_t D>
-const LinAl::Vec<T, D>& Ray<T, D>::getOrigin() const
+CORE_CONSTEXPR const LinAl::Vec<T, D>& Ray<T, D>::getOrigin() const
 {
     return m_origin;
 }
 
 template <typename T, std::size_t D>
-const LinAl::Vec<T, D>& Ray<T, D>::getDirection() const
+CORE_CONSTEXPR const LinAl::Vec<T, D>& Ray<T, D>::getDirection() const
 {
     return m_direction;
 }
 
 template <typename T, std::size_t D>
-CORE_NODISCARD T Ray<T, D>::distance(const Ray<T, D>& ray,
-                                     const LinAl::Vec<T, D>& vec) const
+CORE_CONSTEXPR T Ray<T, D>::distance(const Ray<T, D>& ray, const LinAl::Vec<T, D>& vec) const
 {
     return Geometry::distance(ray, vec);
 }
 
 template <typename T, std::size_t D>
-T Ray<T, D>::distance(const LinAl::Vec<T, D>& vec) const
+CORE_CONSTEXPR T Ray<T, D>::distance(const LinAl::Vec<T, D>& vec) const
 {
     return Geometry::distance(*this, vec);
 }

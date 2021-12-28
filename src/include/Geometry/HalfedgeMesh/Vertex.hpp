@@ -44,8 +44,7 @@ class Vertex {
 };
 
 template <typename T>
-Vertex<T>::Vertex(std::size_t meshPointIndex,
-                  HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
+Vertex<T>::Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
     : m_index(meshPointIndex)
     , m_halfedgeIndex(INVALID_INDEX)
     , halfedgeMesh(mesh)

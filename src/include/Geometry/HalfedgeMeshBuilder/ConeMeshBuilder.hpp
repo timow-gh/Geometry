@@ -38,16 +38,14 @@ class ConeMeshBuilder : public MeshBuilderBase<T, ConeMeshBuilder<T>> {
         const auto coneSeg = m_cone->getSegment();
 
         LinAl::HMatrixd hTrafo =
-            LinAl::rotationAlign(LinAl::Z_HVECD,
-                                 LinAl::vec3ToHVec(coneSeg.direction()));
+            LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(coneSeg.direction()));
         LinAl::setTranslation(hTrafo, coneSeg.getSource());
         MeshBuilderBase<T, ConeMeshBuilder<T>>::setTransformation(hTrafo);
 
         auto conePoints = calcConePoints(*m_cone);
         auto coneTriangleIndices = calcConeTriangleIndices(conePoints);
-        return MeshBuilderBase<T, ConeMeshBuilder<T>>::buildTriangleHeMesh(
-            conePoints,
-            coneTriangleIndices);
+        return MeshBuilderBase<T, ConeMeshBuilder<T>>::buildTriangleHeMesh(conePoints,
+                                                                           coneTriangleIndices);
     }
 
   private:
@@ -61,8 +59,7 @@ class ConeMeshBuilder : public MeshBuilderBase<T, ConeMeshBuilder<T>> {
 
         return points;
     }
-    Core::TVector<uint32_t>
-    calcConeTriangleIndices(const LinAl::Vec3Vector<T>& conePoints) const
+    Core::TVector<uint32_t> calcConeTriangleIndices(const LinAl::Vec3Vector<T>& conePoints) const
     {
         Core::TVector<uint32_t> indices;
         std::size_t size = conePoints.size();

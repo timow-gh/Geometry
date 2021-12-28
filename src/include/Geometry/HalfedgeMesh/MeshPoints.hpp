@@ -21,8 +21,7 @@ class MeshPoints {
     CORE_NODISCARD const LinAl::Vec3Vector<T>& getPoints() const;
     void setPoints(const LinAl::Vec3Vector<T>& points);
 
-    CORE_NODISCARD bool contains(const LinAl::Vec3<T>& vector,
-                                 std::size_t& index);
+    CORE_NODISCARD bool contains(const LinAl::Vec3<T>& vector, std::size_t& index);
     CORE_NODISCARD LinAl::Vec3<T> getPoint(std::size_t index) const;
 
     CORE_NODISCARD std::size_t size() const;

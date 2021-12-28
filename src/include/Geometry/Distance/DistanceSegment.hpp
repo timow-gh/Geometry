@@ -9,8 +9,7 @@
 namespace Geometry
 {
 template <typename T, std::size_t D>
-CORE_CONSTEXPR T distance(const Segment<T, D>& segment,
-                          const LinAl::Vec<T, D>& vec)
+CORE_CONSTEXPR T distance(const Segment<T, D>& segment, const LinAl::Vec<T, D>& vec)
 {
     const LinAl::Vec<T, D>& source = segment.getSource();
     LinAl::Vec<T, D> ps = vec - source;
@@ -22,8 +21,7 @@ CORE_CONSTEXPR T distance(const Segment<T, D>& segment,
 }
 
 template <typename T, std::size_t D>
-CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec,
-                          const Segment<T, D>& segment)
+CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec, const Segment<T, D>& segment)
 {
     return distance(segment, vec);
 }

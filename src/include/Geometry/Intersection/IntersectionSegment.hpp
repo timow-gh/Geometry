@@ -79,13 +79,11 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& lhs,
     uint32_t res = sInterval.intersection(Interval{T(0), T(1)}, iInterval);
     if (res == 1 || res == 2)
     {
-        intersection.setSource(
-            LinAl::Vec<T, D>(lhsSource + iInterval.getStart() * lhsDir));
+        intersection.setSource(LinAl::Vec<T, D>(lhsSource + iInterval.getStart() * lhsDir));
     }
     if (res == 2)
     {
-        intersection.setTarget(
-            LinAl::Vec<T, D>(lhsSource + iInterval.getEnd() * lhsDir));
+        intersection.setTarget(LinAl::Vec<T, D>(lhsSource + iInterval.getEnd() * lhsDir));
     }
     return res;
 }
@@ -124,8 +122,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& seg,
     if (!Core::isZero(sqrCross, eps * sqrLenSeg))
     {
         // Lines are not parallel
-        T s =
-            (deltaSource[0] * lineDir[1] - deltaSource[1] * lineDir[0]) / cross;
+        T s = (deltaSource[0] * lineDir[1] - deltaSource[1] * lineDir[0]) / cross;
         if (Core::isLess(s, T(0), eps) || Core::isGreater(s, T(1), eps))
             return 0;
 

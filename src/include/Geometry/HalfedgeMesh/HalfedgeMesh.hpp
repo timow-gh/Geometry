@@ -66,12 +66,10 @@ class HalfedgeMesh {
     CORE_NODISCARD bool contains(const LinAl::Vec3<T>& point) const;
 
     template <typename K>
-    friend void addTriangle(HalfedgeMesh<K>* mesh,
-                            const Triangle<K, 3>& triangle)
+    friend void addTriangle(HalfedgeMesh<K>* mesh, const Triangle<K, 3>& triangle)
     {
         // Create or find the Vertex of the LinAl::Vec3
-        const LinAl::VecArray<K, 3, 3> trianglePoints =
-            triangle.getTrianglePoints();
+        const LinAl::VecArray<K, 3, 3> trianglePoints = triangle.getTrianglePoints();
         Core::TArray<std::size_t, 3> vertexIndices;
         for (std::size_t i = 0; i < 3; ++i)
         {
@@ -84,16 +82,14 @@ class HalfedgeMesh {
             vertexIndices[i] = vertexIndex;
         }
 
-        std::size_t halfedgeIndex =
-            mesh->m_halfedges.size() == 0 ? 0 : mesh->m_halfedges.size();
+        std::size_t halfedgeIndex = mesh->m_halfedges.size() == 0 ? 0 : mesh->m_halfedges.size();
 
         // Create the Halfedges and set the Halfedges for Vertices
         for (const std::size_t vIndex: vertexIndices)
         {
             mesh->m_halfedges.emplace_back(vIndex, mesh);
             if (mesh->m_vertices[vIndex].getHalfedgeIndex() == INVALID_INDEX)
-                mesh->m_vertices[vIndex].setHalfedgeIndex(
-                    mesh->m_halfedges.size() - 1);
+                mesh->m_vertices[vIndex].setHalfedgeIndex(mesh->m_halfedges.size() - 1);
         }
 
         mesh->m_facets.emplace_back(halfedgeIndex, mesh);
@@ -104,11 +100,9 @@ class HalfedgeMesh {
         for (std::size_t i = halfedgeIndex; i < mesh->m_halfedges.size(); ++i)
         {
             mesh->m_halfedges[i].setFacet(facetIdx);
-            auto nextHeIndex =
-                i == mesh->m_halfedges.size() - 1 ? halfedgeIndex : i + 1;
+            auto nextHeIndex = i == mesh->m_halfedges.size() - 1 ? halfedgeIndex : i + 1;
             mesh->m_halfedges[i].setNextIndex(nextHeIndex);
-            auto previousHeIndex =
-                i == halfedgeIndex ? mesh->m_halfedges.size() - 1 : i - 1;
+            auto previousHeIndex = i == halfedgeIndex ? mesh->m_halfedges.size() - 1 : i - 1;
             mesh->m_halfedges[i].setPreviousIndex(previousHeIndex);
         }
 
@@ -122,8 +116,7 @@ class HalfedgeMesh {
                 continue;
 
             Halfedge<K>* oppHeCandidate = he->previous();
-            std::size_t oppHeCandidateIndex =
-                halfedge.vertex().halfedge()->getPreviousIndex();
+            std::size_t oppHeCandidateIndex = halfedge.vertex().halfedge()->getPreviousIndex();
 
             if (!oppHeCandidate)
                 continue;
@@ -134,8 +127,7 @@ class HalfedgeMesh {
             if (!nextVertex || !oppNextVertex)
                 continue;
 
-            if (halfedge.vertex() == *oppNextVertex &&
-                *nextVertex == oppHeCandidate->vertex())
+            if (halfedge.vertex() == *oppNextVertex && *nextVertex == oppHeCandidate->vertex())
             {
                 halfedge.setOppositeIndex(oppHeCandidateIndex);
                 oppHeCandidate->setOppositeIndex(i);
@@ -170,8 +162,7 @@ const Core::TVector<Geometry::Vertex<T>>& HalfedgeMesh<T>::getVertices() const
 }
 
 template <typename T>
-const Core::TVector<Geometry::Halfedge<T>>&
-HalfedgeMesh<T>::getHalfedges() const
+const Core::TVector<Geometry::Halfedge<T>>& HalfedgeMesh<T>::getHalfedges() const
 {
     return m_halfedges;
 }
@@ -261,8 +252,7 @@ Core::TVector<U> calcTriangleIndices(const Core::TVector<Facet<T>>& facets)
     Core::TVector<U> result;
     for (const auto& facet: facets)
     {
-        for (const Geometry::Halfedge<T>* halfedge:
-             Geometry::calcHalfedges(facet))
+        for (const Geometry::Halfedge<T>* halfedge: Geometry::calcHalfedges(facet))
         {
             result.push_back(static_cast<U>(halfedge->getVertexIndex()));
         }

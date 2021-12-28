@@ -71,8 +71,7 @@ std::size_t Facet<T>::getHalfedgeIndex() const
 template <typename T>
 bool Facet<T>::isValid() const
 {
-    return m_halfedgeIndex != Geometry::INVALID_INDEX &&
-           m_mesh->contains(*this);
+    return m_halfedgeIndex != Geometry::INVALID_INDEX && m_mesh->contains(*this);
 }
 
 } // namespace Geometry

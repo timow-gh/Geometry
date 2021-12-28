@@ -13,17 +13,16 @@ class PolyLine {
   public:
     CORE_CONSTEXPR PolyLine(const LinAl::VecVector<T, D>& mPoints);
 
-    CORE_NODISCARD const LinAl::VecVector<T, D>& getPoints() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::VecVector<T, D>& getPoints() const;
 };
 
 template <typename T, std::size_t D>
-CORE_CONSTEXPR PolyLine<T, D>::PolyLine(const LinAl::VecVector<T, D>& mPoints)
-    : m_points(mPoints)
+CORE_CONSTEXPR PolyLine<T, D>::PolyLine(const LinAl::VecVector<T, D>& mPoints) : m_points(mPoints)
 {
 }
 
 template <typename T, std::size_t D>
-const LinAl::VecVector<T, D>& PolyLine<T, D>::getPoints() const
+CORE_CONSTEXPR const LinAl::VecVector<T, D>& PolyLine<T, D>::getPoints() const
 {
     return m_points;
 }
