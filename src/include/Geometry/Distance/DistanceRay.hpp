@@ -9,8 +9,8 @@
 namespace Geometry
 {
 template <typename T, std::size_t D>
-CORE_NODISCARD constexpr T distance(const Ray<T, D>& ray,
-                                    const LinAl::Vec<T, D>& vec)
+CORE_NODISCARD CORE_CONSTEXPR T distance(const Ray<T, D>& ray,
+                                         const LinAl::Vec<T, D>& vec)
 {
     LinAl::Vec<T, D> vecO{vec - ray.getOrigin()};
     const LinAl::Vec<T, D> rayDirection = ray.getDirection();
@@ -26,8 +26,8 @@ CORE_NODISCARD constexpr T distance(const Ray<T, D>& ray,
 }
 
 template <typename T, std::size_t D>
-CORE_NODISCARD constexpr T distance(const LinAl::Vec<T, D>& vec,
-                                    const Ray<T, D>& ray)
+CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec,
+                                         const Ray<T, D>& ray)
 {
     return distance(ray, vec);
 }

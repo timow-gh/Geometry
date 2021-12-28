@@ -18,7 +18,8 @@ class Plane {
     LinAl::Vec3<T> m_normal;
 
   public:
-    constexpr Plane(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& normal);
+    CORE_CONSTEXPR Plane(const LinAl::Vec3<T>& origin,
+                         const LinAl::Vec3<T>& normal);
 
     CORE_NODISCARD const LinAl::Vec3<T>& getOrigin() const;
     CORE_NODISCARD const LinAl::Vec3<T>& getNormal() const;
@@ -34,8 +35,8 @@ class Plane {
 };
 
 template <typename T>
-constexpr Plane<T>::Plane(const LinAl::Vec3<T>& origin,
-                          const LinAl::Vec3<T>& normal)
+CORE_CONSTEXPR Plane<T>::Plane(const LinAl::Vec3<T>& origin,
+                               const LinAl::Vec3<T>& normal)
     : m_origin(origin), m_normal(LinAl::normalize(normal))
 {
 }

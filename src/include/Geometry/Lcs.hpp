@@ -1,6 +1,7 @@
 #ifndef GLFWTESTAPP_LCS_H
 #define GLFWTESTAPP_LCS_H
 
+#include <Core/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -14,14 +15,14 @@ class Lcs {
     LinAl::Vec3Array<T, 3> m_coordVec;
 
   public:
-    constexpr Lcs();
-    constexpr Lcs(const LinAl::Vec3<T>& origin,
-                  const LinAl::Vec3<T>& x,
-                  const LinAl::Vec3<T>& y);
-    constexpr Lcs(const LinAl::Vec3<T>& origin,
-                  const LinAl::Vec3<T>& x,
-                  const LinAl::Vec3<T>& y,
-                  const LinAl::Vec3<T>& z);
+    CORE_CONSTEXPR Lcs();
+    CORE_CONSTEXPR Lcs(const LinAl::Vec3<T>& origin,
+                       const LinAl::Vec3<T>& x,
+                       const LinAl::Vec3<T>& y);
+    CORE_CONSTEXPR Lcs(const LinAl::Vec3<T>& origin,
+                       const LinAl::Vec3<T>& x,
+                       const LinAl::Vec3<T>& y,
+                       const LinAl::Vec3<T>& z);
 
     bool operator==(const Lcs& rhs) const;
     bool operator!=(const Lcs& rhs) const;
@@ -43,7 +44,7 @@ class Lcs {
 };
 
 template <typename T>
-constexpr Lcs<T>::Lcs()
+CORE_CONSTEXPR Lcs<T>::Lcs()
     : m_origin(LinAl::Vec3<T>{0})
     , m_coordVec{LinAl::Vec3<T>{1, 0, 0},
                  LinAl::Vec3<T>{0, 1, 0},
@@ -52,9 +53,9 @@ constexpr Lcs<T>::Lcs()
 }
 
 template <typename T>
-constexpr Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
-                      const LinAl::Vec3<T>& x,
-                      const LinAl::Vec3<T>& y)
+CORE_CONSTEXPR Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
+                           const LinAl::Vec3<T>& x,
+                           const LinAl::Vec3<T>& y)
     : m_origin(origin)
 {
     m_coordVec[0] = x;
@@ -64,10 +65,10 @@ constexpr Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
 }
 
 template <typename T>
-constexpr Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
-                      const LinAl::Vec3<T>& x,
-                      const LinAl::Vec3<T>& y,
-                      const LinAl::Vec3<T>& z)
+CORE_CONSTEXPR Lcs<T>::Lcs(const LinAl::Vec3<T>& origin,
+                           const LinAl::Vec3<T>& x,
+                           const LinAl::Vec3<T>& y,
+                           const LinAl::Vec3<T>& z)
     : m_origin(origin), m_coordVec({x, y, z})
 {
     normalizeCoordVectors();

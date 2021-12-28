@@ -32,7 +32,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& lhs,
     LinAl::Vec<T, D> rhsDir = rhsTarget - rhsSource;
 
     // TODO extract function: is planar to plane (see line intersection)
-    if constexpr (D == 3)
+    if CORE_CONSTEXPR (D == 3)
     {
         Plane<T> plane{lhsSource, LinAl::cross(deltaSource, lhsDir)};
         if (plane.intersection(Line<T, D>{rhsSource, rhsDir}))
@@ -110,7 +110,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& seg,
     LinAl::Vec<T, D> segDir = segTarget - segSource;
 
     // TODO extract function: is planar to plane (see line intersection)
-    if constexpr (D == 3)
+    if CORE_CONSTEXPR (D == 3)
     {
         Plane<T> plane{segSource, LinAl::cross(deltaSource, segDir)};
         if (plane.intersection(line))

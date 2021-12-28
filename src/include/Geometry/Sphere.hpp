@@ -13,7 +13,7 @@ class Sphere {
     T m_radius;
 
   public:
-    constexpr Sphere(const LinAl::Vec3<T>& origin, T radius);
+    CORE_CONSTEXPR Sphere(const LinAl::Vec3<T>& origin, T radius);
 
     const LinAl::Vec3<T>& getOrigin() const;
     T getRadius() const;
@@ -28,7 +28,7 @@ class Sphere {
 };
 
 template <typename T>
-constexpr Sphere<T>::Sphere(const LinAl::Vec3<T>& origin, T radius)
+CORE_CONSTEXPR Sphere<T>::Sphere(const LinAl::Vec3<T>& origin, T radius)
     : m_origin(origin), m_radius(radius)
 {
 }

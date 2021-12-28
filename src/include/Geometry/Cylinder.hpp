@@ -14,7 +14,7 @@ class Cylinder {
     T m_radius;
 
   public:
-    constexpr Cylinder(const Segment3<T>& segment, T radius);
+    CORE_CONSTEXPR Cylinder(const Segment3<T>& segment, T radius);
 
     CORE_NODISCARD const Segment3<T>& getSegment() const;
     CORE_NODISCARD T getRadius() const;
@@ -26,7 +26,7 @@ class Cylinder {
 };
 
 template <typename T>
-constexpr Cylinder<T>::Cylinder(const Segment3<T>& segment, T radius)
+CORE_CONSTEXPR Cylinder<T>::Cylinder(const Segment3<T>& segment, T radius)
     : m_segment(segment), m_radius(radius)
 {
 }

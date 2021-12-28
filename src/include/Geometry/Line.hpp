@@ -16,8 +16,8 @@ class Line {
     LinAl::Vec<T, D> m_direction;
 
   public:
-    constexpr Line(const LinAl::Vec<T, D>& origin,
-                   const LinAl::Vec<T, D>& direction);
+    CORE_CONSTEXPR Line(const LinAl::Vec<T, D>& origin,
+                        const LinAl::Vec<T, D>& direction);
 
     CORE_NODISCARD const LinAl::Vec<T, D>& getOrigin() const;
     CORE_NODISCARD const LinAl::Vec<T, D>& getDirection() const;
@@ -30,8 +30,8 @@ class Line {
 };
 
 template <typename T, std::size_t D>
-constexpr Line<T, D>::Line(const LinAl::Vec<T, D>& origin,
-                           const LinAl::Vec<T, D>& direction)
+CORE_CONSTEXPR Line<T, D>::Line(const LinAl::Vec<T, D>& origin,
+                                const LinAl::Vec<T, D>& direction)
     : m_origin(origin)
     , m_direction(LinAl::normalize(LinAl::Vec<T, D>{direction}))
 {

@@ -30,7 +30,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Line<T, D>& lhs,
 
     LinAl::Vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
 
-    if constexpr (D == 3)
+    if CORE_CONSTEXPR (D == 3)
     {
         Plane<T> plane{lhsOrigin, LinAl::cross(deltaOrigin, lhsDir)};
         if (plane.intersection(rhs))

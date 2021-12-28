@@ -15,9 +15,9 @@ class Segment {
     LinAl::Vec<T, D> m_target;
 
   public:
-    constexpr Segment() = default;
-    constexpr Segment(const LinAl::Vec<T, D>& source,
-                      const LinAl::Vec<T, D>& target);
+    CORE_CONSTEXPR Segment() = default;
+    CORE_CONSTEXPR Segment(const LinAl::Vec<T, D>& source,
+                           const LinAl::Vec<T, D>& target);
 
     CORE_NODISCARD const LinAl::Vec<T, D>& getSource() const;
     CORE_NODISCARD const LinAl::Vec<T, D>& getTarget() const;
@@ -36,8 +36,8 @@ class Segment {
 };
 
 template <typename T, std::size_t D>
-constexpr Segment<T, D>::Segment(const LinAl::Vec<T, D>& source,
-                                 const LinAl::Vec<T, D>& target)
+CORE_CONSTEXPR Segment<T, D>::Segment(const LinAl::Vec<T, D>& source,
+                                      const LinAl::Vec<T, D>& target)
     : m_source(source), m_target(target)
 {
 }

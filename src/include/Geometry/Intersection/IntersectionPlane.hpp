@@ -2,6 +2,7 @@
 #define GEOMETRY_INTERSECTIONPLANE_HPP
 
 #include <Core/Math/Eps.hpp>
+#include <Core/Utils/Compiler.hpp>
 #include <Geometry/FwdGeometry.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 #include <optional>
@@ -16,7 +17,7 @@ calcIntersectionParameter(const LinAl::Vec<T, 3>& planeOrigin,
                           const LinAl::Vec3<T>& lineDir,
                           T eps = Core::eps_traits<T>::value());
 template <typename T>
-constexpr std::optional<LinAl::Vec3<T>>
+CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
 calcIntersection(const Plane<T>& plane,
                  const Line3<T>& line,
                  T eps = Core::eps_traits<T>::value())
@@ -34,7 +35,7 @@ calcIntersection(const Plane<T>& plane,
     return std::nullopt;
 }
 template <typename T>
-constexpr std::optional<LinAl::Vec3<T>>
+CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
 calcIntersection(const Plane<T>& plane,
                  const Ray3<T>& ray,
                  T eps = Core::eps_traits<T>::value())
@@ -55,7 +56,7 @@ calcIntersection(const Plane<T>& plane,
     return std::nullopt;
 }
 template <typename T>
-constexpr std::optional<LinAl::Vec3<T>>
+CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
 calcIntersection(const Plane<T>& plane,
                  const Segment3<T>& seg,
                  T eps = Core::eps_traits<T>::value())

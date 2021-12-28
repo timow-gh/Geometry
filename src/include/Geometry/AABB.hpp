@@ -1,6 +1,7 @@
 #ifndef GLFWTESTAPP_AABB_H
 #define GLFWTESTAPP_AABB_H
 
+#include <Core/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -8,8 +9,8 @@ namespace Geometry
 template <typename T, std::size_t Dim>
 class AABB {
   public:
-    constexpr AABB(const LinAl::Vec<T, Dim>& min,
-                   const LinAl::Vec<T, Dim>& max);
+    CORE_CONSTEXPR AABB(const LinAl::Vec<T, Dim>& min,
+                        const LinAl::Vec<T, Dim>& max);
 
     inline const LinAl::Vec<T, Dim>& min() const;
     inline LinAl::Vec<T, Dim>& min();
@@ -23,8 +24,8 @@ class AABB {
 };
 
 template <typename T, std::size_t Dim>
-constexpr AABB<T, Dim>::AABB(const LinAl::Vec<T, Dim>& min,
-                             const LinAl::Vec<T, Dim>& max)
+CORE_CONSTEXPR AABB<T, Dim>::AABB(const LinAl::Vec<T, Dim>& min,
+                                  const LinAl::Vec<T, Dim>& max)
     : m_min(min), m_max(max)
 {
 }

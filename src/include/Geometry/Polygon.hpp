@@ -1,6 +1,7 @@
 #ifndef GLFWTESTAPP_POLYGON_HPP
 #define GLFWTESTAPP_POLYGON_HPP
 
+#include <Core/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -10,7 +11,7 @@ class Polygon {
     LinAl::VecVector<T, D> m_points;
 
   public:
-    constexpr explicit Polygon(const LinAl::VecVector<T, D>& points);
+    CORE_CONSTEXPR explicit Polygon(const LinAl::VecVector<T, D>& points);
 
     bool operator==(const Polygon& rhs) const;
     bool operator!=(const Polygon& rhs) const;
@@ -19,7 +20,7 @@ class Polygon {
 };
 
 template <typename T, std::size_t D>
-constexpr Polygon<T, D>::Polygon(const LinAl::VecVector<T, D>& points)
+CORE_CONSTEXPR Polygon<T, D>::Polygon(const LinAl::VecVector<T, D>& points)
     : m_points(points)
 {
 }
