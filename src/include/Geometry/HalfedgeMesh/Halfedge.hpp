@@ -20,7 +20,7 @@ struct HalfedgeMesh;
 template <typename T>
 class Halfedge {
   public:
-    Halfedge(std::size_t vertexIndex, HalfedgeMesh<T>* mesh) noexcept;
+    Halfedge(std::size_t vertexIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT;
 
     CORE_NODISCARD const Facet<T>* facet() const;
     CORE_NODISCARD std::size_t getFacetIndex() const;
@@ -61,7 +61,8 @@ class Halfedge {
 };
 
 template <typename T>
-Halfedge<T>::Halfedge(std::size_t vertexIndex, HalfedgeMesh<T>* mesh) noexcept
+Halfedge<T>::Halfedge(std::size_t vertexIndex,
+                      HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
     : m_facet(INVALID_INDEX)
     , m_vertex(vertexIndex)
     , m_next(INVALID_INDEX)

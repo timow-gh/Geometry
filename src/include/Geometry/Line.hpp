@@ -1,11 +1,11 @@
 #ifndef GLFWTESTAPP_LINE_H
 #define GLFWTESTAPP_LINE_H
 
-#include "Geometry/Distance/DistanceLine.hpp"
-#include "Geometry/Intersection/IntersectionSegment.hpp"
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
+#include <Geometry/Distance/DistanceLine.hpp>
 #include <Geometry/Intersection/IntersectionPlane.hpp>
+#include <Geometry/Intersection/IntersectionSegment.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry

@@ -38,8 +38,8 @@ class HalfedgeMesh {
     explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
     HalfedgeMesh& operator=(const HalfedgeMesh& rhs) = delete;
 
-    HalfedgeMesh(HalfedgeMesh&& rhs) noexcept = default;
-    HalfedgeMesh& operator=(HalfedgeMesh&& rhs) noexcept = default;
+    HalfedgeMesh(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
+    HalfedgeMesh& operator=(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
 
     CORE_NODISCARD LinAl::Vec3Vector<T>& getVertexPoints();
     CORE_NODISCARD const LinAl::Vec3Vector<T>& getVertexPoints() const;

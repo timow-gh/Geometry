@@ -1,7 +1,6 @@
 #ifndef GLFWTESTAPP_VERTEX_H
 #define GLFWTESTAPP_VERTEX_H
 
-#include "HalfedgeMesh.hpp"
 #include <Core/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
 #include <LinAl/LinearAlgebra.hpp>
@@ -19,10 +18,10 @@ struct HalfedgeMesh;
 template <typename T>
 class Vertex {
   public:
-    Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) noexcept;
+    Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT;
     Vertex(std::size_t meshPointIndex,
            std::size_t halfedgeIndex,
-           HalfedgeMesh<T>* mesh) noexcept;
+           HalfedgeMesh<T>* mesh) CORE_NOEXCEPT;
 
     CORE_NODISCARD LinAl::Vec3<T> getPoint() const;
     CORE_NODISCARD std::size_t getIndex() const;
@@ -45,7 +44,8 @@ class Vertex {
 };
 
 template <typename T>
-Vertex<T>::Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) noexcept
+Vertex<T>::Vertex(std::size_t meshPointIndex,
+                  HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
     : m_index(meshPointIndex)
     , m_halfedgeIndex(INVALID_INDEX)
     , halfedgeMesh(mesh)
@@ -55,7 +55,7 @@ Vertex<T>::Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) noexcept
 template <typename T>
 Vertex<T>::Vertex(std::size_t meshPointIndex,
                   std::size_t halfedgeIndex,
-                  HalfedgeMesh<T>* mesh) noexcept
+                  HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
     : m_index(meshPointIndex)
     , m_halfedgeIndex(halfedgeIndex)
     , halfedgeMesh(mesh)
