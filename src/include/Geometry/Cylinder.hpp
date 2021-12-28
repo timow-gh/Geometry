@@ -1,25 +1,25 @@
 #ifndef GLFWTESTAPP_CYLINDER_HPP
 #define GLFWTESTAPP_CYLINDER_HPP
 
-#include "FwdGeometry.hpp"
-#include "Geometry/Lcs.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Utils/Compiler.hpp>
+#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Lcs.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 template <typename T>
-class Cylinder
-{
+class Cylinder {
     Segment3<T> m_segment;
     T m_radius;
 
   public:
     constexpr Cylinder(const Segment3<T>& segment, T radius);
 
-    [[nodiscard]] const Segment3<T>& getSegment() const;
-    [[nodiscard]] T getRadius() const;
+    CORE_NODISCARD const Segment3<T>& getSegment() const;
+    CORE_NODISCARD T getRadius() const;
 
-    [[nodiscard]] T height() const;
+    CORE_NODISCARD T height() const;
 
     bool operator==(const Cylinder& rhs) const;
     bool operator!=(const Cylinder& rhs) const;

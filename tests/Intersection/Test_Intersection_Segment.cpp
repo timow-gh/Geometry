@@ -3,7 +3,7 @@
 
 #include "Geometry/Intersection/IntersectionSegment.hpp"
 #include "Geometry/Segment.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <LinAl/LinearAlgebra.hpp>
 #include "gtest/gtest.h"
 #include <iostream>
 

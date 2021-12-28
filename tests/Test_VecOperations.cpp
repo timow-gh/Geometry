@@ -1,4 +1,4 @@
-#include "LinAl/LinearAlgebra.hpp"
+#include <LinAl/LinearAlgebra.hpp>
 #include "gtest/gtest.h"
 
 TEST(dotProduct, dotZeros)

@@ -2,6 +2,7 @@
 #define GEOMETRY_CONEMESHBUILDER_HPP
 
 #include <Core/Math/Constants.hpp>
+#include <Core/Utils/Compiler.hpp>
 #include <Geometry/Cone.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
@@ -11,9 +12,7 @@
 namespace Geometry
 {
 template <typename T>
-class ConeMeshBuilder
-    : public MeshBuilderBase<T, ConeMeshBuilder<T>>
-{
+class ConeMeshBuilder : public MeshBuilderBase<T, ConeMeshBuilder<T>> {
     std::optional<Cone<T>> m_cone;
     std::size_t m_azimuthCount{20};
 
@@ -31,7 +30,7 @@ class ConeMeshBuilder
         return *this;
     }
 
-    [[nodiscard]] std::unique_ptr<HalfedgeMesh<T>> build()
+    CORE_NODISCARD std::unique_ptr<HalfedgeMesh<T>> build()
     {
         if (!m_cone)
             return nullptr;

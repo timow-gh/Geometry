@@ -1,16 +1,16 @@
 #ifndef GLFWTESTAPP_RAY_HPP
 #define GLFWTESTAPP_RAY_HPP
 
-#include "Core/Math/Eps.hpp"
-#include "Geometry/Distance/DistanceRay.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Math/Eps.hpp>
+#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Distance/DistanceRay.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 
 template <typename T, std::size_t D>
-class Ray
-{
+class Ray {
     LinAl::Vec<T, D> m_origin;
     LinAl::Vec<T, D> m_direction;
 
@@ -21,12 +21,12 @@ class Ray
     bool operator==(const Ray& rhs) const;
     bool operator!=(const Ray& rhs) const;
 
-    [[nodiscard]] const LinAl::Vec<T, D>& getOrigin() const;
-    [[nodiscard]] const LinAl::Vec<T, D>& getDirection() const;
+    CORE_NODISCARD const LinAl::Vec<T, D>& getOrigin() const;
+    CORE_NODISCARD const LinAl::Vec<T, D>& getDirection() const;
 
-    [[nodiscard]] T distance(const Ray<T, D>& ray,
-                             const LinAl::Vec<T, D>& vec) const;
-    [[nodiscard]] T distance(const LinAl::Vec<T, D>& vec) const;
+    CORE_NODISCARD T distance(const Ray<T, D>& ray,
+                              const LinAl::Vec<T, D>& vec) const;
+    CORE_NODISCARD T distance(const LinAl::Vec<T, D>& vec) const;
 };
 
 template <typename T, std::size_t D>
@@ -60,8 +60,8 @@ const LinAl::Vec<T, D>& Ray<T, D>::getDirection() const
 }
 
 template <typename T, std::size_t D>
-[[nodiscard]] T Ray<T, D>::distance(const Ray<T, D>& ray,
-                                    const LinAl::Vec<T, D>& vec) const
+CORE_NODISCARD T Ray<T, D>::distance(const Ray<T, D>& ray,
+                                     const LinAl::Vec<T, D>& vec) const
 {
     return Geometry::distance(ray, vec);
 }

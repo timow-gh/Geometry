@@ -1,8 +1,8 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-#include "Geometry/Interval.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Geometry/Interval.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 #include "gtest/gtest.h"
 
 using namespace Geometry;

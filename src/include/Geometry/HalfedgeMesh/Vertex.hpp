@@ -1,9 +1,10 @@
 #ifndef GLFWTESTAPP_VERTEX_H
 #define GLFWTESTAPP_VERTEX_H
 
-#include "Geometry/HalfedgeMesh/Halfedge.hpp"
 #include "HalfedgeMesh.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Utils/Compiler.hpp>
+#include <Geometry/HalfedgeMesh/Halfedge.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 #include <cstdio>
 
 namespace Geometry
@@ -16,27 +17,26 @@ template <typename T>
 struct HalfedgeMesh;
 
 template <typename T>
-class Vertex
-{
+class Vertex {
   public:
     Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) noexcept;
     Vertex(std::size_t meshPointIndex,
            std::size_t halfedgeIndex,
            HalfedgeMesh<T>* mesh) noexcept;
 
-    [[nodiscard]] LinAl::Vec3<T> getPoint() const;
-    [[nodiscard]] std::size_t getIndex() const;
+    CORE_NODISCARD LinAl::Vec3<T> getPoint() const;
+    CORE_NODISCARD std::size_t getIndex() const;
 
-    [[nodiscard]] const Halfedge<T>* halfedge() const;
+    CORE_NODISCARD const Halfedge<T>* halfedge() const;
     Halfedge<T>* halfedge();
 
-    [[nodiscard]] std::size_t getHalfedgeIndex() const;
+    CORE_NODISCARD std::size_t getHalfedgeIndex() const;
     void setHalfedgeIndex(std::size_t halfedgeIndex);
 
     bool operator==(const Vertex& rhs) const;
     bool operator!=(const Vertex& rhs) const;
 
-    [[nodiscard]] bool isValid() const;
+    CORE_NODISCARD bool isValid() const;
 
   private:
     std::size_t m_index;

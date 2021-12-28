@@ -1,16 +1,17 @@
 #ifndef GLFWTESTAPP_HALFEDGEMESH_H
 #define GLFWTESTAPP_HALFEDGEMESH_H
 
-#include "CrossGuid/Guid.hpp"
-#include "Geometry/HalfedgeMesh/Facet.hpp"
-#include "Geometry/HalfedgeMesh/FacetUtils.hpp"
-#include "Geometry/HalfedgeMesh/Halfedge.hpp"
-#include "Geometry/HalfedgeMesh/MeshPoints.hpp"
-#include "Geometry/HalfedgeMesh/Vertex.hpp"
-#include "Geometry/Triangle.hpp"
-#include "LinAl/LinearAlgebra.hpp"
 #include <Core/Types/TArray.hpp>
 #include <Core/Types/TVector.hpp>
+#include <Core/Utils/Compiler.hpp>
+#include <CrossGuid/Guid.hpp>
+#include <Geometry/HalfedgeMesh/Facet.hpp>
+#include <Geometry/HalfedgeMesh/FacetUtils.hpp>
+#include <Geometry/HalfedgeMesh/Halfedge.hpp>
+#include <Geometry/HalfedgeMesh/MeshPoints.hpp>
+#include <Geometry/HalfedgeMesh/Vertex.hpp>
+#include <Geometry/Triangle.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
@@ -26,8 +27,7 @@ template <typename T>
 class SphereMeshBuilder;
 
 template <typename T>
-class HalfedgeMesh
-{
+class HalfedgeMesh {
     Core::TVector<Vertex<T>> m_vertices;
     Core::TVector<Halfedge<T>> m_halfedges;
     Core::TVector<Facet<T>> m_facets;
@@ -41,29 +41,29 @@ class HalfedgeMesh
     HalfedgeMesh(HalfedgeMesh&& rhs) noexcept = default;
     HalfedgeMesh& operator=(HalfedgeMesh&& rhs) noexcept = default;
 
-    [[nodiscard]] LinAl::Vec3Vector<T>& getVertexPoints();
-    [[nodiscard]] const LinAl::Vec3Vector<T>& getVertexPoints() const;
+    CORE_NODISCARD LinAl::Vec3Vector<T>& getVertexPoints();
+    CORE_NODISCARD const LinAl::Vec3Vector<T>& getVertexPoints() const;
 
-    [[nodiscard]] Core::TVector<Vertex<T>>& getVertices();
-    [[nodiscard]] const Core::TVector<Vertex<T>>& getVertices() const;
+    CORE_NODISCARD Core::TVector<Vertex<T>>& getVertices();
+    CORE_NODISCARD const Core::TVector<Vertex<T>>& getVertices() const;
 
-    [[nodiscard]] Core::TVector<Halfedge<T>>& getHalfedges();
-    [[nodiscard]] const Core::TVector<Halfedge<T>>& getHalfedges() const;
+    CORE_NODISCARD Core::TVector<Halfedge<T>>& getHalfedges();
+    CORE_NODISCARD const Core::TVector<Halfedge<T>>& getHalfedges() const;
 
-    [[nodiscard]] Core::TVector<Facet<T>>& getFacets();
-    [[nodiscard]] const Core::TVector<Facet<T>>& getFacets() const;
+    CORE_NODISCARD Core::TVector<Facet<T>>& getFacets();
+    CORE_NODISCARD const Core::TVector<Facet<T>>& getFacets() const;
 
-    [[nodiscard]] MeshPoints<T>& getTriangleMesh();
-    [[nodiscard]] const MeshPoints<T>& getTriangleMesh() const;
+    CORE_NODISCARD MeshPoints<T>& getTriangleMesh();
+    CORE_NODISCARD const MeshPoints<T>& getTriangleMesh() const;
 
-    [[nodiscard]] Vertex<T> getVertex(std::size_t index) const;
-    [[nodiscard]] Halfedge<T> getHalfedge(std::size_t index) const;
-    [[nodiscard]] Facet<T> getFacet(std::size_t index) const;
+    CORE_NODISCARD Vertex<T> getVertex(std::size_t index) const;
+    CORE_NODISCARD Halfedge<T> getHalfedge(std::size_t index) const;
+    CORE_NODISCARD Facet<T> getFacet(std::size_t index) const;
 
-    [[nodiscard]] bool contains(const Vertex<T>& vertex) const;
-    [[nodiscard]] bool contains(const Halfedge<T>& halfedge) const;
-    [[nodiscard]] bool contains(const Facet<T>& facet) const;
-    [[nodiscard]] bool contains(const LinAl::Vec3<T>& point) const;
+    CORE_NODISCARD bool contains(const Vertex<T>& vertex) const;
+    CORE_NODISCARD bool contains(const Halfedge<T>& halfedge) const;
+    CORE_NODISCARD bool contains(const Facet<T>& facet) const;
+    CORE_NODISCARD bool contains(const LinAl::Vec3<T>& point) const;
 
     template <typename K>
     friend void addTriangle(HalfedgeMesh<K>* mesh,

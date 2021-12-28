@@ -1,9 +1,9 @@
 #ifndef GEOMETRY_DISTANCESEGMENT_HPP
 #define GEOMETRY_DISTANCESEGMENT_HPP
 
-#include "Core/Math/Eps.hpp"
-#include "Geometry/FwdGeometry.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Math/Eps.hpp>
+#include <Geometry/FwdGeometry.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {

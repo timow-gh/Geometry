@@ -1,13 +1,12 @@
 #ifndef GEOMETRY_TRIANGLE_HPP
 #define GEOMETRY_TRIANGLE_HPP
 
-#include "LinAl/LinearAlgebra.hpp"
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 template <typename T, std::size_t D>
-class Triangle
-{
+class Triangle {
     LinAl::VecArray<T, D, 3> m_trianglePoints;
 
   public:

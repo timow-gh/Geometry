@@ -1,11 +1,11 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-#include "Core/Math/Eps.hpp"
-#include "Geometry/HalfedgeMesh/Vertex.hpp"
+#include <Core/Math/Eps.hpp>
+#include <Geometry/HalfedgeMesh/Vertex.hpp>
 #include "Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp"
-#include "Geometry/Sphere.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Geometry/Sphere.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 #include "MeshTestHelper.h"
 #include "SphereTestHelper.h"
 #include "gtest/gtest.h"

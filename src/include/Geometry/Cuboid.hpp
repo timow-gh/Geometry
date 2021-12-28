@@ -1,14 +1,14 @@
 #ifndef GLFWTESTAPP_CUBE_H
 #define GLFWTESTAPP_CUBE_H
 
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Utils/Compiler.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 
 template <typename T>
-class Cuboid
-{
+class Cuboid {
   public:
     constexpr Cuboid(const LinAl::Vec3<T>& origin,
                      const LinAl::Vec3Array<T, 3>& sideVectors);
@@ -16,8 +16,8 @@ class Cuboid
                      const LinAl::Vec3<T>& diagonal);
     constexpr explicit Cuboid(const LinAl::Vec3<T>& diagonal);
 
-    [[nodiscard]] const LinAl::Vec3<T>& origin() const;
-    [[nodiscard]] const LinAl::Vec3Array<T, 3>& sideVectors() const;
+    CORE_NODISCARD const LinAl::Vec3<T>& origin() const;
+    CORE_NODISCARD const LinAl::Vec3Array<T, 3>& sideVectors() const;
 
     bool operator==(const Cuboid& rhs) const;
     bool operator!=(const Cuboid& rhs) const;

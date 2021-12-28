@@ -1,10 +1,10 @@
 #ifndef GEOMETRY_INTERSECTIONSPHERE_HPP
 #define GEOMETRY_INTERSECTIONSPHERE_HPP
 
-#include "Core/Math/Eps.hpp"
-#include "Geometry/FwdGeometry.hpp"
-#include "Geometry/Sphere.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Math/Eps.hpp>
+#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Sphere.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 #include <optional>
 
 namespace Geometry

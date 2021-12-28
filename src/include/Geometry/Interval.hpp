@@ -1,13 +1,13 @@
 #ifndef GEOMETRY_INTERVAL_HPP
 #define GEOMETRY_INTERVAL_HPP
 
+#include <Core/Utils/Compiler.hpp>
 #include <cstdint>
 
 namespace Geometry
 {
 template <typename T>
-class Interval
-{
+class Interval {
     T m_start;
     T m_end;
 
@@ -15,8 +15,8 @@ class Interval
     constexpr Interval() = default;
     constexpr Interval(T start, T end);
 
-    [[nodiscard]] T getStart() const;
-    [[nodiscard]] T getEnd() const;
+    CORE_NODISCARD T getStart() const;
+    CORE_NODISCARD T getEnd() const;
 
     void setStart(T start);
     void setEnd(T end);
@@ -25,8 +25,8 @@ class Interval
     //! 0 -> no intersection
     //! 1 -> intersection at single point (start of intersection)
     //! 2 -> intersection is an interval
-    [[nodiscard]] uint32_t intersection(const Interval& interval,
-                                        Interval& intersection) const;
+    CORE_NODISCARD uint32_t intersection(const Interval& interval,
+                                         Interval& intersection) const;
 
     bool operator==(const Interval& rhs) const;
     bool operator!=(const Interval& rhs) const;

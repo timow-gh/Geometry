@@ -9,8 +9,7 @@ namespace Geometry
 {
 
 template <typename T, typename Derived>
-class MeshBuilderBase
-{
+class MeshBuilderBase {
   protected:
     LinAl::HMatrix<double_t> m_transformation = {{1, 0, 0, 0},
                                                  {0, 1, 0, 0},

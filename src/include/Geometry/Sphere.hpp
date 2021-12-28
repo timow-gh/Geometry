@@ -1,15 +1,14 @@
 #ifndef GLFWTESTAPP_SPHERE_H
 #define GLFWTESTAPP_SPHERE_H
 
-#include "Core/Math/Eps.hpp"
-#include "Lcs.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Math/Eps.hpp>
+#include <Geometry/Lcs.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 template <typename T>
-class Sphere
-{
+class Sphere {
     LinAl::Vec3<T> m_origin;
     T m_radius;
 

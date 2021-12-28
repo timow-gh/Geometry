@@ -1,11 +1,12 @@
 #ifndef GEOMETRY_CUBOIDMESHBUILDER_HPP
 #define GEOMETRY_CUBOIDMESHBUILDER_HPP
 
-#include "Core/Types/TArray.hpp"
-#include "Geometry/Cuboid.hpp"
-#include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
-#include "Geometry/Triangle.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Types/TArray.hpp>
+#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Cuboid.hpp>
+#include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
+#include <Geometry/Triangle.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 #include <algorithm>
 #include <optional>
 
@@ -13,8 +14,7 @@ namespace Geometry
 {
 
 template <typename T>
-class CuboidMeshBuilder
-{
+class CuboidMeshBuilder {
     std::optional<Cuboid<T>> m_cube;
 
   public:
@@ -24,7 +24,7 @@ class CuboidMeshBuilder
         return *this;
     }
 
-    [[nodiscard]] std::unique_ptr<HalfedgeMesh<T>> build()
+    CORE_NODISCARD std::unique_ptr<HalfedgeMesh<T>> build()
     {
         if (!m_cube)
             return nullptr;

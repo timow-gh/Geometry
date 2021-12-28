@@ -1,9 +1,9 @@
 #ifndef GLFWTESTAPP_FACETUTILS_H
 #define GLFWTESTAPP_FACETUTILS_H
 
-#include "Core/Types/TVector.hpp"
-#include "Facet.hpp"
-#include "Geometry/HalfedgeMesh/Halfedge.hpp"
+#include <Core/Types/TVector.hpp>
+#include <Geometry/HalfedgeMesh/Facet.hpp>
+#include <Geometry/HalfedgeMesh/Halfedge.hpp>
 
 namespace Geometry
 {

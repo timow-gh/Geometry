@@ -4,7 +4,7 @@
 #include "Geometry/Intersection/IntersectionSphere.hpp"
 #include "Geometry/Line.hpp"
 #include "Geometry/Segment.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <LinAl/LinearAlgebra.hpp>
 #include "gtest/gtest.h"
 #include <optional>
 

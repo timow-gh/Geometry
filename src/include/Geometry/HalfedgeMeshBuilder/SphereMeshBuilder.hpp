@@ -15,9 +15,7 @@ namespace Geometry
 {
 
 template <typename T>
-class SphereMeshBuilder
-    : public MeshBuilderBase<T, SphereMeshBuilder<T>>
-{
+class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
     std::size_t m_polarCount{10};
     std::size_t m_azimuthCount{20};
     std::optional<Sphere<T>> m_sphere;
@@ -60,7 +58,8 @@ class SphereMeshBuilder
         LinAl::Vec3Vector<T> points;
 
         T polarStep = Core::PI<T> / static_cast<double_t>(m_polarCount);
-        T azimuthStep = 2.0 * Core::PI<T> / static_cast<double_t>(m_azimuthCount);
+        T azimuthStep =
+            2.0 * Core::PI<T> / static_cast<double_t>(m_azimuthCount);
         T radius = sphere.getRadius();
 
         for (uint32_t i{1}; i < m_polarCount; ++i)

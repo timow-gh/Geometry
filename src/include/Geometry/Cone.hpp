@@ -1,14 +1,14 @@
 #ifndef GEOMETRY_CONE_HPP
 #define GEOMETRY_CONE_HPP
 
+#include <Core/Utils/Compiler.hpp>
 #include <Geometry/Segment.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 template <typename T>
-class Cone
-{
+class Cone {
     Geometry::Segment3<T> m_segment;
     T m_radius;
 
@@ -18,12 +18,12 @@ class Cone
                    const T& radius);
     constexpr Cone(const Segment3<T>& segment, const T& radius);
 
-    [[nodiscard]] const Geometry::Segment3<T>& getSegment() const;
-    [[nodiscard]] const T& getRadius() const;
+    CORE_NODISCARD const Geometry::Segment3<T>& getSegment() const;
+    CORE_NODISCARD const T& getRadius() const;
 
-    [[nodiscard]] T height() const;
-    [[nodiscard]] T slantHeight() const;
-    [[nodiscard]] T openingAngle() const;
+    CORE_NODISCARD T height() const;
+    CORE_NODISCARD T slantHeight() const;
+    CORE_NODISCARD T openingAngle() const;
 
     bool operator==(const Cone& rhs) const;
     bool operator!=(const Cone& rhs) const;

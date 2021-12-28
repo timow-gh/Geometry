@@ -3,9 +3,9 @@
 
 #include <benchmark/benchmark.h>
 
-#include "Geometry/Intersection/IntersectionPlane.hpp"
+#include <Geometry/Intersection/IntersectionPlane.hpp>
 #include "Geometry/Line.hpp"
-#include "Geometry/Plane.hpp"
+#include <Geometry/Plane.hpp>
 #include "Geometry/Ray.hpp"
 #include "Geometry/Segment.hpp"
 

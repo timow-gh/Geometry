@@ -1,6 +1,7 @@
 #ifndef GLFWTESTAPP_HALFEDGE_H
 #define GLFWTESTAPP_HALFEDGE_H
 
+#include <Core/Utils/Compiler.hpp>
 #include <Geometry/InvalidIndex.hpp>
 #include <limits>
 
@@ -17,39 +18,38 @@ template <typename T>
 struct HalfedgeMesh;
 
 template <typename T>
-class Halfedge
-{
+class Halfedge {
   public:
     Halfedge(std::size_t vertexIndex, HalfedgeMesh<T>* mesh) noexcept;
 
-    [[nodiscard]] const Facet<T>* facet() const;
-    [[nodiscard]] std::size_t getFacetIndex() const;
+    CORE_NODISCARD const Facet<T>* facet() const;
+    CORE_NODISCARD std::size_t getFacetIndex() const;
     void setFacet(std::size_t facet);
 
-    [[nodiscard]] const Halfedge<T>* next() const;
-    [[nodiscard]] Halfedge<T>* next();
-    [[nodiscard]] std::size_t getNextIndex() const;
+    CORE_NODISCARD const Halfedge<T>* next() const;
+    CORE_NODISCARD Halfedge<T>* next();
+    CORE_NODISCARD std::size_t getNextIndex() const;
     void setNextIndex(std::size_t index);
 
-    [[nodiscard]] const Halfedge<T>* previous() const;
-    [[nodiscard]] Halfedge<T>* previous();
-    [[nodiscard]] std::size_t getPreviousIndex() const;
+    CORE_NODISCARD const Halfedge<T>* previous() const;
+    CORE_NODISCARD Halfedge<T>* previous();
+    CORE_NODISCARD std::size_t getPreviousIndex() const;
     void setPreviousIndex(std::size_t index);
 
-    [[nodiscard]] const Halfedge<T>* opposite() const;
-    [[nodiscard]] std::size_t getOppositeIndex() const;
+    CORE_NODISCARD const Halfedge<T>* opposite() const;
+    CORE_NODISCARD std::size_t getOppositeIndex() const;
     void setOppositeIndex(std::size_t index);
 
-    [[nodiscard]] const Vertex<T>& vertex() const;
-    [[nodiscard]] Vertex<T>& vertex();
-    [[nodiscard]] std::size_t getVertexIndex() const;
+    CORE_NODISCARD const Vertex<T>& vertex() const;
+    CORE_NODISCARD Vertex<T>& vertex();
+    CORE_NODISCARD std::size_t getVertexIndex() const;
 
-    [[nodiscard]] const Vertex<T>* nextVertex() const;
+    CORE_NODISCARD const Vertex<T>* nextVertex() const;
 
     bool operator==(const Halfedge& rhs) const;
     bool operator!=(const Halfedge& rhs) const;
 
-    [[nodiscard]] bool isValid() const;
+    CORE_NODISCARD bool isValid() const;
 
   private:
     std::size_t m_facet;

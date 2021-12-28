@@ -1,7 +1,8 @@
 #ifndef MESH_HEADER
 #define MESH_HEADER
 
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Utils/Compiler.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 #include <cstddef>
 #include <iostream>
 #include <vector>
@@ -10,22 +11,21 @@ namespace Geometry
 {
 
 template <typename T>
-class MeshPoints
-{
+class MeshPoints {
   public:
     MeshPoints() = default;
 
-    [[nodiscard]] std::size_t add(const LinAl::Vec3<T>& vector);
+    CORE_NODISCARD std::size_t add(const LinAl::Vec3<T>& vector);
 
-    [[nodiscard]] LinAl::Vec3Vector<T>& getPoints();
-    [[nodiscard]] const LinAl::Vec3Vector<T>& getPoints() const;
+    CORE_NODISCARD LinAl::Vec3Vector<T>& getPoints();
+    CORE_NODISCARD const LinAl::Vec3Vector<T>& getPoints() const;
     void setPoints(const LinAl::Vec3Vector<T>& points);
 
-    [[nodiscard]] bool contains(const LinAl::Vec3<T>& vector,
-                                std::size_t& index);
-    [[nodiscard]] LinAl::Vec3<T> getPoint(std::size_t index) const;
+    CORE_NODISCARD bool contains(const LinAl::Vec3<T>& vector,
+                                 std::size_t& index);
+    CORE_NODISCARD LinAl::Vec3<T> getPoint(std::size_t index) const;
 
-    [[nodiscard]] std::size_t size() const;
+    CORE_NODISCARD std::size_t size() const;
 
     void transform(const LinAl::Vec3<T>& translation);
 

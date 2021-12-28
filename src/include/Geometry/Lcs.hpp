@@ -1,14 +1,13 @@
 #ifndef GLFWTESTAPP_LCS_H
 #define GLFWTESTAPP_LCS_H
 
-#include "LinAl/LinearAlgebra.hpp"
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 
 template <typename T>
-class Lcs
-{
+class Lcs {
   private:
     LinAl::Vec3<T> m_origin;
     //! x,y,z vectors

@@ -1,13 +1,12 @@
 #ifndef GLFWTESTAPP_POLYGON_HPP
 #define GLFWTESTAPP_POLYGON_HPP
 
-#include "LinAl/LinearAlgebra.hpp"
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 template <typename T, std::size_t D>
-class Polygon
-{
+class Polygon {
     LinAl::VecVector<T, D> m_points;
 
   public:

@@ -1,9 +1,9 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-#include "Geometry/Cuboid.hpp"
+#include <Geometry/Cuboid.hpp>
 #include "Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <LinAl/LinearAlgebra.hpp>
 #include "gtest/gtest.h"
 
 using namespace Geometry;

@@ -1,36 +1,37 @@
 #ifndef GLFWTESTAPP_LINE_H
 #define GLFWTESTAPP_LINE_H
 
-#include "Core/Math/Eps.hpp"
 #include "Geometry/Distance/DistanceLine.hpp"
-#include "Geometry/Intersection/IntersectionPlane.hpp"
 #include "Geometry/Intersection/IntersectionSegment.hpp"
+#include <Core/Math/Eps.hpp>
+#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 template <typename T, std::size_t D>
-class Line
-{
+class Line {
     LinAl::Vec<T, D> m_origin;
     LinAl::Vec<T, D> m_direction;
 
   public:
-    constexpr Line(const LinAl::Vec<T, D>& origin, const LinAl::Vec<T, D>& direction);
+    constexpr Line(const LinAl::Vec<T, D>& origin,
+                   const LinAl::Vec<T, D>& direction);
 
-    [[nodiscard]] const LinAl::Vec<T, D>& getOrigin() const;
-    [[nodiscard]] const LinAl::Vec<T, D>& getDirection() const;
+    CORE_NODISCARD const LinAl::Vec<T, D>& getOrigin() const;
+    CORE_NODISCARD const LinAl::Vec<T, D>& getDirection() const;
 
-    [[nodiscard]] T distance(const LinAl::Vec<T, D>& vec) const;
-    [[nodiscard]] T distance(const Line<T, D>& rhs) const;
+    CORE_NODISCARD T distance(const LinAl::Vec<T, D>& vec) const;
+    CORE_NODISCARD T distance(const Line<T, D>& rhs) const;
 
-    [[nodiscard]] std::optional<LinAl::Vec3<T>>
+    CORE_NODISCARD std::optional<LinAl::Vec3<T>>
     intersection(const Plane<T>& plane) const;
 };
 
 template <typename T, std::size_t D>
 constexpr Line<T, D>::Line(const LinAl::Vec<T, D>& origin,
-                 const LinAl::Vec<T, D>& direction)
+                           const LinAl::Vec<T, D>& direction)
     : m_origin(origin)
     , m_direction(LinAl::normalize(LinAl::Vec<T, D>{direction}))
 {

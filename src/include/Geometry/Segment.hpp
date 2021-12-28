@@ -1,16 +1,16 @@
 #ifndef GLFWTESTAPP_SEGMENT_H
 #define GLFWTESTAPP_SEGMENT_H
 
-#include "Core/Math/Eps.hpp"
-#include "Geometry/Distance/DistanceSegment.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Math/Eps.hpp>
+#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Distance/DistanceSegment.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 
 template <typename T, std::size_t D>
-class Segment
-{
+class Segment {
     LinAl::Vec<T, D> m_source;
     LinAl::Vec<T, D> m_target;
 
@@ -19,17 +19,17 @@ class Segment
     constexpr Segment(const LinAl::Vec<T, D>& source,
                       const LinAl::Vec<T, D>& target);
 
-    [[nodiscard]] const LinAl::Vec<T, D>& getSource() const;
-    [[nodiscard]] const LinAl::Vec<T, D>& getTarget() const;
+    CORE_NODISCARD const LinAl::Vec<T, D>& getSource() const;
+    CORE_NODISCARD const LinAl::Vec<T, D>& getTarget() const;
 
     void setSource(const LinAl::Vec<T, D>& source);
     void setTarget(const LinAl::Vec<T, D>& target);
 
-    [[nodiscard]] T distance(const LinAl::Vec<T, D>& vec) const;
+    CORE_NODISCARD T distance(const LinAl::Vec<T, D>& vec) const;
 
-    [[nodiscard]] T length() const;
+    CORE_NODISCARD T length() const;
     //! Returns vector of length one.
-    [[nodiscard]] LinAl::Vec<T, D> direction() const;
+    CORE_NODISCARD LinAl::Vec<T, D> direction() const;
 
     bool operator==(const Segment& rhs) const;
     bool operator!=(const Segment& rhs) const;

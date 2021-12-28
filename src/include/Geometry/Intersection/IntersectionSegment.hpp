@@ -1,11 +1,12 @@
 #ifndef GEOMETRY_INTERSECTIONSEGMENT_HPP
 #define GEOMETRY_INTERSECTIONSEGMENT_HPP
 
-#include "Core/Math/Eps.hpp"
-#include "Geometry/FwdGeometry.hpp"
-#include "Geometry/Interval.hpp"
-#include "Geometry/Plane.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Math/Eps.hpp>
+#include <Core/Utils/Compiler.hpp>
+#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Interval.hpp>
+#include <Geometry/Plane.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
@@ -16,10 +17,10 @@ namespace Geometry
 //! 2 -> Segments overlap, the intersection is a segment
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
-[[nodiscard]] uint32_t calcIntersection(const Segment<T, D>& lhs,
-                                        const Segment<T, D>& rhs,
-                                        Segment<T, D>& intersection,
-                                        T eps = Core::eps_traits<T>::value())
+CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& lhs,
+                                         const Segment<T, D>& rhs,
+                                         Segment<T, D>& intersection,
+                                         T eps = Core::eps_traits<T>::value())
 {
     const LinAl::Vec<T, D>& lhsSource = lhs.getSource();
     const LinAl::Vec<T, D>& lhsTarget = lhs.getTarget();
@@ -95,10 +96,10 @@ template <typename T, std::size_t D>
 //! 2 -> Overlap, the intersection is the segment
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
-[[nodiscard]] uint32_t calcIntersection(const Segment<T, D>& seg,
-                                        const Line<T, D>& line,
-                                        Segment<T, D>& intersection,
-                                        T eps = Core::eps_traits<T>::value())
+CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& seg,
+                                         const Line<T, D>& line,
+                                         Segment<T, D>& intersection,
+                                         T eps = Core::eps_traits<T>::value())
 {
     const LinAl::Vec<T, D>& segSource = seg.getSource();
     const LinAl::Vec<T, D>& segTarget = seg.getTarget();

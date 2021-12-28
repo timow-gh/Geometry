@@ -1,6 +1,7 @@
 #ifndef FILAPP_CYLINDERMESHBUILDER_HPP
 #define FILAPP_CYLINDERMESHBUILDER_HPP
 
+#include <Core/Utils/Compiler.hpp>
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CylinderMeshBuilder.hpp>
@@ -10,9 +11,7 @@
 namespace Geometry
 {
 template <typename T>
-class CylinderMeshBuilder
-    : public MeshBuilderBase<T, CylinderMeshBuilder<T>>
-{
+class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
     std::optional<Cylinder<T>> m_cylinder;
     std::size_t m_azimuthCount{20};
 
@@ -31,7 +30,7 @@ class CylinderMeshBuilder
         return *this;
     }
 
-    [[nodiscard]] std::unique_ptr<HalfedgeMesh<T>> build()
+    CORE_NODISCARD std::unique_ptr<HalfedgeMesh<T>> build()
     {
         if (!m_cylinder)
             return nullptr;

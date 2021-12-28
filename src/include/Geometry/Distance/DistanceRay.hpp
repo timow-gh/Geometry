@@ -1,15 +1,16 @@
 #ifndef GEOMETRY_DISTANCERAY_HPP
 #define GEOMETRY_DISTANCERAY_HPP
 
-#include "Core/Math/Eps.hpp"
-#include "Geometry/FwdGeometry.hpp"
-#include "LinAl/LinearAlgebra.hpp"
+#include <Core/Math/Eps.hpp>
+#include <Core/Utils/Compiler.hpp>
+#include <Geometry/FwdGeometry.hpp>
+#include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 template <typename T, std::size_t D>
-[[nodiscard]] constexpr T distance(const Ray<T, D>& ray,
-                                   const LinAl::Vec<T, D>& vec)
+CORE_NODISCARD constexpr T distance(const Ray<T, D>& ray,
+                                    const LinAl::Vec<T, D>& vec)
 {
     LinAl::Vec<T, D> vecO{vec - ray.getOrigin()};
     const LinAl::Vec<T, D> rayDirection = ray.getDirection();
@@ -25,8 +26,8 @@ template <typename T, std::size_t D>
 }
 
 template <typename T, std::size_t D>
-[[nodiscard]] constexpr T distance(const LinAl::Vec<T, D>& vec,
-                                   const Ray<T, D>& ray)
+CORE_NODISCARD constexpr T distance(const LinAl::Vec<T, D>& vec,
+                                    const Ray<T, D>& ray)
 {
     return distance(ray, vec);
 }

@@ -1,19 +1,19 @@
 #ifndef GEOMETRY_POLYLINE_H
 #define GEOMETRY_POLYLINE_H
 
+#include <Core/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 template <typename T, std::size_t D>
-class PolyLine
-{
+class PolyLine {
     LinAl::VecVector<T, D> m_points;
 
   public:
     constexpr PolyLine(const LinAl::VecVector<T, D>& mPoints);
 
-    [[nodiscard]] const LinAl::VecVector<T, D>& getPoints() const;
+    CORE_NODISCARD const LinAl::VecVector<T, D>& getPoints() const;
 };
 
 template <typename T, std::size_t D>

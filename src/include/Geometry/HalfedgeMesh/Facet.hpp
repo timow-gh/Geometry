@@ -1,6 +1,7 @@
 #ifndef MESHFACE_HEADER
 #define MESHFACE_HEADER
 
+#include <Core/Utils/Compiler.hpp>
 #include <Geometry/InvalidIndex.hpp>
 #include <cstddef>
 #include <initializer_list>
@@ -16,20 +17,19 @@ template <typename T>
 struct HalfedgeMesh;
 
 template <typename T>
-class Facet
-{
+class Facet {
   public:
     Facet(std::size_t halfedgeIndex, HalfedgeMesh<T>* mesh) noexcept;
 
-    [[nodiscard]] const Halfedge<T>& halfedge() const;
+    CORE_NODISCARD const Halfedge<T>& halfedge() const;
     Halfedge<T>& halfedge();
 
-    [[nodiscard]] std::size_t getHalfedgeIndex() const;
+    CORE_NODISCARD std::size_t getHalfedgeIndex() const;
 
     bool operator==(const Facet& rhs) const;
     bool operator!=(const Facet& rhs) const;
 
-    [[nodiscard]] bool isValid() const;
+    CORE_NODISCARD bool isValid() const;
 
   private:
     std::size_t m_halfedgeIndex;
