@@ -2,7 +2,7 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include <LinAl/LinearAlgebra.hpp>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <Geometry/Cone.hpp>
 #include <Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp>
 

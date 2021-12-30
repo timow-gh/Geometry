@@ -4,7 +4,7 @@
 #include <Geometry/Distance/DistancePlane.hpp>
 #include <Geometry/Plane.hpp>
 #include <LinAl/LinearAlgebra.hpp>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace Geometry;
 using namespace LinAl;

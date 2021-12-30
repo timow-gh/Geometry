@@ -1,11 +1,11 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-#include "Geometry/Line.hpp"
+#include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
-#include "Geometry/Ray.hpp"
+#include <Geometry/Ray.hpp>
 #include <LinAl/LinearAlgebra.hpp>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <Geometry/Segment.hpp>
 #include <iostream>
 

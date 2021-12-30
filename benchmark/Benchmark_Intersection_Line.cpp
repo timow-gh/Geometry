@@ -3,8 +3,8 @@
 
 #include <benchmark/benchmark.h>
 
-#include "Geometry/Intersection/IntersectionLine.hpp"
-#include "Geometry/Line.hpp"
+#include <Geometry/Intersection/IntersectionLine.hpp>
+#include <Geometry/Line.hpp>
 
 using namespace Geometry;
 using namespace LinAl;

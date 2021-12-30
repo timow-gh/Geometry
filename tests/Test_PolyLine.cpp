@@ -1,8 +1,8 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-#include "Geometry/PolyLine.hpp"
-#include "gtest/gtest.h"
+#include <Geometry/PolyLine.hpp>
+#include <gtest/gtest.h>
 
 using namespace LinAl;
 using namespace Geometry;

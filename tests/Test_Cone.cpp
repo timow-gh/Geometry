@@ -1,9 +1,9 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-#include "Geometry/Cone.hpp"
-#include "gtest/gtest.h"
 #include <Core/Math/Constants.hpp>
+#include <Geometry/Cone.hpp>
+#include <gtest/gtest.h>
 
 using namespace Geometry;
 using namespace LinAl;

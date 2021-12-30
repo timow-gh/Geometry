@@ -2,7 +2,7 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include "Geometry/Cylinder.hpp"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace Geometry;
 using namespace LinAl;

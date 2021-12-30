@@ -1,8 +1,8 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-#include "Geometry/Line.hpp"
-#include "gtest/gtest.h"
+#include <Geometry/Line.hpp>
+#include <gtest/gtest.h>
 #include <iostream>
 
 using namespace Geometry;

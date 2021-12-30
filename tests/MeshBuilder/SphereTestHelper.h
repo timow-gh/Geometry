@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_SPHERETESTHELPER_H
 #define GEOMETRY_SPHERETESTHELPER_H
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <Geometry/Sphere.hpp>
 
 namespace MeshTestHelper

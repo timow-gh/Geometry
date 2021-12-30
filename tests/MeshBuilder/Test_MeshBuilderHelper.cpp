@@ -1,6 +1,6 @@
 #include "Geometry/InvalidIndex.hpp"
 #include "MeshTestHelper.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace MeshTestHelper;
 

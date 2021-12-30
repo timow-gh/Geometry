@@ -1,10 +1,10 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
-#include "Geometry/Intersection/IntersectionSegment.hpp"
-#include "Geometry/Segment.hpp"
+#include <Geometry/Intersection/IntersectionSegment.hpp>
+#include <Geometry/Segment.hpp>
 #include <LinAl/LinearAlgebra.hpp>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include <iostream>
 
 using namespace Geometry;

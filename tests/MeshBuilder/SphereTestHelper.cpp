@@ -1,5 +1,5 @@
 #include "SphereTestHelper.h"
-#include "Geometry/Distance/DistanceSphere.hpp"
+#include <Geometry/Distance/DistanceSphere.hpp>
 
 namespace MeshTestHelper
 {

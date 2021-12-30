@@ -2,9 +2,9 @@
 #pragma ide diagnostic ignored "cert-err58-cpp"
 
 #include <Geometry/Cuboid.hpp>
-#include "Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp"
+#include <Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp>
 #include <LinAl/LinearAlgebra.hpp>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 using namespace Geometry;
 using namespace LinAl;

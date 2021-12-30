@@ -2,7 +2,7 @@
 #define GEOMETRY_MESHTESTHELPER_H
 
 #include <Geometry/HalfedgeMesh/Vertex.hpp>
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace MeshTestHelper
 {

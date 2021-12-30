@@ -3,8 +3,8 @@
 
 #include <benchmark/benchmark.h>
 
-#include "Geometry/Intersection/IntersectionSegment.hpp"
-#include "Geometry/Segment.hpp"
+#include <Geometry/Intersection/IntersectionSegment.hpp>
+#include <Geometry/Segment.hpp>
 
 using namespace Geometry;
 using namespace LinAl;
