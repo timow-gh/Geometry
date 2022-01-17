@@ -16,53 +16,35 @@ class Line {
     LinAl::Vec<T, D> m_direction;
 
   public:
-    CORE_CONSTEXPR Line(const LinAl::Vec<T, D>& origin, const LinAl::Vec<T, D>& direction);
+    CORE_CONSTEXPR Line(const LinAl::Vec<T, D>& origin, const LinAl::Vec<T, D>& direction)
+        : m_origin(origin), m_direction(LinAl::normalize(LinAl::Vec<T, D>{direction}))
+    {
+    }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getOrigin() const;
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getOrigin() const
+    {
+        return m_origin;
+    }
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const
+    {
+        return m_direction;
+    }
 
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const;
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const Line<T, D>& rhs) const;
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const
+    {
+        return Geometry::distance(vec, *this);
+    }
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const Line<T, D>& rhs) const
+    {
+        return Geometry::distance(*this, rhs);
+    }
 
     CORE_NODISCARD CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
-    intersection(const Plane<T>& plane) const;
+    intersection(const Plane<T>& plane) const
+    {
+        return Geometry::calcIntersection(plane, *this);
+    }
 };
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR Line<T, D>::Line(const LinAl::Vec<T, D>& origin, const LinAl::Vec<T, D>& direction)
-    : m_origin(origin), m_direction(LinAl::normalize(LinAl::Vec<T, D>{direction}))
-{
-}
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR const LinAl::Vec<T, D>& Line<T, D>::getOrigin() const
-{
-    return m_origin;
-}
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR const LinAl::Vec<T, D>& Line<T, D>::getDirection() const
-{
-    return m_direction;
-}
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR T Line<T, D>::distance(const LinAl::Vec<T, D>& vec) const
-{
-    return Geometry::distance(vec, *this);
-}
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR T Line<T, D>::distance(const Line<T, D>& rhs) const
-{
-    return Geometry::distance(*this, rhs);
-}
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> Line<T, D>::intersection(const Plane<T>& plane) const
-{
-    return Geometry::calcIntersection(plane, *this);
-}
 
 template <typename T>
 using Line2 = Line<T, 2>;

@@ -28,45 +28,114 @@ class SphereMeshBuilder;
 
 template <typename T>
 class HalfedgeMesh {
-    Core::TVector<Vertex<T>> m_vertices;
-    Core::TVector<Halfedge<T>> m_halfedges;
-    Core::TVector<Facet<T>> m_facets;
-    MeshPoints<T> meshPoints;
-
   public:
-    HalfedgeMesh() = default;
-    explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
-    HalfedgeMesh& operator=(const HalfedgeMesh& rhs) = delete;
+    using IndexType = std::size_t;
 
-    HalfedgeMesh(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
-    HalfedgeMesh& operator=(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
+    CORE_CONSTEXPR HalfedgeMesh() = default;
+    CORE_CONSTEXPR explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
+    CORE_CONSTEXPR HalfedgeMesh& operator=(const HalfedgeMesh& rhs) = delete;
 
-    CORE_NODISCARD LinAl::Vec3Vector<T>& getVertexPoints();
-    CORE_NODISCARD const LinAl::Vec3Vector<T>& getVertexPoints() const;
+    CORE_CONSTEXPR HalfedgeMesh(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
+    CORE_CONSTEXPR HalfedgeMesh& operator=(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
 
-    CORE_NODISCARD Core::TVector<Vertex<T>>& getVertices();
-    CORE_NODISCARD const Core::TVector<Vertex<T>>& getVertices() const;
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Vector<T>& getVertexPoints()
+    {
+        return m_meshPoints.getPoints();
+    }
 
-    CORE_NODISCARD Core::TVector<Halfedge<T>>& getHalfedges();
-    CORE_NODISCARD const Core::TVector<Halfedge<T>>& getHalfedges() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Vector<T>& getVertexPoints() const
+    {
+        return m_vertices;
+    }
 
-    CORE_NODISCARD Core::TVector<Facet<T>>& getFacets();
-    CORE_NODISCARD const Core::TVector<Facet<T>>& getFacets() const;
+    CORE_NODISCARD CORE_CONSTEXPR Core::TVector<Vertex<T>>& getVertices()
+    {
+        return m_vertices;
+    }
 
-    CORE_NODISCARD MeshPoints<T>& getTriangleMesh();
-    CORE_NODISCARD const MeshPoints<T>& getTriangleMesh() const;
+    CORE_NODISCARD CORE_CONSTEXPR const Core::TVector<Vertex<T>>& getVertices() const
+    {
+        return m_vertices;
+    }
 
-    CORE_NODISCARD Vertex<T> getVertex(std::size_t index) const;
-    CORE_NODISCARD Halfedge<T> getHalfedge(std::size_t index) const;
-    CORE_NODISCARD Facet<T> getFacet(std::size_t index) const;
+    CORE_NODISCARD CORE_CONSTEXPR Core::TVector<Halfedge<T>>& getHalfedges()
+    {
+        return m_halfedges;
+    }
 
-    CORE_NODISCARD bool contains(const Vertex<T>& vertex) const;
-    CORE_NODISCARD bool contains(const Halfedge<T>& halfedge) const;
-    CORE_NODISCARD bool contains(const Facet<T>& facet) const;
-    CORE_NODISCARD bool contains(const LinAl::Vec3<T>& point) const;
+    CORE_NODISCARD CORE_CONSTEXPR const Core::TVector<Halfedge<T>>& getHalfedges() const
+    {
+        return m_halfedges;
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR Core::TVector<Facet<T>>& getFacets()
+    {
+        return m_facets;
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR const Core::TVector<Facet<T>>& getFacets() const
+    {
+        return m_facets;
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR MeshPoints<T>& getTriangleMesh()
+    {
+        return m_meshPoints;
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR const MeshPoints<T>& getTriangleMesh() const
+    {
+        return m_meshPoints;
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR Vertex<T> getVertex(std::size_t index) const
+    {
+        return m_vertices[index];
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR Halfedge<T> getHalfedge(std::size_t index) const
+    {
+        return m_halfedges[index];
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR Facet<T> getFacet(std::size_t index) const
+    {
+        return m_facets[index];
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR bool contains(const Vertex<T>& vertex) const
+    {
+        for (const Vertex<T>& v: m_vertices)
+            if (vertex == v)
+                return true;
+        return false;
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR bool contains(const Halfedge<T>& halfedge) const
+    {
+        for (const Halfedge<T>& he: m_halfedges)
+            if (halfedge == he)
+                return true;
+        return false;
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR bool contains(const Facet<T>& facet) const
+    {
+        for (const Facet<T>& f: m_facets)
+            if (facet == f)
+                return true;
+        return false;
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR bool contains(const LinAl::Vec3<T>& vector) const
+    {
+        return m_meshPoints.contains(vector);
+    }
+
+    friend SphereMeshBuilder<T>;
 
     template <typename K>
-    friend void addTriangle(HalfedgeMesh<K>* mesh, const Triangle<K, 3>& triangle)
+    friend CORE_CONSTEXPR void addTriangle(HalfedgeMesh<K>* mesh, const Triangle<K, 3>& triangle)
     {
         // Create or find the Vertex of the LinAl::Vec3
         const LinAl::VecArray<K, 3, 3> trianglePoints = triangle.getTrianglePoints();
@@ -74,9 +143,9 @@ class HalfedgeMesh {
         for (std::size_t i = 0; i < 3; ++i)
         {
             std::size_t vertexIndex;
-            if (!mesh->meshPoints.contains(trianglePoints[i], vertexIndex))
+            if (!mesh->m_meshPoints.contains(trianglePoints[i], vertexIndex))
             {
-                vertexIndex = mesh->meshPoints.add(trianglePoints[i]);
+                vertexIndex = mesh->m_meshPoints.add(trianglePoints[i]);
                 mesh->m_vertices.emplace_back(vertexIndex, mesh);
             }
             vertexIndices[i] = vertexIndex;
@@ -135,119 +204,15 @@ class HalfedgeMesh {
         }
     }
 
-    friend SphereMeshBuilder<T>;
+  private:
+    Core::TVector<Vertex<T>> m_vertices;
+    Core::TVector<Halfedge<T>> m_halfedges;
+    Core::TVector<Facet<T>> m_facets;
+    MeshPoints<T> m_meshPoints;
 };
 
-template <typename T>
-LinAl::Vec3Vector<T>& HalfedgeMesh<T>::getVertexPoints()
-{
-    return meshPoints.getPoints();
-}
-template <typename T>
-const LinAl::Vec3Vector<T>& HalfedgeMesh<T>::getVertexPoints() const
-{
-    return meshPoints.getPoints();
-}
-
-template <typename T>
-Core::TVector<Geometry::Vertex<T>>& HalfedgeMesh<T>::getVertices()
-{
-    return m_vertices;
-}
-
-template <typename T>
-const Core::TVector<Geometry::Vertex<T>>& HalfedgeMesh<T>::getVertices() const
-{
-    return m_vertices;
-}
-
-template <typename T>
-const Core::TVector<Geometry::Halfedge<T>>& HalfedgeMesh<T>::getHalfedges() const
-{
-    return m_halfedges;
-}
-
-template <typename T>
-Core::TVector<Geometry::Halfedge<T>>& HalfedgeMesh<T>::getHalfedges()
-{
-    return m_halfedges;
-}
-
-template <typename T>
-Core::TVector<Geometry::Facet<T>>& HalfedgeMesh<T>::getFacets()
-{
-    return m_facets;
-}
-
-template <typename T>
-const Core::TVector<Geometry::Facet<T>>& HalfedgeMesh<T>::getFacets() const
-{
-    return m_facets;
-}
-
-template <typename T>
-MeshPoints<T>& HalfedgeMesh<T>::getTriangleMesh()
-{
-    return meshPoints;
-}
-
-template <typename T>
-const MeshPoints<T>& HalfedgeMesh<T>::getTriangleMesh() const
-{
-    return meshPoints;
-}
-
-template <typename T>
-Vertex<T> HalfedgeMesh<T>::getVertex(std::size_t index) const
-{
-    return m_vertices[index];
-}
-template <typename T>
-Halfedge<T> HalfedgeMesh<T>::getHalfedge(std::size_t index) const
-{
-    return m_halfedges[index];
-}
-template <typename T>
-Facet<T> HalfedgeMesh<T>::getFacet(std::size_t index) const
-{
-    return m_facets[index];
-}
-
-template <typename T>
-bool HalfedgeMesh<T>::contains(const Vertex<T>& vertex) const
-{
-    for (const Vertex<T>& v: m_vertices)
-        if (vertex == v)
-            return true;
-    return false;
-}
-
-template <typename T>
-bool HalfedgeMesh<T>::contains(const Halfedge<T>& halfedge) const
-{
-    for (const Halfedge<T>& he: m_halfedges)
-        if (halfedge == he)
-            return true;
-    return false;
-}
-
-template <typename T>
-bool HalfedgeMesh<T>::contains(const Facet<T>& facet) const
-{
-    for (const Facet<T>& f: m_facets)
-        if (facet == f)
-            return true;
-    return false;
-}
-
-template <typename T>
-bool HalfedgeMesh<T>::contains(const LinAl::Vec3<T>& vector) const
-{
-    return meshPoints.contains(vector);
-}
-
 template <typename T, typename U>
-Core::TVector<U> calcTriangleIndices(const Core::TVector<Facet<T>>& facets)
+CORE_CONSTEXPR Core::TVector<U> calcTriangleIndices(const Core::TVector<Facet<T>>& facets)
 {
     Core::TVector<U> result;
     for (const auto& facet: facets)

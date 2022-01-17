@@ -11,21 +11,15 @@ class PolyLine {
     LinAl::VecVector<T, D> m_points;
 
   public:
-    CORE_CONSTEXPR PolyLine(const LinAl::VecVector<T, D>& mPoints);
+    CORE_CONSTEXPR PolyLine(const LinAl::VecVector<T, D>& mPoints) : m_points(mPoints)
+    {
+    }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::VecVector<T, D>& getPoints() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::VecVector<T, D>& getPoints() const
+    {
+        return m_points;
+    }
 };
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR PolyLine<T, D>::PolyLine(const LinAl::VecVector<T, D>& mPoints) : m_points(mPoints)
-{
-}
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR const LinAl::VecVector<T, D>& PolyLine<T, D>::getPoints() const
-{
-    return m_points;
-}
 
 template <typename T>
 using PolyLine2 = PolyLine<T, 2>;

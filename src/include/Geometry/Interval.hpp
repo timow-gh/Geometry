@@ -13,13 +13,29 @@ class Interval {
 
   public:
     CORE_CONSTEXPR Interval() = default;
-    CORE_CONSTEXPR Interval(T start, T end);
+    CORE_CONSTEXPR Interval(T start, T end) : m_start(start), m_end(end)
+    {
+    }
 
-    CORE_NODISCARD CORE_CONSTEXPR T getStart() const;
-    CORE_NODISCARD CORE_CONSTEXPR T getEnd() const;
+    CORE_NODISCARD CORE_CONSTEXPR T getStart() const
+    {
+        return m_start;
+    }
 
-    CORE_CONSTEXPR void setStart(T start);
-    CORE_CONSTEXPR void setEnd(T end);
+    CORE_NODISCARD CORE_CONSTEXPR T getEnd() const
+    {
+        return m_end;
+    }
+
+    CORE_CONSTEXPR void setStart(T start)
+    {
+        m_start = start;
+    }
+
+    CORE_CONSTEXPR void setEnd(T end)
+    {
+        m_end = end;
+    }
 
     //! return value:
     //! 0 -> no intersection
@@ -27,38 +43,16 @@ class Interval {
     //! 2 -> intersection is an interval
     CORE_CONSTEXPR uint32_t intersection(const Interval& interval, Interval& intersection) const;
 
-    CORE_CONSTEXPR bool operator==(const Interval& rhs) const;
-    CORE_CONSTEXPR bool operator!=(const Interval& rhs) const;
+    CORE_CONSTEXPR bool operator==(const Interval& rhs) const
+    {
+        return m_start == rhs.m_start && m_end == rhs.m_end;
+    }
+
+    CORE_CONSTEXPR bool operator!=(const Interval& rhs) const
+    {
+        return !(rhs == *this);
+    }
 };
-
-template <typename T>
-CORE_CONSTEXPR Interval<T>::Interval(T start, T end) : m_start(start), m_end(end)
-{
-}
-
-template <typename T>
-CORE_CONSTEXPR T Interval<T>::getStart() const
-{
-    return m_start;
-}
-
-template <typename T>
-CORE_CONSTEXPR T Interval<T>::getEnd() const
-{
-    return m_end;
-}
-
-template <typename T>
-CORE_CONSTEXPR void Interval<T>::setStart(T start)
-{
-    m_start = start;
-}
-
-template <typename T>
-CORE_CONSTEXPR void Interval<T>::setEnd(T end)
-{
-    m_end = end;
-}
 
 template <typename T>
 CORE_CONSTEXPR uint32_t Interval<T>::intersection(const Interval& interval,
@@ -103,17 +97,6 @@ CORE_CONSTEXPR uint32_t Interval<T>::intersection(const Interval& interval,
     }
 }
 
-template <typename T>
-CORE_CONSTEXPR bool Interval<T>::operator==(const Interval& rhs) const
-{
-    return m_start == rhs.m_start && m_end == rhs.m_end;
-}
-
-template <typename T>
-CORE_CONSTEXPR bool Interval<T>::operator!=(const Interval& rhs) const
-{
-    return !(rhs == *this);
-}
 } // namespace Geometry
 
 #endif // GEOMETRY_INTERVAL_HPP

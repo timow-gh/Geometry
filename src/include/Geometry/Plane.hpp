@@ -18,63 +18,43 @@ class Plane {
     LinAl::Vec3<T> m_normal;
 
   public:
-    CORE_CONSTEXPR Plane(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& normal);
+    CORE_CONSTEXPR Plane(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& normal)
+        : m_origin(origin), m_normal(LinAl::normalize(normal))
+    {
+    }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const;
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getNormal() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const
+    {
+        return m_origin;
+    }
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getNormal() const
+    {
+        return m_normal;
+    }
 
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec3<T>& vec) const;
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec3<T>& vec) const
+    {
+        return Geometry::distance(*this, vec);
+    }
 
     CORE_NODISCARD CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
-    intersection(const Line3<T>& line) const;
+    intersection(const Line3<T>& line) const
+    {
+        return Geometry::calcIntersection(*this, line);
+    }
+
     CORE_NODISCARD CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
-    intersection(const Ray3<T>& ray) const;
+    intersection(const Ray3<T>& ray) const
+    {
+        return Geometry::calcIntersection(*this, ray);
+    }
+
     CORE_NODISCARD CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
-    intersection(const Segment3<T>& seg) const;
+    intersection(const Segment3<T>& seg) const
+    {
+        return Geometry::calcIntersection(*this, seg);
+    }
 };
-
-template <typename T>
-CORE_CONSTEXPR Plane<T>::Plane(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& normal)
-    : m_origin(origin), m_normal(LinAl::normalize(normal))
-{
-}
-
-template <typename T>
-CORE_CONSTEXPR const LinAl::Vec3<T>& Plane<T>::getOrigin() const
-{
-    return m_origin;
-}
-
-template <typename T>
-CORE_CONSTEXPR const LinAl::Vec3<T>& Plane<T>::getNormal() const
-{
-    return m_normal;
-}
-
-template <typename T>
-CORE_CONSTEXPR T Plane<T>::distance(const LinAl::Vec3<T>& vec) const
-{
-    return Geometry::distance(*this, vec);
-}
-
-template <typename T>
-CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
-Plane<T>::intersection(const Geometry::Line3<T>& line) const
-{
-    return Geometry::calcIntersection(*this, line);
-}
-
-template <typename T>
-CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> Plane<T>::intersection(const Ray3<T>& ray) const
-{
-    return Geometry::calcIntersection(*this, ray);
-}
-
-template <typename T>
-CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> Plane<T>::intersection(const Segment3<T>& seg) const
-{
-    return Geometry::calcIntersection(*this, seg);
-}
 
 } // namespace Geometry
 

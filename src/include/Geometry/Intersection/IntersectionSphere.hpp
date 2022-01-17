@@ -17,7 +17,9 @@ struct SphereIntersection
     std::optional<LinAl::Vec3<T>> second;
 
     SphereIntersection() = default;
-    explicit SphereIntersection(const LinAl::Vec3<T>& first) : first(first) {}
+    explicit SphereIntersection(const LinAl::Vec3<T>& first) : first(first)
+    {
+    }
     SphereIntersection(const LinAl::Vec3<T>& first, const LinAl::Vec3<T>& second)
         : first(first), second(second)
     {

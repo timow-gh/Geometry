@@ -11,36 +11,24 @@ class Polygon {
     LinAl::VecVector<T, D> m_points;
 
   public:
-    CORE_CONSTEXPR explicit Polygon(const LinAl::VecVector<T, D>& points);
+    CORE_CONSTEXPR explicit Polygon(const LinAl::VecVector<T, D>& points) : m_points(points)
+    {
+    }
 
-    CORE_CONSTEXPR bool operator==(const Polygon& rhs) const;
-    CORE_CONSTEXPR bool operator!=(const Polygon& rhs) const;
+    CORE_CONSTEXPR bool operator==(const Polygon& rhs) const
+    {
+        return m_points;
+    }
+    CORE_CONSTEXPR bool operator!=(const Polygon& rhs) const
+    {
+        return m_points == rhs.m_points;
+    }
 
-    CORE_CONSTEXPR const LinAl::VecVector<T, D>& getPoints() const;
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::VecVector<T, D>& getPoints() const
+    {
+        return !(rhs == *this);
+    }
 };
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR Polygon<T, D>::Polygon(const LinAl::VecVector<T, D>& points) : m_points(points)
-{
-}
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR const LinAl::VecVector<T, D>& Polygon<T, D>::getPoints() const
-{
-    return m_points;
-}
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR bool Polygon<T, D>::operator==(const Polygon& rhs) const
-{
-    return m_points == rhs.m_points;
-}
-
-template <typename T, std::size_t D>
-CORE_CONSTEXPR bool Polygon<T, D>::operator!=(const Polygon& rhs) const
-{
-    return !(rhs == *this);
-}
 
 } // namespace Geometry
 

@@ -2,18 +2,22 @@
 #define FILAPP_HALFEDGEINDICES_HPP
 
 #include <Core/Types/TVector.hpp>
+#include <Core/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
+#include <cstdint>
 
 namespace Geometry
 {
 
 struct SegmentIndices
 {
-    uint32_t source;
-    uint32_t target;
+    std::uint32_t source;
+    std::uint32_t target;
 
-    SegmentIndices(uint32_t source, uint32_t target) : source(source), target(target) {}
+    SegmentIndices(std::uint32_t source, std::uint32_t target) : source(source), target(target)
+    {
+    }
 };
 
 template <typename T>
