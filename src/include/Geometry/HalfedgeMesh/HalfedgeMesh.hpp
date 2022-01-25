@@ -45,7 +45,7 @@ class HalfedgeMesh {
 
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Vector<T>& getVertexPoints() const
     {
-        return m_vertices;
+        return m_vertices.getPoints();
     }
 
     CORE_NODISCARD CORE_CONSTEXPR Core::TVector<Vertex<T>>& getVertices()
