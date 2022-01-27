@@ -83,7 +83,7 @@ class HalfedgeMesh {
         return m_meshPoints;
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const MeshPoints<T>& getMeshPoings() const
+    CORE_NODISCARD CORE_CONSTEXPR const MeshPoints<T>& getMeshPoints() const
     {
         return m_meshPoints;
     }
