@@ -3,6 +3,7 @@
 
 #include <Core/Types/TVector.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
+#include <Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -21,13 +22,10 @@ class MeshBuilderBase {
                         const Core::TVector<uint32_t>& triangleIndices) const
     {
         auto heMesh = std::make_unique<HalfedgeMesh<T>>();
+        MeshTriangleAdder<T> meshTriangleAdder{*heMesh};
         std::size_t size = triangleIndices.size();
         for (std::size_t i{2}; i < size; i += 3)
         {
-            std::size_t a = triangleIndices[i - 2];
-            std::size_t b = triangleIndices[i - 1];
-            std::size_t c = triangleIndices[i];
-
             LinAl::VecArray<T, 3, 3> trianglePoints;
             for (std::size_t j{0}; j < 3; ++j)
             {
@@ -37,8 +35,7 @@ class MeshBuilderBase {
                     m_transformation * LinAl::HVec<T>{point[0], point[1], point[2], 1.0};
                 trianglePoints[j] = LinAl::Vec3<T>{tPoint[0], tPoint[1], tPoint[2]};
             }
-
-            addTriangle(heMesh.get(), Triangle<T, 3>(trianglePoints));
+            meshTriangleAdder(Triangle<T, 3>(trianglePoints));
         }
         return heMesh;
     }

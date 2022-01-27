@@ -6,6 +6,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/FacetUtils.hpp
         include/Geometry/HalfedgeMesh/MeshPoints.hpp
         include/Geometry/HalfedgeMesh/HalfedgeMesh.hpp
+        include/Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp
         include/Geometry/HalfedgeMeshBuilder/CirclePoints.hpp
         include/Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp
         include/Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp

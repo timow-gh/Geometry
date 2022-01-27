@@ -5,6 +5,7 @@
 #include <Core/Utils/Compiler.hpp>
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
+#include <Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp>
 #include <Geometry/Triangle.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 #include <algorithm>
@@ -18,6 +19,7 @@ class CuboidMeshBuilder {
     std::optional<Cuboid<T>> m_cube;
 
   public:
+    CuboidMeshBuilder() = default;
     CuboidMeshBuilder& setCuboid(const Cuboid<T>& cube)
     {
         m_cube = cube;
@@ -31,8 +33,7 @@ class CuboidMeshBuilder {
 
         Core::TArray<Triangle<T, 3>, 12> triangles = calcCuboidTriangles();
         auto heMesh = std::make_unique<HalfedgeMesh<T>>();
-        for (const auto& triangle: triangles)
-            addTriangle(heMesh.get(), triangle);
+        std::for_each(triangles.cbegin(), triangles.cend(), MeshTriangleAdder<T>(*heMesh));
         return std::move(heMesh);
     }
 
