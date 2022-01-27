@@ -31,7 +31,7 @@ class MeshTriangleAdder {
         Core::TArray<std::size_t, 3> vertexIndices;
         createOrFindVertex(triangle, meshPoints, vertices, vertexIndices);
         createHalfedgeAndSetVertex(vertexIndices, vertices, halfedges, m_halfedgeMesh);
-        facets.emplace_back(halfedgeIndex, m_halfedgeMesh);
+        facets.emplace_back(halfedgeIndex, *m_halfedgeMesh);
         fillHalfedgesOfFacet(facets, halfedgeIndex, halfedges);
         setOppositeHalfedges(halfedgeIndex, halfedges);
     }

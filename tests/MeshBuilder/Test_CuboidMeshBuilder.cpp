@@ -9,6 +9,11 @@
 using namespace Geometry;
 using namespace LinAl;
 
+TEST(MeshBuilder, fail_createACubeMesh)
+{
+    EXPECT_DEATH(CuboidMeshBuilder<double_t>().build(), "");
+}
+
 TEST(MeshBuilder, createACubeMesh)
 {
     auto cube = CuboidMeshBuilder<double_t>()

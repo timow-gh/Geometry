@@ -28,6 +28,7 @@ function(create_geometry_test testName)
 endfunction()
 
 add_subdirectory(Distance)
+add_subdirectory(HalfedgeMesh)
 add_subdirectory(Intersection)
 add_subdirectory(MeshBuilder)
 

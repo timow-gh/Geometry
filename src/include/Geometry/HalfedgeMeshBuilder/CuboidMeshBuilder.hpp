@@ -2,6 +2,7 @@
 #define GEOMETRY_CUBOIDMESHBUILDER_HPP
 
 #include <Core/Types/TArray.hpp>
+#include <Core/Utils/Assert.hpp>
 #include <Core/Utils/Compiler.hpp>
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
@@ -28,6 +29,8 @@ class CuboidMeshBuilder {
 
     CORE_NODISCARD std::unique_ptr<HalfedgeMesh<T>> build()
     {
+        CORE_PRECONDITION_DEBUG_ASSERT(m_cube, "Missing cuboid");
+
         if (!m_cube)
             return nullptr;
 

@@ -19,19 +19,19 @@ struct HalfedgeMesh;
 template <typename T>
 class Facet {
   public:
-    Facet(std::size_t halfedgeIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
+    CORE_CONSTEXPR Facet(std::size_t halfedgeIndex, HalfedgeMesh<T>& mesh) CORE_NOEXCEPT
         : m_halfedgeIndex(halfedgeIndex)
-        , m_mesh(mesh)
+        , m_mesh(&mesh)
     {
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>& halfedge() const
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>& getHalfedge() const
     {
-        return halfedge();
+        return m_mesh->getHalfedges()[m_halfedgeIndex];
     }
-    CORE_CONSTEXPR Halfedge<T>& halfedge()
+    CORE_CONSTEXPR Halfedge<T>& getHalfedge()
     {
-        return m_mesh->m_halfedges[m_halfedgeIndex];
+        return m_mesh->getHalfedges()[m_halfedgeIndex];
     }
 
     CORE_NODISCARD CORE_CONSTEXPR std::size_t getHalfedgeIndex() const
