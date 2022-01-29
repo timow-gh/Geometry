@@ -27,22 +27,6 @@ CORE_CONSTEXPR Core::TVector<const Halfedge<T>*> calcHalfedges(const Facet<T>& f
     return result;
 }
 
-template <typename T>
-CORE_CONSTEXPR Core::TVector<Vertex<T>>
-calcVertices(const Core::TVector<const Halfedge<T>*>& halfedges)
-{
-    Core::TVector<Vertex<T>> result;
-    for (const Halfedge<T>* halfedge: halfedges)
-        result.push_back(halfedge->vertex());
-    return result;
-}
-
-template <typename T>
-CORE_CONSTEXPR Core::TVector<Vertex<T>> calcVertices(const Facet<T>& facet)
-{
-    return calcVertices(calcHalfedges(facet));
-}
-
 } // namespace Geometry
 
 #endif // GLFWTESTAPP_FACETUTILS_H
