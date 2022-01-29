@@ -101,12 +101,12 @@ class Halfedge {
         m_opposite = index;
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Vertex<T>& vertex() const
+    CORE_NODISCARD CORE_CONSTEXPR const Vertex<T>& getVertex() const
     {
         return m_mesh->getVertices()[m_vertex];
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR Vertex<T>& vertex()
+    CORE_NODISCARD CORE_CONSTEXPR Vertex<T>& getVertex()
     {
         return m_mesh->getVertices()[m_vertex];
     }

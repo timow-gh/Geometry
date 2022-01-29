@@ -18,104 +18,76 @@ struct HalfedgeMesh;
 template <typename T>
 class Vertex {
   public:
-    Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT;
-    Vertex(std::size_t meshPointIndex,
-           std::size_t halfedgeIndex,
-           HalfedgeMesh<T>* mesh) CORE_NOEXCEPT;
+    CORE_CONSTEXPR Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
+        : m_index(meshPointIndex)
+        , m_halfedgeIndex(INVALID_INDEX)
+        , halfedgeMesh(mesh)
+    {
+    }
 
-    CORE_NODISCARD LinAl::Vec3<T> getPoint() const;
-    CORE_NODISCARD std::size_t getIndex() const;
+    CORE_CONSTEXPR Vertex(std::size_t meshPointIndex,
+                          std::size_t halfedgeIndex,
+                          HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
+        : m_index(meshPointIndex)
+        , m_halfedgeIndex(halfedgeIndex)
+        , halfedgeMesh(mesh)
+    {
+    }
 
-    CORE_NODISCARD const Halfedge<T>* halfedge() const;
-    Halfedge<T>* halfedge();
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<T> getPoint() const
+    {
+        return halfedgeMesh->getVertexPoints()[m_index];
+    }
 
-    CORE_NODISCARD std::size_t getHalfedgeIndex() const;
-    void setHalfedgeIndex(std::size_t halfedgeIndex);
+    CORE_NODISCARD CORE_CONSTEXPR std::size_t getIndex() const
+    {
+        return m_index;
+    }
 
-    bool operator==(const Vertex& rhs) const;
-    bool operator!=(const Vertex& rhs) const;
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>& getHalfedge() const
+    {
+        return halfedgeMesh->getHalfedges()[m_halfedgeIndex];
+    }
 
-    CORE_NODISCARD bool isValid() const;
+    CORE_CONSTEXPR Halfedge<T>& getHalfedge()
+    {
+        return halfedgeMesh->getHalfedges()[m_halfedgeIndex];
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR std::size_t getHalfedgeIndex() const
+    {
+        return m_halfedgeIndex;
+    }
+
+    CORE_CONSTEXPR void setHalfedgeIndex(std::size_t halfedgeIndex)
+    {
+        m_halfedgeIndex = halfedgeIndex;
+    }
+
+    CORE_CONSTEXPR bool operator==(const Vertex& rhs) const
+    {
+        return m_index == rhs.m_index && m_halfedgeIndex == rhs.m_halfedgeIndex &&
+               halfedgeMesh == rhs.halfedgeMesh;
+    }
+
+    CORE_CONSTEXPR bool operator!=(const Vertex& rhs) const
+    {
+        return !(rhs == *this);
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR bool isValid() const
+    {
+        if (m_index != INVALID_INDEX && m_halfedgeIndex != INVALID_INDEX &&
+            halfedgeMesh->contains(*this))
+            return true;
+        return false;
+    }
 
   private:
     std::size_t m_index;
     std::size_t m_halfedgeIndex;
     HalfedgeMesh<T>* halfedgeMesh;
 };
-
-template <typename T>
-Vertex<T>::Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
-    : m_index(meshPointIndex)
-    , m_halfedgeIndex(INVALID_INDEX)
-    , halfedgeMesh(mesh)
-{
-}
-
-template <typename T>
-Vertex<T>::Vertex(std::size_t meshPointIndex,
-                  std::size_t halfedgeIndex,
-                  HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
-    : m_index(meshPointIndex)
-    , m_halfedgeIndex(halfedgeIndex)
-    , halfedgeMesh(mesh)
-{
-}
-
-template <typename T>
-LinAl::Vec3<T> Vertex<T>::getPoint() const
-{
-    return halfedgeMesh->getVertexPoints()[m_index];
-}
-
-template <typename T>
-size_t Vertex<T>::getIndex() const
-{
-    return m_index;
-}
-
-template <typename T>
-const Halfedge<T>* Vertex<T>::halfedge() const
-{
-    return &halfedgeMesh->getHalfedges()[m_halfedgeIndex];
-}
-
-template <typename T>
-Halfedge<T>* Vertex<T>::halfedge()
-{
-    return &halfedgeMesh->getHalfedges()[m_halfedgeIndex];
-}
-
-template <typename T>
-std::size_t Vertex<T>::getHalfedgeIndex() const
-{
-    return m_halfedgeIndex;
-}
-
-template <typename T>
-void Vertex<T>::setHalfedgeIndex(std::size_t halfedgeIndex)
-{
-    m_halfedgeIndex = halfedgeIndex;
-}
-template <typename T>
-bool Vertex<T>::operator==(const Vertex& rhs) const
-{
-    return m_index == rhs.m_index && m_halfedgeIndex == rhs.m_halfedgeIndex &&
-           halfedgeMesh == rhs.halfedgeMesh;
-}
-template <typename T>
-bool Vertex<T>::operator!=(const Vertex& rhs) const
-{
-    return !(rhs == *this);
-}
-
-template <typename T>
-bool Vertex<T>::isValid() const
-{
-    if (m_index != INVALID_INDEX && m_halfedgeIndex != INVALID_INDEX &&
-        halfedgeMesh->contains(*this))
-        return true;
-    return false;
-}
 
 } // namespace Geometry
 

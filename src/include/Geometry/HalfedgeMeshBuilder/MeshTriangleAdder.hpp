@@ -19,7 +19,7 @@ class MeshTriangleAdder {
     {
     }
 
-    CORE_CONSTEXPR void operator()(const Triangle<T, 3>& triangle)
+    void operator()(const Triangle<T, 3>& triangle)
     {
         MeshPoints<T>& meshPoints = m_halfedgeMesh->getMeshPoints();
         Core::TVector<Vertex<T>>& vertices = m_halfedgeMesh->getVertices();
@@ -95,27 +95,22 @@ class MeshTriangleAdder {
         {
             Halfedge<T>& halfedge = halfedges[i];
 
-            Vertex<T> heVertex = halfedge.vertex();
-            Halfedge<T>* he = heVertex.halfedge();
-            if (!he)
-                continue;
+            Vertex<T>& heVertex = halfedge.getVertex();
+            Halfedge<T>& he = heVertex.getHalfedge();
 
-            Halfedge<T>* oppHeCandidate = he->previous();
-            std::size_t oppHeCandidateIndex = heVertex.halfedge()->getPreviousIndex();
-
-            if (!oppHeCandidate)
-                continue;
+            Halfedge<T>& oppHeCandidate = he.previous();
+            std::size_t oppHeCandidateIndex = heVertex.halfedge().getPreviousIndex();
 
             auto nextVertex = halfedge.nextVertex();
-            auto oppNextVertex = oppHeCandidate->nextVertex();
+            auto oppNextVertex = oppHeCandidate.nextVertex();
 
             if (!nextVertex || !oppNextVertex)
                 continue;
 
-            if (heVertex == *oppNextVertex && *nextVertex == oppHeCandidate->vertex())
+            if (*heVertex == *oppNextVertex && *nextVertex == oppHeCandidate.vertex())
             {
                 halfedge.setOppositeIndex(oppHeCandidateIndex);
-                oppHeCandidate->setOppositeIndex(i);
+                oppHeCandidate.setOppositeIndex(i);
             }
         }
     }
