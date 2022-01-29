@@ -26,7 +26,7 @@ Core::TVector<SegmentIndices> calcMeshSegmentIndices(const HalfedgeMesh<T>& mesh
     Core::TVector<SegmentIndices> result;
     for (const Halfedge<T>& halfedge: mesh.getHalfedges())
         result.push_back(
-            SegmentIndices(halfedge.getVertexIndex(), halfedge.next()->getVertexIndex()));
+            SegmentIndices(halfedge.getVertexIndex(), halfedge.next().getVertexIndex()));
     return result;
 }
 

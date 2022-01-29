@@ -99,15 +99,12 @@ class MeshTriangleAdder {
             Halfedge<T>& he = heVertex.getHalfedge();
 
             Halfedge<T>& oppHeCandidate = he.previous();
-            std::size_t oppHeCandidateIndex = heVertex.halfedge().getPreviousIndex();
+            std::size_t oppHeCandidateIndex = heVertex.getHalfedge().getPreviousIndex();
 
-            auto nextVertex = halfedge.nextVertex();
-            auto oppNextVertex = oppHeCandidate.nextVertex();
+            Vertex<T>& nextVertex = halfedge.nextVertex();
+            Vertex<T>& oppNextVertex = oppHeCandidate.nextVertex();
 
-            if (!nextVertex || !oppNextVertex)
-                continue;
-
-            if (*heVertex == *oppNextVertex && *nextVertex == oppHeCandidate.vertex())
+            if (heVertex == oppNextVertex && nextVertex == oppHeCandidate.getVertex())
             {
                 halfedge.setOppositeIndex(oppHeCandidateIndex);
                 oppHeCandidate.setOppositeIndex(i);

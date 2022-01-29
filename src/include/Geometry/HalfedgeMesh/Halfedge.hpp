@@ -31,9 +31,9 @@ class Halfedge {
     }
 
     CORE_NODISCARD
-    CORE_CONSTEXPR const Facet<T>* facet() const
+    CORE_CONSTEXPR const Facet<T>& facet() const
     {
-        return &m_mesh->m_facets[m_facet];
+        return m_mesh->m_facets[m_facet];
     }
 
     CORE_NODISCARD CORE_CONSTEXPR std::size_t getFacetIndex() const
@@ -46,14 +46,14 @@ class Halfedge {
         m_facet = facet;
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>* next() const
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>& next() const
     {
-        return &m_mesh->getHalfedges()[m_next];
+        return m_mesh->getHalfedges()[m_next];
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR Halfedge<T>* next()
+    CORE_NODISCARD CORE_CONSTEXPR Halfedge<T>& next()
     {
-        return &m_mesh->getHalfedges()[m_next];
+        return m_mesh->getHalfedges()[m_next];
     }
 
     CORE_NODISCARD CORE_CONSTEXPR std::size_t getNextIndex() const
@@ -66,14 +66,14 @@ class Halfedge {
         m_next = index;
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>* previous() const
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>& previous() const
     {
-        return &m_mesh->getHalfedges()[m_previous];
+        return m_mesh->getHalfedges()[m_previous];
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR Halfedge<T>* previous()
+    CORE_NODISCARD CORE_CONSTEXPR Halfedge<T>& previous()
     {
-        return &m_mesh->getHalfedges()[m_previous];
+        return m_mesh->getHalfedges()[m_previous];
     }
 
     CORE_NODISCARD CORE_CONSTEXPR std::size_t getPreviousIndex() const
@@ -86,9 +86,9 @@ class Halfedge {
         m_previous = index;
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>* opposite() const
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>& opposite() const
     {
-        return &m_mesh->getHalfedges()[m_opposite];
+        return m_mesh->getHalfedges()[m_opposite];
     }
 
     CORE_NODISCARD CORE_CONSTEXPR std::size_t getOppositeIndex() const
@@ -116,11 +116,14 @@ class Halfedge {
         return m_vertex;
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Vertex<T>* nextVertex() const
+    CORE_NODISCARD CORE_CONSTEXPR Vertex<T>& nextVertex()
     {
-        if (!next())
-            return nullptr;
-        return &next()->vertex();
+        return next().getVertex();
+    }
+
+    CORE_NODISCARD CORE_CONSTEXPR const Vertex<T>& nextVertex() const
+    {
+        return next().getVertex();
     }
 
     CORE_CONSTEXPR bool operator==(const Halfedge& rhs) const

@@ -5,7 +5,6 @@
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMesh/Vertex.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp>
-#include <Geometry/HalfegeMesh/Halfedge.hpp>
 #include <gtest/gtest.h>
 
 using namespace Geometry;
@@ -38,9 +37,21 @@ TEST_F(VertexTest, vertexIndex)
     index = constVertex.getIndex();
 }
 
-TEST_F(VertexTest, halfedge)
+TEST_F(VertexTest, getHalfedge)
 {
     Halfedge<float_t> halfedge = m_vertex.getHalfedge();
     const auto& constVertex = m_vertex;
     const Halfedge<float_t>& cHalfedge = constVertex.getHalfedge();
+}
+
+TEST_F(VertexTest, halfedgeIndex)
+{
+    std::size_t heIndex = m_vertex.getHalfedgeIndex();
+    m_vertex.setHalfedgeIndex(0);
+    EXPECT_EQ(0, m_vertex.getHalfedgeIndex());
+}
+
+TEST_F(VertexTest, isValid)
+{
+    EXPECT_TRUE(m_vertex.isValid());
 }
