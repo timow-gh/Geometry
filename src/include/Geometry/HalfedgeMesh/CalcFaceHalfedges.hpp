@@ -16,12 +16,12 @@ CORE_CONSTEXPR Core::TVector<const Halfedge<T>*> calcHalfedges(const Facet<T>& f
 
     const Halfedge<T>* halfedge = &facet.getHalfedge();
     result.push_back(halfedge);
-    halfedge = &halfedge->next();
+    halfedge = &halfedge->getNext();
     result.push_back(halfedge);
 
-    while (facet.getHalfedge() != halfedge->next())
+    while (facet.getHalfedge() != halfedge->getNext())
     {
-        halfedge = &halfedge->next();
+        halfedge = &halfedge->getNext();
         result.push_back(halfedge);
     }
     return result;

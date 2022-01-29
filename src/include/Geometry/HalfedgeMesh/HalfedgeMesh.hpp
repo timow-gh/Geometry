@@ -6,7 +6,7 @@
 #include <Core/Utils/Compiler.hpp>
 #include <CrossGuid/Guid.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
-#include <Geometry/HalfedgeMesh/FacetUtils.hpp>
+#include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
 #include <Geometry/HalfedgeMesh/MeshPoints.hpp>
 #include <Geometry/HalfedgeMesh/Vertex.hpp>

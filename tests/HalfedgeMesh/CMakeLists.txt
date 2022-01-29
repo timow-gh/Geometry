@@ -1,4 +1,5 @@
 create_geometry_test(Test_HalfedgeMesh)
 create_geometry_test(Test_Facet)
 create_geometry_test(Test_FaceUtils)
+create_geometry_test(Test_Halfedge)
 create_geometry_test(Test_Vertex)

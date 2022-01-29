@@ -79,7 +79,7 @@ class MeshTriangleAdder {
         const std::size_t facetIdx = facets.size() - 1;
         for (std::size_t i = halfedgeIndex; i < halfedges.size(); ++i)
         {
-            halfedges[i].setFacet(facetIdx);
+            halfedges[i].setFacetIndex(facetIdx);
             auto nextHeIndex = i == halfedges.size() - 1 ? halfedgeIndex : i + 1;
             halfedges[i].setNextIndex(nextHeIndex);
             auto previousHeIndex = i == halfedgeIndex ? halfedges.size() - 1 : i - 1;
@@ -98,11 +98,11 @@ class MeshTriangleAdder {
             Vertex<T>& heVertex = halfedge.getVertex();
             Halfedge<T>& he = heVertex.getHalfedge();
 
-            Halfedge<T>& oppHeCandidate = he.previous();
+            Halfedge<T>& oppHeCandidate = he.getPrevious();
             std::size_t oppHeCandidateIndex = heVertex.getHalfedge().getPreviousIndex();
 
-            Vertex<T>& nextVertex = halfedge.nextVertex();
-            Vertex<T>& oppNextVertex = oppHeCandidate.nextVertex();
+            Vertex<T>& nextVertex = halfedge.getNextVertex();
+            Vertex<T>& oppNextVertex = oppHeCandidate.getNextVertex();
 
             if (heVertex == oppNextVertex && nextVertex == oppHeCandidate.getVertex())
             {

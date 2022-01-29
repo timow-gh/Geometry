@@ -3,7 +3,7 @@
 
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
-#include <Geometry/HalfedgeMesh/FacetUtils.hpp>
+#include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp>
 #include <gtest/gtest.h>
