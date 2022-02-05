@@ -3,6 +3,7 @@
 
 #include <Core/Math/Constants.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
+#include <Geometry/HalfedgeMesh/TriangleIndices.h>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
 #include <Geometry/Sphere.hpp>
 #include <Geometry/Triangle.hpp>
