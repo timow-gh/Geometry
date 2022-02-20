@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Intersection/IntersectionSphere.hpp>
 #include <Geometry/Line.hpp>
@@ -125,4 +124,3 @@ TEST(Sphere_Segment3d, No_Intersection)
     EXPECT_EQ(sphereIntersec, std::nullopt);
 }
 
-#pragma clang diagnostic pop

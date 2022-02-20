@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/PolyLine.hpp>
 #include <gtest/gtest.h>
@@ -22,4 +21,3 @@ TEST(PolyLine, Ctor)
 
 
 
-#pragma clang diagnostic pop

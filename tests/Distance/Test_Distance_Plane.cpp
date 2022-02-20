@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Distance/DistancePlane.hpp>
 #include <Geometry/Plane.hpp>
@@ -57,4 +56,3 @@ TEST_F(PlaneDistanceTest, memberFunction)
     EXPECT_DOUBLE_EQ(dist, 3);
 }
 
-#pragma clang diagnostic pop

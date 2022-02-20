@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <gtest/gtest.h>
 #include <Geometry/Distance/DistanceSphere.hpp>
@@ -57,4 +56,3 @@ TEST_F(Vec_Sphere_Distance_Test, Signed_OutsideOfSphere)
     EXPECT_DOUBLE_EQ(dist, 1.0);
 }
 
-#pragma clang diagnostic pop

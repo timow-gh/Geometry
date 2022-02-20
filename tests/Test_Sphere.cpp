@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Sphere.hpp>
 #include <gtest/gtest.h>
@@ -40,4 +39,3 @@ TEST_F(Sphere_Contains_Fixture, outside)
     EXPECT_FALSE(contains);
 }
 
-#pragma clang diagnostic pop

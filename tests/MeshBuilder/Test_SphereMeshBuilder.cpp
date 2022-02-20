@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include "MeshTestHelper.h"
 #include "SphereTestHelper.h"
@@ -37,4 +36,3 @@ TEST_F(Test_MeshBuilder_Sphere, MeshPoints)
         EXPECT_TRUE(isPointOnSphere(m_sphere, vertexPoint));
 }
 
-#pragma clang diagnostic pop

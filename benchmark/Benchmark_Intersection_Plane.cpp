@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <benchmark/benchmark.h>
 
@@ -44,4 +43,3 @@ BENCHMARK(BM_Intersection_PlaneSegment3d);
 
 // Run the benchmark
 BENCHMARK_MAIN();
-#pragma clang diagnostic pop

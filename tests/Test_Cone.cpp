@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Core/Math/Constants.hpp>
 #include <Geometry/Cone.hpp>
@@ -32,4 +31,3 @@ TEST_F(Fixture_Cone, openingAngle)
     EXPECT_DOUBLE_EQ(openingAngle, 90 * Core::PI<double_t> / 180);
 }
 
-#pragma clang diagnostic pop

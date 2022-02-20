@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp>
@@ -30,4 +29,3 @@ TEST(MeshBuilder, createACubeMesh)
                     .build());
 }
 
-#pragma clang diagnostic pop

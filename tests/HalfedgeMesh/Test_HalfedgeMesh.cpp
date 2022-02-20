@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <gtest/gtest.h>

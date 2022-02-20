@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include "Geometry/Cylinder.hpp"
 #include <gtest/gtest.h>
@@ -50,4 +49,3 @@ TEST(Lcs, Inequality)
     EXPECT_NE(lcsA, lcsB);
 }
 
-#pragma clang diagnostic pop

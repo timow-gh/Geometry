@@ -1,6 +1,3 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
-
 #include <benchmark/benchmark.h>
 
 #include <Geometry/Intersection/IntersectionSegment.hpp>
@@ -63,4 +60,3 @@ BENCHMARK(BM_Intersection_Seg2fSeg2f);
 
 // Run the benchmark
 BENCHMARK_MAIN();
-#pragma clang diagnostic pop

@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Distance/DistanceSegment.hpp>
 #include <Geometry/Segment.hpp>
@@ -89,4 +88,3 @@ TEST_F(Segment_VecDistance_Test, memberFunction)
     EXPECT_DOUBLE_EQ(dist, 3);
 }
 
-#pragma clang diagnostic pop

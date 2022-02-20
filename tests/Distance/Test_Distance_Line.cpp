@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Line.hpp>
 #include <gtest/gtest.h>
@@ -100,4 +99,3 @@ TEST(Line_Line_Distance, memberFunction)
     EXPECT_DOUBLE_EQ(dist, 5);
 }
 
-#pragma clang diagnostic pop

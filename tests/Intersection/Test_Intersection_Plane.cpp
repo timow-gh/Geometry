@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
@@ -119,4 +118,3 @@ TEST(PlaneRay3d, Parallel)
     EXPECT_EQ(intersection, std::nullopt);
 }
 
-#pragma clang diagnostic pop

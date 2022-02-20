@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Interval.hpp>
 #include <LinAl/LinearAlgebra.hpp>
@@ -56,4 +55,3 @@ TEST(Interval, Intersecting)
     EXPECT_EQ(intersection, (Interval{0.5, 1.0}));
 }
 
-#pragma clang diagnostic pop

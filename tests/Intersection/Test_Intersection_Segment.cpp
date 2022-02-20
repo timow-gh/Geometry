@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Intersection/IntersectionSegment.hpp>
 #include <Geometry/Segment.hpp>
@@ -169,4 +168,3 @@ TEST(Segment3dLine3d, Collinear)
     EXPECT_EQ(seg, intersection);
 }
 
-#pragma clang diagnostic pop

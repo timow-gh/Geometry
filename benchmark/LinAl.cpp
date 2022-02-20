@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <benchmark/benchmark.h>
 
@@ -297,4 +296,3 @@ BENCHMARK(BM_eigen3_vec3d_normalize);
 
 // Run the benchmark
 BENCHMARK_MAIN();
-#pragma clang diagnostic pop

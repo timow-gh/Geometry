@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <LinAl/LinearAlgebra.hpp>
 #include <gtest/gtest.h>
@@ -17,4 +16,3 @@ TEST(ConeMeshBuilder, createAConeMesh)
     EXPECT_TRUE(coneMesh);
 }
 
-#pragma clang diagnostic pop

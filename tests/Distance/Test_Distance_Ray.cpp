@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Core/Types/TVector.hpp>
 #include <Geometry/Line.hpp>
@@ -110,4 +109,3 @@ TEST_F(RayDistanceTestFixture, memberFunction)
     EXPECT_DOUBLE_EQ(dist, 3);
 }
 
-#pragma clang diagnostic pop

@@ -1,5 +1,4 @@
-#pragma clang diagnostic push
-#pragma ide diagnostic ignored "cert-err58-cpp"
+
 
 #include <Geometry/Intersection/IntersectionLine.hpp>
 #include <Geometry/Line.hpp>
@@ -87,4 +86,3 @@ TEST(Line3dLine3d, Intersection_Orthogonal_A)
     EXPECT_EQ((Vec3d{1, 0, 0}), intersection);
 }
 
-#pragma clang diagnostic pop
