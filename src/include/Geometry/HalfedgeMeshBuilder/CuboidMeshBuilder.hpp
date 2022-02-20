@@ -37,7 +37,7 @@ class CuboidMeshBuilder {
         Core::TArray<Triangle<T, 3>, 12> triangles = calcCuboidTriangles();
         auto heMesh = std::make_unique<HalfedgeMesh<T>>();
         std::for_each(triangles.cbegin(), triangles.cend(), MeshTriangleAdder<T>(*heMesh));
-        return std::move(heMesh);
+        return heMesh;
     }
 
   private:

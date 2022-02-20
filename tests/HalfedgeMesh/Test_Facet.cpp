@@ -23,14 +23,14 @@ class FacetTest : public ::testing::Test {
 
 TEST_F(FacetTest, getHalfedge)
 {
-    Halfedge<float_t>& he = m_facet.getHalfedge();
+    [[maybe_unused]] Halfedge<float_t>& he = m_facet.getHalfedge();
     const auto& constFacet = m_facet;
-    const Halfedge<float_t>& cHe = constFacet.getHalfedge();
+    [[maybe_unused]] const Halfedge<float_t>& cHe = constFacet.getHalfedge();
 }
 
 TEST_F(FacetTest, getHeIndex)
 {
-    std::size_t heIndex = m_facet.getHalfedgeIndex();
+    [[maybe_unused]] std::size_t heIndex = m_facet.getHalfedgeIndex();
     const auto& constFacet = m_facet;
-    std::size_t cHeIndex = constFacet.getHalfedgeIndex();
+    [[maybe_unused]] std::size_t cHeIndex = constFacet.getHalfedgeIndex();
 }

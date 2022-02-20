@@ -15,6 +15,7 @@ std::optional<T> calcIntersectionParameter(const LinAl::Vec<T, 3>& planeOrigin,
                                            const LinAl::Vec3<T>& lineOrigin,
                                            const LinAl::Vec3<T>& lineDir,
                                            T eps = Core::eps_traits<T>::value());
+
 template <typename T>
 CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
 calcIntersection(const Plane<T>& plane, const Line3<T>& line, T eps = Core::eps_traits<T>::value())
@@ -24,7 +25,7 @@ calcIntersection(const Plane<T>& plane, const Line3<T>& line, T eps = Core::eps_
     const LinAl::Vec<T, 3>& lineOrigin = line.getOrigin();
     const LinAl::Vec<T, 3>& lineDir = line.getDirection();
 
-    if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, lineOrigin, lineDir))
+    if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, lineOrigin, lineDir, eps))
         return lineOrigin + paramD.value() * lineDir;
     return std::nullopt;
 }

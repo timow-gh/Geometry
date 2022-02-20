@@ -13,7 +13,7 @@ template <typename T>
 class Halfedge;
 
 template <typename T>
-struct HalfedgeMesh;
+class HalfedgeMesh;
 
 template <typename T>
 class Vertex {

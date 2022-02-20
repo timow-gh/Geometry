@@ -47,7 +47,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Line<T, D>& lhs,
         return 1;
     }
 
-    T sqrDeltaOrigin = LinAl::norm2Squared(deltaOrigin);
+    // FixMe T sqrDeltaOrigin = LinAl::norm2Squared(deltaOrigin);
     cross = deltaOrigin[0] * lhsDir[1] - deltaOrigin[1] * lhsDir[0];
     sqrCross = cross * cross;
     if (!Core::isZero(sqrCross, eps))

@@ -1,5 +1,7 @@
-#include <benchmark/benchmark.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 
+#include <benchmark/benchmark.h>
 #include <Geometry/Intersection/IntersectionSegment.hpp>
 #include <Geometry/Segment.hpp>
 
@@ -60,3 +62,5 @@ BENCHMARK(BM_Intersection_Seg2fSeg2f);
 
 // Run the benchmark
 BENCHMARK_MAIN();
+
+#pragma GCC diagnostic pop

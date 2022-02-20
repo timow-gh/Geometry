@@ -17,11 +17,12 @@ struct SphereIntersection
     std::optional<LinAl::Vec3<T>> second;
 
     SphereIntersection() = default;
-    explicit SphereIntersection(const LinAl::Vec3<T>& first) : first(first)
+    explicit SphereIntersection(const LinAl::Vec3<T>& firstIntersection) : first(firstIntersection)
     {
     }
-    SphereIntersection(const LinAl::Vec3<T>& first, const LinAl::Vec3<T>& second)
-        : first(first), second(second)
+    SphereIntersection(const LinAl::Vec3<T>& firstIntersection,
+                       const LinAl::Vec3<T>& secondIntersection)
+        : first(firstIntersection), second(secondIntersection)
     {
     }
 };
@@ -87,13 +88,13 @@ calcIntersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = Core::eps_
             result.first = rayOrigin + t1 * rayDir;
         if (Core::isGreaterEq(t2, T(0), eps))
             result.second = rayOrigin + t2 * rayDir;
-        return result;
+        return std::optional<SphereIntersection<T>>(result);
     }
     else if (Core::isZero(discriminant, eps))
     {
         T t = -b / 2 * a;
         if (Core::isGreaterEq(t, T(0), eps))
-            return SphereIntersection<T>(rayOrigin + t * rayDir);
+            return std::optional<SphereIntersection<T>>(rayOrigin + t * rayDir);
     }
     return std::nullopt;
 }
@@ -131,7 +132,7 @@ std::optional<SphereIntersection<T>> calcIntersection(const Sphere<T>& sphere,
             result.second = segSource + t2 * segDir;
         if (!result.first && !result.second)
             return std::nullopt;
-        return result;
+        return std::optional<SphereIntersection<T>>(result);
     }
     else if (Core::isZero(discriminant, eps))
     {

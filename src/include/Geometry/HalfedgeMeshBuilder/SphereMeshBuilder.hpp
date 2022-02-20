@@ -17,18 +17,18 @@ namespace Geometry
 
 template <typename T>
 class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
-    std::size_t m_polarCount{10};
-    std::size_t m_azimuthCount{20};
+    uint32_t m_polarCount{10};
+    uint32_t m_azimuthCount{20};
     std::optional<Sphere<T>> m_sphere;
 
   public:
-    SphereMeshBuilder& setPolarCount(std::size_t polarCount)
+    SphereMeshBuilder& setPolarCount(uint32_t polarCount)
     {
         m_polarCount = polarCount;
         return *this;
     }
 
-    SphereMeshBuilder& setAzimuthCount(std::size_t azimuthCount)
+    SphereMeshBuilder& setAzimuthCount(uint32_t azimuthCount)
     {
         m_azimuthCount = azimuthCount;
         return *this;
@@ -90,20 +90,21 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
 
     Core::TVector<uint32_t> calcSphereTriangleIndices(const LinAl::Vec3Vector<T>& spherePoints)
     {
-        auto toIdx = [azimuthCount = m_azimuthCount](std::size_t i, std::size_t j) -> std::size_t
+        auto toIdx = [azimuthCount = m_azimuthCount](uint32_t i, uint32_t j) -> uint32_t
         {
-            return i * azimuthCount + j;
+            return static_cast<uint32_t>(i * azimuthCount + j);
         };
 
         Core::TVector<uint32_t> triangleIndices;
 
-        const std::size_t pointsSize = spherePoints.size();
+        // TODO (Safe conversion DebugAssert) Does spherePoints.size() fit into uint32_t
+        const uint32_t pointsSize = static_cast<uint32_t>(spherePoints.size());
 
-        const std::size_t topiIdx = 0;
-        const std::size_t topIdx = pointsSize - 2;
+        const uint32_t topiIdx = 0;
+        const uint32_t topIdx = pointsSize - 2;
 
-        const std::size_t bottomiIdx = m_polarCount - 2;
-        const std::size_t bottomIdx = pointsSize - 1;
+        const uint32_t bottomiIdx = m_polarCount - 2;
+        const uint32_t bottomIdx = pointsSize - 1;
 
         // First top triangle
         triangleIndices.push_back(topIdx);
@@ -113,10 +114,10 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         triangleIndices.push_back(bottomIdx);
         triangleIndices.push_back(toIdx(bottomiIdx, m_azimuthCount - 1));
         triangleIndices.push_back(toIdx(bottomiIdx, 0));
-        for (std::size_t j{1}; j < m_azimuthCount; ++j)
+        for (uint32_t j{1}; j < m_azimuthCount; ++j)
         {
-            std::size_t jIdx = toIdx(topiIdx, j);
-            std::size_t jprevIdx = toIdx(topiIdx, j - 1);
+            uint32_t jIdx = toIdx(topiIdx, j);
+            uint32_t jprevIdx = toIdx(topiIdx, j - 1);
 
             triangleIndices.push_back(topIdx);
             triangleIndices.push_back(jprevIdx);
@@ -131,15 +132,15 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         }
 
         // Sphere body triangles
-        for (std::size_t i{1}; i < m_polarCount - 1; ++i)
+        for (uint32_t i{1}; i < m_polarCount - 1; ++i)
         {
-            const std::size_t iprev = i - 1;
-            for (std::size_t j{1}; j < m_azimuthCount; ++j)
+            const uint32_t iprev = i - 1;
+            for (uint32_t j{1}; j < m_azimuthCount; ++j)
             {
-                const std::size_t jprev = j - 1;
+                const uint32_t jprev = j - 1;
 
-                const std::size_t iprevj = toIdx(iprev, j);
-                const std::size_t ijprev = toIdx(i, jprev);
+                const uint32_t iprevj = toIdx(iprev, j);
+                const uint32_t ijprev = toIdx(i, jprev);
 
                 triangleIndices.push_back(iprevj);
                 triangleIndices.push_back(toIdx(iprev, jprev));

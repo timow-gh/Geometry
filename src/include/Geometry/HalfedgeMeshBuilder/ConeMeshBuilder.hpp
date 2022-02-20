@@ -62,10 +62,11 @@ class ConeMeshBuilder : public MeshBuilderBase<T, ConeMeshBuilder<T>> {
     Core::TVector<uint32_t> calcConeTriangleIndices(const LinAl::Vec3Vector<T>& conePoints) const
     {
         Core::TVector<uint32_t> indices;
-        std::size_t size = conePoints.size();
-        std::size_t topIdx = size - 1;
-        std::size_t bottomIdx = size - 2;
-        for (std::size_t i{1}; i < size; ++i)
+        // TODO (Safe conversion DebugAssert) Does spherePoints.size() fit into uint32_t
+        uint32_t size = static_cast<uint32_t>(conePoints.size());
+        uint32_t topIdx = size - 1;
+        uint32_t bottomIdx = size - 2;
+        for (uint32_t i{1}; i < size; ++i)
         {
             // slant surface
             indices.push_back(topIdx);

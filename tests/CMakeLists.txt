@@ -14,6 +14,12 @@ FetchContent_MakeAvailable(googletest)
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    target_compile_options(gtest_main INTERFACE
+            "-Wno-weak-vtables"
+            )
+endif ()
+
 mark_as_advanced(FETCHCONTENT_BASE_DIR)
 mark_as_advanced(FETCHCONTENT_FULLY_DISCONNECTED)
 mark_as_advanced(FETCHCONTENT_QUIET)

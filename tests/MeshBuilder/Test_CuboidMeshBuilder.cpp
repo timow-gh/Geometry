@@ -1,5 +1,3 @@
-
-
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp>
 #include <LinAl/LinearAlgebra.hpp>
@@ -28,4 +26,3 @@ TEST(MeshBuilder, createACubeMesh)
                     .setCuboid(Cuboid<double_t>{ZERO_VEC3D, Vec3d{1, 1, 1}})
                     .build());
 }
-

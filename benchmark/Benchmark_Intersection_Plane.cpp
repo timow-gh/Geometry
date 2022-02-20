@@ -1,10 +1,10 @@
-
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 
 #include <benchmark/benchmark.h>
 
 #include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <Geometry/Line.hpp>
-#include <Geometry/Plane.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
 
@@ -43,3 +43,5 @@ BENCHMARK(BM_Intersection_PlaneSegment3d);
 
 // Run the benchmark
 BENCHMARK_MAIN();
+
+#pragma GCC diagnostic pop

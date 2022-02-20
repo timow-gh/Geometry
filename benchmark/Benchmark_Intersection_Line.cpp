@@ -1,3 +1,5 @@
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wredundant-decls"
 
 
 #include <benchmark/benchmark.h>
@@ -62,3 +64,5 @@ BENCHMARK(BM_Intersection_Line2fLine2f);
 
 // Run the benchmark
 BENCHMARK_MAIN();
+
+#pragma GCC diagnostic pop

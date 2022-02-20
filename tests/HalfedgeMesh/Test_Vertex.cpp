@@ -24,28 +24,28 @@ class VertexTest : public ::testing::Test {
 
 TEST_F(VertexTest, getPoint)
 {
-    Vec3f point = m_vertex.getPoint();
+    [[maybe_unused]] Vec3f point = m_vertex.getPoint();
     const auto& constVertex = m_vertex;
-    const Vec3f& cPoint = constVertex.getPoint();
+    [[maybe_unused]] const Vec3f& cPoint = constVertex.getPoint();
 }
 
 TEST_F(VertexTest, vertexIndex)
 {
-    std::size_t index = m_vertex.getIndex();
+    [[maybe_unused]] std::size_t index = m_vertex.getIndex();
     const auto& constVertex = m_vertex;
     index = constVertex.getIndex();
 }
 
 TEST_F(VertexTest, getHalfedge)
 {
-    Halfedge<float_t> halfedge = m_vertex.getHalfedge();
+    [[maybe_unused]] Halfedge<float_t> halfedge = m_vertex.getHalfedge();
     const auto& constVertex = m_vertex;
-    const Halfedge<float_t>& cHalfedge = constVertex.getHalfedge();
+    [[maybe_unused]] const Halfedge<float_t>& cHalfedge = constVertex.getHalfedge();
 }
 
 TEST_F(VertexTest, halfedgeIndex)
 {
-    std::size_t heIndex = m_vertex.getHalfedgeIndex();
+    [[maybe_unused]] std::size_t heIndex = m_vertex.getHalfedgeIndex();
     m_vertex.setHalfedgeIndex(0);
     EXPECT_EQ(0, m_vertex.getHalfedgeIndex());
 }

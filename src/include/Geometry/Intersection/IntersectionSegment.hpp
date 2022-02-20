@@ -60,7 +60,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& lhs,
     }
 
     // TODO extract function: is parallel in plane (see line intersection)
-    T sqrDeltaSource = LinAl::norm2Squared(deltaSource);
+    // FixMe T sqrDeltaSource = LinAl::norm2Squared(deltaSource);
     cross = deltaSource[0] * lhsDir[1] - deltaSource[1] * lhsDir[0];
     sqrCross = cross * cross;
     if (!Core::isZero(sqrCross, eps * sqrLenLhs * sqrLenRhs))
@@ -131,7 +131,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& seg,
     }
 
     // TODO extract function: is parallel in plane (see line intersection)
-    T sqrDeltaSource = LinAl::norm2Squared(deltaSource);
+    // FixMe T sqrDeltaSource = LinAl::norm2Squared(deltaSource);
     cross = deltaSource[0] * segDir[1] - deltaSource[1] * segDir[0];
     sqrCross = cross * cross;
     if (!Core::isZero(sqrCross, eps * sqrLenSeg))

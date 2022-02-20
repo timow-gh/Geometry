@@ -1,5 +1,3 @@
-
-
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
 #include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>

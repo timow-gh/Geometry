@@ -15,7 +15,7 @@ template <typename T>
 class Facet;
 
 template <typename T>
-struct HalfedgeMesh;
+class HalfedgeMesh;
 
 template <typename T>
 class Halfedge {
