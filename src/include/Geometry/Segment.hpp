@@ -71,6 +71,14 @@ class Segment {
 };
 
 template <typename T>
+Segment3<T> transformation(const Segment3<T>& segment, const LinAl::HMatrix<T>& trafo)
+{
+    LinAl::HVec<T> source = trafo * LinAl::vec3ToHVec(segment.getSource());
+    LinAl::HVec<T> target = trafo * LinAl::vec3ToHVec(segment.getTarget());
+    return Segment3<T>{LinAl::hVecToVec3(source), LinAl::hVecToVec3(target)};
+}
+
+template <typename T>
 using Segment2 = Segment<T, 2>;
 using Segment2f = Segment2<float_t>;
 using Segment2d = Segment2<double_t>;

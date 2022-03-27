@@ -4,10 +4,12 @@
 #include <Core/Utils/Compiler.hpp>
 #include <Geometry/FwdGeometry.hpp>
 #include <Geometry/Lcs.hpp>
+#include <Geometry/Segment.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
+
 template <typename T>
 class Cylinder {
     Segment3<T> m_segment;
@@ -44,6 +46,12 @@ class Cylinder {
         return !(rhs == *this);
     }
 };
+
+template <typename T>
+Cylinder<T> transformation(const Cylinder<T>& cylinder, const LinAl::HMatrix<T>& trafo)
+{
+    return Cylinder<T>{transformation(cylinder.getSegment(), trafo), cylinder.getRadius()};
+}
 
 } // namespace Geometry
 
