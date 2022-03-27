@@ -1,5 +1,3 @@
-
-
 #include <Core/Math/Constants.hpp>
 #include <Geometry/Cone.hpp>
 #include <gtest/gtest.h>

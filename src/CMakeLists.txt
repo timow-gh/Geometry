@@ -24,6 +24,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Intersection/IntersectionSegment.hpp
         include/Geometry/Intersection/IntersectionSphere.hpp
         include/Geometry/AABB.hpp
+        include/Geometry/Circle.hpp
         include/Geometry/Cone.hpp
         include/Geometry/Cuboid.hpp
         include/Geometry/Segment.hpp
@@ -36,8 +37,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
         include/Geometry/InvalidIndex.hpp
-        include/Geometry/PolyLine.hpp
-        )
+        include/Geometry/PolyLine.hpp)
 
 add_library(tw_geometry INTERFACE ${geometry_TARGET_HEADER})
 target_include_directories(tw_geometry
