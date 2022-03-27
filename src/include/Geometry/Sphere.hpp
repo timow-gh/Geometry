@@ -31,7 +31,6 @@ class Sphere {
     CORE_CONSTEXPR void setOrigin(const LinAl::Vec3<T>& origin)
     {
         m_origin = origin;
-        m_origin = origin;
     }
 
     CORE_CONSTEXPR void setRadius(T radius)
@@ -56,6 +55,13 @@ class Sphere {
         return !(rhs == *this);
     }
 };
+
+template <typename T>
+Sphere<T> transformation(const Sphere<T>& sphere, const LinAl::HMatrix<T>& trafo)
+{
+    LinAl::HVec<T> origin = trafo * LinAl::vec3ToHVec(sphere.getOrigin());
+    return Sphere<T>{LinAl::hVecToVec3(origin), sphere.getRadius()};
+}
 
 } // namespace Geometry
 

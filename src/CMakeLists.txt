@@ -37,7 +37,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
         include/Geometry/InvalidIndex.hpp
-        include/Geometry/PolyLine.hpp)
+        include/Geometry/PolyLine.hpp include/Geometry/GeometryAssert.hpp)
 
 add_library(tw_geometry INTERFACE ${geometry_TARGET_HEADER})
 target_include_directories(tw_geometry

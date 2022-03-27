@@ -1,5 +1,4 @@
-
-
+#include <Geometry/GeometryAssert.hpp>
 #include <Geometry/Sphere.hpp>
 #include <gtest/gtest.h>
 
@@ -14,9 +13,7 @@ TEST(Sphere, Constructor)
     EXPECT_EQ(sphere.getOrigin(), ZERO_VEC3D);
 }
 
-class Sphere_Contains_Fixture
-    : public ::testing::Test
-{
+class Sphere_Contains_Fixture : public ::testing::Test {
   protected:
     Sphere<double_t> m_sphere{LinAl::ZERO_VEC3D, 1.0};
 };
@@ -39,3 +36,12 @@ TEST_F(Sphere_Contains_Fixture, outside)
     EXPECT_FALSE(contains);
 }
 
+TEST(Sphere, valid)
+{
+    Sphere<double_t> sphere{LinAl::Vec3d{0, 0, 0}, 0.0};
+#ifdef NDEBUG
+    EXPECT_DEATH(GEOMETRY_PRECONDITION_SPHERE_ASSERT(sphere), "");
+#else
+    EXPECT_DEATH(GEOMETRY_PRECONDITION_SPHERE_DEBUG_ASSERT(sphere), "");
+#endif
+}
