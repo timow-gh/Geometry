@@ -25,12 +25,17 @@ struct SphereIntersection
         : first(firstIntersection), second(secondIntersection)
     {
     }
+
+    CORE_NODISCARD bool hasIntersection() const
+    {
+        return first || second;
+    }
 };
 
 template <typename T>
-std::optional<SphereIntersection<T>> calcIntersection(const Sphere<T>& sphere,
-                                                      const Line3<T>& line,
-                                                      T eps = Core::eps_traits<T>::value())
+SphereIntersection<T> calcIntersection(const Sphere<T>& sphere,
+                                       const Line3<T>& line,
+                                       T eps = Core::eps_traits<T>::value())
 {
     // See Schneider - Geometric Tools, Linear Components and Spheres
     const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -57,11 +62,11 @@ std::optional<SphereIntersection<T>> calcIntersection(const Sphere<T>& sphere,
         T t = -b / 2 * a;
         return SphereIntersection<T>(lineOrigin + t * lineDir);
     }
-    return std::nullopt;
+    return {};
 }
 
 template <typename T>
-std::optional<SphereIntersection<T>>
+SphereIntersection<T>
 calcIntersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = Core::eps_traits<T>::value())
 {
     // See Schneider - Geometric Tools, Linear Components and Spheres
@@ -88,21 +93,21 @@ calcIntersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = Core::eps_
             result.first = rayOrigin + t1 * rayDir;
         if (Core::isGreaterEq(t2, T(0), eps))
             result.second = rayOrigin + t2 * rayDir;
-        return std::optional<SphereIntersection<T>>(result);
+        return result;
     }
     else if (Core::isZero(discriminant, eps))
     {
         T t = -b / 2 * a;
         if (Core::isGreaterEq(t, T(0), eps))
-            return std::optional<SphereIntersection<T>>(rayOrigin + t * rayDir);
+            return SphereIntersection<T>(rayOrigin + t * rayDir);
     }
-    return std::nullopt;
+    return {};
 }
 
 template <typename T>
-std::optional<SphereIntersection<T>> calcIntersection(const Sphere<T>& sphere,
-                                                      const Segment3<T>& segment,
-                                                      T eps = Core::eps_traits<T>::value())
+SphereIntersection<T> calcIntersection(const Sphere<T>& sphere,
+                                       const Segment3<T>& segment,
+                                       T eps = Core::eps_traits<T>::value())
 {
     // See Schneider - Geometric Tools, Linear Components and Spheres
     const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -131,8 +136,8 @@ std::optional<SphereIntersection<T>> calcIntersection(const Sphere<T>& sphere,
         if (Core::isGreaterEq(t2, T(0), eps) && Core::isLessEq(t2, T(1), eps))
             result.second = segSource + t2 * segDir;
         if (!result.first && !result.second)
-            return std::nullopt;
-        return std::optional<SphereIntersection<T>>(result);
+            return {};
+        return result;
     }
     else if (Core::isZero(discriminant, eps))
     {
@@ -140,7 +145,7 @@ std::optional<SphereIntersection<T>> calcIntersection(const Sphere<T>& sphere,
         if (Core::isGreaterEq(t, T(0), eps) && Core::isLessEq(t, T(1), eps))
             return SphereIntersection<T>(segSource + t * segDir);
     }
-    return std::nullopt;
+    return {};
 }
 } // namespace Geometry
 
