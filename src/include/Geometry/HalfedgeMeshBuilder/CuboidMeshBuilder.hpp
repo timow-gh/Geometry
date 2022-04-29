@@ -43,7 +43,7 @@ class CuboidMeshBuilder {
   private:
     Core::TArray<Triangle<T, 3>, 12> calcCuboidTriangles()
     {
-        auto sides = m_cube->sideVectors();
+        auto sides = m_cube->getSideVectors();
         LinAl::Vec3d defaultOrigin{0};
 
         const LinAl::Vec3<T>& x = sides[0];
@@ -53,13 +53,13 @@ class CuboidMeshBuilder {
         Core::TArray<Triangle<T, 3>, 12> triangles;
 
         LinAl::Vec3d diag = y + z;
-        calcCuboidFaceTriangles(triangles, {defaultOrigin, z, diag, y}, m_cube->origin(), x, 0);
+        calcCuboidFaceTriangles(triangles, {defaultOrigin, z, diag, y}, m_cube->getOrigin(), x, 0);
 
         diag = x + z;
-        calcCuboidFaceTriangles(triangles, {defaultOrigin, x, diag, z}, m_cube->origin(), y, 4);
+        calcCuboidFaceTriangles(triangles, {defaultOrigin, x, diag, z}, m_cube->getOrigin(), y, 4);
 
         diag = x + y;
-        calcCuboidFaceTriangles(triangles, {defaultOrigin, y, diag, x}, m_cube->origin(), z, 8);
+        calcCuboidFaceTriangles(triangles, {defaultOrigin, y, diag, x}, m_cube->getOrigin(), z, 8);
 
         return triangles;
     }

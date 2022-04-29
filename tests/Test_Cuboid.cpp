@@ -13,5 +13,5 @@ class Fixture_Cuboid : public ::testing::Test {
 TEST_F(Fixture_Cuboid, transformation)
 {
     auto expectedOrigin = LinAl::Vec3d{0, 0, 0};
-    EXPECT_EQ(expectedOrigin, m_cuboid.origin());
+    EXPECT_EQ(expectedOrigin, m_cuboid.getOrigin());
 }

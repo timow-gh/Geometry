@@ -32,12 +32,12 @@ class Cuboid {
     {
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& origin() const
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const
     {
         return m_origin;
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& sideVectors() const
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& getSideVectors() const
     {
         return m_sideVectors;
     }
@@ -67,8 +67,8 @@ Cuboid<T> transformation(const Cuboid<T>& cuboid, const LinAl::HMatrix<T>& trafo
 template <typename T>
 CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Array<T, 8> calcCuboidVertices(const Cuboid<T>& cuboid)
 {
-    LinAl::Vec3<T> origin = cuboid.origin();
-    const auto& sideVecs = cuboid.sideVectors();
+    LinAl::Vec3<T> origin = cuboid.getOrigin();
+    const auto& sideVecs = cuboid.getSideVectors();
     LinAl::Vec3Array<T, 8> vertices;
     const auto bottomX = sideVecs[0];
     const auto bottomY = sideVecs[1];

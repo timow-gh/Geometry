@@ -1,6 +1,7 @@
+#if !defined(_MSVC_LANG)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wredundant-decls"
-
+#endif
 
 #include <benchmark/benchmark.h>
 
@@ -65,4 +66,6 @@ BENCHMARK(BM_Intersection_Line2fLine2f);
 // Run the benchmark
 BENCHMARK_MAIN();
 
+#if !defined(_MSVC_LANG)
 #pragma GCC diagnostic pop
+#endif
