@@ -57,6 +57,33 @@ class Cuboid {
     LinAl::Vec3Array<T, 3> m_sideVectors;
 };
 
+template <typename T>
+Cuboid<T> transformation(const Cuboid<T>& cuboid, const LinAl::HMatrix<T>& trafo)
+{
+    LinAl::HVec<T> origin = trafo * LinAl::vec3ToHVec(cuboid.getOrigin());
+    return Cuboid<T>{LinAl::hVecToVec3(origin), cuboid.getSideVectors()};
+}
+
+template <typename T>
+CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Array<T, 8> calcCuboidVertices(const Cuboid<T>& cuboid)
+{
+    LinAl::Vec3<T> origin = cuboid.origin();
+    const auto& sideVecs = cuboid.sideVectors();
+    LinAl::Vec3Array<T, 8> vertices;
+    const auto bottomX = sideVecs[0];
+    const auto bottomY = sideVecs[1];
+    const auto bottomZ = sideVecs[2];
+    vertices[0] = LinAl::Vec3<T>{origin};
+    vertices[1] = LinAl::Vec3<T>{origin + bottomX};
+    vertices[2] = LinAl::Vec3<T>{origin + bottomX + bottomY};
+    vertices[3] = LinAl::Vec3<T>{origin + bottomY};
+    vertices[4] = LinAl::Vec3<T>{origin + bottomZ};
+    vertices[5] = LinAl::Vec3<T>{origin + bottomX + bottomZ};
+    vertices[6] = LinAl::Vec3<T>{origin + bottomX + bottomY + bottomZ};
+    vertices[7] = LinAl::Vec3<T>{origin + bottomY + bottomZ};
+    return vertices;
+}
+
 } // namespace Geometry
 
 #endif // GLFWTESTAPP_CUBE_H

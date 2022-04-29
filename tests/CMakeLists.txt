@@ -45,3 +45,5 @@ create_geometry_test(Test_Lcs)
 create_geometry_test(Test_VecOperations)
 create_geometry_test(Test_PolyLine)
 create_geometry_test(Test_Cone)
+create_geometry_test(Test_Cuboid)
+
