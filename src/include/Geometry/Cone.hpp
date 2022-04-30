@@ -61,12 +61,6 @@ class Cone {
     }
 };
 
-template <typename T>
-Cone<T> transformation(const Cone<T>& cone, const LinAl::HMatrixd& trafo)
-{
-    return Cone<T>{Geometry::transformation(cone.getSegment(), trafo), cone.getRadius()};
-}
-
 } // namespace Geometry
 
 #endif // GEOMETRY_CONE_HPP

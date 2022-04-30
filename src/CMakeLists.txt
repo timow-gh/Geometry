@@ -23,6 +23,13 @@ set(geometry_TARGET_HEADER
         include/Geometry/Intersection/IntersectionPlane.hpp
         include/Geometry/Intersection/IntersectionSegment.hpp
         include/Geometry/Intersection/IntersectionSphere.hpp
+        include/Geometry/Transformation/TransformVec.hpp
+        include/Geometry/Transformation/TransformSegment.hpp
+        include/Geometry/Transformation/TransformCuboid.hpp
+        include/Geometry/Transformation/TransformCone.hpp
+        include/Geometry/Transformation/TransformCircle.hpp
+        include/Geometry/Transformation/TransformCylinder.hpp
+        include/Geometry/Transformation/TransformSphere.hpp
         include/Geometry/AABB.hpp
         include/Geometry/Circle.hpp
         include/Geometry/Cone.hpp
@@ -37,7 +44,8 @@ set(geometry_TARGET_HEADER
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
         include/Geometry/InvalidIndex.hpp
-        include/Geometry/PolyLine.hpp include/Geometry/GeometryAssert.hpp)
+        include/Geometry/PolyLine.hpp
+        include/Geometry/GeometryAssert.hpp)
 
 add_library(tw_geometry INTERFACE ${geometry_TARGET_HEADER})
 target_include_directories(tw_geometry

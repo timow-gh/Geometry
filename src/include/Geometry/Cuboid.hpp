@@ -58,13 +58,6 @@ class Cuboid {
 };
 
 template <typename T>
-Cuboid<T> transformation(const Cuboid<T>& cuboid, const LinAl::HMatrix<T>& trafo)
-{
-    LinAl::HVec<T> origin = trafo * LinAl::vec3ToHVec(cuboid.getOrigin());
-    return Cuboid<T>{LinAl::hVecToVec3(origin), cuboid.getSideVectors()};
-}
-
-template <typename T>
 CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Array<T, 8> calcCuboidVertices(const Cuboid<T>& cuboid)
 {
     LinAl::Vec3<T> origin = cuboid.getOrigin();

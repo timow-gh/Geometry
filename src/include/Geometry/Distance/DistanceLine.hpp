@@ -8,6 +8,7 @@
 
 namespace Geometry
 {
+
 template <typename T, std::size_t D>
 CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec, const Line<T, D>& line)
 {

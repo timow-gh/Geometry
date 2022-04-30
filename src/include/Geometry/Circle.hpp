@@ -70,13 +70,6 @@ class Circle3 {
     }
 };
 
-template <typename T>
-Circle3<T> transformation(const Circle3<T>& circle, const LinAl::HMatrix<T>& transformation)
-{
-    LinAl::HVec<T> origin = transformation * LinAl::vec3ToHVec(circle.getOrigin());
-    return Circle3<T>{LinAl::hVecToVec3(origin), circle.getRadius(), circle.getNormal()};
-}
-
 using Circle3f = Circle3<float_t>;
 using Circle3d = Circle3<double_t>;
 

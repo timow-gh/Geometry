@@ -47,12 +47,6 @@ class Cylinder {
     }
 };
 
-template <typename T>
-Cylinder<T> transformation(const Cylinder<T>& cylinder, const LinAl::HMatrix<T>& trafo)
-{
-    return Cylinder<T>{transformation(cylinder.getSegment(), trafo), cylinder.getRadius()};
-}
-
 } // namespace Geometry
 
 #endif // GLFWTESTAPP_CYLINDER_HPP

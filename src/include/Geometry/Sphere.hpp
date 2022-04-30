@@ -56,13 +56,6 @@ class Sphere {
     }
 };
 
-template <typename T>
-Sphere<T> transformation(const Sphere<T>& sphere, const LinAl::HMatrix<T>& trafo)
-{
-    LinAl::HVec<T> origin = trafo * LinAl::vec3ToHVec(sphere.getOrigin());
-    return Sphere<T>{LinAl::hVecToVec3(origin), sphere.getRadius()};
-}
-
 } // namespace Geometry
 
 #endif // GLFWTESTAPP_SPHERE_H
