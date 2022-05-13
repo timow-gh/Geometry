@@ -20,7 +20,6 @@ class Vertex {
   public:
     CORE_CONSTEXPR Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
         : m_index(meshPointIndex)
-        , m_halfedgeIndex(INVALID_INDEX)
         , halfedgeMesh(mesh)
     {
     }
@@ -77,16 +76,13 @@ class Vertex {
 
     CORE_NODISCARD CORE_CONSTEXPR bool isValid() const
     {
-        if (m_index != INVALID_INDEX && m_halfedgeIndex != INVALID_INDEX &&
-            halfedgeMesh->contains(*this))
-            return true;
-        return false;
+        return halfedgeMesh->contains(*this);
     }
 
   private:
-    std::size_t m_index;
-    std::size_t m_halfedgeIndex;
-    HalfedgeMesh<T>* halfedgeMesh;
+    std::size_t m_index{INVALID_INDEX};
+    std::size_t m_halfedgeIndex{INVALID_INDEX};
+    HalfedgeMesh<T>* halfedgeMesh{nullptr};
 };
 
 } // namespace Geometry

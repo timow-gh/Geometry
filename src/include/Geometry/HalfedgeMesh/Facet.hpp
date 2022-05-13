@@ -29,6 +29,7 @@ class Facet {
     {
         return m_mesh->getHalfedges()[m_halfedgeIndex];
     }
+
     CORE_CONSTEXPR Halfedge<T>& getHalfedge()
     {
         return m_mesh->getHalfedges()[m_halfedgeIndex];
@@ -43,6 +44,7 @@ class Facet {
     {
         return m_halfedgeIndex == rhs.m_halfedgeIndex && m_mesh == rhs.m_mesh;
     }
+
     CORE_CONSTEXPR bool operator!=(const Facet& rhs) const
     {
         return !(rhs == *this);
@@ -50,12 +52,12 @@ class Facet {
 
     CORE_NODISCARD CORE_CONSTEXPR bool isValid() const
     {
-        return m_halfedgeIndex != Geometry::INVALID_INDEX && m_mesh->contains(*this);
+        return m_mesh->contains(*this);
     }
 
   private:
-    std::size_t m_halfedgeIndex;
-    HalfedgeMesh<T>* m_mesh;
+    std::size_t m_halfedgeIndex{INVALID_INDEX};
+    HalfedgeMesh<T>* m_mesh{nullptr};
 };
 
 } // namespace Geometry

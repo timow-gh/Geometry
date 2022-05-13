@@ -21,11 +21,7 @@ template <typename T>
 class Halfedge {
   public:
     CORE_CONSTEXPR Halfedge(std::size_t vertexIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
-        : m_facetIdx(INVALID_INDEX)
-        , m_vertexIdx(vertexIndex)
-        , m_nextIdx(INVALID_INDEX)
-        , m_previousIdx(INVALID_INDEX)
-        , m_oppositeIdx(INVALID_INDEX)
+        : m_vertexIdx(vertexIndex)
         , m_mesh(mesh)
     {
     }
@@ -145,19 +141,16 @@ class Halfedge {
 
     CORE_NODISCARD CORE_CONSTEXPR bool isValid() const
     {
-        if (m_facetIdx != INVALID_INDEX && m_vertexIdx != INVALID_INDEX &&
-            m_nextIdx != INVALID_INDEX && m_previousIdx != INVALID_INDEX && m_mesh->contains(*this))
-            return true;
-        return false;
+        return m_mesh->contains(*this);
     }
 
   private:
-    std::size_t m_facetIdx;
-    std::size_t m_vertexIdx;
-    std::size_t m_nextIdx;
-    std::size_t m_previousIdx;
-    std::size_t m_oppositeIdx;
-    HalfedgeMesh<T>* m_mesh;
+    std::size_t m_facetIdx{INVALID_INDEX};
+    std::size_t m_vertexIdx{INVALID_INDEX};
+    std::size_t m_nextIdx{INVALID_INDEX};
+    std::size_t m_previousIdx{INVALID_INDEX};
+    std::size_t m_oppositeIdx{INVALID_INDEX};
+    HalfedgeMesh<T>* m_mesh{nullptr};
 };
 
 } // namespace Geometry
