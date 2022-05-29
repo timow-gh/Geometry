@@ -9,12 +9,12 @@
 namespace Geometry
 {
 
-template <typename T>
-CORE_CONSTEXPR Core::TVector<const Halfedge<T>*> calcHalfedges(const Facet<T>& facet)
+template <typename TFloatType, typename TIndexType>
+CORE_CONSTEXPR Core::TVector<const Halfedge<TFloatType, TIndexType>*> calcHalfedges(const Facet<TFloatType, TIndexType>& facet)
 {
-    Core::TVector<const Halfedge<T>*> result;
+    Core::TVector<const Halfedge<TFloatType, TIndexType>*> result;
 
-    const Halfedge<T>* halfedge = &facet.getHalfedge();
+    const Halfedge<TFloatType, TIndexType>* halfedge = &facet.getHalfedge();
     result.push_back(halfedge);
     halfedge = &halfedge->getNext();
     result.push_back(halfedge);

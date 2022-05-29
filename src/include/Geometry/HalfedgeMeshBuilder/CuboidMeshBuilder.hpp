@@ -27,7 +27,7 @@ class CuboidMeshBuilder {
         return *this;
     }
 
-    CORE_NODISCARD std::unique_ptr<HalfedgeMesh<T>> build()
+    CORE_NODISCARD std::unique_ptr<HalfedgeMesh<TFloatType, TIndexType>> build()
     {
         CORE_PRECONDITION_DEBUG_ASSERT(m_cube, "Missing cuboid");
 
@@ -35,7 +35,7 @@ class CuboidMeshBuilder {
             return nullptr;
 
         Core::TArray<Triangle<T, 3>, 12> triangles = calcCuboidTriangles();
-        auto heMesh = std::make_unique<HalfedgeMesh<T>>();
+        auto heMesh = std::make_unique<HalfedgeMesh<TFloatType, TIndexType>>();
         std::for_each(triangles.cbegin(), triangles.cend(), MeshTriangleAdder<T>(*heMesh));
         return heMesh;
     }

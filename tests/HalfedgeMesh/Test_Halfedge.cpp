@@ -1,5 +1,3 @@
-
-
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
@@ -25,7 +23,7 @@ class TestHalfedge : public ::testing::Test {
 TEST_F(TestHalfedge, getFacet)
 {
     Facet<float_t> facet = m_halfedge.getFacet();
-    EXPECT_NE(facet.getHalfedgeIndex(), INVALID_INDEX);
+    EXPECT_NE(facet.getHalfedgeIndex(), INVALID_INDEX<std::size_t>);
 }
 
 TEST_F(TestHalfedge, getFacetIndex)

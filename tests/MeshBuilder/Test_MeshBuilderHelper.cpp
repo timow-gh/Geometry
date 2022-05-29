@@ -1,10 +1,8 @@
-#include "Geometry/InvalidIndex.hpp"
-#include "MeshTestHelper.h"
+#include "Geometry/HalfedgeMesh/HalfedgeMeshIndices.hpp"
 #include <gtest/gtest.h>
 
-using namespace MeshTestHelper;
-
-TEST(Test_MeshBuilderHelper, isInvalidIndex)
+TEST(MeshIndexBase, DefaultConstructor)
 {
-    EXPECT_FALSE(isValidIndex(Geometry::INVALID_INDEX));
+    Geometry::MeshIndexBase<std::size_t> idx;
+    EXPECT_FALSE(idx.isValid());
 }

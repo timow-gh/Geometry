@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_TRIANGLEINDICES_H
-#define GEOMETRY_TRIANGLEINDICES_H
+#ifndef GEOMETRY_TRIANGLEINDICES_HPP
+#define GEOMETRY_TRIANGLEINDICES_HPP
 
 namespace Geometry
 {
@@ -14,4 +14,4 @@ CORE_CONSTEXPR Core::TVector<U> calcTriangleIndices(const Core::TVector<Facet<T>
 }
 } // namespace Geometry
 
-#endif // GEOMETRY_TRIANGLEINDICES_H
+#endif // GEOMETRY_TRIANGLEINDICES_HPP

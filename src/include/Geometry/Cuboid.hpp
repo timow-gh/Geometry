@@ -15,8 +15,7 @@ class Cuboid {
     {
     }
 
-    CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal)
-        : m_origin(origin)
+    CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal) : m_origin(origin)
     {
         LinAl::Vec3Array<T, 3> unitVectors = {
             LinAl::X_VEC3D,
@@ -27,30 +26,18 @@ class Cuboid {
             m_sideVectors[i] = LinAl::projection(diagonal, unitVectors[i]);
     }
 
-    CORE_CONSTEXPR explicit Cuboid(const LinAl::Vec3<T>& diagonal)
-        : Cuboid(LinAl::Vec3<T>{0, 0, 0}, diagonal)
-    {
-    }
+    CORE_CONSTEXPR explicit Cuboid(const LinAl::Vec3<T>& diagonal) : Cuboid(LinAl::Vec3<T>{0, 0, 0}, diagonal) {}
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const
-    {
-        return m_origin;
-    }
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& getSideVectors() const
-    {
-        return m_sideVectors;
-    }
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& getSideVectors() const { return m_sideVectors; }
 
     CORE_CONSTEXPR bool operator==(const Cuboid& rhs) const
     {
         return m_origin == rhs.m_origin && m_sideVectors == rhs.m_sideVectors;
     }
 
-    CORE_CONSTEXPR bool operator!=(const Cuboid& rhs) const
-    {
-        return !(rhs == *this);
-    }
+    CORE_CONSTEXPR bool operator!=(const Cuboid& rhs) const { return !(rhs == *this); }
 
   private:
     LinAl::Vec3<T> m_origin;

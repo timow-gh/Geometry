@@ -30,23 +30,20 @@ class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
         return *this;
     }
 
-    CORE_NODISCARD std::unique_ptr<HalfedgeMesh<T>> build()
+    CORE_NODISCARD std::unique_ptr<HalfedgeMesh<TFloatType, TIndexType>> build()
     {
         if (!m_cylinder)
             return nullptr;
 
         const auto cylinderSeg = m_cylinder->getSegment();
 
-        LinAl::HMatrixd hTrafo =
-            LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(cylinderSeg.direction()));
+        LinAl::HMatrixd hTrafo = LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(cylinderSeg.direction()));
         LinAl::setTranslation(hTrafo, cylinderSeg.getSource());
         MeshBuilderBase<T, CylinderMeshBuilder<T>>::setTransformation(hTrafo);
 
         LinAl::Vec3Vector<T> cylPoints = calcCylinderPoints();
         const auto cylinderTriangleIndices = calcCylinderTriangleIndices(cylPoints);
-        return MeshBuilderBase<T, CylinderMeshBuilder<T>>::buildTriangleHeMesh(
-            cylPoints,
-            cylinderTriangleIndices);
+        return MeshBuilderBase<T, CylinderMeshBuilder<T>>::buildTriangleHeMesh(cylPoints, cylinderTriangleIndices);
     }
 
   private:
@@ -88,8 +85,7 @@ class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
         indices.push_back(circleEndIdx - 1);
     }
 
-    Core::TVector<uint32_t>
-    calcCylinderTriangleIndices(const LinAl::Vec3Vector<T>& cylinderPoints) const
+    Core::TVector<uint32_t> calcCylinderTriangleIndices(const LinAl::Vec3Vector<T>& cylinderPoints) const
     {
         // Bottom circle
         Core::TVector<uint32_t> indices;
@@ -98,10 +94,7 @@ class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
         const std::size_t bottomMidPointIdx = cylPointsSize - 2;
         const std::size_t bottomCircleStartIdx = 0;
         const std::size_t bottomCircleEndIdx = 0 + m_azimuthCount;
-        calcCircleBufferIndices(indices,
-                                bottomMidPointIdx,
-                                bottomCircleStartIdx,
-                                bottomCircleEndIdx);
+        calcCircleBufferIndices(indices, bottomMidPointIdx, bottomCircleStartIdx, bottomCircleEndIdx);
 
         // Outer surface
         for (std::size_t i{1}; i < m_azimuthCount; ++i)

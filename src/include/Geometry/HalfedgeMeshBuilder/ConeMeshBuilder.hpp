@@ -30,22 +30,20 @@ class ConeMeshBuilder : public MeshBuilderBase<T, ConeMeshBuilder<T>> {
         return *this;
     }
 
-    CORE_NODISCARD std::unique_ptr<HalfedgeMesh<T>> build()
+    CORE_NODISCARD std::unique_ptr<HalfedgeMesh<TFloatType, TIndexType>> build()
     {
         if (!m_cone)
             return nullptr;
 
         const auto coneSeg = m_cone->getSegment();
 
-        LinAl::HMatrixd hTrafo =
-            LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(coneSeg.direction()));
+        LinAl::HMatrixd hTrafo = LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(coneSeg.direction()));
         LinAl::setTranslation(hTrafo, coneSeg.getSource());
         MeshBuilderBase<T, ConeMeshBuilder<T>>::setTransformation(hTrafo);
 
         auto conePoints = calcConePoints(*m_cone);
         auto coneTriangleIndices = calcConeTriangleIndices(conePoints);
-        return MeshBuilderBase<T, ConeMeshBuilder<T>>::buildTriangleHeMesh(conePoints,
-                                                                           coneTriangleIndices);
+        return MeshBuilderBase<T, ConeMeshBuilder<T>>::buildTriangleHeMesh(conePoints, coneTriangleIndices);
     }
 
   private:

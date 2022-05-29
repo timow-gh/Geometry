@@ -23,20 +23,10 @@ class MeshPoints {
         return m_points.size() - 1;
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Vector<T>& getPoints()
-    {
-        return m_points;
-    }
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Vector<T>& getPoints() { return m_points; }
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Vector<T>& getPoints() const { return m_points; }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Vector<T>& getPoints() const
-    {
-        return m_points;
-    }
-
-    CORE_CONSTEXPR void setPoints(const LinAl::Vec3Vector<T>& points)
-    {
-        m_points = points;
-    }
+    CORE_CONSTEXPR void setPoints(const LinAl::Vec3Vector<T>& points) { m_points = points; }
 
     CORE_NODISCARD CORE_CONSTEXPR bool contains(const LinAl::Vec3<T>& vector, std::size_t& index)
     {
@@ -51,15 +41,8 @@ class MeshPoints {
         return false;
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<T> getPoint(std::size_t index) const
-    {
-        return m_points[index];
-    }
-
-    CORE_NODISCARD CORE_CONSTEXPR std::size_t size() const
-    {
-        return m_points.size();
-    }
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<T> getPoint(std::size_t index) const { return m_points[index]; }
+    CORE_NODISCARD CORE_CONSTEXPR std::size_t size() const { return m_points.size(); }
 
     CORE_CONSTEXPR void transform(const LinAl::Vec3<T>& translation)
     {

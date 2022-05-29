@@ -1,4 +1,4 @@
-add_library(meshBuilderTestHelper STATIC SphereTestHelper.cpp MeshTestHelper.cpp MeshTestHelper.h Test_MeshBuilderHelper.cpp)
+add_library(meshBuilderTestHelper STATIC SphereTestHelper.cpp)
 target_link_libraries(meshBuilderTestHelper PUBLIC gtest Geometry::Geometry)
 
 add_executable(Test_MeshBuilderHelper Test_MeshBuilderHelper.cpp)

@@ -21,26 +21,13 @@ class Line {
     {
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getOrigin() const
-    {
-        return m_origin;
-    }
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const
-    {
-        return m_direction;
-    }
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getOrigin() const { return m_origin; }
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const { return m_direction; }
 
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const
-    {
-        return Geometry::distance(vec, *this);
-    }
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const Line<T, D>& rhs) const
-    {
-        return Geometry::distance(*this, rhs);
-    }
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const { return Geometry::distance(vec, *this); }
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const Line<T, D>& rhs) const { return Geometry::distance(*this, rhs); }
 
-    CORE_NODISCARD CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
-    intersection(const Plane<T>& plane) const
+    CORE_NODISCARD CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(const Plane<T>& plane) const
     {
         return Geometry::calcIntersection(plane, *this);
     }

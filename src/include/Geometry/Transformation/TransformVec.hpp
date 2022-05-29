@@ -8,8 +8,7 @@ namespace Geometry
 {
 
 template <typename T>
-CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<T> transformation(const LinAl::Vec3<T>& vec,
-                                                            const LinAl::HMatrix<T>& trafo)
+CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<T> transformation(const LinAl::Vec3<T>& vec, const LinAl::HMatrix<T>& trafo)
 {
     LinAl::HVec<T> result = trafo * LinAl::vec3ToHVec(vec);
     return LinAl::hVecToVec3(result);

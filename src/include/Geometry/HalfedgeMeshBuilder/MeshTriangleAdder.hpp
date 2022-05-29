@@ -6,25 +6,26 @@
 namespace Geometry
 {
 
-template <typename T>
-class HalfedgeMesh;
-
-template <typename T>
+template <typename TFloatType, typename TIndexType>
 class MeshTriangleAdder {
-    HalfedgeMesh<T>* m_halfedgeMesh;
+    HalfedgeMesh<TFloatType, TIndexType>* m_halfedgeMesh;
 
   public:
-    CORE_CONSTEXPR explicit MeshTriangleAdder(HalfedgeMesh<T>& halfedgeMesh) CORE_NOEXCEPT
+    using Vertex_t = Vertex<TFloatType, TIndexType>;
+    using Halfedge_t = Halfedge<TFloatType, TIndexType>;
+    using Facet_t = Facet<TFloatType, TIndexType>;
+
+    CORE_CONSTEXPR explicit MeshTriangleAdder(HalfedgeMesh<TFloatType, TIndexType>& halfedgeMesh) CORE_NOEXCEPT
         : m_halfedgeMesh(&halfedgeMesh)
     {
     }
 
-    void operator()(const Triangle<T, 3>& triangle)
+    void operator()(const Triangle<TFloatType, 3>& triangle)
     {
-        MeshPoints<T>& meshPoints = m_halfedgeMesh->getMeshPoints();
-        Core::TVector<Vertex<T>>& vertices = m_halfedgeMesh->getVertices();
-        Core::TVector<Halfedge<T>>& halfedges = m_halfedgeMesh->getHalfedges();
-        Core::TVector<Facet<T>>& facets = m_halfedgeMesh->getFacets();
+        MeshPoints<TFloatType>& meshPoints = m_halfedgeMesh->getMeshPoints();
+        Core::TVector<Vertex_t>& vertices = m_halfedgeMesh->getVertices();
+        Core::TVector<Halfedge_t>& halfedges = m_halfedgeMesh->getHalfedges();
+        Core::TVector<Facet_t>& facets = m_halfedgeMesh->getFacets();
 
         std::size_t halfedgeIndex = halfedges.size() == 0 ? 0 : halfedges.size();
 
@@ -37,13 +38,13 @@ class MeshTriangleAdder {
     }
 
   private:
-    void createOrFindVertex(const Triangle<T, 3>& triangle,
-                            MeshPoints<T>& meshPoints,
-                            Core::TVector<Vertex<T>>& vertices,
+    void createOrFindVertex(const Triangle<TFloatType, 3>& triangle,
+                            MeshPoints<TFloatType>& meshPoints,
+                            Core::TVector<Vertex_t>& vertices,
                             Core::TArray<std::size_t, 3>& vertexIndices) const
     {
         // Create or find the Vertex of the LinAl::Vec3
-        const LinAl::VecArray<T, 3, 3> trianglePoints = triangle.getTrianglePoints();
+        const LinAl::VecArray<TFloatType, 3, 3> trianglePoints = triangle.getTrianglePoints();
         for (std::size_t i = 0; i < 3; ++i)
         {
             std::size_t vertexIndex;
@@ -57,9 +58,9 @@ class MeshTriangleAdder {
     }
 
     void createHalfedgeAndSetVertex(const Core::TArray<std::size_t, 3>& vertexIndices,
-                                    Core::TVector<Vertex<T>>& vertices,
-                                    Core::TVector<Halfedge<T>>& halfedges,
-                                    HalfedgeMesh<T>* halfedgeMesh) const
+                                    Core::TVector<Vertex_t>& vertices,
+                                    Core::TVector<Halfedge_t>& halfedges,
+                                    HalfedgeMesh<TFloatType, TIndexType>* halfedgeMesh) const
     {
         // Create the Halfedges and set the Halfedges for Vertices
         for (const std::size_t vIndex: vertexIndices)
@@ -70,9 +71,8 @@ class MeshTriangleAdder {
         }
     }
 
-    void fillHalfedgesOfFacet(Core::TVector<Facet<T>>& facets,
-                              std::size_t halfedgeIndex,
-                              Core::TVector<Halfedge<T>>& halfedges) const
+    void
+    fillHalfedgesOfFacet(Core::TVector<Facet_t>& facets, std::size_t halfedgeIndex, Core::TVector<Halfedge_t>& halfedges) const
     {
         // Fill the facet, the next and the previous pointer for each Halfedge
         // of the Facet
@@ -87,22 +87,21 @@ class MeshTriangleAdder {
         }
     }
 
-    void setOppositeHalfedges(std::size_t halfedgeIndex,
-                              Core::TVector<Halfedge<T>>& halfedges) const
+    void setOppositeHalfedges(std::size_t halfedgeIndex, Core::TVector<Halfedge_t>& halfedges) const
     {
         // Find and set the opposite Halfedges for each Halfedge of the Facet
         for (std::size_t i = halfedgeIndex; i < halfedges.size(); ++i)
         {
-            Halfedge<T>& halfedge = halfedges[i];
+            Halfedge_t& halfedge = halfedges[i];
 
-            Vertex<T>& heVertex = halfedge.getVertex();
-            Halfedge<T>& he = heVertex.getHalfedge();
+            Vertex_t& heVertex = halfedge.getVertex();
+            Halfedge_t& he = heVertex.getHalfedge();
 
-            Halfedge<T>& oppHeCandidate = he.getPrevious();
+            Halfedge_t& oppHeCandidate = he.getPrevious();
             std::size_t oppHeCandidateIndex = heVertex.getHalfedge().getPreviousIndex();
 
-            Vertex<T>& nextVertex = halfedge.getNextVertex();
-            Vertex<T>& oppNextVertex = oppHeCandidate.getNextVertex();
+            Vertex_t& nextVertex = halfedge.getNextVertex();
+            Vertex_t& oppNextVertex = oppHeCandidate.getNextVertex();
 
             if (heVertex == oppNextVertex && nextVertex == oppHeCandidate.getVertex())
             {

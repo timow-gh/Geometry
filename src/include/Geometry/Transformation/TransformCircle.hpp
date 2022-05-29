@@ -9,12 +9,9 @@ namespace Geometry
 {
 
 template <typename T>
-CORE_NODISCARD CORE_CONSTEXPR Circle3<T> transformation(const Circle3<T>& circle,
-                                                        const LinAl::HMatrix<T>& transformation)
+CORE_NODISCARD CORE_CONSTEXPR Circle3<T> transformation(const Circle3<T>& circle, const LinAl::HMatrix<T>& transformation)
 {
-    return Circle3<T>{transformation(circle.getOrigin(), transformation),
-                      circle.getRadius(),
-                      circle.getNormal()};
+    return Circle3<T>{transformation(circle.getOrigin(), transformation), circle.getRadius(), circle.getNormal()};
 }
 
 } // namespace Geometry

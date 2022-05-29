@@ -3,86 +3,55 @@
 
 #include <Core/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
+#include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
 #include <LinAl/LinearAlgebra.hpp>
-#include <cstdio>
 
 namespace Geometry
 {
 
-template <typename T>
-class Halfedge;
-
-template <typename T>
-class HalfedgeMesh;
-
-template <typename T>
+template <typename TFloatType, typename TIndexType>
 class Vertex {
   public:
-    CORE_CONSTEXPR Vertex(std::size_t meshPointIndex, HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
-        : m_index(meshPointIndex)
-        , halfedgeMesh(mesh)
+    using VertexIndex_t = typename MeshIndexTraits<TIndexType>::VertexIndex_t;
+    using HalfedgeIndex_t = typename MeshIndexTraits<TIndexType>::HalfedgeIndex_t;
+
+    using Halfedge_t = typename MeshTraits<TFloatType, TIndexType>::Halfedge_t;
+    using HalfedgeMesh_t = HalfedgeMesh<TFloatType, TIndexType>;
+
+    CORE_CONSTEXPR Vertex(VertexIndex_t vertexIndex, HalfedgeMesh_t* mesh) CORE_NOEXCEPT
+        : m_vIndex(vertexIndex)
+        , m_mesh(mesh)
     {
     }
 
-    CORE_CONSTEXPR Vertex(std::size_t meshPointIndex,
-                          std::size_t halfedgeIndex,
-                          HalfedgeMesh<T>* mesh) CORE_NOEXCEPT
-        : m_index(meshPointIndex)
-        , m_halfedgeIndex(halfedgeIndex)
-        , halfedgeMesh(mesh)
+    CORE_CONSTEXPR Vertex(VertexIndex_t meshPointIndex, HalfedgeIndex_t halfedgeIndex, HalfedgeMesh_t* mesh) CORE_NOEXCEPT
+        : m_vIndex(meshPointIndex)
+        , m_heIndex(halfedgeIndex)
+        , m_mesh(mesh)
     {
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<T> getPoint() const
-    {
-        return halfedgeMesh->getVertexPoints()[m_index];
-    }
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<TFloatType> getPoint() const { return m_mesh->getPoint(*this); }
 
-    CORE_NODISCARD CORE_CONSTEXPR std::size_t getIndex() const
-    {
-        return m_index;
-    }
+    CORE_NODISCARD CORE_CONSTEXPR VertexIndex_t getIndex() const { return m_vIndex; }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge<T>& getHalfedge() const
-    {
-        return halfedgeMesh->getHalfedges()[m_halfedgeIndex];
-    }
+    CORE_NODISCARD CORE_CONSTEXPR HalfedgeIndex_t getHalfedgeIndex() const { return m_heIndex; }
+    CORE_CONSTEXPR void setHalfedgeIndex(HalfedgeIndex_t halfedgeIndex) { m_heIndex = halfedgeIndex; }
 
-    CORE_CONSTEXPR Halfedge<T>& getHalfedge()
-    {
-        return halfedgeMesh->getHalfedges()[m_halfedgeIndex];
-    }
-
-    CORE_NODISCARD CORE_CONSTEXPR std::size_t getHalfedgeIndex() const
-    {
-        return m_halfedgeIndex;
-    }
-
-    CORE_CONSTEXPR void setHalfedgeIndex(std::size_t halfedgeIndex)
-    {
-        m_halfedgeIndex = halfedgeIndex;
-    }
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getHalfedge() const { return m_mesh->getHalfedges()[m_heIndex]; }
+    CORE_CONSTEXPR Halfedge_t& getHalfedge() { return m_mesh->getHalfedges()[m_heIndex]; }
 
     CORE_CONSTEXPR bool operator==(const Vertex& rhs) const
     {
-        return m_index == rhs.m_index && m_halfedgeIndex == rhs.m_halfedgeIndex &&
-               halfedgeMesh == rhs.halfedgeMesh;
+        return m_vIndex == rhs.m_vIndex && m_heIndex == rhs.m_heIndex && m_mesh == rhs.m_mesh;
     }
 
-    CORE_CONSTEXPR bool operator!=(const Vertex& rhs) const
-    {
-        return !(rhs == *this);
-    }
-
-    CORE_NODISCARD CORE_CONSTEXPR bool isValid() const
-    {
-        return halfedgeMesh->contains(*this);
-    }
+    CORE_CONSTEXPR bool operator!=(const Vertex& rhs) const { return !(rhs == *this); }
 
   private:
-    std::size_t m_index{INVALID_INDEX};
-    std::size_t m_halfedgeIndex{INVALID_INDEX};
-    HalfedgeMesh<T>* halfedgeMesh{nullptr};
+    VertexIndex_t m_vIndex{};
+    HalfedgeIndex_t m_heIndex{};
+    HalfedgeMesh_t* m_mesh{nullptr};
 };
 
 } // namespace Geometry

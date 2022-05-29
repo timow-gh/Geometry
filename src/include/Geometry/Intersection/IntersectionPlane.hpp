@@ -46,9 +46,8 @@ calcIntersection(const Plane<T>& plane, const Ray3<T>& ray, T eps = Core::eps_tr
     return std::nullopt;
 }
 template <typename T>
-CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> calcIntersection(const Plane<T>& plane,
-                                                              const Segment3<T>& seg,
-                                                              T eps = Core::eps_traits<T>::value())
+CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
+calcIntersection(const Plane<T>& plane, const Segment3<T>& seg, T eps = Core::eps_traits<T>::value())
 {
     const LinAl::Vec<T, 3>& planeOrigin = plane.getOrigin();
     const LinAl::Vec<T, 3>& planeNormal = plane.getNormal();

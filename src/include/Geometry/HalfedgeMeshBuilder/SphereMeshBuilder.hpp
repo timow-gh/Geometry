@@ -3,7 +3,7 @@
 
 #include <Core/Math/Constants.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
-#include <Geometry/HalfedgeMesh/TriangleIndices.h>
+#include <Geometry/HalfedgeMesh/TriangleIndices.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
 #include <Geometry/Sphere.hpp>
 #include <Geometry/Triangle.hpp>
@@ -40,7 +40,7 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         return *this;
     }
 
-    std::unique_ptr<HalfedgeMesh<T>> build()
+    std::unique_ptr<HalfedgeMesh<TFloatType, TIndexType>> build()
     {
         if (!m_sphere)
             return nullptr;
@@ -48,8 +48,7 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         auto spherePoints = calcSpherePoints(*m_sphere);
         auto triangleIndices = calcSphereTriangleIndices(spherePoints);
 
-        return MeshBuilderBase<T, SphereMeshBuilder<T>>::buildTriangleHeMesh(spherePoints,
-                                                                             triangleIndices);
+        return MeshBuilderBase<T, SphereMeshBuilder<T>>::buildTriangleHeMesh(spherePoints, triangleIndices);
     }
 
   private:

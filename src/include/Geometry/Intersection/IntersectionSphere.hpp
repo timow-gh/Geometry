@@ -17,25 +17,17 @@ struct SphereIntersection
     std::optional<LinAl::Vec3<T>> second;
 
     SphereIntersection() = default;
-    explicit SphereIntersection(const LinAl::Vec3<T>& firstIntersection) : first(firstIntersection)
-    {
-    }
-    SphereIntersection(const LinAl::Vec3<T>& firstIntersection,
-                       const LinAl::Vec3<T>& secondIntersection)
+    explicit SphereIntersection(const LinAl::Vec3<T>& firstIntersection) : first(firstIntersection) {}
+    SphereIntersection(const LinAl::Vec3<T>& firstIntersection, const LinAl::Vec3<T>& secondIntersection)
         : first(firstIntersection), second(secondIntersection)
     {
     }
 
-    CORE_NODISCARD bool hasIntersection() const
-    {
-        return first || second;
-    }
+    CORE_NODISCARD bool hasIntersection() const { return first || second; }
 };
 
 template <typename T>
-SphereIntersection<T> calcIntersection(const Sphere<T>& sphere,
-                                       const Line3<T>& line,
-                                       T eps = Core::eps_traits<T>::value())
+SphereIntersection<T> calcIntersection(const Sphere<T>& sphere, const Line3<T>& line, T eps = Core::eps_traits<T>::value())
 {
     // See Schneider - Geometric Tools, Linear Components and Spheres
     const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -66,8 +58,7 @@ SphereIntersection<T> calcIntersection(const Sphere<T>& sphere,
 }
 
 template <typename T>
-SphereIntersection<T>
-calcIntersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = Core::eps_traits<T>::value())
+SphereIntersection<T> calcIntersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = Core::eps_traits<T>::value())
 {
     // See Schneider - Geometric Tools, Linear Components and Spheres
     const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -105,9 +96,7 @@ calcIntersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = Core::eps_
 }
 
 template <typename T>
-SphereIntersection<T> calcIntersection(const Sphere<T>& sphere,
-                                       const Segment3<T>& segment,
-                                       T eps = Core::eps_traits<T>::value())
+SphereIntersection<T> calcIntersection(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = Core::eps_traits<T>::value())
 {
     // See Schneider - Geometric Tools, Linear Components and Spheres
     const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();

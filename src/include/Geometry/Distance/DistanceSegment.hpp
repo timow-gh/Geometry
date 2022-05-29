@@ -26,12 +26,12 @@ CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec, const Segment<T, D>& segm
     return distance(segment, vec);
 }
 
-//template <typename T, std::size_t D>
-//CORE_CONSTEXPR T distance(const Segment<T, D>& segment, const Line<T, D>& line)
+// template <typename T, std::size_t D>
+// CORE_CONSTEXPR T distance(const Segment<T, D>& segment, const Line<T, D>& line)
 //{
-//    assert(false);
-//    return 0;
-//}
+//     assert(false);
+//     return 0;
+// }
 
 template <typename T, std::size_t D>
 CORE_CONSTEXPR T distance(const Line<T, D>& line, const Segment<T, D>& segment)
@@ -39,12 +39,12 @@ CORE_CONSTEXPR T distance(const Line<T, D>& line, const Segment<T, D>& segment)
     return distance(segment, line);
 }
 
-//template <typename T, std::size_t D>
-//CORE_CONSTEXPR T distance(const Segment<T, D>& lhs, const Segment<T, D>& rhs)
+// template <typename T, std::size_t D>
+// CORE_CONSTEXPR T distance(const Segment<T, D>& lhs, const Segment<T, D>& rhs)
 //{
-//    assert(false);
-//    return 0;
-//}
+//     assert(false);
+//     return 0;
+// }
 
 } // namespace Geometry
 

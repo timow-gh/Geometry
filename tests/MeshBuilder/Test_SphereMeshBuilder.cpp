@@ -1,6 +1,3 @@
-
-
-#include "MeshTestHelper.h"
 #include "SphereTestHelper.h"
 #include <Core/Math/Eps.hpp>
 #include <Geometry/HalfedgeMesh/Vertex.hpp>

@@ -1,5 +1,5 @@
 #BasedOnStyle: google
-ColumnLimit: '100'
+ColumnLimit: '130'
 IndentWidth: '4'
 Language: Cpp
 AlignAfterOpenBracket: Align
@@ -9,7 +9,7 @@ AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: true
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortEnumsOnASingleLine: false
-AllowShortFunctionsOnASingleLine: None
+AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: None
 AllowShortLoopsOnASingleLine: false

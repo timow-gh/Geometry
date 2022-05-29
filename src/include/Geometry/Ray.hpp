@@ -20,36 +20,20 @@ class Ray {
     {
     }
 
-    CORE_CONSTEXPR bool operator==(const Ray& rhs) const
-    {
-        return m_origin == rhs.m_origin && m_direction == rhs.m_direction;
-    }
+    CORE_CONSTEXPR bool operator==(const Ray& rhs) const { return m_origin == rhs.m_origin && m_direction == rhs.m_direction; }
 
-    CORE_CONSTEXPR bool operator!=(const Ray& rhs) const
-    {
-        return !(rhs == *this);
-    }
+    CORE_CONSTEXPR bool operator!=(const Ray& rhs) const { return !(rhs == *this); }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getOrigin() const
-    {
-        return m_origin;
-    }
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getOrigin() const { return m_origin; }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const
-    {
-        return m_direction;
-    }
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const { return m_direction; }
 
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const Ray<T, D>& ray,
-                                             const LinAl::Vec<T, D>& vec) const
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const Ray<T, D>& ray, const LinAl::Vec<T, D>& vec) const
     {
         return Geometry::distance(ray, vec);
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const
-    {
-        return Geometry::distance(*this, vec);
-    }
+    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const { return Geometry::distance(*this, vec); }
 };
 
 template <typename T>
