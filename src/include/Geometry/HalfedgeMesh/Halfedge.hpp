@@ -15,10 +15,10 @@ class Halfedge {
     using HalfedgeIndex_t = typename MeshIndexTraits<TIndexType>::HalfedgeIndex_t;
     using FacetIndex_t = typename MeshIndexTraits<TIndexType>::FacetIndex_t;
 
-    using MeshTraits = MeshTraits<TFloatType, TIndexType>;
-    using Vertex_t = typename MeshTraits::Vertex_t;
-    using Halfedge_t = typename MeshTraits::Halfedge_t;
-    using Facet_t = typename MeshTraits::Facet_t;
+    using HeMeshTraits = MeshTraits<TFloatType, TIndexType>;
+    using Vertex_t = typename HeMeshTraits::Vertex_t;
+    using Halfedge_t = typename HeMeshTraits::Halfedge_t;
+    using Facet_t = typename HeMeshTraits::Facet_t;
 
     using HalfedgeMesh_t = HalfedgeMesh<TFloatType, TIndexType>;
 
