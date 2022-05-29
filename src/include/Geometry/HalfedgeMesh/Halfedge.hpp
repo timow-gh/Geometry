@@ -2,7 +2,7 @@
 #define GLFWTESTAPP_HALFEDGE_H
 
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/HalfedgeMesh/HalfedgeMeshIndices.hpp>
+#include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
 #include <Geometry/HalfedgeMesh/MeshTraits.hpp>
 
 namespace Geometry
@@ -22,20 +22,20 @@ class Halfedge {
 
     using HalfedgeMesh_t = HalfedgeMesh<TFloatType, TIndexType>;
 
-    CORE_CONSTEXPR Halfedge(std::size_t vertexIndex, HalfedgeMesh_t* mesh) CORE_NOEXCEPT
+    CORE_CONSTEXPR Halfedge(VertexIndex_t vertexIndex, HalfedgeMesh_t* mesh) CORE_NOEXCEPT
         : m_vertexIdx(vertexIndex)
         , m_mesh(mesh)
     {
     }
 
     CORE_NODISCARD
-    CORE_CONSTEXPR const Facet_t& getFacet() const { return m_mesh->getFacets()[m_facetIdx]; }
+    CORE_CONSTEXPR const Facet_t& getFacet() const { return m_mesh->facets[m_facetIdx.getValue()]; }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Vertex_t& getVertex() const { return m_mesh->getVertices()[m_vertexIdx]; }
+    CORE_NODISCARD CORE_CONSTEXPR const Vertex_t& getVertex() const { return m_mesh->vertices[m_vertexIdx.getValue()]; }
     CORE_NODISCARD CORE_CONSTEXPR const Vertex_t& getNextVertex() const { return getNext().getVertex(); }
 
     CORE_NODISCARD CORE_CONSTEXPR Vertex_t& getNextVertex() { return getNext().getVertex(); }
-    CORE_NODISCARD CORE_CONSTEXPR Vertex_t& getVertex() { return m_mesh->getVertices()[m_vertexIdx]; }
+    CORE_NODISCARD CORE_CONSTEXPR Vertex_t& getVertex() { return m_mesh->vertices[m_vertexIdx.getValue()]; }
 
     CORE_NODISCARD CORE_CONSTEXPR VertexIndex_t getVertexIndex() const { return m_vertexIdx; }
     CORE_CONSTEXPR void setVertexIndex(VertexIndex_t index) { m_vertexIdx = index; }
@@ -50,12 +50,12 @@ class Halfedge {
     CORE_CONSTEXPR void setOppositeIndex(HalfedgeIndex_t index) { m_oppositeIdx = index; }
     CORE_CONSTEXPR void setFacetIndex(FacetIndex_t facetIndex) { m_facetIdx = facetIndex; }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getNext() const { return m_mesh->getHalfedges()[m_nextIdx]; }
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getPrevious() const { return m_mesh->getHalfedges()[m_previousIdx]; }
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getOpposite() const { return m_mesh->getHalfedges()[m_oppositeIdx]; }
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getNext() const { return m_mesh->halfedges[m_nextIdx.getValue()]; }
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getPrevious() const { return m_mesh->halfedges[m_previousIdx.getValue()]; }
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getOpposite() const { return m_mesh->halfedges[m_oppositeIdx.getValue()]; }
 
-    CORE_NODISCARD CORE_CONSTEXPR Halfedge_t& getNext() { return m_mesh->getHalfedges()[m_nextIdx]; }
-    CORE_NODISCARD CORE_CONSTEXPR Halfedge_t& getPrevious() { return m_mesh->getHalfedges()[m_previousIdx]; }
+    CORE_NODISCARD CORE_CONSTEXPR Halfedge_t& getNext() { return m_mesh->halfedges[m_nextIdx.getValue()]; }
+    CORE_NODISCARD CORE_CONSTEXPR Halfedge_t& getPrevious() { return m_mesh->halfedges[m_previousIdx.getValue()]; }
 
     CORE_CONSTEXPR bool operator==(const Halfedge& rhs) const
     {

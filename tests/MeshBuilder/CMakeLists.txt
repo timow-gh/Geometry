@@ -14,3 +14,7 @@ add_test(NAME Geometry.Test_SphereMeshBuilder COMMAND Test_SphereMeshBuilder)
 add_executable(Test_ConeMeshBuilder Test_ConeMeshBuilder.cpp)
 target_link_libraries(Test_ConeMeshBuilder PRIVATE gtest_main Geometry::Geometry Core::Math)
 add_test(NAME Geometry.Test_ConeMeshBuilder COMMAND Test_ConeMeshBuilder)
+
+add_executable(Test_CylinderMeshBuilder Test_CylinderMeshBuilder.cpp)
+target_link_libraries(Test_CylinderMeshBuilder PRIVATE gtest_main Geometry::Geometry Core::Math)
+add_test(NAME Geometry.Test_CylinderMeshBuilder COMMAND Test_CylinderMeshBuilder)

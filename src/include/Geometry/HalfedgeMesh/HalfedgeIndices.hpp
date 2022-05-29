@@ -18,12 +18,12 @@ struct SegmentIndices
     SegmentIndices(std::uint32_t source, std::uint32_t target) : source(source), target(target) {}
 };
 
-template <typename T>
+template <typename TFloatType, typename TIndexType>
 Core::TVector<SegmentIndices> calcMeshSegmentIndices(const HalfedgeMesh<TFloatType, TIndexType>& mesh)
 {
     Core::TVector<SegmentIndices> result;
-    for (const Halfedge<T>& halfedge: mesh.getHalfedges())
-        result.push_back(SegmentIndices(halfedge.getVertexIndex(), halfedge.getNext().getVertexIndex()));
+    for (const Halfedge<TFloatType, TIndexType>& halfedge: mesh.halfedges)
+        result.push_back(SegmentIndices(halfedge.getVertexIndex().getValue(), halfedge.getNext().getVertexIndex().getValue()));
     return result;
 }
 

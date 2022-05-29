@@ -4,21 +4,21 @@
 #include <Core/Utils/Compiler.hpp>
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
-#include <Geometry/HalfedgeMeshBuilder/CylinderMeshBuilder.hpp>
+#include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
 #include <Geometry/Segment.hpp>
 #include <optional>
 
 namespace Geometry
 {
-template <typename T>
-class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
-    std::optional<Cylinder<T>> m_cylinder;
+template <typename TFloatType, typename TIndexType = std::size_t>
+class CylinderMeshBuilder : public MeshBuilderBase<TFloatType, TIndexType, CylinderMeshBuilder<TFloatType, TIndexType>> {
+    std::optional<Cylinder<TFloatType>> m_cylinder;
     std::size_t m_azimuthCount{20};
 
   public:
     CylinderMeshBuilder() = default;
 
-    CylinderMeshBuilder& setCylinder(const Cylinder<T>& clyinder)
+    CylinderMeshBuilder& setCylinder(const Cylinder<TFloatType>& clyinder)
     {
         m_cylinder = clyinder;
         return *this;
@@ -39,20 +39,22 @@ class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
 
         LinAl::HMatrixd hTrafo = LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(cylinderSeg.direction()));
         LinAl::setTranslation(hTrafo, cylinderSeg.getSource());
-        MeshBuilderBase<T, CylinderMeshBuilder<T>>::setTransformation(hTrafo);
+        MeshBuilderBase<TFloatType, TIndexType, CylinderMeshBuilder<TFloatType, TIndexType>>::setTransformation(hTrafo);
 
-        LinAl::Vec3Vector<T> cylPoints = calcCylinderPoints();
+        LinAl::Vec3Vector<TFloatType> cylPoints = calcCylinderPoints();
         const auto cylinderTriangleIndices = calcCylinderTriangleIndices(cylPoints);
-        return MeshBuilderBase<T, CylinderMeshBuilder<T>>::buildTriangleHeMesh(cylPoints, cylinderTriangleIndices);
+        return MeshBuilderBase<TFloatType, TIndexType, CylinderMeshBuilder<TFloatType, TIndexType>>::buildTriangleHeMesh(
+            cylPoints,
+            cylinderTriangleIndices);
     }
 
   private:
-    LinAl::Vec3Vector<T> calcCylinderPoints() const
+    LinAl::Vec3Vector<TFloatType> calcCylinderPoints() const
     {
-        LinAl::Vec3Vector<T> points;
+        LinAl::Vec3Vector<TFloatType> points;
         points.reserve(2 * m_azimuthCount + 2);
 
-        const Segment3<T>& segment = m_cylinder->getSegment();
+        const Segment3<TFloatType>& segment = m_cylinder->getSegment();
         calcCirclePoints(points, m_cylinder->getRadius(), m_azimuthCount);
 
         std::size_t circlePointsSize = points.size();
@@ -63,8 +65,8 @@ class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
             points.back()[2] += segLength;
         }
 
-        points.push_back(LinAl::Vec3<T>{0, 0, 0});
-        points.push_back(LinAl::Vec3<T>{0, 0, segLength});
+        points.push_back(LinAl::Vec3<TFloatType>{0, 0, 0});
+        points.push_back(LinAl::Vec3<TFloatType>{0, 0, segLength});
 
         return points;
     }
@@ -85,7 +87,7 @@ class CylinderMeshBuilder : public MeshBuilderBase<T, CylinderMeshBuilder<T>> {
         indices.push_back(circleEndIdx - 1);
     }
 
-    Core::TVector<uint32_t> calcCylinderTriangleIndices(const LinAl::Vec3Vector<T>& cylinderPoints) const
+    Core::TVector<uint32_t> calcCylinderTriangleIndices(const LinAl::Vec3Vector<TFloatType>& cylinderPoints) const
     {
         // Bottom circle
         Core::TVector<uint32_t> indices;

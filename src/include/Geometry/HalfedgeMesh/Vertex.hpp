@@ -2,8 +2,8 @@
 #define GLFWTESTAPP_VERTEX_H
 
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/HalfedgeMesh/Halfedge.hpp>
 #include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
+#include <Geometry/HalfedgeMesh/MeshTraits.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -31,15 +31,17 @@ class Vertex {
     {
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<TFloatType> getPoint() const { return m_mesh->getPoint(*this); }
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<TFloatType> getVector() const { return m_mesh->getVector(*this); }
 
     CORE_NODISCARD CORE_CONSTEXPR VertexIndex_t getIndex() const { return m_vIndex; }
 
     CORE_NODISCARD CORE_CONSTEXPR HalfedgeIndex_t getHalfedgeIndex() const { return m_heIndex; }
     CORE_CONSTEXPR void setHalfedgeIndex(HalfedgeIndex_t halfedgeIndex) { m_heIndex = halfedgeIndex; }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getHalfedge() const { return m_mesh->getHalfedges()[m_heIndex]; }
-    CORE_CONSTEXPR Halfedge_t& getHalfedge() { return m_mesh->getHalfedges()[m_heIndex]; }
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getHalfedge() const { return m_mesh->halfedges[m_heIndex.getValue()]; }
+    CORE_CONSTEXPR Halfedge_t& getHalfedge() { return m_mesh->halfedges[m_heIndex.getValue()]; }
+
+    CORE_NODISCARD CORE_CONSTEXPR bool isValid() const { return m_vIndex.isValid() && m_heIndex.isValid() && m_mesh; }
 
     CORE_CONSTEXPR bool operator==(const Vertex& rhs) const
     {

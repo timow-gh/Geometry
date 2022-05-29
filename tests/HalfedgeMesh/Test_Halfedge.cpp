@@ -7,102 +7,114 @@
 
 using namespace Geometry;
 
+using HalfedgeMesh_t = HalfedgeMesh<float_t>;
+using Vertex_t = HalfedgeMesh_t::Vertex_t;
+using Halfedge_t = HalfedgeMesh_t::Halfedge_t;
+using Facet_t = HalfedgeMesh_t::Facet_t;
+
+using VertexIndex_t = HalfedgeMesh_t::VertexIndex_t;
+using HalfedgeIndex_t = HalfedgeMesh_t::HalfedgeIndex_t;
+using FacetIndex_t = HalfedgeMesh_t::FacetIndex_t;
+
 class TestHalfedge : public ::testing::Test {
   protected:
     TestHalfedge()
-        : m_heMesh(
-              CuboidMeshBuilder<float_t>().setCuboid(Cuboid<float_t>({0, 0, 0}, {1, 1, 1})).build())
-        , m_halfedge(m_heMesh->getHalfedges().front())
+        : m_heMesh(CuboidMeshBuilder<float_t>().setCuboid(Cuboid<float_t>({0, 0, 0}, {1, 1, 1})).build())
+        , m_halfedge(m_heMesh->halfedges.front())
     {
     }
 
-    std::unique_ptr<HalfedgeMesh<float_t>> m_heMesh;
-    Halfedge<float_t> m_halfedge;
+    std::unique_ptr<HalfedgeMesh_t> m_heMesh;
+    Halfedge_t m_halfedge;
 };
 
 TEST_F(TestHalfedge, getFacet)
 {
-    Facet<float_t> facet = m_halfedge.getFacet();
-    EXPECT_NE(facet.getHalfedgeIndex(), INVALID_INDEX<std::size_t>);
+    Facet_t facet = m_halfedge.getFacet();
+    EXPECT_TRUE(facet.getHalfedgeIndex().isValid());
 }
 
 TEST_F(TestHalfedge, getFacetIndex)
 {
-    std::size_t facetIndex = m_halfedge.getFacetIndex();
-    EXPECT_NE(facetIndex, INVALID_INDEX);
+    FacetIndex_t facetIndex = m_halfedge.getFacetIndex();
+    EXPECT_TRUE(facetIndex.isValid());
 }
 
 TEST_F(TestHalfedge, setFacetIndex)
 {
-    std::size_t facetIndex = m_halfedge.getFacetIndex();
-    m_halfedge.setFacetIndex(facetIndex + 1);
+    FacetIndex_t facetIndex = m_halfedge.getFacetIndex();
+    m_halfedge.setFacetIndex(FacetIndex_t{facetIndex.getValue() + 1});
     EXPECT_NE(m_halfedge.getFacetIndex(), facetIndex);
 }
 
 TEST_F(TestHalfedge, getNext)
 {
-    const Halfedge<float_t>& nextHe = m_halfedge.getNext();
+    const Halfedge_t& nextHe = m_halfedge.getNext();
     const auto cHe = m_halfedge;
-    const Halfedge<float_t>& cNextHe = cHe.getNext();
+    const Halfedge_t& cNextHe = cHe.getNext();
     EXPECT_EQ(nextHe, cNextHe);
 }
 
 TEST_F(TestHalfedge, setNextIndex)
 {
-    std::size_t nextHeIndex = m_halfedge.getNextIndex();
-    m_halfedge.setNextIndex(++nextHeIndex);
-    EXPECT_EQ(nextHeIndex, m_halfedge.getNextIndex());
+    HalfedgeIndex_t nextHeIndex = m_halfedge.getNextIndex();
+    HalfedgeIndex_t modifiedHeIndex = HalfedgeIndex_t{nextHeIndex.getValue() + 1};
+    m_halfedge.setNextIndex(modifiedHeIndex);
+    EXPECT_EQ(modifiedHeIndex, m_halfedge.getNextIndex());
 }
 
 TEST_F(TestHalfedge, getPrevious)
 {
-    const Halfedge<float_t>& nextHe = m_halfedge.getPrevious();
+    const Halfedge_t& nextHe = m_halfedge.getPrevious();
     const auto cHe = m_halfedge;
-    const Halfedge<float_t>& cNextHe = cHe.getPrevious();
+    const Halfedge_t& cNextHe = cHe.getPrevious();
     EXPECT_EQ(nextHe, cNextHe);
 }
 
 TEST_F(TestHalfedge, setPreviousIndex)
 {
-    std::size_t prevIndex = m_halfedge.getPreviousIndex();
-    m_halfedge.setPreviousIndex(++prevIndex);
-    EXPECT_EQ(prevIndex, m_halfedge.getPreviousIndex());
+    HalfedgeIndex_t prevIndex = m_halfedge.getPreviousIndex();
+    HalfedgeIndex_t modifiedHeIndex = HalfedgeIndex_t{prevIndex.getValue() + 1};
+    m_halfedge.setPreviousIndex(modifiedHeIndex);
+    EXPECT_EQ(modifiedHeIndex, m_halfedge.getPreviousIndex());
 }
 
 TEST_F(TestHalfedge, getOpposite)
 {
-    const Halfedge<float_t>& oppHe = m_halfedge.getOpposite();
+    Halfedge_t oppHe = m_halfedge.getOpposite();
     const auto cHe = m_halfedge;
-    const Halfedge<float_t>& cOppHe = cHe.getOpposite();
+    Halfedge_t cOppHe = cHe.getOpposite();
     EXPECT_EQ(oppHe, cOppHe);
 }
 
 TEST_F(TestHalfedge, setOppositeIndex)
 {
-    std::size_t oppIdx = m_halfedge.getOppositeIndex();
-    m_halfedge.setOppositeIndex(++oppIdx);
-    EXPECT_EQ(oppIdx, m_halfedge.getOppositeIndex());
+    HalfedgeIndex_t oppIdx = m_halfedge.getOppositeIndex();
+    HalfedgeIndex_t modifiedHeIndex = HalfedgeIndex_t{oppIdx.getValue() + 1};
+    m_halfedge.setOppositeIndex(modifiedHeIndex);
+    EXPECT_EQ(modifiedHeIndex, m_halfedge.getOppositeIndex());
 }
 
 TEST_F(TestHalfedge, getVertex)
 {
-    const Vertex<float_t>& vertex = m_halfedge.getVertex();
+    const Vertex_t& vertex = m_halfedge.getVertex();
     const auto cHe = m_halfedge;
-    const Vertex<float_t>& cVertex = cHe.getVertex();
+    const Vertex_t& cVertex = cHe.getVertex();
     EXPECT_EQ(vertex, cVertex);
 }
 
 TEST_F(TestHalfedge, setVertexIndex)
 {
-    std::size_t vertexIdx = m_halfedge.getVertexIndex();
-    m_halfedge.setVertexIndex(++vertexIdx);
-    EXPECT_EQ(vertexIdx, m_halfedge.getVertexIndex());
+    VertexIndex_t vertexIdx = m_halfedge.getVertexIndex();
+    VertexIndex_t modifiedIndex = VertexIndex_t{vertexIdx.getValue() + 1};
+    m_halfedge.setVertexIndex(modifiedIndex);
+    EXPECT_EQ(modifiedIndex, m_halfedge.getVertexIndex());
 }
 
 TEST_F(TestHalfedge, getNextVertex)
 {
-    const Vertex<float_t>& nextVertex = m_halfedge.getNextVertex();
+    const Vertex_t& nextVertex = m_halfedge.getNextVertex();
     const auto cHe = m_halfedge;
-    const Vertex<float_t>& cNextVertex = cHe.getNextVertex();
+    const Vertex_t& cNextVertex = cHe.getNextVertex();
     EXPECT_EQ(nextVertex, cNextVertex);
 }

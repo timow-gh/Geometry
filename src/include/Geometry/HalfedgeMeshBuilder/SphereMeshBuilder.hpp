@@ -15,11 +15,11 @@
 namespace Geometry
 {
 
-template <typename T>
-class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
+template <typename TFloatType, typename TIndexType = std::size_t>
+class SphereMeshBuilder : public MeshBuilderBase<TFloatType, TIndexType, SphereMeshBuilder<TFloatType, TIndexType>> {
     uint32_t m_polarCount{10};
     uint32_t m_azimuthCount{20};
-    std::optional<Sphere<T>> m_sphere;
+    std::optional<Sphere<TFloatType>> m_sphere;
 
   public:
     SphereMeshBuilder& setPolarCount(uint32_t polarCount)
@@ -34,7 +34,7 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         return *this;
     }
 
-    SphereMeshBuilder& setSphere(const Sphere<T>& sphere)
+    SphereMeshBuilder& setSphere(const Sphere<TFloatType>& sphere)
     {
         m_sphere = sphere;
         return *this;
@@ -48,36 +48,38 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         auto spherePoints = calcSpherePoints(*m_sphere);
         auto triangleIndices = calcSphereTriangleIndices(spherePoints);
 
-        return MeshBuilderBase<T, SphereMeshBuilder<T>>::buildTriangleHeMesh(spherePoints, triangleIndices);
+        return MeshBuilderBase<TFloatType, TIndexType, SphereMeshBuilder<TFloatType, TIndexType>>::buildTriangleHeMesh(
+            spherePoints,
+            triangleIndices);
     }
 
   private:
-    LinAl::Vec3Vector<T> calcSpherePoints(const Sphere<T>& sphere)
+    LinAl::Vec3Vector<TFloatType> calcSpherePoints(const Sphere<TFloatType>& sphere)
     {
-        LinAl::Vec3Vector<T> points;
+        LinAl::Vec3Vector<TFloatType> points;
 
-        T polarStep = Core::PI<T> / static_cast<double_t>(m_polarCount);
-        T azimuthStep = 2.0 * Core::PI<T> / static_cast<double_t>(m_azimuthCount);
-        T radius = sphere.getRadius();
+        TFloatType polarStep = Core::PI<TFloatType> / static_cast<double_t>(m_polarCount);
+        TFloatType azimuthStep = 2.0 * Core::PI<TFloatType> / static_cast<double_t>(m_azimuthCount);
+        TFloatType radius = sphere.getRadius();
 
         for (uint32_t i{1}; i < m_polarCount; ++i)
         {
-            T polarAngle = i * polarStep;
-            T z = radius * std::cos(polarAngle);
-            T projRadius = radius * std::sin(polarAngle);
+            TFloatType polarAngle = i * polarStep;
+            TFloatType z = radius * std::cos(polarAngle);
+            TFloatType projRadius = radius * std::sin(polarAngle);
 
             for (uint32_t j{0}; j < m_azimuthCount; ++j)
             {
-                T azimuthAngle = j * azimuthStep;
-                T x = projRadius * std::cos(azimuthAngle);
-                T y = projRadius * std::sin(azimuthAngle);
-                points.push_back(LinAl::Vec3<T>{x, y, z});
+                TFloatType azimuthAngle = j * azimuthStep;
+                TFloatType x = projRadius * std::cos(azimuthAngle);
+                TFloatType y = projRadius * std::sin(azimuthAngle);
+                points.push_back(LinAl::Vec3<TFloatType>{x, y, z});
             }
         }
 
         // Poles
-        points.push_back(LinAl::Vec3<T>{0, 0, radius});
-        points.push_back(LinAl::Vec3<T>{0, 0, -radius});
+        points.push_back(LinAl::Vec3<TFloatType>{0, 0, radius});
+        points.push_back(LinAl::Vec3<TFloatType>{0, 0, -radius});
 
         const auto& sphereOrigin = sphere.getOrigin();
         if (sphereOrigin != LinAl::ZERO_VEC3D)
@@ -87,7 +89,7 @@ class SphereMeshBuilder : public MeshBuilderBase<T, SphereMeshBuilder<T>> {
         return points;
     }
 
-    Core::TVector<uint32_t> calcSphereTriangleIndices(const LinAl::Vec3Vector<T>& spherePoints)
+    Core::TVector<uint32_t> calcSphereTriangleIndices(const LinAl::Vec3Vector<TFloatType>& spherePoints)
     {
         auto toIdx = [azimuthCount = m_azimuthCount](uint32_t i, uint32_t j) -> uint32_t
         {

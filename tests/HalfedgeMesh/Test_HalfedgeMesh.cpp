@@ -33,44 +33,8 @@ TEST(HalfedgeMesh, IsMoveAssignable)
 TEST(HalfedgeMesh, vertexPoints)
 {
     HalfedgeMesh<float_t> heMesh{};
-    [[maybe_unused]] Vec3Vector<float_t>& vertexPoints = heMesh.getVertexPoints();
+    [[maybe_unused]] Vec3Vector<float_t>& vertexPoints = heMesh.meshPoints.getPoints();
 
     const HalfedgeMesh<float_t>& constMesh = heMesh;
-    [[maybe_unused]] const Vec3Vector<float_t>& constVertexPoints = constMesh.getVertexPoints();
-}
-
-TEST(HalfedgeMesh, vertices)
-{
-    HalfedgeMesh<float_t> heMesh{};
-    [[maybe_unused]] TVector<Vertex<float_t>>& vertices = heMesh.getVertices();
-
-    const HalfedgeMesh<float_t>& constMesh = heMesh;
-    [[maybe_unused]] const TVector<Vertex<float_t>>& constVertices = constMesh.getVertices();
-}
-
-TEST(HalfedgeMesh, halfedges)
-{
-    HalfedgeMesh<float_t> heMesh{};
-    [[maybe_unused]] TVector<Halfedge<float_t>>& halfedges = heMesh.getHalfedges();
-
-    const HalfedgeMesh<float_t>& constMesh = heMesh;
-    [[maybe_unused]] const TVector<Halfedge<float_t>>& constHes = constMesh.getHalfedges();
-}
-
-TEST(HalfedgeMesh, facets)
-{
-    HalfedgeMesh<float_t> heMesh{};
-    [[maybe_unused]] TVector<Facet<float_t>>& facets = heMesh.getFacets();
-
-    const HalfedgeMesh<float_t>& constMesh = heMesh;
-    [[maybe_unused]] const TVector<Facet<float_t>>& constFacet = constMesh.getFacets();
-}
-
-TEST(HalfedgeMesh, meshPoints)
-{
-    HalfedgeMesh<float_t> heMesh{};
-    [[maybe_unused]] MeshPoints<float_t>& meshPoints = heMesh.getMeshPoints();
-
-    const HalfedgeMesh<float_t>& constMesh = heMesh;
-    [[maybe_unused]] const MeshPoints<float_t>& cMeshPoints = constMesh.getMeshPoints();
+    [[maybe_unused]] const Vec3Vector<float_t>& constVertexPoints = heMesh.meshPoints.getPoints();
 }

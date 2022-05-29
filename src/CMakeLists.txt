@@ -7,6 +7,9 @@ set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/HalfedgeMesh.hpp
         include/Geometry/HalfedgeMesh/Vertex.hpp
         include/Geometry/HalfedgeMesh/TriangleIndices.hpp
+        include/Geometry/HalfedgeMesh/HalfedgeMeshIndices.hpp
+        include/Geometry/HalfedgeMesh/MeshIndexTraits.hpp
+        include/Geometry/HalfedgeMesh/MeshTraits.hpp
         include/Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp
         include/Geometry/HalfedgeMeshBuilder/CirclePoints.hpp
         include/Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp
@@ -44,7 +47,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
         include/Geometry/PolyLine.hpp
-        include/Geometry/GeometryAssert.hpp include/Geometry/HalfedgeMesh/HalfedgeMeshIndices.hpp include/Geometry/HalfedgeMesh/MeshIndexTraits.hpp include/Geometry/HalfedgeMesh/MeshTraits.hpp)
+        include/Geometry/GeometryAssert.hpp)
 
 add_library(tw_geometry INTERFACE ${geometry_TARGET_HEADER})
 target_include_directories(tw_geometry

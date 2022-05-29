@@ -23,13 +23,12 @@ class Test_MeshBuilder_Sphere : public ::testing::Test {
 
 TEST_F(Test_MeshBuilder_Sphere, VertexIndices)
 {
-    for (const auto& vertex: m_sphereMesh->getVertices())
-        EXPECT_TRUE(isValidIndex(vertex.getIndex()));
+    for (const auto& vertex: m_sphereMesh->vertices)
+        EXPECT_TRUE(vertex.isValid());
 }
 
 TEST_F(Test_MeshBuilder_Sphere, MeshPoints)
 {
-    for (const auto& vertexPoint: m_sphereMesh->getVertexPoints())
+    for (const auto& vertexPoint: m_sphereMesh->meshPoints.getPoints())
         EXPECT_TRUE(isPointOnSphere(m_sphere, vertexPoint));
 }
-

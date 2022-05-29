@@ -11,21 +11,23 @@
 #include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
 #include <Geometry/HalfedgeMesh/MeshPoints.hpp>
 #include <Geometry/HalfedgeMesh/Vertex.hpp>
-#include <Geometry/Triangle.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
 {
 
-template <typename T>
-class SphereMeshBuilder;
-
 template <typename TFloatType = std::double_t, typename TIndexType = std::size_t>
-class HalfedgeMesh {
-  public:
+struct HalfedgeMesh
+{
+    using VertexIndex_t = typename MeshIndexTraits<TIndexType>::VertexIndex_t;
+    using HalfedgeIndex_t = typename MeshIndexTraits<TIndexType>::HalfedgeIndex_t;
+    using FacetIndex_t = typename MeshIndexTraits<TIndexType>::FacetIndex_t;
+
     using Vertex_t = Vertex<TFloatType, TIndexType>;
     using Halfedge_t = Halfedge<TFloatType, TIndexType>;
     using Facet_t = Facet<TFloatType, TIndexType>;
+
+    using MeshPoints_t = MeshPoints<TFloatType, TIndexType>;
 
     CORE_CONSTEXPR HalfedgeMesh() = default;
     CORE_CONSTEXPR explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
@@ -34,31 +36,9 @@ class HalfedgeMesh {
     CORE_CONSTEXPR HalfedgeMesh(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
     CORE_CONSTEXPR HalfedgeMesh& operator=(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
 
-//    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Vector<TFloatType>& getVertexPoints() { return m_meshPoints.getPoints(); }
-//    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Vector<TFloatType>& getVertexPoints() const
-//    {
-//        return m_meshPoints.getPoints();
-//    }
-
-    CORE_NODISCARD CORE_CONSTEXPR Core::TVector<Vertex_t>& getVertices() { return m_vertices; }
-    CORE_NODISCARD CORE_CONSTEXPR const Core::TVector<Vertex_t>& getVertices() const { return m_vertices; }
-
-    CORE_NODISCARD CORE_CONSTEXPR Core::TVector<Halfedge_t>& getHalfedges() { return m_halfedges; }
-    CORE_NODISCARD CORE_CONSTEXPR const Core::TVector<Halfedge_t>& getHalfedges() const { return m_halfedges; }
-
-    CORE_NODISCARD CORE_CONSTEXPR Core::TVector<Facet_t>& getFacets() { return m_facets; }
-    CORE_NODISCARD CORE_CONSTEXPR const Core::TVector<Facet_t>& getFacets() const { return m_facets; }
-
-    CORE_NODISCARD CORE_CONSTEXPR MeshPoints<TFloatType>& getMeshPoints() { return m_meshPoints; }
-    CORE_NODISCARD CORE_CONSTEXPR const MeshPoints<TFloatType>& getMeshPoints() const { return m_meshPoints; }
-
-    CORE_NODISCARD CORE_CONSTEXPR Vertex_t getVertex(std::size_t index) const { return m_vertices[index]; }
-    CORE_NODISCARD CORE_CONSTEXPR Halfedge_t getHalfedge(std::size_t index) const { return m_halfedges[index]; }
-    CORE_NODISCARD CORE_CONSTEXPR Facet_t getFacet(std::size_t index) const { return m_facets[index]; }
-
     CORE_NODISCARD CORE_CONSTEXPR bool contains(const Vertex_t& vertex) const
     {
-        for (const Vertex_t& v: m_vertices)
+        for (const Vertex_t& v: vertices)
             if (vertex == v)
                 return true;
         return false;
@@ -66,7 +46,7 @@ class HalfedgeMesh {
 
     CORE_NODISCARD CORE_CONSTEXPR bool contains(const Halfedge_t& halfedge) const
     {
-        for (const Halfedge_t& he: m_halfedges)
+        for (const Halfedge_t& he: halfedges)
             if (halfedge == he)
                 return true;
         return false;
@@ -74,7 +54,7 @@ class HalfedgeMesh {
 
     CORE_NODISCARD CORE_CONSTEXPR bool contains(const Facet_t& facet) const
     {
-        for (const Facet_t& f: m_facets)
+        for (const Facet_t& f: facets)
             if (facet == f)
                 return true;
         return false;
@@ -82,22 +62,24 @@ class HalfedgeMesh {
 
     CORE_NODISCARD CORE_CONSTEXPR bool contains(const LinAl::Vec3<TFloatType>& vector) const
     {
-        return m_meshPoints.contains(vector);
+        return meshPoints.contains(vector);
     }
 
-    friend SphereMeshBuilder<TFloatType>;
+    LinAl::Vec3<TFloatType> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().getValue()); }
+    // clang-format off
+    CORE_NODISCARD CORE_CONSTEXPR Vertex_t getVertex(const VertexIndex_t vertexIndex) const { return vertices[vertexIndex.getValue()]; }
+    CORE_NODISCARD CORE_CONSTEXPR Halfedge_t getHalfedge(const HalfedgeIndex_t halfedgeIndex) const { return halfedges[halfedgeIndex.getValue()]; }
+    CORE_NODISCARD CORE_CONSTEXPR Facet_t getFacet(const FacetIndex_t facetIndex) const { return facets[facetIndex.getValue()]; }
 
-  private:
-    friend Vertex_t;
-    friend Halfedge_t;
-    friend Facet_t;
+    CORE_NODISCARD CORE_CONSTEXPR Vertex_t& getVertex(VertexIndex_t vertexIndex) { return vertices[vertexIndex.getValue()]; }
+    CORE_NODISCARD CORE_CONSTEXPR Halfedge_t& getHalfedge(HalfedgeIndex_t halfedgeIndex) { return halfedges[halfedgeIndex.getValue()]; }
+    CORE_NODISCARD CORE_CONSTEXPR Facet_t& getFacet(FacetIndex_t facetIndex) { return facets[facetIndex.getValue()]; }
+    // clang-format on
 
-    LinAl::Vec3<TFloatType> getVector(Vertex_t vertex) const { return m_meshPoints.getPoint(vertex.getIndex().getValue()); }
-
-    Core::TVector<Vertex_t> m_vertices;
-    Core::TVector<Halfedge_t> m_halfedges;
-    Core::TVector<Facet_t> m_facets;
-    MeshPoints<TFloatType> m_meshPoints;
+    Core::TVector<Vertex_t> vertices;
+    Core::TVector<Halfedge_t> halfedges;
+    Core::TVector<Facet_t> facets;
+    MeshPoints_t meshPoints;
 };
 
 } // namespace Geometry

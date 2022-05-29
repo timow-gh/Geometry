@@ -11,14 +11,14 @@
 
 namespace Geometry
 {
-template <typename T>
-class ConeMeshBuilder : public MeshBuilderBase<T, ConeMeshBuilder<T>> {
-    std::optional<Cone<T>> m_cone;
+template <typename TFloatType, typename TIndexType = std::size_t>
+class ConeMeshBuilder : public MeshBuilderBase<TFloatType, TIndexType, ConeMeshBuilder<TFloatType, TIndexType>> {
+    std::optional<Cone<TFloatType>> m_cone;
     std::size_t m_azimuthCount{20};
 
   public:
     ConeMeshBuilder() = default;
-    ConeMeshBuilder& setCone(const Cone<T>& cone)
+    ConeMeshBuilder& setCone(const Cone<TFloatType>& cone)
     {
         m_cone = cone;
         return *this;
@@ -39,25 +39,27 @@ class ConeMeshBuilder : public MeshBuilderBase<T, ConeMeshBuilder<T>> {
 
         LinAl::HMatrixd hTrafo = LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(coneSeg.direction()));
         LinAl::setTranslation(hTrafo, coneSeg.getSource());
-        MeshBuilderBase<T, ConeMeshBuilder<T>>::setTransformation(hTrafo);
+        MeshBuilderBase<TFloatType, TIndexType, ConeMeshBuilder<TFloatType, TIndexType>>::setTransformation(hTrafo);
 
         auto conePoints = calcConePoints(*m_cone);
         auto coneTriangleIndices = calcConeTriangleIndices(conePoints);
-        return MeshBuilderBase<T, ConeMeshBuilder<T>>::buildTriangleHeMesh(conePoints, coneTriangleIndices);
+        return MeshBuilderBase<TFloatType, TIndexType, ConeMeshBuilder<TFloatType, TIndexType>>::buildTriangleHeMesh(
+            conePoints,
+            coneTriangleIndices);
     }
 
   private:
-    LinAl::Vec3Vector<T> calcConePoints(const Geometry::Cone<T>& cone) const
+    LinAl::Vec3Vector<TFloatType> calcConePoints(const Geometry::Cone<TFloatType>& cone) const
     {
-        LinAl::Vec3Vector<T> points;
+        LinAl::Vec3Vector<TFloatType> points;
         calcCirclePoints(points, cone.getRadius(), m_azimuthCount);
 
-        points.push_back(LinAl::Vec3<T>{0, 0, 0});
-        points.push_back(LinAl::Vec3<T>{0, 0, cone.getSegment().length()});
+        points.push_back(LinAl::Vec3<TFloatType>{0, 0, 0});
+        points.push_back(LinAl::Vec3<TFloatType>{0, 0, cone.getSegment().length()});
 
         return points;
     }
-    Core::TVector<uint32_t> calcConeTriangleIndices(const LinAl::Vec3Vector<T>& conePoints) const
+    Core::TVector<uint32_t> calcConeTriangleIndices(const LinAl::Vec3Vector<TFloatType>& conePoints) const
     {
         Core::TVector<uint32_t> indices;
         // TODO (Safe conversion DebugAssert) Does spherePoints.size() fit into uint32_t

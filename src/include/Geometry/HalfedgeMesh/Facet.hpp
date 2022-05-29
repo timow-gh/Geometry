@@ -22,8 +22,8 @@ class Facet {
     {
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getHalfedge() const { return m_mesh->getHalfedges()[m_heIndex]; }
-    CORE_CONSTEXPR Halfedge_t& getHalfedge() { return m_mesh->getHalfedges()[m_heIndex]; }
+    CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getHalfedge() const { return m_mesh->getHalfedge(m_heIndex); }
+    CORE_CONSTEXPR Halfedge_t& getHalfedge() { return m_mesh->getHalfedge(m_heIndex); }
 
     CORE_NODISCARD CORE_CONSTEXPR HalfedgeIndex_t getHalfedgeIndex() const { return m_heIndex; }
 
