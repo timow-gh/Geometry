@@ -1,5 +1,3 @@
-
-
 #include <Geometry/Interval.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 #include <gtest/gtest.h>

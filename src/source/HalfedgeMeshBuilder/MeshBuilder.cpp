@@ -1,10 +1,10 @@
-#include "Geometry/HalfedgeMeshBuilder/MeshBuilder.hpp"
 #include <Geometry/Cone.hpp>
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CylinderMeshBuilder.hpp>
+#include <Geometry/HalfedgeMeshBuilder/MeshBuilder.hpp>
 #include <Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp>
 #include <Geometry/Sphere.hpp>
 

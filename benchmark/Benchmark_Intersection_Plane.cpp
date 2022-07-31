@@ -17,7 +17,7 @@ static void BM_Intersection_PlaneLine3d(benchmark::State &state) {
   Plane plane{ZERO_VEC3D, X_VEC3D};
   Line3d line{Vec3d{1, 1, 1}, X_VEC3D};
   for (auto _ : state) {
-    auto intersection = calcIntersection(plane, line);
+    auto intersection = Geometry::intersection(plane, line);
     benchmark::DoNotOptimize(intersection);
   }
 }
@@ -27,7 +27,7 @@ static void BM_Intersection_PlaneRay3d(benchmark::State &state) {
   Plane plane{ZERO_VEC3D, X_VEC3D};
   Ray3d ray{Vec3d{1, 1, 1}, -X_VEC3D};
   for (auto _ : state) {
-    auto intersection = calcIntersection(plane, ray);
+    auto intersection = Geometry::intersection(plane, ray);
     benchmark::DoNotOptimize(intersection);
   }
 }
@@ -37,7 +37,7 @@ static void BM_Intersection_PlaneSegment3d(benchmark::State &state) {
   Plane plane{ZERO_VEC3D, X_VEC3D};
   Segment3d segment{Vec3d{-1, 1, 1}, X_VEC3D};
   for (auto _ : state) {
-    auto intersection = calcIntersection(plane, segment);
+    auto intersection = Geometry::intersection(plane, segment);
     benchmark::DoNotOptimize(intersection);
   }
 }

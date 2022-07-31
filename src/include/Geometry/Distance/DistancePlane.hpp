@@ -2,7 +2,7 @@
 #define GEOMETRY_DISTANCEPLANE_HPP
 
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Plane.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry

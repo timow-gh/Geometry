@@ -2,7 +2,6 @@
 #define GLFWTESTAPP_CYLINDER_HPP
 
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/FwdGeometry.hpp>
 #include <Geometry/Lcs.hpp>
 #include <Geometry/Segment.hpp>
 #include <LinAl/LinearAlgebra.hpp>

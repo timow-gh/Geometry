@@ -2,7 +2,9 @@
 #define GEOMETRY_INTERSECTIONSPHERE_HPP
 
 #include <Core/Math/Eps.hpp>
-#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Line.hpp>
+#include <Geometry/Ray.hpp>
+#include <Geometry/Segment.hpp>
 #include <Geometry/Sphere.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 #include <optional>
@@ -27,7 +29,7 @@ struct SphereIntersection
 };
 
 template <typename T>
-SphereIntersection<T> calcIntersection(const Sphere<T>& sphere, const Line3<T>& line, T eps = Core::eps_traits<T>::value())
+SphereIntersection<T> intersection(const Sphere<T>& sphere, const Line3<T>& line, T eps = Core::eps_traits<T>::value())
 {
     // See Schneider - Geometric Tools, Linear Components and Spheres
     const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -58,7 +60,7 @@ SphereIntersection<T> calcIntersection(const Sphere<T>& sphere, const Line3<T>& 
 }
 
 template <typename T>
-SphereIntersection<T> calcIntersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = Core::eps_traits<T>::value())
+SphereIntersection<T> intersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = Core::eps_traits<T>::value())
 {
     // See Schneider - Geometric Tools, Linear Components and Spheres
     const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -96,7 +98,7 @@ SphereIntersection<T> calcIntersection(const Sphere<T>& sphere, const Ray3<T>& r
 }
 
 template <typename T>
-SphereIntersection<T> calcIntersection(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = Core::eps_traits<T>::value())
+SphereIntersection<T> intersection(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = Core::eps_traits<T>::value())
 {
     // See Schneider - Geometric Tools, Linear Components and Spheres
     const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();

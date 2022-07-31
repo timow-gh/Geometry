@@ -3,9 +3,11 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <Geometry/Interval.hpp>
+#include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
+#include <Geometry/Segment.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -17,10 +19,10 @@ namespace Geometry
 //! 2 -> Segments overlap, the intersection is a segment
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
-CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& lhs,
-                                         const Segment<T, D>& rhs,
-                                         Segment<T, D>& intersection,
-                                         T eps = Core::eps_traits<T>::value())
+CORE_NODISCARD uint32_t intersection(const Segment<T, D>& lhs,
+                                     const Segment<T, D>& rhs,
+                                     Segment<T, D>& intersectionSeg,
+                                     T eps = Core::eps_traits<T>::value())
 {
     const LinAl::Vec<T, D>& lhsSource = lhs.getSource();
     const LinAl::Vec<T, D>& lhsTarget = lhs.getTarget();
@@ -35,7 +37,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& lhs,
     if CORE_CONSTEXPR (D == 3)
     {
         Plane<T> plane{lhsSource, LinAl::cross(deltaSource, lhsDir)};
-        if (plane.intersection(Line<T, D>{rhsSource, rhsDir}))
+        if (intersection(plane, (Line<T, D>{rhsSource, rhsDir})))
             return 3;
     }
 
@@ -55,7 +57,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& lhs,
         if (Core::isLess(t, T(0), eps) || Core::isGreater(t, T(1), eps))
             return 0;
 
-        intersection.setSource(LinAl::Vec<T, D>(lhsSource + s * lhsDir));
+        intersectionSeg.setSource(LinAl::Vec<T, D>(lhsSource + s * lhsDir));
         return 1;
     }
 
@@ -79,11 +81,11 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& lhs,
     uint32_t res = sInterval.intersection(Interval{T(0), T(1)}, iInterval);
     if (res == 1 || res == 2)
     {
-        intersection.setSource(LinAl::Vec<T, D>(lhsSource + iInterval.getStart() * lhsDir));
+        intersectionSeg.setSource(LinAl::Vec<T, D>(lhsSource + iInterval.getStart() * lhsDir));
     }
     if (res == 2)
     {
-        intersection.setTarget(LinAl::Vec<T, D>(lhsSource + iInterval.getEnd() * lhsDir));
+        intersectionSeg.setTarget(LinAl::Vec<T, D>(lhsSource + iInterval.getEnd() * lhsDir));
     }
     return res;
 }
@@ -94,10 +96,8 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& lhs,
 //! 2 -> Overlap, the intersection is the segment
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
-CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& seg,
-                                         const Line<T, D>& line,
-                                         Segment<T, D>& intersection,
-                                         T eps = Core::eps_traits<T>::value())
+CORE_NODISCARD uint32_t
+intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = Core::eps_traits<T>::value())
 {
     const LinAl::Vec<T, D>& segSource = seg.getSource();
     const LinAl::Vec<T, D>& segTarget = seg.getTarget();
@@ -111,7 +111,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& seg,
     if CORE_CONSTEXPR (D == 3)
     {
         Plane<T> plane{segSource, LinAl::cross(deltaSource, segDir)};
-        if (plane.intersection(line))
+        if (intersection(plane, line))
             return 3;
     }
 
@@ -126,7 +126,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& seg,
         if (Core::isLess(s, T(0), eps) || Core::isGreater(s, T(1), eps))
             return 0;
 
-        intersection.setSource(LinAl::Vec<T, D>(segSource + s * segDir));
+        result.setSource(LinAl::Vec<T, D>(segSource + s * segDir));
         return 1;
     }
 
@@ -142,7 +142,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Segment<T, D>& seg,
     }
 
     // Line is collinear to the segment
-    intersection = seg;
+    result = seg;
     return 2;
 }
 } // namespace Geometry

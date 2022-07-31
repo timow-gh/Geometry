@@ -2,7 +2,10 @@
 #define MESHLER_MESHBUILDER_HPP
 
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Fwd/FwdCone.hpp>
+#include <Geometry/Fwd/FwdCuboid.hpp>
+#include <Geometry/Fwd/FwdCylinder.hpp>
+#include <Geometry/Fwd/FwdSphere.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderConfig.hpp>
 #include <functional>
 #include <memory>

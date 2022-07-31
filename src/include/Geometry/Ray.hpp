@@ -3,7 +3,6 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/Distance/DistanceRay.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -27,13 +26,6 @@ class Ray {
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getOrigin() const { return m_origin; }
 
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const { return m_direction; }
-
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const Ray<T, D>& ray, const LinAl::Vec<T, D>& vec) const
-    {
-        return Geometry::distance(ray, vec);
-    }
-
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const { return Geometry::distance(*this, vec); }
 };
 
 template <typename T>

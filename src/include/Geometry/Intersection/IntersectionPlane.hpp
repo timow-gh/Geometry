@@ -3,7 +3,10 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Line.hpp>
+#include <Geometry/Plane.hpp>
+#include <Geometry/Ray.hpp>
+#include <Geometry/Segment.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 #include <optional>
 
@@ -18,7 +21,7 @@ std::optional<T> calcIntersectionParameter(const LinAl::Vec<T, 3>& planeOrigin,
 
 template <typename T>
 CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
-calcIntersection(const Plane<T>& plane, const Line3<T>& line, T eps = Core::eps_traits<T>::value())
+intersection(const Plane<T>& plane, const Line3<T>& line, T eps = Core::eps_traits<T>::value())
 {
     const LinAl::Vec<T, 3>& planeOrigin = plane.getOrigin();
     const LinAl::Vec<T, 3>& planeNormal = plane.getNormal();
@@ -31,7 +34,7 @@ calcIntersection(const Plane<T>& plane, const Line3<T>& line, T eps = Core::eps_
 }
 template <typename T>
 CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
-calcIntersection(const Plane<T>& plane, const Ray3<T>& ray, T eps = Core::eps_traits<T>::value())
+intersection(const Plane<T>& plane, const Ray3<T>& ray, T eps = Core::eps_traits<T>::value())
 {
     const LinAl::Vec<T, 3>& planeOrigin = plane.getOrigin();
     const LinAl::Vec<T, 3>& planeNormal = plane.getNormal();
@@ -47,7 +50,7 @@ calcIntersection(const Plane<T>& plane, const Ray3<T>& ray, T eps = Core::eps_tr
 }
 template <typename T>
 CORE_CONSTEXPR std::optional<LinAl::Vec3<T>>
-calcIntersection(const Plane<T>& plane, const Segment3<T>& seg, T eps = Core::eps_traits<T>::value())
+intersection(const Plane<T>& plane, const Segment3<T>& seg, T eps = Core::eps_traits<T>::value())
 {
     const LinAl::Vec<T, 3>& planeOrigin = plane.getOrigin();
     const LinAl::Vec<T, 3>& planeNormal = plane.getNormal();

@@ -46,11 +46,20 @@ set(geometry_TARGET_HEADER
         include/Geometry/Plane.hpp
         include/Geometry/Polygon.hpp
         include/Geometry/Cylinder.hpp
-        include/Geometry/FwdGeometry.hpp
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
         include/Geometry/PolyLine.hpp
-        include/Geometry/GeometryAssert.hpp)
+        include/Geometry/GeometryAssert.hpp
+        include/Geometry/Fwd/FwdLine.hpp
+        include/Geometry/Fwd/FwdRay.hpp
+        include/Geometry/Fwd/FwdSegment.hpp
+        include/Geometry/Fwd/FwdPlane.hpp
+        include/Geometry/Fwd/FwdSphere.hpp
+        include/Geometry/Fwd/FwdCircle.hpp
+        include/Geometry/Fwd/FwdCylinder.hpp
+        include/Geometry/Fwd/FwdCone.hpp
+        include/Geometry/Fwd/FwdCuboid.hpp
+        include/Geometry/Fwd/FwdHalfedgeMesh.hpp)
 
 set(geometry_TARGET_SOURCES
         source/HalfedgeMeshBuilder/MeshBuilder.cpp

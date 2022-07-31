@@ -81,10 +81,3 @@ TEST_F(Segment_VecDistance_Test, PointOffsetAtSegmentMidPoint)
     EXPECT_DOUBLE_EQ(dist, 3);
 }
 
-TEST_F(Segment_VecDistance_Test, memberFunction)
-{
-    LinAl::Vec3d point{0.5, 3, 0};
-    auto dist = m_segment3d.distance(point);
-    EXPECT_DOUBLE_EQ(dist, 3);
-}
-

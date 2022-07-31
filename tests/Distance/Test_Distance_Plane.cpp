@@ -46,11 +46,3 @@ TEST_F(PlaneDistanceTest, PointInPlane)
     double_t dist = distance(m_plane, point);
     EXPECT_DOUBLE_EQ(dist, 0);
 }
-
-TEST_F(PlaneDistanceTest, memberFunction)
-{
-    point = LinAl::Vec3d{3, 0, 0};
-    double_t dist = m_plane.distance(point);
-    EXPECT_DOUBLE_EQ(dist, 3);
-}
-

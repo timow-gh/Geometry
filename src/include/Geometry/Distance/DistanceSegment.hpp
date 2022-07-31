@@ -3,7 +3,8 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Line.hpp>
+#include <Geometry/Segment.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry

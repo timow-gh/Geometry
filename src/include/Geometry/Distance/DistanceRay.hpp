@@ -3,7 +3,7 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/FwdGeometry.hpp>
+#include <Geometry/Ray.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry

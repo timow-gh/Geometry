@@ -1,6 +1,5 @@
-
-
 #include <Core/Types/TVector.hpp>
+#include <Geometry/Distance/DistanceRay.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Ray.hpp>
 #include <LinAl/LinearAlgebra.hpp>
@@ -9,9 +8,7 @@
 using namespace Geometry;
 using namespace LinAl;
 
-class Distance_Ray_Test
-    : public ::testing::Test
-{
+class Distance_Ray_Test : public ::testing::Test {
   protected:
     Vec3d source{1, 1, 1};
     Ray3d ray{source, X_VEC3D};
@@ -19,7 +16,7 @@ class Distance_Ray_Test
 
 TEST_F(Distance_Ray_Test, PointAtRayStart)
 {
-    double_t dist = distance(ray, source);
+    double_t dist = Geometry::distance(ray, source);
     EXPECT_DOUBLE_EQ(dist, 0.0);
 }
 
@@ -33,7 +30,7 @@ TEST(Distance_Ray, OnLine_UnitDist)
 {
     Vec3d source{1, 0, 0};
     Ray3d ray{source, X_VEC3D};
-    double_t dist = distance(ray, ZERO_VEC3D);
+    double_t dist = Geometry::distance(ray, ZERO_VEC3D);
     EXPECT_DOUBLE_EQ(dist, 1.0);
 }
 
@@ -41,20 +38,18 @@ TEST(Distance_Ray, OnLine_ZeroDist)
 {
     Vec3d source{1, 0, 0};
     Ray3d ray{source, X_VEC3D};
-    double_t dist = distance(ray, Vec3d{2, 0, 0});
+    double_t dist = Geometry::distance(ray, Vec3d{2, 0, 0});
     EXPECT_DOUBLE_EQ(dist, 0.0);
 }
 
 TEST(Distance_Ray, NextToLine_UnitDist)
 {
     Ray3d ray{Vec3d{1, 0, 0}, X_VEC3D};
-    double_t dist = distance(ray, Vec3d{2, 1, 0});
+    double_t dist = Geometry::distance(ray, Vec3d{2, 1, 0});
     EXPECT_DOUBLE_EQ(dist, 1.0);
 }
 
-class Test_Ray_Creator
-    : public ::testing::Test
-{
+class Test_Ray_Creator : public ::testing::Test {
   protected:
     Core::TVector<Ray3d> m_ray3ds;
 
@@ -74,9 +69,7 @@ TEST_F(Test_Ray_Creator, RayTestFixtureTest)
     EXPECT_EQ(ray3ds.size(), 3);
 }
 
-class RayDistanceTestFixture
-    : public ::testing::Test
-{
+class RayDistanceTestFixture : public ::testing::Test {
   protected:
     Ray3d m_ray3d{Vec3d{}, LinAl::X_VEC3D};
 };
@@ -84,28 +77,20 @@ class RayDistanceTestFixture
 TEST_F(RayDistanceTestFixture, PointOnRaySide)
 {
     LinAl::Vec3d vec{1, 2, 0};
-    double_t dist = distance(m_ray3d, vec);
+    double_t dist = Geometry::distance(m_ray3d, vec);
     EXPECT_DOUBLE_EQ(dist, 2);
 }
 
 TEST_F(RayDistanceTestFixture, PointOrthogonalAtRayOrigin)
 {
     LinAl::Vec3d vec{0, 3, 0};
-    double_t dist = distance(m_ray3d, vec);
+    double_t dist = Geometry::distance(m_ray3d, vec);
     EXPECT_DOUBLE_EQ(dist, 3);
 }
 
 TEST_F(RayDistanceTestFixture, PointBeforeRayOrigin)
 {
     LinAl::Vec3d vec{-1, 3, 0};
-    double_t dist = distance(m_ray3d, vec);
+    double_t dist = Geometry::distance(m_ray3d, vec);
     EXPECT_DOUBLE_EQ(dist, LinAl::norm2(vec));
 }
-
-TEST_F(RayDistanceTestFixture, memberFunction)
-{
-    LinAl::Vec3d vec{0, 3, 0};
-    double_t dist = m_ray3d.distance(vec);
-    EXPECT_DOUBLE_EQ(dist, 3);
-}
-

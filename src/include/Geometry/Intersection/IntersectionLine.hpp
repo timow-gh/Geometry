@@ -3,7 +3,6 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/FwdGeometry.hpp>
 #include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <Geometry/Plane.hpp>
 #include <LinAl/LinearAlgebra.hpp>
@@ -18,10 +17,10 @@ namespace Geometry
 //! 2 -> Lines are the same
 //! 3 -> No intersection, skew lines
 template <typename T, std::size_t D>
-CORE_NODISCARD uint32_t calcIntersection(const Line<T, D>& lhs,
-                                         const Line<T, D>& rhs,
-                                         LinAl::Vec<T, D>& intersection,
-                                         T eps = Core::eps_traits<T>::value())
+CORE_NODISCARD uint32_t intersection(const Line<T, D>& lhs,
+                                     const Line<T, D>& rhs,
+                                     LinAl::Vec<T, D>& intersectionVec,
+                                     T eps = Core::eps_traits<T>::value())
 {
     const LinAl::Vec<T, D>& rhsOrigin = rhs.getOrigin();
     const LinAl::Vec<T, D>& lhsOrigin = lhs.getOrigin();
@@ -33,7 +32,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Line<T, D>& lhs,
     if constexpr (D == 3)
     {
         Plane<T> plane{lhsOrigin, LinAl::cross(deltaOrigin, lhsDir)};
-        if (plane.intersection(rhs))
+        if (intersection(plane, rhs))
             return 3;
     }
 
@@ -43,7 +42,7 @@ CORE_NODISCARD uint32_t calcIntersection(const Line<T, D>& lhs,
     {
         // Lines are intersecting
         T s = (deltaOrigin[0] * rhsDir[1] - deltaOrigin[1] * rhsDir[0]) / cross;
-        intersection = LinAl::Vec<T, D>(lhsOrigin + s * lhsDir);
+        intersectionVec = LinAl::Vec<T, D>(lhsOrigin + s * lhsDir);
         return 1;
     }
 

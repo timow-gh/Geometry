@@ -3,7 +3,6 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
-#include <Geometry/Distance/DistanceSegment.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -26,8 +25,6 @@ class Segment {
     CORE_CONSTEXPR void setSource(const LinAl::Vec<T, D>& source) { m_source = source; }
 
     CORE_CONSTEXPR void setTarget(const LinAl::Vec<T, D>& target) { m_target = target; }
-
-    CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec) const { return Geometry::distance(*this, vec); }
 
     CORE_NODISCARD CORE_CONSTEXPR T length() const { return LinAl::norm2(LinAl::Vec<T, D>{m_target - m_source}); }
 
