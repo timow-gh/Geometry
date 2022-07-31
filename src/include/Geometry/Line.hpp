@@ -3,6 +3,7 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
+#include <Geometry/Fwd/FwdLine.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -22,15 +23,6 @@ class Line {
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const { return m_direction; }
 };
 
-template <typename T>
-using Line2 = Line<T, 2>;
-using Line2f = Line2<float_t>;
-using Line2d = Line2<double_t>;
-
-template <typename T>
-using Line3 = Line<T, 3>;
-using Line3f = Line3<float_t>;
-using Line3d = Line3<double_t>;
 } // namespace Geometry
 
 #endif // GLFWTESTAPP_LINE_H

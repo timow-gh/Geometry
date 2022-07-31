@@ -3,6 +3,7 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
+#include <Geometry/Fwd/FwdSegment.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -40,15 +41,6 @@ class Segment {
     CORE_CONSTEXPR bool operator!=(const Segment& rhs) const { return !(rhs == *this); }
 };
 
-template <typename T>
-using Segment2 = Segment<T, 2>;
-using Segment2f = Segment2<float_t>;
-using Segment2d = Segment2<double_t>;
-
-template <typename T>
-using Segment3 = Segment<T, 3>;
-using Segment3f = Segment3<float_t>;
-using Segment3d = Segment3<double_t>;
 } // namespace Geometry
 
 #endif // GLFWTESTAPP_SEGMENT_H

@@ -51,9 +51,6 @@ class Circle3 {
     }
 };
 
-using Circle3f = Circle3<float_t>;
-using Circle3d = Circle3<double_t>;
-
 } // namespace Geometry
 
 #endif // FILAPP_CIRCLE_HPP

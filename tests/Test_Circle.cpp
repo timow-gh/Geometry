@@ -1,5 +1,6 @@
 #include <Core/Math/Constants.hpp>
 #include <Geometry/Circle.hpp>
+#include <Geometry/Fwd/FwdCircle.hpp>
 #include <gtest/gtest.h>
 
 using namespace Geometry;

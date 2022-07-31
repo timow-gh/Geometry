@@ -1,12 +1,15 @@
 #ifndef GEOMETRY_FWDCIRCLE_HPP
 #define GEOMETRY_FWDCIRCLE_HPP
 
-#include "../../../../../../../../../usr/lib/llvm-14/include/c++/v1/cmath"
+#include <cmath>
 
 namespace Geometry
 {
 template <typename T>
 class Circle3;
+using Circle3d = Circle3<double_t>;
+
+using Circle3f = Circle3<float_t>;
 using Circle3d = Circle3<double_t>;
 } // namespace Geometry
 

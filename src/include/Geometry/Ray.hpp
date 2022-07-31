@@ -3,6 +3,7 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
+#include <Geometry/Fwd/FwdRay.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -28,15 +29,6 @@ class Ray {
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const { return m_direction; }
 };
 
-template <typename T>
-using Ray2 = Ray<T, 2>;
-using Ray2f = Ray2<float_t>;
-using Ray2d = Ray2<double_t>;
-
-template <typename T>
-using Ray3 = Ray<T, 3>;
-using Ray3f = Ray3<float_t>;
-using Ray3d = Ray3<double_t>;
 } // namespace Geometry
 
 #endif // GLFWTESTAPP_RAY_HPP
