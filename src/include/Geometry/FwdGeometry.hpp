@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_FWDGEOMETRY_HPP
 #define GEOMETRY_FWDGEOMETRY_HPP
 
+#include <cmath>
 #include <cstddef>
 
 namespace Geometry
@@ -25,6 +26,19 @@ class Plane;
 
 template <typename T>
 class Sphere;
+
+template <typename T>
+class Circle3;
+using Circle3d = Circle3<double_t>;
+
+template <typename T>
+class Cylinder;
+
+template <typename T>
+class Cone;
+
+template <typename T>
+class Cuboid;
 } // namespace Geometry
 
 #endif // GEOMETRY_FWDGEOMETRY_HPP

@@ -17,6 +17,8 @@ set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMeshBuilder/CylinderMeshBuilder.hpp
         include/Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp
         include/Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp
+        include/Geometry/HalfedgeMeshBuilder/MeshBuilder.hpp
+        include/Geometry/HalfedgeMeshBuilder/MeshBuilderConfig.hpp
         include/Geometry/Distance/DistanceLine.hpp
         include/Geometry/Distance/DistanceRay.hpp
         include/Geometry/Distance/DistanceSegment.hpp
@@ -44,14 +46,19 @@ set(geometry_TARGET_HEADER
         include/Geometry/Plane.hpp
         include/Geometry/Polygon.hpp
         include/Geometry/Cylinder.hpp
+        include/Geometry/FwdGeometry.hpp
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
         include/Geometry/PolyLine.hpp
         include/Geometry/GeometryAssert.hpp)
 
-add_library(tw_geometry INTERFACE ${geometry_TARGET_HEADER})
+set(geometry_TARGET_SOURCES
+        source/HalfedgeMeshBuilder/MeshBuilder.cpp
+        )
+
+add_library(tw_geometry ${geometry_TARGET_SOURCES} ${geometry_TARGET_HEADER})
 target_include_directories(tw_geometry
-        INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
+        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
 set(TARGET_ALIAS Geometry)
 add_library(${PROJECT_NAME}::${TARGET_ALIAS} ALIAS tw_geometry)
 set_target_properties(tw_geometry
@@ -60,7 +67,7 @@ set_target_properties(tw_geometry
         LINKER_LANGUAGE CXX
         EXPORT_NAME ${TARGET_ALIAS})
 target_link_libraries(tw_geometry
-        INTERFACE
+        PUBLIC
         Core::Settings
         Core::Utils
         Core::Types
