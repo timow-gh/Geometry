@@ -9,6 +9,6 @@ template <typename T, std::size_t D>
 class Ray;
 template <typename T>
 using Ray3 = class Ray<T, 3>;
-}
+} // namespace Geometry
 
 #endif // GEOMETRY_FWDRAY_HPP

@@ -9,6 +9,6 @@ template <typename T, std::size_t D>
 class Line;
 template <typename T>
 using Line3 = Line<T, 3>;
-}
+} // namespace Geometry
 
 #endif // GEOMETRY_FWDLINE_H

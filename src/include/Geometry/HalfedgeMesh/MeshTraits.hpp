@@ -24,6 +24,6 @@ struct MeshTraits
     using Facet_t = Facet<TFloatType, TIndexType>;
 };
 
-}
+} // namespace Geometry
 
 #endif // GEOMETRY_MESHTRAITS_HPP
