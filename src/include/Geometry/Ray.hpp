@@ -15,10 +15,7 @@ class Ray {
     LinAl::Vec<T, D> m_direction;
 
   public:
-    CORE_CONSTEXPR Ray(LinAl::Vec<T, D> origin, LinAl::Vec<T, D> direction)
-        : m_origin(origin), m_direction(direction)
-    {
-    }
+    CORE_CONSTEXPR Ray(LinAl::Vec<T, D> origin, LinAl::Vec<T, D> direction) : m_origin(origin), m_direction(direction) {}
 
     CORE_CONSTEXPR bool operator==(const Ray& rhs) const { return m_origin == rhs.m_origin && m_direction == rhs.m_direction; }
 
