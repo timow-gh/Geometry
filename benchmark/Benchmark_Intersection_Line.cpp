@@ -15,10 +15,11 @@ static void BM_Intersection_Line3dLine3d(benchmark::State& state)
     Line3d lineA{ZERO_VEC3D, X_VEC3D};
     Line3d lineB{Vec3d{1, 0, 0}, Y_VEC3D};
 
+    LinAl::Vec3d intersection;
+    uint32_t res;
     for (auto _: state)
     {
-        LinAl::Vec3d intersection;
-        uint32_t res = Geometry::intersection(lineA, lineB, intersection);
+        res = Geometry::intersection(lineA, lineB, intersection);
         benchmark::DoNotOptimize(res);
         benchmark::DoNotOptimize(intersection);
     }
