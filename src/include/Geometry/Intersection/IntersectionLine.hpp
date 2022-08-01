@@ -17,15 +17,13 @@ namespace Geometry
 //! 2 -> Lines are the same
 //! 3 -> No intersection, skew lines
 template <typename T, std::size_t D>
-CORE_NODISCARD uint32_t intersection(const Line<T, D>& lhs,
-                                     const Line<T, D>& rhs,
-                                     LinAl::Vec<T, D>& intersectionVec,
-                                     T eps = Core::eps_traits<T>::value())
+CORE_NODISCARD uint32_t
+intersection(Line<T, D> lhs, Line<T, D> rhs, LinAl::Vec<T, D>& intersectionVec, T eps = Core::eps_traits<T>::value())
 {
-    const LinAl::Vec<T, D>& rhsOrigin = rhs.getOrigin();
-    const LinAl::Vec<T, D>& lhsOrigin = lhs.getOrigin();
-    const LinAl::Vec<T, D>& rhsDir = rhs.getDirection();
-    const LinAl::Vec<T, D>& lhsDir = lhs.getDirection();
+    LinAl::Vec<T, D> rhsOrigin = rhs.getOrigin();
+    LinAl::Vec<T, D> lhsOrigin = lhs.getOrigin();
+    LinAl::Vec<T, D> rhsDir = rhs.getDirection();
+    LinAl::Vec<T, D> lhsDir = lhs.getDirection();
 
     LinAl::Vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
 
