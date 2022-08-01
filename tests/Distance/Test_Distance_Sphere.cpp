@@ -1,15 +1,13 @@
 
 
-#include <gtest/gtest.h>
 #include <Geometry/Distance/DistanceSphere.hpp>
 #include <Geometry/Sphere.hpp>
+#include <gtest/gtest.h>
 
 using namespace Geometry;
 using namespace LinAl;
 
-class Vec_Sphere_Distance_Test
-    : public ::testing::Test
-{
+class Vec_Sphere_Distance_Test : public ::testing::Test {
   protected:
     Sphere<double_t> m_sphere{ZERO_VEC3D, 3.0};
 };
@@ -55,4 +53,3 @@ TEST_F(Vec_Sphere_Distance_Test, Signed_OutsideOfSphere)
     double_t dist = signedDistance(vec, m_sphere);
     EXPECT_DOUBLE_EQ(dist, 1.0);
 }
-

@@ -22,7 +22,5 @@ TEST(MeshBuilder, fail_createACubeMesh)
 
 TEST(MeshBuilder, createACubeMesh)
 {
-    EXPECT_TRUE(CuboidMeshBuilder<double_t>()
-                    .setCuboid(Cuboid<double_t>{ZERO_VEC3D, Vec3d{1, 1, 1}})
-                    .build());
+    EXPECT_TRUE(CuboidMeshBuilder<double_t>().setCuboid(Cuboid<double_t>{ZERO_VEC3D, Vec3d{1, 1, 1}}).build());
 }

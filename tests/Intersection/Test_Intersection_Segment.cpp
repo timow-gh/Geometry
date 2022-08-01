@@ -165,4 +165,3 @@ TEST(Segment3dLine3d, Collinear)
     EXPECT_EQ(res, 2);
     EXPECT_EQ(seg, intersection);
 }
-

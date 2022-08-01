@@ -18,6 +18,3 @@ TEST(PolyLine, Ctor)
     EXPECT_EQ(first, polyLinePoints[0]);
     EXPECT_EQ(second, polyLinePoints[1]);
 }
-
-
-

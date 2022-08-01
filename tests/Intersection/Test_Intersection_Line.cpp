@@ -85,4 +85,3 @@ TEST(Line3dLine3d, Intersection_Orthogonal_A)
     EXPECT_EQ(res, 1);
     EXPECT_EQ((Vec3d{1, 0, 0}), intersection);
 }
-

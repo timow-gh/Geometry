@@ -52,4 +52,3 @@ TEST(Interval, Intersecting)
     EXPECT_EQ(res, 2);
     EXPECT_EQ(intersection, (Interval{0.5, 1.0}));
 }
-

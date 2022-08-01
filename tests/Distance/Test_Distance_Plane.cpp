@@ -6,9 +6,7 @@
 using namespace Geometry;
 using namespace LinAl;
 
-class PlaneDistanceTest
-    : public ::testing::Test
-{
+class PlaneDistanceTest : public ::testing::Test {
   protected:
     Plane<double_t> m_plane{Vec3d{}, LinAl::X_VEC3D};
     LinAl::Vec3d point{2, 0, 0};

@@ -8,9 +8,7 @@
 using namespace Geometry;
 using namespace LinAl;
 
-class Segment_VecDistance_Test
-    : public ::testing::Test
-{
+class Segment_VecDistance_Test : public ::testing::Test {
   protected:
     Segment3d m_segment3d{Vec3d{}, LinAl::X_VEC3D};
     LinAl::Vec3d m_point{0};
@@ -80,4 +78,3 @@ TEST_F(Segment_VecDistance_Test, PointOffsetAtSegmentMidPoint)
     dist = distance(m_segment3d, point);
     EXPECT_DOUBLE_EQ(dist, 3);
 }
-

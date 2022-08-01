@@ -28,4 +28,3 @@ TEST_F(Fixture_Cone, openingAngle)
     // rad = 90 * Core::PI / 180
     EXPECT_DOUBLE_EQ(openingAngle, 90 * Core::PI<double_t> / 180);
 }
-
