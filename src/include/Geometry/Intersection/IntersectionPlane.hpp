@@ -17,9 +17,8 @@ std::optional<T> calcIntersectionParameter(LinAl::Vec<T, 3> planeOrigin,
                                            LinAl::Vec<T, 3> planeNormal,
                                            LinAl::Vec3<T> lineOrigin,
                                            LinAl::Vec3<T> lineDir,
-                                           T eps = Core::eps_traits<T>::value())
+                                           T eps)
 {
-
     // Check parallel
     if (Core::isZero(LinAl::dot(lineDir, planeNormal), eps))
         return std::nullopt;
@@ -36,9 +35,12 @@ CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Line3<
     LinAl::Vec<T, 3> lineOrigin = line.getOrigin();
     LinAl::Vec<T, 3> lineDir = line.getDirection();
 
-    if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, lineOrigin, lineDir, eps))
-        return lineOrigin + paramD.value() * lineDir;
-    return std::nullopt;
+    // Check parallel
+    if (Core::isZero(LinAl::dot(lineDir, planeNormal), eps))
+        return std::nullopt;
+
+    const auto paramD = LinAl::dot(LinAl::Vec3<T>{planeOrigin - lineOrigin}, planeNormal) / LinAl::dot(lineDir, planeNormal);
+    return lineOrigin + paramD * lineDir;
 }
 
 template <typename T>
@@ -49,7 +51,7 @@ CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Ray3<T
     LinAl::Vec<T, 3> rayOrigin = ray.getOrigin();
     LinAl::Vec<T, 3> rayDir = ray.getDirection();
 
-    if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, rayOrigin, rayDir))
+    if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, rayOrigin, rayDir, eps))
     {
         if (Core::isGreater(*paramD, T(0), eps))
             return rayOrigin + paramD.value() * rayDir;
@@ -65,7 +67,7 @@ CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Segmen
     LinAl::Vec<T, 3> segSource = seg.getSource();
     LinAl::Vec<T, 3> segDir = seg.getTarget() - segSource;
 
-    if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, segSource, segDir))
+    if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, segSource, segDir, eps))
     {
         if (Core::isGreater(*paramD, T(0), eps) && Core::isLessEq(*paramD, T(1), eps))
             return segSource + paramD.value() * segDir;
