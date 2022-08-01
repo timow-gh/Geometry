@@ -17,15 +17,15 @@ class Segment {
   public:
     CORE_CONSTEXPR Segment() = default;
 
-    CORE_CONSTEXPR Segment(const LinAl::Vec<T, D>& source, const LinAl::Vec<T, D>& target) : m_source(source), m_target(target) {}
+    CORE_CONSTEXPR Segment(LinAl::Vec<T, D> source, LinAl::Vec<T, D> target) : m_source(source), m_target(target) {}
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getSource() const { return m_source; }
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getSource() const { return m_source; }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getTarget() const { return m_target; }
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getTarget() const { return m_target; }
 
-    CORE_CONSTEXPR void setSource(const LinAl::Vec<T, D>& source) { m_source = source; }
+    CORE_CONSTEXPR void setSource(LinAl::Vec<T, D> source) { m_source = source; }
 
-    CORE_CONSTEXPR void setTarget(const LinAl::Vec<T, D>& target) { m_target = target; }
+    CORE_CONSTEXPR void setTarget(LinAl::Vec<T, D> target) { m_target = target; }
 
     CORE_NODISCARD CORE_CONSTEXPR T length() const { return LinAl::norm2(LinAl::Vec<T, D>{m_target - m_source}); }
 

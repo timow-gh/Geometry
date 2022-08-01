@@ -14,13 +14,13 @@ class Line {
     LinAl::Vec<T, D> m_direction;
 
   public:
-    CORE_CONSTEXPR Line(const LinAl::Vec<T, D>& origin, const LinAl::Vec<T, D>& direction)
+    CORE_CONSTEXPR Line(LinAl::Vec<T, D> origin, LinAl::Vec<T, D> direction)
         : m_origin(origin), m_direction(LinAl::normalize(LinAl::Vec<T, D>{direction}))
     {
     }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getOrigin() const { return m_origin; }
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec<T, D>& getDirection() const { return m_direction; }
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getOrigin() const { return m_origin; }
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getDirection() const { return m_direction; }
 };
 
 } // namespace Geometry

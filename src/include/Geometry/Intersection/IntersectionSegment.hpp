@@ -24,10 +24,10 @@ CORE_NODISCARD uint32_t intersection(const Segment<T, D>& lhs,
                                      Segment<T, D>& intersectionSeg,
                                      T eps = Core::eps_traits<T>::value())
 {
-    const LinAl::Vec<T, D>& lhsSource = lhs.getSource();
-    const LinAl::Vec<T, D>& lhsTarget = lhs.getTarget();
-    const LinAl::Vec<T, D>& rhsSource = rhs.getSource();
-    const LinAl::Vec<T, D>& rhsTarget = rhs.getTarget();
+    LinAl::Vec<T, D> lhsSource = lhs.getSource();
+    LinAl::Vec<T, D> lhsTarget = lhs.getTarget();
+    LinAl::Vec<T, D> rhsSource = rhs.getSource();
+    LinAl::Vec<T, D> rhsTarget = rhs.getTarget();
 
     LinAl::Vec<T, D> deltaSource = rhsSource - lhsSource;
     LinAl::Vec<T, D> lhsDir = lhsTarget - lhsSource;
@@ -99,10 +99,10 @@ template <typename T, std::size_t D>
 CORE_NODISCARD uint32_t
 intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = Core::eps_traits<T>::value())
 {
-    const LinAl::Vec<T, D>& segSource = seg.getSource();
-    const LinAl::Vec<T, D>& segTarget = seg.getTarget();
-    const LinAl::Vec<T, D>& lineOrigin = line.getOrigin();
-    const LinAl::Vec<T, D>& lineDir = line.getDirection();
+    LinAl::Vec<T, D> segSource = seg.getSource();
+    LinAl::Vec<T, D> segTarget = seg.getTarget();
+    LinAl::Vec<T, D> lineOrigin = line.getOrigin();
+    LinAl::Vec<T, D> lineDir = line.getDirection();
 
     LinAl::Vec<T, D> deltaSource = lineOrigin - segSource;
     LinAl::Vec<T, D> segDir = segTarget - segSource;

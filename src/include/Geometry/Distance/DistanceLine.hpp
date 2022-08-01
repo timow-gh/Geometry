@@ -10,13 +10,13 @@ namespace Geometry
 {
 
 template <typename T, std::size_t D>
-CORE_NODISCARD CORE_CONSTEXPR T distance(const LinAl::Vec<T, D>& vec, const Line<T, D>& line)
+CORE_NODISCARD CORE_CONSTEXPR T distance(LinAl::Vec<T, D> vec, const Line<T, D>& line)
 {
     return LinAl::norm2(LinAl::rejection(LinAl::Vec<T, D>{line.getOrigin() - vec}, line.getDirection()));
 }
 
 template <typename T, std::size_t D>
-CORE_NODISCARD CORE_CONSTEXPR T distance(const Line<T, D>& line, const LinAl::Vec<T, D>& vec)
+CORE_NODISCARD CORE_CONSTEXPR T distance(const Line<T, D>& line, LinAl::Vec<T, D> vec)
 {
     return distance(vec, line);
 }

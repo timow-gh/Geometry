@@ -40,6 +40,7 @@ CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Line3<
         return lineOrigin + paramD.value() * lineDir;
     return std::nullopt;
 }
+
 template <typename T>
 CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Ray3<T> ray, T eps = Core::eps_traits<T>::value())
 {
@@ -55,6 +56,7 @@ CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Ray3<T
     }
     return std::nullopt;
 }
+
 template <typename T>
 CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Segment3<T> seg, T eps = Core::eps_traits<T>::value())
 {
@@ -70,6 +72,7 @@ CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Segmen
     }
     return std::nullopt;
 }
+
 } // namespace Geometry
 
 #endif // GEOMETRY_INTERSECTIONPLANE_HPP
