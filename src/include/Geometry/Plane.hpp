@@ -22,6 +22,9 @@ class Plane {
 
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getNormal() const { return m_normal; }
+
+    CORE_CONSTEXPR bool operator==(const Plane& rhs) const { return m_origin == rhs.m_origin && m_normal == rhs.m_normal; }
+    CORE_CONSTEXPR bool operator!=(const Plane& rhs) const { return !(rhs == *this); }
 };
 
 } // namespace Geometry

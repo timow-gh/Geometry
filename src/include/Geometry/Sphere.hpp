@@ -16,11 +16,9 @@ class Sphere {
     CORE_CONSTEXPR Sphere(const LinAl::Vec3<T>& origin, T radius) : m_origin(origin), m_radius(radius) {}
 
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
-
     CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
 
     CORE_CONSTEXPR void setOrigin(const LinAl::Vec3<T>& origin) { m_origin = origin; }
-
     CORE_CONSTEXPR void setRadius(T radius) { m_radius = radius; }
 
     CORE_NODISCARD CORE_CONSTEXPR bool contains(const LinAl::Vec3<T>& vec) const
@@ -31,7 +29,6 @@ class Sphere {
     }
 
     CORE_CONSTEXPR bool operator==(const Sphere& rhs) const { return m_origin == rhs.m_origin && m_radius == rhs.m_radius; }
-
     CORE_CONSTEXPR bool operator!=(const Sphere& rhs) const { return !(rhs == *this); }
 };
 

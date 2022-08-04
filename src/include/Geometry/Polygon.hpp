@@ -13,10 +13,10 @@ class Polygon {
   public:
     CORE_CONSTEXPR explicit Polygon(const LinAl::VecVector<T, D>& points) : m_points(points) {}
 
+    CORE_NODISCARD CORE_CONSTEXPR const LinAl::VecVector<T, D>& getPoints() const { return !(rhs == *this); }
+
     CORE_CONSTEXPR bool operator==(const Polygon& rhs) const { return m_points; }
     CORE_CONSTEXPR bool operator!=(const Polygon& rhs) const { return m_points == rhs.m_points; }
-
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::VecVector<T, D>& getPoints() const { return !(rhs == *this); }
 };
 
 } // namespace Geometry

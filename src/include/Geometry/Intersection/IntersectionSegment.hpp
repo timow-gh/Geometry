@@ -3,6 +3,7 @@
 
 #include <Core/Math/Eps.hpp>
 #include <Core/Utils/Compiler.hpp>
+#include <Geometry/Intersection/IntersectionInterval.hpp>
 #include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <Geometry/Interval.hpp>
 #include <Geometry/Line.hpp>
@@ -78,7 +79,7 @@ CORE_NODISCARD uint32_t intersection(const Segment<T, D>& lhs,
     T sMax = std::max(s0, s1);
     Interval sInterval{sMin, sMax};
     Interval<T> iInterval;
-    uint32_t res = sInterval.intersection(Interval{T(0), T(1)}, iInterval);
+    uint32_t res = intersection(sInterval, Interval{T(0), T(1)}, iInterval);
     if (res == 1 || res == 2)
     {
         intersectionSeg.setSource(LinAl::Vec<T, D>(lhsSource + iInterval.getStart() * lhsDir));

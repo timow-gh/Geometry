@@ -17,8 +17,13 @@ class Circle2 {
     CORE_CONSTEXPR Circle2(const LinAl::Vec2<T>& origin, T radius) : m_origin(origin), m_radius(radius) {}
 
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec2<T>& getOrigin() const { return m_origin; }
-
     CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
+
+    CORE_NODISCARD CORE_CONSTEXPR bool operator==(const Circle2& rhs) const
+    {
+        return m_origin == rhs.m_origin && m_radius == rhs.m_radius;
+    }
+    CORE_NODISCARD CORE_CONSTEXPR bool operator!=(const Circle2& rhs) const { return !(rhs == *this); }
 };
 
 using Circle2f = Circle2<float_t>;
@@ -37,9 +42,7 @@ class Circle3 {
     }
 
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
-
     CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
-
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getNormal() const { return m_normal; }
 
     CORE_NODISCARD CORE_CONSTEXPR LinAl::HMatrix<T> calcTransformation() const
@@ -49,6 +52,12 @@ class Circle3 {
         LinAl::setTranslation(transformation, m_origin);
         return transformation;
     }
+
+    CORE_NODISCARD CORE_CONSTEXPR bool operator==(const Circle3& rhs) const
+    {
+        return m_origin == rhs.m_origin && m_radius == rhs.m_radius && m_normal == rhs.m_normal;
+    }
+    CORE_NODISCARD CORE_CONSTEXPR bool operator!=(const Circle3& rhs) const { return !(rhs == *this); }
 };
 
 } // namespace Geometry

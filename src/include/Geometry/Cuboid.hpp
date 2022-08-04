@@ -29,14 +29,12 @@ class Cuboid {
     CORE_CONSTEXPR explicit Cuboid(const LinAl::Vec3<T>& diagonal) : Cuboid(LinAl::Vec3<T>{0, 0, 0}, diagonal) {}
 
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
-
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& getSideVectors() const { return m_sideVectors; }
 
     CORE_CONSTEXPR bool operator==(const Cuboid& rhs) const
     {
         return m_origin == rhs.m_origin && m_sideVectors == rhs.m_sideVectors;
     }
-
     CORE_CONSTEXPR bool operator!=(const Cuboid& rhs) const { return !(rhs == *this); }
 
   private:

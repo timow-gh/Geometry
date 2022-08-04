@@ -24,6 +24,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Distance/DistanceSegment.hpp
         include/Geometry/Distance/DistancePlane.hpp
         include/Geometry/Distance/DistanceSphere.hpp
+        include/Geometry/Intersection/IntersectionInterval.hpp
         include/Geometry/Intersection/IntersectionLine.hpp
         include/Geometry/Intersection/IntersectionPlane.hpp
         include/Geometry/Intersection/IntersectionSegment.hpp
@@ -35,7 +36,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/Transformation/TransformCircle.hpp
         include/Geometry/Transformation/TransformCylinder.hpp
         include/Geometry/Transformation/TransformSphere.hpp
-        include/Geometry/AABB.hpp
         include/Geometry/Circle.hpp
         include/Geometry/Cone.hpp
         include/Geometry/Cuboid.hpp
@@ -59,7 +59,8 @@ set(geometry_TARGET_HEADER
         include/Geometry/Fwd/FwdCylinder.hpp
         include/Geometry/Fwd/FwdCone.hpp
         include/Geometry/Fwd/FwdCuboid.hpp
-        include/Geometry/Fwd/FwdHalfedgeMesh.hpp)
+        include/Geometry/Fwd/FwdHalfedgeMesh.hpp
+        )
 
 set(geometry_TARGET_SOURCES
         source/HalfedgeMeshBuilder/MeshBuilder.cpp

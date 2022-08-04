@@ -29,11 +29,9 @@ class Cone {
         T h = height();
         return std::sqrt(m_radius * m_radius + h * h);
     }
-
     CORE_NODISCARD CORE_CONSTEXPR T openingAngle() const { return std::atan(m_radius / height()) * 2; }
 
     CORE_CONSTEXPR bool operator==(const Cone& rhs) const { return m_segment == rhs.m_segment && m_radius == rhs.m_radius; }
-
     CORE_CONSTEXPR bool operator!=(const Cone& rhs) const { return !(rhs == *this); }
 };
 

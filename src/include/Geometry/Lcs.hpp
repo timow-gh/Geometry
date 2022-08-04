@@ -35,13 +35,6 @@ class Lcs {
         normalizeCoordVectors();
     }
 
-    CORE_CONSTEXPR bool operator==(const Lcs& rhs) const
-    {
-        return std::tie(m_origin, m_coordVec) == std::tie(rhs.m_origin, rhs.m_coordVec);
-    }
-
-    CORE_CONSTEXPR bool operator!=(const Lcs& rhs) const { return !(rhs == *this); }
-
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
     CORE_CONSTEXPR void setOrigin(const LinAl::Vec3<T>& origin) { m_origin = origin; }
 
@@ -59,6 +52,9 @@ class Lcs {
             result[i] = projection(vector, m_coordVec[i]);
         return result;
     }
+
+    CORE_CONSTEXPR bool operator==(const Lcs& rhs) const { return m_origin == rhs.m_origin && m_coordVec == rhs.m_coordVec; }
+    CORE_CONSTEXPR bool operator!=(const Lcs& rhs) const { return !(rhs == *this); }
 
   private:
     CORE_CONSTEXPR void normalizeCoordVectors()
