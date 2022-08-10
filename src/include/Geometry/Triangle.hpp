@@ -20,6 +20,8 @@ class Triangle {
     }
 
     CORE_NODISCARD CORE_CONSTEXPR const LinAl::VecArray<T, D, 3>& getTrianglePoints() const { return m_trianglePoints; }
+
+
 };
 
 } // namespace Geometry
