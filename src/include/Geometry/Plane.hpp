@@ -14,6 +14,7 @@ class Plane {
     LinAl::Vec3<T> m_normal;
 
   public:
+    CORE_CONSTEXPR Plane() = default;
     CORE_CONSTEXPR Plane(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& normal)
         : m_origin(origin), m_normal(LinAl::normalize(normal))
     {
