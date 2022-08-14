@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_INTERSECTIONAABB_HPP
 #define GEOMETRY_INTERSECTIONAABB_HPP
 
-#include <Geometry/Fwd/FwdAABB.hpp>
+#include <Geometry/AABB.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
