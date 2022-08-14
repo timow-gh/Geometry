@@ -1,5 +1,4 @@
-set(FETCHCONTENT_SOURCE_DIR_CORE "/home/timo/dev/repos/Core/")
-
+#set(FETCHCONTENT_SOURCE_DIR_CORE "")
 FetchContent_Declare(
         core
         GIT_REPOSITORY https://github.com/timow-gh/Core.git
