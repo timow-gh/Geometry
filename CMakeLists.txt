@@ -21,11 +21,10 @@ list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/cmake)
 
 if ((CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR))
     option(Geometry_BUILD_TESTS "Geometry: enable tests" ON)
-    option(Geometry_BUILD_BENCHMARKS "Geometry: enable benchmarks" ON)
 else ()
     option(Geometry_BUILD_TESTS "Geometry: enable tests" OFF)
-    option(Geometry_BUILD_BENCHMARKS "Geometry: enable benchmarks" OFF)
 endif ()
+option(Geometry_BUILD_BENCHMARKS "Geometry: enable benchmarks" OFF)
 
 preamble()
 
