@@ -32,3 +32,10 @@ TEST(AABBTest2f_Intersection, corner)
     AABB2f aabb2{{1.0f, 1.0f}, 0.5f};
     EXPECT_TRUE(Geometry::isIntersecting(aabb1, aabb2));
 }
+
+TEST(AABBTest3f_Intersection, isIntersecting)
+{
+    AABB3f aabb1{{0, 0, 0}, 1.0f};
+    AABB3f aabb2{{1.0f, 0, 0}, 1.0f};
+    EXPECT_TRUE(Geometry::isIntersecting(aabb1, aabb2));
+}
