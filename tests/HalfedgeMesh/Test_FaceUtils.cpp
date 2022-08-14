@@ -7,8 +7,6 @@
 
 using namespace Geometry;
 
-using Halfedge_t = HalfedgeMesh<float_t>::Halfedge_t;
-
 class FaceUtilsTest : public ::testing::Test {
   protected:
     FaceUtilsTest() : m_heMesh(CuboidMeshBuilder<float_t>().setCuboid(Cuboid<float_t>({0, 0, 0}, {1, 1, 1})).build()) {}
@@ -18,6 +16,6 @@ class FaceUtilsTest : public ::testing::Test {
 
 TEST_F(FaceUtilsTest, calcHalfedges)
 {
-    Core::TVector<Halfedge_t> halfedges = calcHalfedges(m_heMesh->facets.front());
+    Core::TVector<HalfedgeMesh<float_t>::Halfedge_t> halfedges = calcHalfedges(m_heMesh->facets.front());
     EXPECT_EQ(halfedges.size(), 3);
 }

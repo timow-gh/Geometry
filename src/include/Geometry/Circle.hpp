@@ -48,7 +48,7 @@ class Circle3 {
     CORE_NODISCARD CORE_CONSTEXPR LinAl::HMatrix<T> calcTransformation() const
     {
         LinAl::HMatrix<T> transformation =
-            LinAl::rotationAlign(LinAl::HVec<T>{0, 0, 1, 1}, LinAl::HVec<T>{m_normal[0], m_normal[1], m_normal[2], 1});
+            LinAl::hMatRotationAlign(LinAl::HVec<T>{0, 0, 1, 1}, LinAl::HVec<T>{m_normal[0], m_normal[1], m_normal[2], 1});
         LinAl::setTranslation(transformation, m_origin);
         return transformation;
     }

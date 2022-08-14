@@ -37,7 +37,7 @@ class ConeMeshBuilder : public MeshBuilderBase<TFloatType, TIndexType, ConeMeshB
 
         const auto coneSeg = m_cone->getSegment();
 
-        LinAl::HMatrixd hTrafo = LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(coneSeg.direction()));
+        LinAl::HMatrixd hTrafo = LinAl::hMatRotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(coneSeg.direction()));
         LinAl::setTranslation(hTrafo, coneSeg.getSource());
         MeshBuilderBase<TFloatType, TIndexType, ConeMeshBuilder<TFloatType, TIndexType>>::setTransformation(hTrafo);
 

@@ -37,7 +37,7 @@ class CylinderMeshBuilder : public MeshBuilderBase<TFloatType, TIndexType, Cylin
 
         const auto cylinderSeg = m_cylinder->getSegment();
 
-        LinAl::HMatrixd hTrafo = LinAl::rotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(cylinderSeg.direction()));
+        LinAl::HMatrixd hTrafo = LinAl::hMatRotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(cylinderSeg.direction()));
         LinAl::setTranslation(hTrafo, cylinderSeg.getSource());
         MeshBuilderBase<TFloatType, TIndexType, CylinderMeshBuilder<TFloatType, TIndexType>>::setTransformation(hTrafo);
 

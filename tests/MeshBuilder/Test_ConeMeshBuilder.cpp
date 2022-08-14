@@ -1,5 +1,3 @@
-
-
 #include <Geometry/Cone.hpp>
 #include <Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp>
 #include <LinAl/LinearAlgebra.hpp>
