@@ -1,4 +1,4 @@
-#set(FETCHCONTENT_SOURCE_DIR_CORE "")
+#include(localCore.cmake)
 FetchContent_Declare(
         core
         GIT_REPOSITORY https://github.com/timow-gh/Core.git

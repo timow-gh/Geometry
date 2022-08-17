@@ -1,4 +1,4 @@
-#set(FETCHCONTENT_SOURCE_DIR_LINAL "")
+#include(localLinAl.cmake)
 FetchContent_Declare(
         linal
         GIT_REPOSITORY https://github.com/timow-gh/LinAl.git
