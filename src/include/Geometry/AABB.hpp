@@ -2,6 +2,7 @@
 #define GEOMETRY_AABB_HPP
 
 #include <Core/Types/TArray.hpp>
+#include <Geometry/Details/AABBDetails.hpp>
 #include <Geometry/Fwd/FwdAABB.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
@@ -26,37 +27,10 @@ class AABB {
     CORE_CONSTEXPR void setExtends(const Core::TArray<TFloat, D>& extends) { m_extends = extends; }
 };
 
-template <typename TFloat>
-struct MinMax
-{
-    TFloat min{0.0};
-    TFloat max{0.0};
-};
-
-template <typename TFloat, std::size_t D>
-MinMax<TFloat> extremePointsAlongDirection(LinAl::Vec<TFloat, D> dir, const LinAl::VecVector<TFloat, D>& points)
-{
-    TFloat minDist = std::numeric_limits<TFloat>::max();
-    TFloat maxDist = std::numeric_limits<TFloat>::lowest();
-
-    for (auto vec: points)
-    {
-        TFloat dist = LinAl::dot(vec, dir);
-        if (dist < minDist)
-        {
-            minDist = dist;
-        }
-        if (dist > maxDist)
-        {
-            maxDist = dist;
-        }
-    }
-    return {minDist, maxDist};
-}
-
 template <typename TFloat, std::size_t D>
 AABB<TFloat, D> makeAABB(const LinAl::VecVector<TFloat, D>& points)
 {
+    using namespace details;
     MinMax<TFloat> xMinMax = extremePointsAlongDirection(LinAl::Vec<TFloat, D>{1, 0, 0}, points);
     MinMax<TFloat> yMinMax = extremePointsAlongDirection(LinAl::Vec<TFloat, D>{0, 1, 0}, points);
     MinMax<TFloat> zMinMax = extremePointsAlongDirection(LinAl::Vec<TFloat, D>{0, 0, 1}, points);
