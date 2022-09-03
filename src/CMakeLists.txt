@@ -58,7 +58,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/Sphere.hpp
         include/Geometry/Line.hpp
         include/Geometry/Plane.hpp
-        include/Geometry/Polygon.hpp
         include/Geometry/Cylinder.hpp
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
