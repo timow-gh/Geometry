@@ -7,6 +7,7 @@ namespace Geometry
 {
 template <typename T, std::size_t D>
 class Triangle {
+
     LinAl::VecArray<T, D, 3> m_trianglePoints;
 
   public:
