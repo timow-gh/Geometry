@@ -11,17 +11,61 @@ namespace Geometry
 template <typename TFloat, std::size_t D>
 class AABB {
     LinAl::Vec<TFloat, D> m_origin;
-    Core::TArray<TFloat, D> m_extend;
+    Core::TArray<TFloat, D> m_extends;
 
   public:
-    CORE_CONSTEXPR AABB(LinAl::Vec<TFloat, D> origin, TFloat extend) : m_origin(origin) { m_extend.fill(extend); }
+    CORE_CONSTEXPR AABB(LinAl::Vec<TFloat, D> origin, TFloat extend) : m_origin(origin) { m_extends.fill(extend); }
+    CORE_CONSTEXPR AABB(LinAl::Vec<TFloat, D> origin, const Core::TArray<TFloat, D>& extend) : m_origin(origin), m_extends(extend)
+    {
+    }
 
     CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<TFloat, D> getOrigin() const { return m_origin; }
     CORE_CONSTEXPR void setOrigin(LinAl::Vec<TFloat, D> origin) { m_origin = origin; }
 
-    CORE_NODISCARD CORE_CONSTEXPR const Core::TArray<TFloat, D>& getExtend() const { return m_extend; }
-    CORE_CONSTEXPR void setExtend(const Core::TArray<TFloat, D>& extend) { m_extend = extend; }
+    CORE_NODISCARD CORE_CONSTEXPR const Core::TArray<TFloat, D>& getExtends() const { return m_extends; }
+    CORE_CONSTEXPR void setExtends(const Core::TArray<TFloat, D>& extends) { m_extends = extends; }
 };
+
+template <typename TFloat>
+struct MinMax
+{
+    TFloat min{0.0};
+    TFloat max{0.0};
+};
+
+template <typename TFloat, std::size_t D>
+MinMax<TFloat> extremePointsAlongDirection(LinAl::Vec<TFloat, D> dir, const LinAl::VecVector<TFloat, D>& points)
+{
+    TFloat minDist = std::numeric_limits<TFloat>::max();
+    TFloat maxDist = std::numeric_limits<TFloat>::lowest();
+
+    for (auto vec: points)
+    {
+        TFloat dist = LinAl::dot(vec, dir);
+        if (dist < minDist)
+        {
+            minDist = dist;
+        }
+        if (dist > maxDist)
+        {
+            maxDist = dist;
+        }
+    }
+    return {minDist, maxDist};
+}
+
+template <typename TFloat, std::size_t D>
+AABB<TFloat, D> makeAABB(const LinAl::VecVector<TFloat, D>& points)
+{
+    MinMax<TFloat> xMinMax = extremePointsAlongDirection(LinAl::Vec<TFloat, D>{1, 0, 0}, points);
+    MinMax<TFloat> yMinMax = extremePointsAlongDirection(LinAl::Vec<TFloat, D>{0, 1, 0}, points);
+    MinMax<TFloat> zMinMax = extremePointsAlongDirection(LinAl::Vec<TFloat, D>{0, 0, 1}, points);
+    TFloat xhalfExtend = (xMinMax.max - xMinMax.min) / 2.0;
+    TFloat yhalfExtend = (yMinMax.max - yMinMax.min) / 2.0;
+    TFloat zhalfExtend = (zMinMax.max - zMinMax.min) / 2.0;
+    return AABB<TFloat, D>{LinAl::Vec<TFloat, D>{xMinMax.min + xhalfExtend, yMinMax.min + yhalfExtend, zMinMax.min + zhalfExtend},
+                           Core::TArray<TFloat, D>{xhalfExtend, yhalfExtend, zhalfExtend}};
+}
 
 } // namespace Geometry
 

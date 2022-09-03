@@ -65,8 +65,9 @@ struct HalfedgeMesh
         return meshPoints.contains(vector);
     }
 
-    LinAl::Vec3<TFloatType> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().getValue()); }
     // clang-format off
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<TFloatType> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().getValue()); }
+
     CORE_NODISCARD CORE_CONSTEXPR Vertex_t getVertex(const VertexIndex_t vertexIndex) const { return vertices[vertexIndex.getValue()]; }
     CORE_NODISCARD CORE_CONSTEXPR Halfedge_t getHalfedge(const HalfedgeIndex_t halfedgeIndex) const { return halfedges[halfedgeIndex.getValue()]; }
     CORE_NODISCARD CORE_CONSTEXPR Facet_t getFacet(const FacetIndex_t facetIndex) const { return facets[facetIndex.getValue()]; }
@@ -74,6 +75,8 @@ struct HalfedgeMesh
     CORE_NODISCARD CORE_CONSTEXPR Vertex_t& getVertex(VertexIndex_t vertexIndex) { return vertices[vertexIndex.getValue()]; }
     CORE_NODISCARD CORE_CONSTEXPR Halfedge_t& getHalfedge(HalfedgeIndex_t halfedgeIndex) { return halfedges[halfedgeIndex.getValue()]; }
     CORE_NODISCARD CORE_CONSTEXPR Facet_t& getFacet(FacetIndex_t facetIndex) { return facets[facetIndex.getValue()]; }
+
+    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Vector<TFloatType>& getPoints() { return meshPoints.getPoints(); }
     // clang-format on
 
     Core::TVector<Vertex_t> vertices;
