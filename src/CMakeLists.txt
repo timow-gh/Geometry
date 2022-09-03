@@ -63,7 +63,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
         include/Geometry/PolyLine.hpp
-        include/Geometry/GeometryAssert.hpp)
+        include/Geometry/GeometryAssert.hpp include/Geometry/Transformation/TransformatonAABB.hpp)
 
 set(geometry_TARGET_SOURCES
         source/HalfedgeMeshBuilder/MeshBuilder.cpp

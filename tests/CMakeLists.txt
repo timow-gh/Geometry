@@ -37,6 +37,7 @@ add_subdirectory(Distance)
 add_subdirectory(HalfedgeMesh)
 add_subdirectory(Intersection)
 add_subdirectory(MeshBuilder)
+add_subdirectory(Transformation)
 
 create_geometry_test(Test_AABB)
 create_geometry_test(Test_Circle)

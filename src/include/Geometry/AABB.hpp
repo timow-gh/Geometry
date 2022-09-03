@@ -31,14 +31,22 @@ template <typename TFloat, std::size_t D>
 AABB<TFloat, D> makeAABB(const LinAl::VecVector<TFloat, D>& points)
 {
     using namespace details;
-    MinMax<TFloat> xMinMax = extremePointsAlongDirection(LinAl::Vec<TFloat, D>{1, 0, 0}, points);
-    MinMax<TFloat> yMinMax = extremePointsAlongDirection(LinAl::Vec<TFloat, D>{0, 1, 0}, points);
-    MinMax<TFloat> zMinMax = extremePointsAlongDirection(LinAl::Vec<TFloat, D>{0, 0, 1}, points);
-    TFloat xhalfExtend = (xMinMax.max - xMinMax.min) / 2.0;
-    TFloat yhalfExtend = (yMinMax.max - yMinMax.min) / 2.0;
-    TFloat zhalfExtend = (zMinMax.max - zMinMax.min) / 2.0;
-    return AABB<TFloat, D>{LinAl::Vec<TFloat, D>{xMinMax.min + xhalfExtend, yMinMax.min + yhalfExtend, zMinMax.min + zhalfExtend},
-                           Core::TArray<TFloat, D>{xhalfExtend, yhalfExtend, zhalfExtend}};
+
+    LinAl::VecArray<TFloat, D, D> axis = {LinAl::Vec<TFloat, D>{1, 0, 0},
+                                          LinAl::Vec<TFloat, D>{0, 1, 0},
+                                          LinAl::Vec<TFloat, D>{0, 0, 1}};
+
+    Core::TArray<MinMax<TFloat>, 3> minMaxes;
+    for (std::size_t i = 0; i < D; ++i)
+        minMaxes[i] = extremePointsAlongDirection(axis[i], points);
+
+    Core::TArray<TFloat, D> extends;
+    for (std::size_t i = 0; i < D; ++i)
+        extends[i] = (minMaxes[i].max - minMaxes[i].min) / TFloat(2);
+
+    return AABB<TFloat, D>{
+        LinAl::Vec<TFloat, D>{minMaxes[0].min + extends[0], minMaxes[1].min + extends[1], minMaxes[2].min + extends[2]},
+        extends};
 }
 
 } // namespace Geometry
