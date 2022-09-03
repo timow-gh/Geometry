@@ -16,13 +16,9 @@ bool isIntersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs)
     Core::TArray<TFloat, D> lhsExtends = lhs.getExtends();
     Core::TArray<TFloat, D> rhsExtends = rhs.getExtends();
 
-    if (Core::isGreater(std::abs(lhsOrigin[0] - rhsOrigin[0]), lhsExtends[0] + rhsExtends[0]))
-        return false;
-    if (Core::isGreater(std::abs(lhsOrigin[1] - rhsOrigin[1]), lhsExtends[1] + rhsExtends[1]))
-        return false;
-    if constexpr (D == 3)
+    for (std::size_t i = 0; i < D; ++i)
     {
-        if (Core::isGreater(std::abs(lhsOrigin[2] - rhsOrigin[2]), lhsExtends[2] + rhsExtends[2]))
+        if (Core::isGreater(std::abs(lhsOrigin[i] - rhsOrigin[i]), lhsExtends[i] + rhsExtends[i]))
             return false;
     }
     return true;
