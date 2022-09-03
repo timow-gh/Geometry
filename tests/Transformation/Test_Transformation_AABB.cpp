@@ -1,4 +1,3 @@
-#include <Core/Math/Constants.hpp>
 #include <Geometry/AABB.hpp>
 #include <Geometry/Transformation/TransformatonAABB.hpp>
 #include <LinAl/LinearAlgebra.hpp>
