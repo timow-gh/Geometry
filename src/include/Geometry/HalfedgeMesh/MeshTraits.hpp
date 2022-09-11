@@ -19,9 +19,9 @@ class HalfedgeMesh;
 template <typename TFloatType, typename TIndexType>
 struct MeshTraits
 {
-    using Vertex_t = Vertex<TFloatType, TIndexType>;
-    using Halfedge_t = Halfedge<TFloatType, TIndexType>;
-    using Facet_t = Facet<TFloatType, TIndexType>;
+  using Vertex_t = Vertex<TFloatType, TIndexType>;
+  using Halfedge_t = Halfedge<TFloatType, TIndexType>;
+  using Facet_t = Facet<TFloatType, TIndexType>;
 };
 
 } // namespace Geometry

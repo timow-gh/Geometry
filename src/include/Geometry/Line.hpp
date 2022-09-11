@@ -10,20 +10,21 @@ namespace Geometry
 {
 template <typename T, std::size_t D>
 class Line {
-    LinAl::Vec<T, D> m_origin;
-    LinAl::Vec<T, D> m_direction;
+  LinAl::Vec<T, D> m_origin;
+  LinAl::Vec<T, D> m_direction;
 
-  public:
-    CORE_CONSTEXPR Line(LinAl::Vec<T, D> origin, LinAl::Vec<T, D> direction)
-        : m_origin(origin), m_direction(LinAl::normalize(LinAl::Vec<T, D>{direction}))
-    {
-    }
+public:
+  CORE_CONSTEXPR Line(LinAl::Vec<T, D> origin, LinAl::Vec<T, D> direction)
+      : m_origin(origin)
+      , m_direction(LinAl::normalize(LinAl::Vec<T, D>{direction}))
+  {
+  }
 
-    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getOrigin() const { return m_origin; }
-    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getDirection() const { return m_direction; }
+  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getOrigin() const { return m_origin; }
+  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getDirection() const { return m_direction; }
 
-    CORE_CONSTEXPR bool operator==(const Line& rhs) const { return m_origin == rhs.m_origin && m_direction == rhs.m_direction; }
-    CORE_CONSTEXPR bool operator!=(const Line& rhs) const { return !(rhs == *this); }
+  CORE_CONSTEXPR bool operator==(const Line& rhs) const { return m_origin == rhs.m_origin && m_direction == rhs.m_direction; }
+  CORE_CONSTEXPR bool operator!=(const Line& rhs) const { return !(rhs == *this); }
 };
 
 } // namespace Geometry

@@ -9,57 +9,59 @@ namespace Geometry
 
 template <typename T>
 class Cuboid {
-  public:
-    CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3Array<T, 3>& sideVectors)
-        : m_origin(origin), m_sideVectors(sideVectors)
-    {
-    }
+public:
+  CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3Array<T, 3>& sideVectors)
+      : m_origin(origin)
+      , m_sideVectors(sideVectors)
+  {
+  }
 
-    CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal) : m_origin(origin)
-    {
-        LinAl::Vec3Array<T, 3> unitVectors = {
-            LinAl::X_VEC3D,
-            LinAl::Y_VEC3D,
-            LinAl::Z_VEC3D,
-        };
-        for (std::size_t i = 0; i < 3; ++i)
-            m_sideVectors[i] = LinAl::projection(diagonal, unitVectors[i]);
-    }
+  CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal)
+      : m_origin(origin)
+  {
+    LinAl::Vec3Array<T, 3> unitVectors = {
+        LinAl::X_VEC3D,
+        LinAl::Y_VEC3D,
+        LinAl::Z_VEC3D,
+    };
+    for (std::size_t i = 0; i < 3; ++i)
+      m_sideVectors[i] = LinAl::projection(diagonal, unitVectors[i]);
+  }
 
-    CORE_CONSTEXPR explicit Cuboid(const LinAl::Vec3<T>& diagonal) : Cuboid(LinAl::Vec3<T>{0, 0, 0}, diagonal) {}
+  CORE_CONSTEXPR explicit Cuboid(const LinAl::Vec3<T>& diagonal)
+      : Cuboid(LinAl::Vec3<T>{0, 0, 0}, diagonal)
+  {
+  }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& getSideVectors() const { return m_sideVectors; }
+  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
+  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& getSideVectors() const { return m_sideVectors; }
 
-    CORE_CONSTEXPR bool operator==(const Cuboid& rhs) const
-    {
-        return m_origin == rhs.m_origin && m_sideVectors == rhs.m_sideVectors;
-    }
-    CORE_CONSTEXPR bool operator!=(const Cuboid& rhs) const { return !(rhs == *this); }
+  CORE_CONSTEXPR bool operator==(const Cuboid& rhs) const { return m_origin == rhs.m_origin && m_sideVectors == rhs.m_sideVectors; }
+  CORE_CONSTEXPR bool operator!=(const Cuboid& rhs) const { return !(rhs == *this); }
 
-  private:
-    LinAl::Vec3<T> m_origin;
-    LinAl::Vec3Array<T, 3> m_sideVectors;
+private:
+  LinAl::Vec3<T> m_origin;
+  LinAl::Vec3Array<T, 3> m_sideVectors;
 };
 
 template <typename T>
 CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Array<T, 8> calcCuboidVertices(const Cuboid<T>& cuboid)
 {
-    LinAl::Vec3<T> origin = cuboid.getOrigin();
-    const auto& sideVecs = cuboid.getSideVectors();
-    LinAl::Vec3Array<T, 8> vertices;
-    const auto bottomX = sideVecs[0];
-    const auto bottomY = sideVecs[1];
-    const auto bottomZ = sideVecs[2];
-    vertices[0] = LinAl::Vec3<T>{origin};
-    vertices[1] = LinAl::Vec3<T>{origin + bottomX};
-    vertices[2] = LinAl::Vec3<T>{origin + bottomX + bottomY};
-    vertices[3] = LinAl::Vec3<T>{origin + bottomY};
-    vertices[4] = LinAl::Vec3<T>{origin + bottomZ};
-    vertices[5] = LinAl::Vec3<T>{origin + bottomX + bottomZ};
-    vertices[6] = LinAl::Vec3<T>{origin + bottomX + bottomY + bottomZ};
-    vertices[7] = LinAl::Vec3<T>{origin + bottomY + bottomZ};
-    return vertices;
+  LinAl::Vec3<T> origin = cuboid.getOrigin();
+  const auto& sideVecs = cuboid.getSideVectors();
+  LinAl::Vec3Array<T, 8> vertices;
+  const auto bottomX = sideVecs[0];
+  const auto bottomY = sideVecs[1];
+  const auto bottomZ = sideVecs[2];
+  vertices[0] = LinAl::Vec3<T>{origin};
+  vertices[1] = LinAl::Vec3<T>{origin + bottomX};
+  vertices[2] = LinAl::Vec3<T>{origin + bottomX + bottomY};
+  vertices[3] = LinAl::Vec3<T>{origin + bottomY};
+  vertices[4] = LinAl::Vec3<T>{origin + bottomZ};
+  vertices[5] = LinAl::Vec3<T>{origin + bottomX + bottomZ};
+  vertices[6] = LinAl::Vec3<T>{origin + bottomX + bottomY + bottomZ};
+  vertices[7] = LinAl::Vec3<T>{origin + bottomY + bottomZ};
+  return vertices;
 }
 
 } // namespace Geometry

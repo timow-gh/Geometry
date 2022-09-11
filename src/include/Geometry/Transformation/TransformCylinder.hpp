@@ -12,7 +12,7 @@ namespace Geometry
 template <typename T>
 CORE_NODISCARD CORE_CONSTEXPR Cylinder<T> transformation(const Cylinder<T>& cylinder, const LinAl::HMatrix<T>& trafo)
 {
-    return Cylinder<T>{transformation(cylinder.getSegment(), trafo), cylinder.getRadius()};
+  return Cylinder<T>{transformation(cylinder.getSegment(), trafo), cylinder.getRadius()};
 }
 
 } // namespace Geometry

@@ -12,7 +12,7 @@ namespace Geometry
 template <typename T>
 CORE_NODISCARD CORE_CONSTEXPR Cone<T> transformation(const Cone<T>& cone, const LinAl::HMatrixd& trafo)
 {
-    return Cone<T>{Geometry::transformation(cone.getSegment(), trafo), cone.getRadius()};
+  return Cone<T>{Geometry::transformation(cone.getSegment(), trafo), cone.getRadius()};
 }
 
 } // namespace Geometry

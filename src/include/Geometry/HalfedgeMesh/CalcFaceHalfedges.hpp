@@ -12,19 +12,19 @@ namespace Geometry
 template <typename TFloatType, typename TIndexType>
 CORE_CONSTEXPR Core::TVector<Halfedge<TFloatType, TIndexType>> calcHalfedges(const Facet<TFloatType, TIndexType>& facet)
 {
-    Core::TVector<Halfedge<TFloatType, TIndexType>> result;
+  Core::TVector<Halfedge<TFloatType, TIndexType>> result;
 
-    Halfedge<TFloatType, TIndexType> halfedge = facet.getHalfedge();
-    result.push_back(halfedge);
+  Halfedge<TFloatType, TIndexType> halfedge = facet.getHalfedge();
+  result.push_back(halfedge);
+  halfedge = halfedge.getNext();
+  result.push_back(halfedge);
+
+  while (facet.getHalfedge() != halfedge.getNext())
+  {
     halfedge = halfedge.getNext();
     result.push_back(halfedge);
-
-    while (facet.getHalfedge() != halfedge.getNext())
-    {
-        halfedge = halfedge.getNext();
-        result.push_back(halfedge);
-    }
-    return result;
+  }
+  return result;
 }
 
 } // namespace Geometry

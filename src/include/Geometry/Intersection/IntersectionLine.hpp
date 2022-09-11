@@ -20,41 +20,41 @@ template <typename T, std::size_t D>
 CORE_NODISCARD uint32_t
 intersection(Line<T, D> lhs, Line<T, D> rhs, LinAl::Vec<T, D>& intersectionVec, T eps = Core::eps_traits<T>::value())
 {
-    LinAl::Vec<T, D> rhsOrigin = rhs.getOrigin();
-    LinAl::Vec<T, D> lhsOrigin = lhs.getOrigin();
-    LinAl::Vec<T, D> rhsDir = rhs.getDirection();
-    LinAl::Vec<T, D> lhsDir = lhs.getDirection();
+  LinAl::Vec<T, D> rhsOrigin = rhs.getOrigin();
+  LinAl::Vec<T, D> lhsOrigin = lhs.getOrigin();
+  LinAl::Vec<T, D> rhsDir = rhs.getDirection();
+  LinAl::Vec<T, D> lhsDir = lhs.getDirection();
 
-    LinAl::Vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
+  LinAl::Vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
 
-    if constexpr (D == 3)
-    {
-        Plane<T> plane{lhsOrigin, LinAl::cross(deltaOrigin, lhsDir)};
-        if (intersection(plane, rhs))
-            return 3;
-    }
+  if constexpr (D == 3)
+  {
+    Plane<T> plane{lhsOrigin, LinAl::cross(deltaOrigin, lhsDir)};
+    if (intersection(plane, rhs))
+      return 3;
+  }
 
-    T cross = lhsDir[0] * rhsDir[1] - lhsDir[1] * rhsDir[0];
-    T sqrCross = cross * cross;
-    if (!Core::isZero(sqrCross, eps))
-    {
-        // Lines are intersecting
-        T s = (deltaOrigin[0] * rhsDir[1] - deltaOrigin[1] * rhsDir[0]) / cross;
-        intersectionVec = LinAl::Vec<T, D>(lhsOrigin + s * lhsDir);
-        return 1;
-    }
+  T cross = lhsDir[0] * rhsDir[1] - lhsDir[1] * rhsDir[0];
+  T sqrCross = cross * cross;
+  if (!Core::isZero(sqrCross, eps))
+  {
+    // Lines are intersecting
+    T s = (deltaOrigin[0] * rhsDir[1] - deltaOrigin[1] * rhsDir[0]) / cross;
+    intersectionVec = LinAl::Vec<T, D>(lhsOrigin + s * lhsDir);
+    return 1;
+  }
 
-    // FixMe T sqrDeltaOrigin = LinAl::norm2Squared(deltaOrigin);
-    cross = deltaOrigin[0] * lhsDir[1] - deltaOrigin[1] * lhsDir[0];
-    sqrCross = cross * cross;
-    if (!Core::isZero(sqrCross, eps))
-    {
-        // Lines are parallel in the plane
-        // Lines are different
-        return 0;
-    }
-    // Lines are the same
-    return 2;
+  // FixMe T sqrDeltaOrigin = LinAl::norm2Squared(deltaOrigin);
+  cross = deltaOrigin[0] * lhsDir[1] - deltaOrigin[1] * lhsDir[0];
+  sqrCross = cross * cross;
+  if (!Core::isZero(sqrCross, eps))
+  {
+    // Lines are parallel in the plane
+    // Lines are different
+    return 0;
+  }
+  // Lines are the same
+  return 2;
 }
 } // namespace Geometry
 

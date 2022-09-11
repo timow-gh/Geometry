@@ -10,20 +10,21 @@ namespace Geometry
 
 template <typename T>
 class Circle2 {
-    LinAl::Vec2<T> m_origin;
-    T m_radius;
+  LinAl::Vec2<T> m_origin;
+  T m_radius;
 
-  public:
-    CORE_CONSTEXPR Circle2(const LinAl::Vec2<T>& origin, T radius) : m_origin(origin), m_radius(radius) {}
+public:
+  CORE_CONSTEXPR Circle2(const LinAl::Vec2<T>& origin, T radius)
+      : m_origin(origin)
+      , m_radius(radius)
+  {
+  }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec2<T>& getOrigin() const { return m_origin; }
-    CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
+  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec2<T>& getOrigin() const { return m_origin; }
+  CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
 
-    CORE_NODISCARD CORE_CONSTEXPR bool operator==(const Circle2& rhs) const
-    {
-        return m_origin == rhs.m_origin && m_radius == rhs.m_radius;
-    }
-    CORE_NODISCARD CORE_CONSTEXPR bool operator!=(const Circle2& rhs) const { return !(rhs == *this); }
+  CORE_NODISCARD CORE_CONSTEXPR bool operator==(const Circle2& rhs) const { return m_origin == rhs.m_origin && m_radius == rhs.m_radius; }
+  CORE_NODISCARD CORE_CONSTEXPR bool operator!=(const Circle2& rhs) const { return !(rhs == *this); }
 };
 
 using Circle2f = Circle2<float_t>;
@@ -31,33 +32,35 @@ using Circle2d = Circle2<double_t>;
 
 template <typename T>
 class Circle3 {
-    LinAl::Vec3<T> m_origin;
-    T m_radius;
-    LinAl::Vec3<T> m_normal;
+  LinAl::Vec3<T> m_origin;
+  T m_radius;
+  LinAl::Vec3<T> m_normal;
 
-  public:
-    CORE_CONSTEXPR Circle3(const LinAl::Vec3<T>& origin, T radius, const LinAl::Vec3<T>& normal)
-        : m_origin(origin), m_radius(radius), m_normal(normal)
-    {
-    }
+public:
+  CORE_CONSTEXPR Circle3(const LinAl::Vec3<T>& origin, T radius, const LinAl::Vec3<T>& normal)
+      : m_origin(origin)
+      , m_radius(radius)
+      , m_normal(normal)
+  {
+  }
 
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
-    CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
-    CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getNormal() const { return m_normal; }
+  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
+  CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
+  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getNormal() const { return m_normal; }
 
-    CORE_NODISCARD CORE_CONSTEXPR LinAl::HMatrix<T> calcTransformation() const
-    {
-        LinAl::HMatrix<T> transformation =
-            LinAl::hMatRotationAlign(LinAl::HVec<T>{0, 0, 1, 1}, LinAl::HVec<T>{m_normal[0], m_normal[1], m_normal[2], 1});
-        LinAl::setTranslation(transformation, m_origin);
-        return transformation;
-    }
+  CORE_NODISCARD CORE_CONSTEXPR LinAl::HMatrix<T> calcTransformation() const
+  {
+    LinAl::HMatrix<T> transformation =
+        LinAl::hMatRotationAlign(LinAl::HVec<T>{0, 0, 1, 1}, LinAl::HVec<T>{m_normal[0], m_normal[1], m_normal[2], 1});
+    LinAl::setTranslation(transformation, m_origin);
+    return transformation;
+  }
 
-    CORE_NODISCARD CORE_CONSTEXPR bool operator==(const Circle3& rhs) const
-    {
-        return m_origin == rhs.m_origin && m_radius == rhs.m_radius && m_normal == rhs.m_normal;
-    }
-    CORE_NODISCARD CORE_CONSTEXPR bool operator!=(const Circle3& rhs) const { return !(rhs == *this); }
+  CORE_NODISCARD CORE_CONSTEXPR bool operator==(const Circle3& rhs) const
+  {
+    return m_origin == rhs.m_origin && m_radius == rhs.m_radius && m_normal == rhs.m_normal;
+  }
+  CORE_NODISCARD CORE_CONSTEXPR bool operator!=(const Circle3& rhs) const { return !(rhs == *this); }
 };
 
 } // namespace Geometry

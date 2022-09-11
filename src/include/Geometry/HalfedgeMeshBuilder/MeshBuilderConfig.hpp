@@ -8,8 +8,8 @@ namespace Geometry
 
 struct MeshBuilderConfig
 {
-    std::uint32_t polarCount{10};
-    std::uint32_t azimuthCount{20};
+  std::uint32_t polarCount{10};
+  std::uint32_t azimuthCount{20};
 };
 
 } // namespace Geometry
