@@ -54,7 +54,6 @@ private:
     LinAl::Vec3Vector<TFloatType> points;
     points.reserve(2 * m_azimuthCount + 2);
 
-    const Segment3<TFloatType>& segment = m_cylinder->getSegment();
     calcCirclePoints(points, m_cylinder->getRadius(), m_azimuthCount);
 
     std::size_t circlePointsSize = points.size();
@@ -72,11 +71,11 @@ private:
   }
 
   void calcCircleBufferIndices(Core::TVector<uint32_t>& indices,
-                               const std::size_t midPointIdx,
-                               const std::size_t circleStartIdx,
-                               const std::size_t circleEndIdx) const
+                               const std::uint32_t midPointIdx,
+                               const std::uint32_t circleStartIdx,
+                               const std::uint32_t circleEndIdx) const
   {
-    for (std::size_t i{circleStartIdx + 1}; i < circleEndIdx; i++)
+    for (std::uint32_t i{circleStartIdx + 1}; i < circleEndIdx; i++)
     {
       indices.push_back(midPointIdx);
       indices.push_back(i - 1);
@@ -91,18 +90,18 @@ private:
   {
     // Bottom circle
     Core::TVector<uint32_t> indices;
-    const std::size_t cylPointsSize = cylinderPoints.size();
+    const std::uint32_t cylPointsSize = static_cast<uint32_t>(cylinderPoints.size());
 
-    const std::size_t bottomMidPointIdx = cylPointsSize - 2;
-    const std::size_t bottomCircleStartIdx = 0;
-    const std::size_t bottomCircleEndIdx = 0 + m_azimuthCount;
+    const std::uint32_t bottomMidPointIdx = cylPointsSize - 2;
+    const std::uint32_t bottomCircleStartIdx = 0;
+    const std::uint32_t bottomCircleEndIdx = 0 + m_azimuthCount;
     calcCircleBufferIndices(indices, bottomMidPointIdx, bottomCircleStartIdx, bottomCircleEndIdx);
 
     // Outer surface
-    for (std::size_t i{1}; i < m_azimuthCount; ++i)
+    for (std::uint32_t i{1}; i < m_azimuthCount; ++i)
     {
-      const std::size_t topIdx = i + m_azimuthCount;
-      const std::size_t topIdxMOne = i + m_azimuthCount - 1;
+      const std::uint32_t topIdx = i + m_azimuthCount;
+      const std::uint32_t topIdxMOne = i + m_azimuthCount - 1;
       indices.push_back(i);
       indices.push_back(topIdx);
       indices.push_back(topIdxMOne);
@@ -111,8 +110,8 @@ private:
       indices.push_back(topIdxMOne);
       indices.push_back(i - 1);
     }
-    const std::size_t topIdxStart = m_azimuthCount;
-    const std::size_t topIdxEnd = 2 * m_azimuthCount - 1;
+    const std::uint32_t topIdxStart = m_azimuthCount;
+    const std::uint32_t topIdxEnd = 2 * m_azimuthCount - 1;
     indices.push_back(topIdxEnd);
     indices.push_back(topIdxStart - 1);
     indices.push_back(0);
@@ -121,9 +120,9 @@ private:
     indices.push_back(topIdxStart);
 
     // Top circle
-    const std::size_t topMidPointIdx = cylPointsSize - 1;
-    const std::size_t topCircleStartIdx = m_azimuthCount;
-    const std::size_t topCircleEndIdx = 2 * m_azimuthCount;
+    const std::uint32_t topMidPointIdx = cylPointsSize - 1;
+    const std::uint32_t topCircleStartIdx = m_azimuthCount;
+    const std::uint32_t topCircleEndIdx = 2 * m_azimuthCount;
     calcCircleBufferIndices(indices, topMidPointIdx, topCircleStartIdx, topCircleEndIdx);
 
     return indices;

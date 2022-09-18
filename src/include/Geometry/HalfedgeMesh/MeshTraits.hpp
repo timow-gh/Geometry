@@ -5,7 +5,7 @@ namespace Geometry
 {
 
 template <typename TFloatType, typename TIndexType>
-class Vertex;
+struct Vertex;
 
 template <typename TFloatType, typename TIndexType>
 class Halfedge;
@@ -14,7 +14,7 @@ template <typename TFloatType, typename TIndexType>
 class Facet;
 
 template <typename TFloatType, typename TIndexType>
-class HalfedgeMesh;
+struct HalfedgeMesh;
 
 template <typename TFloatType, typename TIndexType>
 struct MeshTraits
