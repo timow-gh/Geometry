@@ -1,5 +1,3 @@
-
-
 function(create_geometry_test testName)
     add_executable(${testName} ${testName}.cpp)
     target_link_libraries(${testName} PRIVATE gtest_main Geometry::Geometry)

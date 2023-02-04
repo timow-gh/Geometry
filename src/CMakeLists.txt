@@ -80,22 +80,28 @@ set_target_properties(tw_geometry
         EXPORT_NAME ${TARGET_ALIAS})
 target_link_libraries(tw_geometry
         PUBLIC
-        Core::Settings
         Core::Utils
         Core::Types
         Core::Math
         CrossGuid::CrossGuid
         LinAl::LinAl)
 
-install(DIRECTORY "include/Geometry" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+if (${PROJECT_NAME}_INSTALL)
+    install(DIRECTORY "include/Geometry" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-install(TARGETS tw_geometry
-        EXPORT GeometryTargetsExportSet
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        INCLUDES DESTINATION
-        ${CMAKE_INSTALL_INCLUDEDIR}
-        ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+    install(TARGETS tw_geometry
+            EXPORT GeometryTargetsExportSet
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            INCLUDES DESTINATION
+            ${CMAKE_INSTALL_INCLUDEDIR}
+            ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
-setupExportSetInstall("${PROJECT_NAME}" "GeometryTargetsExportSet")
+    setup_export_set_installation(
+            ${PROJECT_NAME}
+            "GeometryTargetsExportSet"
+            "Config.cmake.in"
+            ${PROJECT_VERSION_MAJOR} ${PROJECT_VERSION_MINOR} ${PROJECT_VERSION_PATCH}
+    )
+endif ()

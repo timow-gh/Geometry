@@ -1,7 +1,8 @@
-#include(localCore.cmake)
-FetchContent_Declare(
-        core
-        GIT_REPOSITORY https://github.com/timow-gh/Core.git
-        GIT_TAG main)
-set(Core_INSTALL ON)
-FetchContent_MakeAvailable(core)
+CPMAddPackage(
+        NAME Core
+        GITHUB_REPOSITORY "timow-gh/Core"
+        GIT_TAG main
+        GIT_SHALLOW TRUE
+        OPTIONS
+        "Core_INSTALL ${${PROJECT_NAME}_INSTALL}"
+)
