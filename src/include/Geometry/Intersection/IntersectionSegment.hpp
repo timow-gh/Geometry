@@ -33,7 +33,7 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
   LinAl::Vec<T, D> rhsDir = rhsTarget - rhsSource;
 
   // TODO extract function: is planar to plane (see line intersection)
-  if CORE_CONSTEXPR (D == 3)
+  if constexpr (D == 3)
   {
     Plane<T> plane{lhsSource, LinAl::cross(deltaSource, lhsDir)};
     if (intersection(plane, (Line<T, D>{rhsSource, rhsDir})))
