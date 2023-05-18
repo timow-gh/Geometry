@@ -2,7 +2,7 @@
 #define GEOMETRY_INTERSECTIONSEGMENT_HPP
 
 #include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Intersection/IntersectionInterval.hpp>
 #include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <Geometry/Interval.hpp>
@@ -20,7 +20,7 @@ namespace Geometry
 //! 2 -> Segments overlap, the intersection is a segment
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
-CORE_NODISCARD uint32_t
+GEO_NODISCARD uint32_t
 intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& intersectionSeg, T eps = Core::eps_traits<T>::value())
 {
   LinAl::Vec<T, D> lhsSource = lhs.getSource();
@@ -95,7 +95,7 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
 //! 2 -> Overlap, the intersection is the segment
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
-CORE_NODISCARD uint32_t
+GEO_NODISCARD uint32_t
 intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = Core::eps_traits<T>::value())
 {
   LinAl::Vec<T, D> segSource = seg.getSource();
@@ -107,7 +107,7 @@ intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& re
   LinAl::Vec<T, D> segDir = segTarget - segSource;
 
   // TODO extract function: is planar to plane (see line intersection)
-  if CORE_CONSTEXPR (D == 3)
+  if GEO_CONSTEXPR (D == 3)
   {
     Plane<T> plane{segSource, LinAl::cross(deltaSource, segDir)};
     if (intersection(plane, line))

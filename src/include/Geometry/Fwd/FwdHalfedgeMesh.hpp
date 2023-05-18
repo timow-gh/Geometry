@@ -3,7 +3,7 @@
 
 namespace Geometry
 {
-template <typename TFloatType, typename TIndexType>
+template <typename TFloat, typename TIndex>
 struct HalfedgeMesh;
 } // namespace Geometry
 

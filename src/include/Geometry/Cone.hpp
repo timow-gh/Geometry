@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_CONE_HPP
 #define GEOMETRY_CONE_HPP
 
-#include <Core/Utils/Compiler.hpp>
 #include <Geometry/Segment.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -13,31 +13,31 @@ class Cone {
   T m_radius;
 
 public:
-  CORE_CONSTEXPR
+  GEO_CONSTEXPR
   Cone(const LinAl::Vec3<T>& circleMidPoint, const LinAl::Vec3<T>& peak, const T& radius)
       : m_segment(Segment3<T>{circleMidPoint, peak})
       , m_radius(radius)
   {
   }
 
-  CORE_CONSTEXPR Cone(const Segment3<T>& segment, const T& radius)
+  GEO_CONSTEXPR Cone(const Segment3<T>& segment, const T& radius)
       : m_segment(segment)
       , m_radius(radius)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR const Geometry::Segment3<T>& getSegment() const { return m_segment; }
-  CORE_NODISCARD CORE_CONSTEXPR const T& getRadius() const { return m_radius; }
-  CORE_NODISCARD CORE_CONSTEXPR T height() const { return m_segment.length(); }
-  CORE_NODISCARD CORE_CONSTEXPR T slantHeight() const
+  GEO_NODISCARD GEO_CONSTEXPR const Segment3<T>& get_segment() const { return m_segment; }
+  GEO_NODISCARD GEO_CONSTEXPR const T& get_radius() const { return m_radius; }
+  GEO_NODISCARD GEO_CONSTEXPR T get_height() const { return m_segment.length(); }
+  GEO_NODISCARD GEO_CONSTEXPR T get_slant_height() const
   {
-    T h = height();
+    const T h = get_height();
     return std::sqrt(m_radius * m_radius + h * h);
   }
-  CORE_NODISCARD CORE_CONSTEXPR T openingAngle() const { return std::atan(m_radius / height()) * 2; }
+  GEO_NODISCARD GEO_CONSTEXPR T get_opening_angle() const { return std::atan(m_radius / get_height()) * 2; }
 
-  CORE_CONSTEXPR bool operator==(const Cone& rhs) const { return m_segment == rhs.m_segment && m_radius == rhs.m_radius; }
-  CORE_CONSTEXPR bool operator!=(const Cone& rhs) const { return !(rhs == *this); }
+  GEO_CONSTEXPR bool operator==(const Cone& rhs) const { return m_segment == rhs.m_segment && m_radius == rhs.m_radius; }
+  GEO_CONSTEXPR bool operator!=(const Cone& rhs) const { return !(rhs == *this); }
 };
 
 } // namespace Geometry

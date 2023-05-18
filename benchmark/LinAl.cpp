@@ -31,7 +31,7 @@ static void BM_Vector3dDot(benchmark::State& state)
 {
     LinAl::Vec3d lhs(0.0);
     LinAl::Vec3d rhs(1.0);
-    [[maybe_unused]] double_t res = 0.0;
+    [[maybe_unused]] double res = 0.0;
     for (auto _: state)
     {
         res = LinAl::dot(lhs, rhs);
@@ -124,13 +124,13 @@ static void BM_eigen3_vec3i_add(benchmark::State& state)
 
 static void BM_blaze_vec3d_add(benchmark::State& state)
 {
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> a{1,
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> a{1,
                                                                                              2,
                                                                                              3};
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> b{1,
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> b{1,
                                                                                              2,
                                                                                              3};
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> c{1,
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> c{1,
                                                                                              2,
                                                                                              3};
     for (auto _: state)
@@ -154,14 +154,14 @@ static void BM_eigen3_vec3d_add(benchmark::State& state)
 }
 #endif
 
-static double_t c{0.0};
+static double c{0.0};
 
 static void BM_blaze_vec3d_dot(benchmark::State& state)
 {
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> a{1,
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> a{1,
                                                                                              2,
                                                                                              3};
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> b{1,
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> b{1,
                                                                                              2,
                                                                                              3};
     for (auto _: state)
@@ -197,13 +197,13 @@ static void BM_linearalgebra_vec3d_dot(benchmark::State& state)
 
 static void BM_blaze_vec3d_cross(benchmark::State& state)
 {
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> a{1,
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> a{1,
                                                                                              2,
                                                                                              3};
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> b{1,
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> b{1,
                                                                                              2,
                                                                                              3};
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> d{};
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> d{};
     for (auto _: state)
     {
         d = blaze::cross(a, b);
@@ -255,10 +255,10 @@ static void BM_linearalgebra_vec3d_cross(benchmark::State& state)
 
 static void BM_blaze_vec3f_normalize(benchmark::State& state)
 {
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> a{1,
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> a{1,
                                                                                              2,
                                                                                              3};
-    blaze::StaticVector<double_t, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> b{1,
+    blaze::StaticVector<double, 3UL, blaze::columnVector, blaze::aligned, blaze::padded> b{1,
                                                                                              2,
                                                                                              3};
     for (auto _: state)

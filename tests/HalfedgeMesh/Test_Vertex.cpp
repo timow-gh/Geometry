@@ -10,13 +10,13 @@ using namespace LinAl;
 class VertexTest : public ::testing::Test {
   protected:
     VertexTest()
-        : m_heMesh(CuboidMeshBuilder<float_t, std::size_t>().setCuboid(Cuboid<float_t>({0, 0, 0}, {1, 1, 1})).build())
-        , m_vertex(m_heMesh->vertices.front())
+        : m_heMesh(CuboidMeshBuilder<float, std::size_t>().setCuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
+        , m_vertex(m_heMesh->getVertices().front())
     {
     }
 
-    std::unique_ptr<HalfedgeMesh<float_t>> m_heMesh;
-    HalfedgeMesh<float_t>::Vertex_t m_vertex;
+    std::unique_ptr<HalfedgeMesh<float>> m_heMesh;
+    HalfedgeMesh<float>::Vertex_t m_vertex;
 };
 
 TEST_F(VertexTest, isValid)
@@ -33,21 +33,21 @@ TEST_F(VertexTest, getVector)
 
 TEST_F(VertexTest, vertexIndex)
 {
-    [[maybe_unused]] HalfedgeMesh<float_t>::VertexIndex_t index = m_vertex.getIndex();
+    [[maybe_unused]] HalfedgeMesh<float>::VertexIndex_t index = m_vertex.getIndex();
     const auto& constVertex = m_vertex;
     index = constVertex.getIndex();
 }
 
 TEST_F(VertexTest, getHalfedge)
 {
-    [[maybe_unused]] HalfedgeMesh<float_t>::Halfedge_t halfedge = m_vertex.getHalfedge();
+    [[maybe_unused]] HalfedgeMesh<float>::Halfedge_t& halfedge = m_vertex.getHalfedge();
     const auto& constVertex = m_vertex;
-    [[maybe_unused]] const HalfedgeMesh<float_t>::Halfedge_t& cHalfedge = constVertex.getHalfedge();
+    [[maybe_unused]] const HalfedgeMesh<float>::Halfedge_t& cHalfedge = constVertex.getHalfedge();
 }
 
 TEST_F(VertexTest, halfedgeIndex)
 {
-    [[maybe_unused]] HalfedgeMesh<float_t>::HalfedgeIndex_t heIndex = m_vertex.getHalfedgeIndex();
-    m_vertex.setHalfedgeIndex(HalfedgeMesh<float_t>::HalfedgeIndex_t{0});
+    [[maybe_unused]] HalfedgeMesh<float>::HalfedgeIndex_t heIndex = m_vertex.getHalfedgeIndex();
+    m_vertex.setHalfedgeIndex(HalfedgeMesh<float>::HalfedgeIndex_t{0});
     EXPECT_EQ(0, m_vertex.getHalfedgeIndex().getValue());
 }

@@ -2,7 +2,7 @@
 #define GEOMETRY_INTERSECTIONLINE_HPP
 
 #include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <Geometry/Plane.hpp>
 #include <LinAl/LinearAlgebra.hpp>
@@ -17,7 +17,7 @@ namespace Geometry
 //! 2 -> Lines are the same
 //! 3 -> No intersection, skew lines
 template <typename T, std::size_t D>
-CORE_NODISCARD uint32_t
+GEO_NODISCARD uint32_t
 intersection(Line<T, D> lhs, Line<T, D> rhs, LinAl::Vec<T, D>& intersectionVec, T eps = Core::eps_traits<T>::value())
 {
   LinAl::Vec<T, D> rhsOrigin = rhs.getOrigin();

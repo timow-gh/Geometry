@@ -3,7 +3,7 @@
 
 #include <Core/Types/TArray.hpp>
 #include <Core/Types/TVector.hpp>
-#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <CrossGuid/Guid.hpp>
 #include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
@@ -16,27 +16,53 @@
 namespace Geometry
 {
 
-template <typename TFloatType = std::double_t, typename TIndexType = std::size_t>
-struct HalfedgeMesh
-{
-  using VertexIndex_t = typename MeshIndexTraits<TIndexType>::VertexIndex_t;
-  using HalfedgeIndex_t = typename MeshIndexTraits<TIndexType>::HalfedgeIndex_t;
-  using FacetIndex_t = typename MeshIndexTraits<TIndexType>::FacetIndex_t;
+template <typename TFloat = double, typename TIndex = std::size_t>
+class HalfedgeMesh {
+public:
+  using VertexIndex_t = typename MeshIndexTraits<TIndex>::VertexIndex_t;
+  using HalfedgeIndex_t = typename MeshIndexTraits<TIndex>::HalfedgeIndex_t;
+  using FacetIndex_t = typename MeshIndexTraits<TIndex>::FacetIndex_t;
 
-  using Vertex_t = Vertex<TFloatType, TIndexType>;
-  using Halfedge_t = Halfedge<TFloatType, TIndexType>;
-  using Facet_t = Facet<TFloatType, TIndexType>;
+  using Vertex_t = Vertex<TFloat, TIndex>;
+  using Halfedge_t = Halfedge<TFloat, TIndex>;
+  using Facet_t = Facet<TFloat, TIndex>;
 
-  using MeshPoints_t = MeshPoints<TFloatType, TIndexType>;
+  using MeshPoints_t = MeshPoints<TFloat, TIndex>;
 
-  CORE_CONSTEXPR HalfedgeMesh() = default;
-  CORE_CONSTEXPR explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
-  CORE_CONSTEXPR HalfedgeMesh& operator=(const HalfedgeMesh& rhs) = delete;
+  GEO_CONSTEXPR HalfedgeMesh() = default;
+  GEO_CONSTEXPR explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
+  GEO_CONSTEXPR HalfedgeMesh& operator=(const HalfedgeMesh& rhs) = delete;
 
-  CORE_CONSTEXPR HalfedgeMesh(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
-  CORE_CONSTEXPR HalfedgeMesh& operator=(HalfedgeMesh&& rhs) CORE_NOEXCEPT = default;
+  GEO_CONSTEXPR HalfedgeMesh(HalfedgeMesh&& rhs) GEO_NOEXCEPT = default;
+  GEO_CONSTEXPR HalfedgeMesh& operator=(HalfedgeMesh&& rhs) GEO_NOEXCEPT = default;
 
-  CORE_NODISCARD CORE_CONSTEXPR bool contains(const Vertex_t& vertex) const
+  // clang-format off
+  GEO_NODISCARD GEO_CONSTEXPR LinAl::Vec3<TFloat> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().getValue()); }
+
+  GEO_NODISCARD GEO_CONSTEXPR Vertex_t getVertex(const VertexIndex_t vertexIndex) const { return vertices[vertexIndex.getValue()]; }
+  GEO_NODISCARD GEO_CONSTEXPR Halfedge_t getHalfedge(const HalfedgeIndex_t halfedgeIndex) const { return halfedges[halfedgeIndex.getValue()]; }
+  GEO_NODISCARD GEO_CONSTEXPR Facet_t getFacet(const FacetIndex_t facetIndex) const { return facets[facetIndex.getValue()]; }
+
+  GEO_NODISCARD GEO_CONSTEXPR Vertex_t& getVertex(VertexIndex_t vertexIndex) { return vertices[vertexIndex.getValue()]; }
+  GEO_NODISCARD GEO_CONSTEXPR Halfedge_t& getHalfedge(HalfedgeIndex_t halfedgeIndex) { return halfedges[halfedgeIndex.getValue()]; }
+  GEO_NODISCARD GEO_CONSTEXPR Facet_t& getFacet(FacetIndex_t facetIndex) { return facets[facetIndex.getValue()]; }
+
+  GEO_NODISCARD GEO_CONSTEXPR LinAl::Vec3Vector<TFloat>& getPoints() { return meshPoints.getPoints(); }
+  // clang-format on
+
+  GEO_NODISCARD const Core::TVector<Vertex_t>& getVertices() const { return vertices; }
+  GEO_NODISCARD Core::TVector<Vertex_t>& getVertices() { return vertices; }
+
+  GEO_NODISCARD const Core::TVector<Halfedge_t>& getHalfedges() const { return halfedges; }
+  GEO_NODISCARD Core::TVector<Halfedge_t>& getHalfedges() { return halfedges; }
+
+  GEO_NODISCARD const Core::TVector<Facet_t>& getFacets() const { return facets; }
+  GEO_NODISCARD Core::TVector<Facet_t>& getFacets() { return facets; }
+
+  GEO_NODISCARD const MeshPoints_t& getMeshPoints() const { return meshPoints; }
+  GEO_NODISCARD MeshPoints_t& getMeshPoints() { return meshPoints; }
+
+  GEO_NODISCARD GEO_CONSTEXPR bool contains(const Vertex_t& vertex) const
   {
     for (const Vertex_t& v: vertices)
       if (vertex == v)
@@ -44,7 +70,7 @@ struct HalfedgeMesh
     return false;
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR bool contains(const Halfedge_t& halfedge) const
+  GEO_NODISCARD GEO_CONSTEXPR bool contains(const Halfedge_t& halfedge) const
   {
     for (const Halfedge_t& he: halfedges)
       if (halfedge == he)
@@ -52,7 +78,7 @@ struct HalfedgeMesh
     return false;
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR bool contains(const Facet_t& facet) const
+  GEO_NODISCARD GEO_CONSTEXPR bool contains(const Facet_t& facet) const
   {
     for (const Facet_t& f: facets)
       if (facet == f)
@@ -60,22 +86,9 @@ struct HalfedgeMesh
     return false;
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR bool contains(const LinAl::Vec3<TFloatType>& vector) const { return meshPoints.contains(vector); }
+  GEO_NODISCARD GEO_CONSTEXPR bool contains(const LinAl::Vec3<TFloat>& vector) const { return meshPoints.contains(vector); }
 
-  // clang-format off
-    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3<TFloatType> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().getValue()); }
-
-    CORE_NODISCARD CORE_CONSTEXPR Vertex_t getVertex(const VertexIndex_t vertexIndex) const { return vertices[vertexIndex.getValue()]; }
-    CORE_NODISCARD CORE_CONSTEXPR Halfedge_t getHalfedge(const HalfedgeIndex_t halfedgeIndex) const { return halfedges[halfedgeIndex.getValue()]; }
-    CORE_NODISCARD CORE_CONSTEXPR Facet_t getFacet(const FacetIndex_t facetIndex) const { return facets[facetIndex.getValue()]; }
-
-    CORE_NODISCARD CORE_CONSTEXPR Vertex_t& getVertex(VertexIndex_t vertexIndex) { return vertices[vertexIndex.getValue()]; }
-    CORE_NODISCARD CORE_CONSTEXPR Halfedge_t& getHalfedge(HalfedgeIndex_t halfedgeIndex) { return halfedges[halfedgeIndex.getValue()]; }
-    CORE_NODISCARD CORE_CONSTEXPR Facet_t& getFacet(FacetIndex_t facetIndex) { return facets[facetIndex.getValue()]; }
-
-    CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Vector<TFloatType>& getPoints() { return meshPoints.getPoints(); }
-  // clang-format on
-
+private:
   Core::TVector<Vertex_t> vertices;
   Core::TVector<Halfedge_t> halfedges;
   Core::TVector<Facet_t> facets;

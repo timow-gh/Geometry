@@ -2,7 +2,7 @@
 #define GEOMETRY_INTERSECTIONPLANE_HPP
 
 #include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
 #include <Geometry/Ray.hpp>
@@ -25,23 +25,24 @@ calcIntersectionParameter(LinAl::Vec3<T> planeOrigin, LinAl::Vec3<T> planeNormal
 }
 
 template <typename T>
-CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Line3<T> line, T eps = Core::eps_traits<T>::value())
+GEO_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Line3<T> line, T eps = Core::eps_traits<T>::value())
 {
   LinAl::Vec3<T> planeOrigin = plane.getOrigin();
   LinAl::Vec3<T> planeNormal = plane.getNormal();
   LinAl::Vec3<T> lineOrigin = line.getOrigin();
   LinAl::Vec3<T> lineDir = line.getDirection();
 
+  auto dirDot = LinAl::dot(lineDir, planeNormal);
   // Check parallel
-  if (Core::isZero(LinAl::dot(lineDir, planeNormal), eps))
+  if (Core::isZero(dirDot, eps))
     return std::nullopt;
 
-  const auto paramD = LinAl::dot(LinAl::Vec3<T>{planeOrigin - lineOrigin}, planeNormal) / LinAl::dot(lineDir, planeNormal);
+  const auto paramD = LinAl::dot(LinAl::Vec3<T>{planeOrigin - lineOrigin}, planeNormal) / dirDot;
   return lineOrigin + paramD * lineDir;
 }
 
 template <typename T>
-CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Ray3<T> ray, T eps = Core::eps_traits<T>::value())
+GEO_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Ray3<T> ray, T eps = Core::eps_traits<T>::value())
 {
   LinAl::Vec3<T> planeOrigin = plane.getOrigin();
   LinAl::Vec3<T> planeNormal = plane.getNormal();
@@ -57,7 +58,7 @@ CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Ray3<T
 }
 
 template <typename T>
-CORE_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Segment3<T> seg, T eps = Core::eps_traits<T>::value())
+GEO_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Segment3<T> seg, T eps = Core::eps_traits<T>::value())
 {
   LinAl::Vec3<T> planeOrigin = plane.getOrigin();
   LinAl::Vec3<T> planeNormal = plane.getNormal();

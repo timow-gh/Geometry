@@ -2,7 +2,7 @@
 #define GEOMETRY_CONEMESHBUILDER_HPP
 
 #include <Core/Math/Constants.hpp>
-#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Cone.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
@@ -11,14 +11,15 @@
 
 namespace Geometry
 {
-template <typename TFloatType, typename TIndexType = std::size_t>
-class ConeMeshBuilder : public MeshBuilderBase<TFloatType, TIndexType, ConeMeshBuilder<TFloatType, TIndexType>> {
-  std::optional<Cone<TFloatType>> m_cone;
+template <typename TFloat, typename TIndex>
+class ConeMeshBuilder : public MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>> {
+  std::optional<Cone<TFloat>> m_cone;
   std::size_t m_azimuthCount{20};
 
 public:
   ConeMeshBuilder() = default;
-  ConeMeshBuilder& setCone(const Cone<TFloatType>& cone)
+
+  ConeMeshBuilder& setCone(const Cone<TFloat>& cone)
   {
     m_cone = cone;
     return *this;
@@ -30,42 +31,40 @@ public:
     return *this;
   }
 
-  CORE_NODISCARD std::unique_ptr<HalfedgeMesh<TFloatType, TIndexType>> build()
+  GEO_NODISCARD std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build()
   {
     if (!m_cone)
       return nullptr;
 
-    const auto coneSeg = m_cone->getSegment();
+    const auto coneSeg = m_cone->get_segment();
 
     LinAl::HMatrixd hTrafo = LinAl::hMatRotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(coneSeg.direction()));
     LinAl::setTranslation(hTrafo, coneSeg.getSource());
-    MeshBuilderBase<TFloatType, TIndexType, ConeMeshBuilder<TFloatType, TIndexType>>::setTransformation(hTrafo);
+    MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::setTransformation(hTrafo);
 
     auto conePoints = calcConePoints(*m_cone);
     auto coneTriangleIndices = calcConeTriangleIndices(conePoints);
-    return MeshBuilderBase<TFloatType, TIndexType, ConeMeshBuilder<TFloatType, TIndexType>>::buildTriangleHeMesh(conePoints,
-                                                                                                                 coneTriangleIndices);
+    return MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::buildTriangleHeMesh(conePoints, coneTriangleIndices);
   }
 
 private:
-  LinAl::Vec3Vector<TFloatType> calcConePoints(const Geometry::Cone<TFloatType>& cone) const
+  LinAl::Vec3Vector<TFloat> calcConePoints(const Geometry::Cone<TFloat>& cone) const
   {
-    LinAl::Vec3Vector<TFloatType> points;
-    calcCirclePoints(points, cone.getRadius(), m_azimuthCount);
+    LinAl::Vec3Vector<TFloat> points;
+    calcCirclePoints(points, cone.get_radius(), m_azimuthCount);
 
-    points.push_back(LinAl::Vec3<TFloatType>{0, 0, 0});
-    points.push_back(LinAl::Vec3<TFloatType>{0, 0, cone.getSegment().length()});
+    points.push_back(LinAl::Vec3<TFloat>{0, 0, 0});
+    points.push_back(LinAl::Vec3<TFloat>{0, 0, cone.get_segment().length()});
 
     return points;
   }
-  Core::TVector<uint32_t> calcConeTriangleIndices(const LinAl::Vec3Vector<TFloatType>& conePoints) const
+  Core::TVector<TIndex> calcConeTriangleIndices(const LinAl::Vec3Vector<TFloat>& conePoints) const
   {
-    Core::TVector<uint32_t> indices;
-    // TODO (Safe conversion DebugAssert) Does spherePoints.size() fit into uint32_t
-    uint32_t size = static_cast<uint32_t>(conePoints.size());
-    uint32_t topIdx = size - 1;
-    uint32_t bottomIdx = size - 2;
-    for (uint32_t i{1}; i < size; ++i)
+    Core::TVector<TIndex> indices;
+    TIndex size = static_cast<TIndex>(conePoints.size());
+    TIndex topIdx = size - 1;
+    TIndex bottomIdx = size - 2;
+    for (TIndex i{1}; i < size; ++i)
     {
       // slant surface
       indices.push_back(topIdx);

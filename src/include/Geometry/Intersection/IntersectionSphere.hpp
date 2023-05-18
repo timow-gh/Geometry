@@ -29,7 +29,7 @@ struct SphereIntersection
   {
   }
 
-  CORE_NODISCARD bool hasIntersection() const { return first || second; }
+  GEO_NODISCARD bool hasIntersection() const { return first || second; }
 };
 
 template <typename T>

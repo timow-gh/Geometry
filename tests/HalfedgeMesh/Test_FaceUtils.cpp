@@ -9,13 +9,13 @@ using namespace Geometry;
 
 class FaceUtilsTest : public ::testing::Test {
   protected:
-    FaceUtilsTest() : m_heMesh(CuboidMeshBuilder<float_t>().setCuboid(Cuboid<float_t>({0, 0, 0}, {1, 1, 1})).build()) {}
+    FaceUtilsTest() : m_heMesh(CuboidMeshBuilder<float, std::size_t>().setCuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build()) {}
 
-    std::unique_ptr<HalfedgeMesh<float_t>> m_heMesh;
+    std::unique_ptr<HalfedgeMesh<float>> m_heMesh;
 };
 
 TEST_F(FaceUtilsTest, calcHalfedges)
 {
-    Core::TVector<HalfedgeMesh<float_t>::Halfedge_t> halfedges = calcHalfedges(m_heMesh->facets.front());
+    Core::TVector<HalfedgeMesh<float, std::size_t>::Halfedge_t> halfedges = calcHalfedges(m_heMesh->getFacets().front());
     EXPECT_EQ(halfedges.size(), 3);
 }

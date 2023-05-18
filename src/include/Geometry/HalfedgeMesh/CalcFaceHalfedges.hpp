@@ -2,19 +2,19 @@
 #define GLFWTESTAPP_FACETUTILS_H
 
 #include <Core/Types/TVector.hpp>
-#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
 
 namespace Geometry
 {
 
-template <typename TFloatType, typename TIndexType>
-CORE_CONSTEXPR Core::TVector<Halfedge<TFloatType, TIndexType>> calcHalfedges(const Facet<TFloatType, TIndexType>& facet)
+template <typename TFloat, typename TIndex>
+GEO_CONSTEXPR Core::TVector<Halfedge<TFloat, TIndex>> calcHalfedges(const Facet<TFloat, TIndex>& facet)
 {
-  Core::TVector<Halfedge<TFloatType, TIndexType>> result;
+  Core::TVector<Halfedge<TFloat, TIndex>> result;
 
-  Halfedge<TFloatType, TIndexType> halfedge = facet.getHalfedge();
+  Halfedge<TFloat, TIndex> halfedge = facet.getHalfedge();
   result.push_back(halfedge);
   halfedge = halfedge.getNext();
   result.push_back(halfedge);

@@ -7,7 +7,7 @@
 
 using namespace Geometry;
 
-using HalfedgeMesh_t = HalfedgeMesh<float_t>;
+using HalfedgeMesh_t = HalfedgeMesh<float>;
 using Vertex_t = HalfedgeMesh_t::Vertex_t;
 using Halfedge_t = HalfedgeMesh_t::Halfedge_t;
 using Facet_t = HalfedgeMesh_t::Facet_t;
@@ -19,8 +19,8 @@ using FacetIndex_t = HalfedgeMesh_t::FacetIndex_t;
 class TestHalfedge : public ::testing::Test {
   protected:
     TestHalfedge()
-        : m_heMesh(CuboidMeshBuilder<float_t>().setCuboid(Cuboid<float_t>({0, 0, 0}, {1, 1, 1})).build())
-        , m_halfedge(m_heMesh->halfedges.front())
+        : m_heMesh(CuboidMeshBuilder<float, std::size_t>().setCuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
+        , m_halfedge(m_heMesh->getHalfedges().front())
     {
     }
 

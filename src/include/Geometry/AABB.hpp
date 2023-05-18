@@ -4,6 +4,7 @@
 #include <Core/Types/TArray.hpp>
 #include <Geometry/Details/AABBDetails.hpp>
 #include <Geometry/Fwd/FwdAABB.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -15,22 +16,22 @@ class AABB {
   Core::TArray<TFloat, D> m_extends;
 
 public:
-  CORE_CONSTEXPR AABB(LinAl::Vec<TFloat, D> origin, TFloat extend)
+  GEO_CONSTEXPR AABB(LinAl::Vec<TFloat, D> origin, TFloat extend)
       : m_origin(origin)
   {
     m_extends.fill(extend);
   }
-  CORE_CONSTEXPR AABB(LinAl::Vec<TFloat, D> origin, const Core::TArray<TFloat, D>& extend)
+  GEO_CONSTEXPR AABB(LinAl::Vec<TFloat, D> origin, const Core::TArray<TFloat, D>& extend)
       : m_origin(origin)
       , m_extends(extend)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<TFloat, D> getOrigin() const { return m_origin; }
-  CORE_CONSTEXPR void setOrigin(LinAl::Vec<TFloat, D> origin) { m_origin = origin; }
+  GEO_NODISCARD GEO_CONSTEXPR LinAl::Vec<TFloat, D> getOrigin() const { return m_origin; }
+  GEO_CONSTEXPR void setOrigin(LinAl::Vec<TFloat, D> origin) { m_origin = origin; }
 
-  CORE_NODISCARD CORE_CONSTEXPR const Core::TArray<TFloat, D>& getExtends() const { return m_extends; }
-  CORE_CONSTEXPR void setExtends(const Core::TArray<TFloat, D>& extends) { m_extends = extends; }
+  GEO_NODISCARD GEO_CONSTEXPR const Core::TArray<TFloat, D>& getExtends() const { return m_extends; }
+  GEO_CONSTEXPR void setExtends(const Core::TArray<TFloat, D>& extends) { m_extends = extends; }
 };
 
 template <typename TFloat, std::size_t D>

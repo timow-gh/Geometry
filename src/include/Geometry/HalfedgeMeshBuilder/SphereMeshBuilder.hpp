@@ -15,11 +15,11 @@
 namespace Geometry
 {
 
-template <typename TFloatType, typename TIndexType = std::size_t>
-class SphereMeshBuilder : public MeshBuilderBase<TFloatType, TIndexType, SphereMeshBuilder<TFloatType, TIndexType>> {
-  uint32_t m_polarCount{10};
-  uint32_t m_azimuthCount{20};
-  std::optional<Sphere<TFloatType>> m_sphere;
+template <typename TFloat, typename TIndex>
+class SphereMeshBuilder : public MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>> {
+  TIndex m_polarCount{10};
+  TIndex m_azimuthCount{20};
+  std::optional<Sphere<TFloat>> m_sphere;
 
 public:
   SphereMeshBuilder& setPolarCount(uint32_t polarCount)
@@ -34,51 +34,50 @@ public:
     return *this;
   }
 
-  SphereMeshBuilder& setSphere(const Sphere<TFloatType>& sphere)
+  SphereMeshBuilder& setSphere(const Sphere<TFloat>& sphere)
   {
     m_sphere = sphere;
     return *this;
   }
 
-  std::unique_ptr<HalfedgeMesh<TFloatType, TIndexType>> build()
+  std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build()
   {
     if (!m_sphere)
       return nullptr;
 
     auto spherePoints = calcSpherePoints(*m_sphere);
     auto triangleIndices = calcSphereTriangleIndices(spherePoints);
-
-    return MeshBuilderBase<TFloatType, TIndexType, SphereMeshBuilder<TFloatType, TIndexType>>::buildTriangleHeMesh(spherePoints,
+    return MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>>::buildTriangleHeMesh(spherePoints,
                                                                                                                    triangleIndices);
   }
 
 private:
-  LinAl::Vec3Vector<TFloatType> calcSpherePoints(const Sphere<TFloatType>& sphere)
+  LinAl::Vec3Vector<TFloat> calcSpherePoints(const Sphere<TFloat>& sphere)
   {
-    LinAl::Vec3Vector<TFloatType> points;
+    LinAl::Vec3Vector<TFloat> points;
 
-    TFloatType polarStep = Core::PI<TFloatType> / static_cast<double_t>(m_polarCount);
-    TFloatType azimuthStep = 2.0 * Core::PI<TFloatType> / static_cast<double_t>(m_azimuthCount);
-    TFloatType radius = sphere.getRadius();
+    TFloat polarStep = Core::PI<TFloat> / static_cast<TFloat>(m_polarCount);
+    TFloat azimuthStep = TFloat{2.0} * Core::PI<TFloat> / static_cast<TFloat>(m_azimuthCount);
+    TFloat radius = sphere.getRadius();
 
     for (uint32_t i{1}; i < m_polarCount; ++i)
     {
-      TFloatType polarAngle = i * polarStep;
-      TFloatType z = radius * std::cos(polarAngle);
-      TFloatType projRadius = radius * std::sin(polarAngle);
+      TFloat polarAngle = i * polarStep;
+      TFloat z = radius * std::cos(polarAngle);
+      TFloat projRadius = radius * std::sin(polarAngle);
 
       for (uint32_t j{0}; j < m_azimuthCount; ++j)
       {
-        TFloatType azimuthAngle = j * azimuthStep;
-        TFloatType x = projRadius * std::cos(azimuthAngle);
-        TFloatType y = projRadius * std::sin(azimuthAngle);
-        points.push_back(LinAl::Vec3<TFloatType>{x, y, z});
+        TFloat azimuthAngle = j * azimuthStep;
+        TFloat x = projRadius * std::cos(azimuthAngle);
+        TFloat y = projRadius * std::sin(azimuthAngle);
+        points.push_back(LinAl::Vec3<TFloat>{x, y, z});
       }
     }
 
     // Poles
-    points.push_back(LinAl::Vec3<TFloatType>{0, 0, radius});
-    points.push_back(LinAl::Vec3<TFloatType>{0, 0, -radius});
+    points.push_back(LinAl::Vec3<TFloat>{0, 0, radius});
+    points.push_back(LinAl::Vec3<TFloat>{0, 0, -radius});
 
     const auto& sphereOrigin = sphere.getOrigin();
     if (sphereOrigin != LinAl::ZERO_VEC3D)
@@ -88,21 +87,20 @@ private:
     return points;
   }
 
-  Core::TVector<uint32_t> calcSphereTriangleIndices(const LinAl::Vec3Vector<TFloatType>& spherePoints)
+  Core::TVector<TIndex> calcSphereTriangleIndices(const LinAl::Vec3Vector<TFloat>& spherePoints)
   {
-    auto toIdx = [azimuthCount = m_azimuthCount](uint32_t i, uint32_t j) -> uint32_t
-    { return static_cast<uint32_t>(i * azimuthCount + j); };
+    auto toIdx = [azimuthCount = m_azimuthCount](TIndex i, TIndex j) -> TIndex
+    { return static_cast<TIndex>(i * azimuthCount + j); };
 
-    Core::TVector<uint32_t> triangleIndices;
+    Core::TVector<TIndex> triangleIndices;
 
-    // TODO (Safe conversion DebugAssert) Does spherePoints.size() fit into uint32_t
-    const uint32_t pointsSize = static_cast<uint32_t>(spherePoints.size());
+    const TIndex pointsSize = static_cast<TIndex>(spherePoints.size());
 
-    const uint32_t topiIdx = 0;
-    const uint32_t topIdx = pointsSize - 2;
+    const TIndex topiIdx = 0;
+    const TIndex topIdx = pointsSize - 2;
 
-    const uint32_t bottomiIdx = m_polarCount - 2;
-    const uint32_t bottomIdx = pointsSize - 1;
+    const TIndex bottomiIdx = m_polarCount - 2;
+    const TIndex bottomIdx = pointsSize - 1;
 
     // First top triangle
     triangleIndices.push_back(topIdx);
@@ -112,10 +110,10 @@ private:
     triangleIndices.push_back(bottomIdx);
     triangleIndices.push_back(toIdx(bottomiIdx, m_azimuthCount - 1));
     triangleIndices.push_back(toIdx(bottomiIdx, 0));
-    for (uint32_t j{1}; j < m_azimuthCount; ++j)
+    for (TIndex j{1}; j < m_azimuthCount; ++j)
     {
-      uint32_t jIdx = toIdx(topiIdx, j);
-      uint32_t jprevIdx = toIdx(topiIdx, j - 1);
+      TIndex jIdx = toIdx(topiIdx, j);
+      TIndex jprevIdx = toIdx(topiIdx, j - 1);
 
       triangleIndices.push_back(topIdx);
       triangleIndices.push_back(jprevIdx);
@@ -130,15 +128,15 @@ private:
     }
 
     // Sphere body triangles
-    for (uint32_t i{1}; i < m_polarCount - 1; ++i)
+    for (TIndex i{1}; i < m_polarCount - 1; ++i)
     {
-      const uint32_t iprev = i - 1;
-      for (uint32_t j{1}; j < m_azimuthCount; ++j)
+      const TIndex iprev = i - 1;
+      for (TIndex j{1}; j < m_azimuthCount; ++j)
       {
-        const uint32_t jprev = j - 1;
+        const TIndex jprev = j - 1;
 
-        const uint32_t iprevj = toIdx(iprev, j);
-        const uint32_t ijprev = toIdx(i, jprev);
+        const TIndex iprevj = toIdx(iprev, j);
+        const TIndex ijprev = toIdx(i, jprev);
 
         triangleIndices.push_back(iprevj);
         triangleIndices.push_back(toIdx(iprev, jprev));

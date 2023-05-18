@@ -16,13 +16,13 @@ class Distance_Ray_Test : public ::testing::Test {
 
 TEST_F(Distance_Ray_Test, PointAtRayStart)
 {
-    double_t dist = Geometry::distance(ray, source);
+    double dist = Geometry::distance(ray, source);
     EXPECT_DOUBLE_EQ(dist, 0.0);
 }
 
 TEST_F(Distance_Ray_Test, PointAtRayStart_ArgOrder)
 {
-    double_t dist = distance(source, ray);
+    double dist = distance(source, ray);
     EXPECT_DOUBLE_EQ(dist, 0.0);
 }
 
@@ -30,7 +30,7 @@ TEST(Distance_Ray, OnLine_UnitDist)
 {
     Vec3d source{1, 0, 0};
     Ray3d ray{source, X_VEC3D};
-    double_t dist = Geometry::distance(ray, ZERO_VEC3D);
+    double dist = Geometry::distance(ray, ZERO_VEC3D);
     EXPECT_DOUBLE_EQ(dist, 1.0);
 }
 
@@ -38,14 +38,14 @@ TEST(Distance_Ray, OnLine_ZeroDist)
 {
     Vec3d source{1, 0, 0};
     Ray3d ray{source, X_VEC3D};
-    double_t dist = Geometry::distance(ray, Vec3d{2, 0, 0});
+    double dist = Geometry::distance(ray, Vec3d{2, 0, 0});
     EXPECT_DOUBLE_EQ(dist, 0.0);
 }
 
 TEST(Distance_Ray, NextToLine_UnitDist)
 {
     Ray3d ray{Vec3d{1, 0, 0}, X_VEC3D};
-    double_t dist = Geometry::distance(ray, Vec3d{2, 1, 0});
+    double dist = Geometry::distance(ray, Vec3d{2, 1, 0});
     EXPECT_DOUBLE_EQ(dist, 1.0);
 }
 
@@ -77,20 +77,20 @@ class RayDistanceTestFixture : public ::testing::Test {
 TEST_F(RayDistanceTestFixture, PointOnRaySide)
 {
     LinAl::Vec3d vec{1, 2, 0};
-    double_t dist = Geometry::distance(m_ray3d, vec);
+    double dist = Geometry::distance(m_ray3d, vec);
     EXPECT_DOUBLE_EQ(dist, 2);
 }
 
 TEST_F(RayDistanceTestFixture, PointOrthogonalAtRayOrigin)
 {
     LinAl::Vec3d vec{0, 3, 0};
-    double_t dist = Geometry::distance(m_ray3d, vec);
+    double dist = Geometry::distance(m_ray3d, vec);
     EXPECT_DOUBLE_EQ(dist, 3);
 }
 
 TEST_F(RayDistanceTestFixture, PointBeforeRayOrigin)
 {
     LinAl::Vec3d vec{-1, 3, 0};
-    double_t dist = Geometry::distance(m_ray3d, vec);
+    double dist = Geometry::distance(m_ray3d, vec);
     EXPECT_DOUBLE_EQ(dist, LinAl::norm2(vec));
 }

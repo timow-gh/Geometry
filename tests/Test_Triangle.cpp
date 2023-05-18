@@ -8,6 +8,6 @@ protected:
 
 TEST(Triangle, DefaultConstructor)
 {
-    Geometry::Triangle<double_t, 3> triangle;
+    Geometry::Triangle<double, 3> triangle;
     EXPECT_EQ(triangle.getTrianglePoints().size(), 3);
 }

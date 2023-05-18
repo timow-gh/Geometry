@@ -12,13 +12,13 @@ class AABB;
 
 template <typename TFloat>
 using AABB2 = AABB<TFloat, 2>;
-using AABB2f = AABB2<float_t>;
-using AABB2d = AABB2<double_t>;
+using AABB2f = AABB2<float>;
+using AABB2d = AABB2<double>;
 
 template <typename TFloat>
 using AABB3 = AABB<TFloat, 3>;
-using AABB3f = AABB3<float_t>;
-using AABB3d = AABB3<double_t>;
+using AABB3f = AABB3<float>;
+using AABB3d = AABB3<double>;
 
 } // namespace Geometry
 

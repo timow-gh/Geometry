@@ -13,13 +13,13 @@ using Line3 = Line<T, 3>;
 
 template <typename T>
 using Line2 = Line<T, 2>;
-using Line2f = Line2<float_t>;
-using Line2d = Line2<double_t>;
+using Line2f = Line2<float>;
+using Line2d = Line2<double>;
 
 template <typename T>
 using Line3 = Line<T, 3>;
-using Line3f = Line3<float_t>;
-using Line3d = Line3<double_t>;
+using Line3f = Line3<float>;
+using Line3d = Line3<double>;
 } // namespace Geometry
 
 #endif // GEOMETRY_FWDLINE_H

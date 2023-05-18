@@ -7,10 +7,10 @@ namespace Geometry
 {
 template <typename T>
 class Circle3;
-using Circle3d = Circle3<double_t>;
+using Circle3d = Circle3<double>;
 
-using Circle3f = Circle3<float_t>;
-using Circle3d = Circle3<double_t>;
+using Circle3f = Circle3<float>;
+using Circle3d = Circle3<double>;
 } // namespace Geometry
 
 #endif // GEOMETRY_FWDCIRCLE_HPP

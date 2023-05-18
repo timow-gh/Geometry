@@ -7,32 +7,32 @@
 namespace Geometry
 {
 
-template <typename TFloatType, typename TIndexType>
+template <typename TFloat, typename TIndex>
 class MeshTriangleAdder {
-  HalfedgeMesh<TFloatType, TIndexType>* m_halfedgeMesh;
+  HalfedgeMesh<TFloat, TIndex>* m_halfedgeMesh;
 
 public:
-  using VertexIndex_t = typename MeshIndexTraits<TIndexType>::VertexIndex_t;
-  using HalfedgeIndex_t = typename MeshIndexTraits<TIndexType>::HalfedgeIndex_t;
-  using FacetIndex_t = typename MeshIndexTraits<TIndexType>::FacetIndex_t;
+  using VertexIndex_t = typename MeshIndexTraits<TIndex>::VertexIndex_t;
+  using HalfedgeIndex_t = typename MeshIndexTraits<TIndex>::HalfedgeIndex_t;
+  using FacetIndex_t = typename MeshIndexTraits<TIndex>::FacetIndex_t;
 
-  using Vertex_t = Vertex<TFloatType, TIndexType>;
-  using Halfedge_t = Halfedge<TFloatType, TIndexType>;
-  using Facet_t = Facet<TFloatType, TIndexType>;
+  using Vertex_t = Vertex<TFloat, TIndex>;
+  using Halfedge_t = Halfedge<TFloat, TIndex>;
+  using Facet_t = Facet<TFloat, TIndex>;
 
-  using MeshPoints_t = MeshPoints<TFloatType, TIndexType>;
+  using MeshPoints_t = MeshPoints<TFloat, TIndex>;
 
-  CORE_CONSTEXPR explicit MeshTriangleAdder(HalfedgeMesh<TFloatType, TIndexType>& halfedgeMesh) CORE_NOEXCEPT
+  GEO_CONSTEXPR explicit MeshTriangleAdder(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh) GEO_NOEXCEPT
       : m_halfedgeMesh(&halfedgeMesh)
   {
   }
 
-  void operator()(const Triangle<TFloatType, 3>& triangle)
+  void operator()(const Triangle<TFloat, 3>& triangle)
   {
-    MeshPoints_t& meshPoints = m_halfedgeMesh->meshPoints;
-    Core::TVector<Vertex_t>& vertices = m_halfedgeMesh->vertices;
-    Core::TVector<Halfedge_t>& halfedges = m_halfedgeMesh->halfedges;
-    Core::TVector<Facet_t>& facets = m_halfedgeMesh->facets;
+    MeshPoints_t& meshPoints = m_halfedgeMesh->getMeshPoints();
+    Core::TVector<Vertex_t>& vertices = m_halfedgeMesh->getVertices();
+    Core::TVector<Halfedge_t>& halfedges = m_halfedgeMesh->getHalfedges();
+    Core::TVector<Facet_t>& facets = m_halfedgeMesh->getFacets();
 
     HalfedgeIndex_t halfedgeIndex{halfedges.size() == 0 ? 0 : halfedges.size()};
 
@@ -45,13 +45,13 @@ public:
   }
 
 private:
-  void createOrFindVertex(const Triangle<TFloatType, 3>& triangle,
+  void createOrFindVertex(const Triangle<TFloat, 3>& triangle,
                           MeshPoints_t& meshPoints,
                           Core::TVector<Vertex_t>& vertices,
                           Core::TArray<VertexIndex_t, 3>& vertexIndices) const
   {
     // Create or find the Vertex of the LinAl::Vec3
-    const LinAl::VecArray<TFloatType, 3, 3> trianglePoints = triangle.getTrianglePoints();
+    const LinAl::VecArray<TFloat, 3, 3> trianglePoints = triangle.getTrianglePoints();
     for (std::size_t i = 0; i < 3; ++i)
     {
       VertexIndex_t vertexIndex;
@@ -67,7 +67,7 @@ private:
   void createHalfedgeAndSetVertex(const Core::TArray<VertexIndex_t, 3>& vertexIndices,
                                   Core::TVector<Vertex_t>& vertices,
                                   Core::TVector<Halfedge_t>& halfedges,
-                                  HalfedgeMesh<TFloatType, TIndexType>* halfedgeMesh) const
+                                  HalfedgeMesh<TFloat, TIndex>* halfedgeMesh) const
   {
     // Create the Halfedges and set the Halfedges for Vertices
     for (const VertexIndex_t vIndex: vertexIndices)
@@ -83,12 +83,12 @@ private:
     // Fill the facet, the next and the previous pointer for each Halfedge
     // of the Facet
     const FacetIndex_t facetIdx = FacetIndex_t(facets.size() - 1);
-    for (TIndexType i = halfedgeIndex.getValue(); i < halfedges.size(); ++i)
+    for (TIndex i = halfedgeIndex.getValue(); i < halfedges.size(); ++i)
     {
       halfedges[i].setFacetIndex(facetIdx);
-      TIndexType nextHeIndex = i == halfedges.size() - 1 ? halfedgeIndex.getValue() : i + 1;
+      TIndex nextHeIndex = i == halfedges.size() - 1 ? halfedgeIndex.getValue() : i + 1;
       halfedges[i].setNextIndex(HalfedgeIndex_t{nextHeIndex});
-      TIndexType previousHeIndex = i == halfedgeIndex.getValue() ? halfedges.size() - 1 : i - 1;
+      TIndex previousHeIndex = i == halfedgeIndex.getValue() ? halfedges.size() - 1 : i - 1;
       halfedges[i].setPreviousIndex(HalfedgeIndex_t{previousHeIndex});
     }
   }

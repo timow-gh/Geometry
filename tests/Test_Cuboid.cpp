@@ -7,7 +7,7 @@ using namespace LinAl;
 
 class Fixture_Cuboid : public ::testing::Test {
   protected:
-    Cuboid<double_t> m_cuboid{ZERO_VEC3D, Z_VEC3D};
+    Cuboid<double> m_cuboid{ZERO_VEC3D, Z_VEC3D};
 };
 
 TEST_F(Fixture_Cuboid, transformation)

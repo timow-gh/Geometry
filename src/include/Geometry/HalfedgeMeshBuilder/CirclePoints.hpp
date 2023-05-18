@@ -7,14 +7,14 @@
 namespace Geometry
 {
 //! Points on a circle with the origin at (0,0,0)
-template <typename TFloatType>
-void calcCirclePoints(LinAl::Vec3Vector<TFloatType>& points, TFloatType circleRadius, std::size_t azimuthCount)
+template <typename TFloat>
+void calcCirclePoints(LinAl::Vec3Vector<TFloat>& points, TFloat circleRadius, std::size_t azimuthCount)
 {
-  TFloatType azimuthStep = TFloatType(2.0) * TFloatType(Core::PI<TFloatType>) / static_cast<double_t>(azimuthCount);
+  TFloat azimuthStep = TFloat(2.0) * TFloat(Core::PI<TFloat>) / static_cast<double>(azimuthCount);
   for (std::size_t i{0}; i < azimuthCount; ++i)
   {
-    TFloatType azimuthAngle = i * azimuthStep;
-    points.push_back(LinAl::Vec3<TFloatType>{std::cos(azimuthAngle) * circleRadius, std::sin(azimuthAngle) * circleRadius, 0.0});
+    TFloat azimuthAngle = i * azimuthStep;
+    points.push_back(LinAl::Vec3<TFloat>{std::cos(azimuthAngle) * circleRadius, std::sin(azimuthAngle) * circleRadius, 0.0});
   }
 }
 } // namespace Geometry

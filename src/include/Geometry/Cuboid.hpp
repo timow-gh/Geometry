@@ -1,7 +1,7 @@
 #ifndef GLFWTESTAPP_CUBE_H
 #define GLFWTESTAPP_CUBE_H
 
-#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry
@@ -10,13 +10,13 @@ namespace Geometry
 template <typename T>
 class Cuboid {
 public:
-  CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3Array<T, 3>& sideVectors)
+  GEO_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3Array<T, 3>& sideVectors)
       : m_origin(origin)
       , m_sideVectors(sideVectors)
   {
   }
 
-  CORE_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal)
+  GEO_CONSTEXPR Cuboid(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& diagonal)
       : m_origin(origin)
   {
     LinAl::Vec3Array<T, 3> unitVectors = {
@@ -28,16 +28,16 @@ public:
       m_sideVectors[i] = LinAl::projection(diagonal, unitVectors[i]);
   }
 
-  CORE_CONSTEXPR explicit Cuboid(const LinAl::Vec3<T>& diagonal)
+  GEO_CONSTEXPR explicit Cuboid(const LinAl::Vec3<T>& diagonal)
       : Cuboid(LinAl::Vec3<T>{0, 0, 0}, diagonal)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
-  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3Array<T, 3>& getSideVectors() const { return m_sideVectors; }
+  GEO_NODISCARD GEO_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
+  GEO_NODISCARD GEO_CONSTEXPR const LinAl::Vec3Array<T, 3>& getSideVectors() const { return m_sideVectors; }
 
-  CORE_CONSTEXPR bool operator==(const Cuboid& rhs) const { return m_origin == rhs.m_origin && m_sideVectors == rhs.m_sideVectors; }
-  CORE_CONSTEXPR bool operator!=(const Cuboid& rhs) const { return !(rhs == *this); }
+  GEO_CONSTEXPR bool operator==(const Cuboid& rhs) const { return m_origin == rhs.m_origin && m_sideVectors == rhs.m_sideVectors; }
+  GEO_CONSTEXPR bool operator!=(const Cuboid& rhs) const { return !(rhs == *this); }
 
 private:
   LinAl::Vec3<T> m_origin;
@@ -45,7 +45,7 @@ private:
 };
 
 template <typename T>
-CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec3Array<T, 8> calcCuboidVertices(const Cuboid<T>& cuboid)
+GEO_NODISCARD GEO_CONSTEXPR LinAl::Vec3Array<T, 8> calcCuboidVertices(const Cuboid<T>& cuboid)
 {
   LinAl::Vec3<T> origin = cuboid.getOrigin();
   const auto& sideVecs = cuboid.getSideVectors();

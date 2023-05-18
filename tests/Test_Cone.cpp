@@ -7,24 +7,24 @@ using namespace LinAl;
 
 class Fixture_Cone : public ::testing::Test {
   protected:
-    Cone<double_t> m_cone{Segment3d{ZERO_VEC3D, Z_VEC3D}, 1.0};
+    Cone<double> m_cone{Segment3d{ZERO_VEC3D, Z_VEC3D}, 1.0};
 };
 
 TEST_F(Fixture_Cone, height)
 {
-    auto height = m_cone.height();
+    auto height = m_cone.get_height();
     EXPECT_DOUBLE_EQ(height, 1.0);
 }
 
 TEST_F(Fixture_Cone, slantHeight)
 {
-    auto slantHeight = m_cone.slantHeight();
+    auto slantHeight = m_cone.get_slant_height();
     EXPECT_DOUBLE_EQ(slantHeight, std::sqrt(2.0));
 }
 
 TEST_F(Fixture_Cone, openingAngle)
 {
-    auto openingAngle = m_cone.openingAngle();
+    auto openingAngle = m_cone.get_opening_angle();
     // rad = 90 * Core::PI / 180
-    EXPECT_DOUBLE_EQ(openingAngle, 90 * Core::PI<double_t> / 180);
+    EXPECT_DOUBLE_EQ(openingAngle, 90 * Core::PI<double> / 180);
 }

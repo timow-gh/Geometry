@@ -2,7 +2,7 @@
 #define FILAPP_HALFEDGEINDICES_HPP
 
 #include <Core/Types/TVector.hpp>
-#include <Core/Utils/Compiler.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <cstdint>
@@ -22,11 +22,11 @@ struct SegmentIndices
   }
 };
 
-template <typename TFloatType, typename TIndexType>
-Core::TVector<SegmentIndices> calcMeshSegmentIndices(const HalfedgeMesh<TFloatType, TIndexType>& mesh)
+template <typename TFloat, typename TIndex>
+Core::TVector<SegmentIndices> calcMeshSegmentIndices(const HalfedgeMesh<TFloat, TIndex>& mesh)
 {
   Core::TVector<SegmentIndices> result;
-  for (const Halfedge<TFloatType, TIndexType>& halfedge: mesh.halfedges)
+  for (const Halfedge<TFloat, TIndex>& halfedge: mesh.halfedges)
     result.push_back(SegmentIndices(halfedge.getVertexIndex().getValue(), halfedge.getNext().getVertexIndex().getValue()));
   return result;
 }
