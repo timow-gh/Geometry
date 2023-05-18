@@ -1,5 +1,5 @@
-#ifndef FILAPP_TRANSFORMCYLINDER_HPP
-#define FILAPP_TRANSFORMCYLINDER_HPP
+#ifndef GEOMETRY_TRANSFORMCYLINDER_HPP
+#define GEOMETRY_TRANSFORMCYLINDER_HPP
 
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/Transformation/TransformSegment.hpp>
@@ -17,4 +17,4 @@ GEO_NODISCARD GEO_CONSTEXPR Cylinder<T> transformation(const Cylinder<T>& cylind
 
 } // namespace Geometry
 
-#endif // FILAPP_TRANSFORMCYLINDER_HPP
+#endif // GEOMETRY_TRANSFORMCYLINDER_HPP

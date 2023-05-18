@@ -1,5 +1,5 @@
-#ifndef FILAPP_HALFEDGEINDICES_HPP
-#define FILAPP_HALFEDGEINDICES_HPP
+#ifndef GEOMETRY_HALFEDGEINDICES_HPP
+#define GEOMETRY_HALFEDGEINDICES_HPP
 
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
@@ -33,4 +33,4 @@ std::vector<SegmentIndices> calcMeshSegmentIndices(const HalfedgeMesh<TFloat, TI
 
 } // namespace Geometry
 
-#endif // FILAPP_HALFEDGEINDICES_HPP
+#endif // GEOMETRY_HALFEDGEINDICES_HPP

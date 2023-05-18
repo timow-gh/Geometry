@@ -1,5 +1,5 @@
-#ifndef FILAPP_TRANSFORMCONE_HPP
-#define FILAPP_TRANSFORMCONE_HPP
+#ifndef GEOMETRY_TRANSFORMCONE_HPP
+#define GEOMETRY_TRANSFORMCONE_HPP
 
 #include <Geometry/Cone.hpp>
 #include <Geometry/Transformation/TransformSegment.hpp>
@@ -17,4 +17,4 @@ GEO_NODISCARD GEO_CONSTEXPR Cone<T> transformation(const Cone<T>& cone, const li
 
 } // namespace Geometry
 
-#endif // FILAPP_TRANSFORMCONE_HPP
+#endif // GEOMETRY_TRANSFORMCONE_HPP

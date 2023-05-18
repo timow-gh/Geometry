@@ -35,7 +35,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/Transformation/TransformSegment.hpp
         include/Geometry/Transformation/TransformCuboid.hpp
         include/Geometry/Transformation/TransformCone.hpp
-        include/Geometry/Transformation/TransformCircle.hpp
         include/Geometry/Transformation/TransformCylinder.hpp
         include/Geometry/Transformation/TransformSphere.hpp
         include/Geometry/Utils/Assert.hpp

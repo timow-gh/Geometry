@@ -11,10 +11,11 @@
 namespace Geometry
 {
 
-MeshBuilder::MeshBuilder(const MeshBuilderConfig& meshBuilderConfig)
+GEO_CONSTEXPR MeshBuilder::MeshBuilder(const MeshBuilderConfig& meshBuilderConfig)
     : m_config(meshBuilderConfig)
 {
 }
+
 std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Sphere<double>& sphere)
 {
   return Geometry::SphereMeshBuilder<double, std::size_t>()
@@ -23,14 +24,17 @@ std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Sphe
       .setSphere(sphere)
       .build();
 }
+
 std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Cone<double>& cone)
 {
   return Geometry::ConeMeshBuilder<double, std::size_t>().setAzimuthCount(m_config.azimuthCount).setCone(cone).build();
 }
+
 std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Cylinder<double>& cylinder)
 {
   return Geometry::CylinderMeshBuilder<double, std::size_t>().setAzimuthCount(m_config.azimuthCount).setCylinder(cylinder).build();
 }
+
 std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Cuboid<double>& cuboid)
 {
   return Geometry::CuboidMeshBuilder<double, std::size_t>().setCuboid(cuboid).build();

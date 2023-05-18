@@ -1,5 +1,5 @@
-#ifndef FILAPP_CIRCLE_HPP
-#define FILAPP_CIRCLE_HPP
+#ifndef GEOMETRY_CIRCLE_HPP
+#define GEOMETRY_CIRCLE_HPP
 
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/HVec.hpp>
@@ -67,4 +67,4 @@ using Circle3d = Circle3<double>;
 
 } // namespace Geometry
 
-#endif // FILAPP_CIRCLE_HPP
+#endif // GEOMETRY_CIRCLE_HPP

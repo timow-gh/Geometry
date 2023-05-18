@@ -1,5 +1,5 @@
-#ifndef FILAPP_TRANSFORMCUBOID_HPP
-#define FILAPP_TRANSFORMCUBOID_HPP
+#ifndef GEOMETRY_TRANSFORMCUBOID_HPP
+#define GEOMETRY_TRANSFORMCUBOID_HPP
 
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/Utils/Compiler.hpp>
@@ -17,4 +17,4 @@ GEO_NODISCARD GEO_CONSTEXPR Cuboid<T> transformation(const Cuboid<T>& cuboid, co
 
 } // namespace Geometry
 
-#endif // FILAPP_TRANSFORMCUBOID_HPP
+#endif // GEOMETRY_TRANSFORMCUBOID_HPP

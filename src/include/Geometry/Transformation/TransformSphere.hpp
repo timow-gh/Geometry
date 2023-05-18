@@ -1,5 +1,5 @@
-#ifndef FILAPP_TRANSFORMSPHERE_HPP
-#define FILAPP_TRANSFORMSPHERE_HPP
+#ifndef GEOMETRY_TRANSFORMSPHERE_HPP
+#define GEOMETRY_TRANSFORMSPHERE_HPP
 
 #include <Geometry/Sphere.hpp>
 #include <Geometry/Transformation/TransformVec.hpp>
@@ -17,4 +17,4 @@ GEO_NODISCARD GEO_CONSTEXPR Sphere<T> transformation(const Sphere<T>& sphere, co
 
 } // namespace Geometry
 
-#endif // FILAPP_TRANSFORMSPHERE_HPP
+#endif // GEOMETRY_TRANSFORMSPHERE_HPP

@@ -11,13 +11,14 @@ using namespace linal;
 
 class fixture_transformation_aabb3d : public ::testing::Test {
 protected:
-  AABB3d m_aabb{ZERO_VEC3D, 0.5};
+  AABB3d m_aabb{linal::Vec3d{0.5, 0.5, 0.5}, 1.0};
 };
 
 TEST_F(fixture_transformation_aabb3d, aabb)
 {
-  auto expectedOrigin = linal::Vec3d{1, 1, 1};
-  auto trafo = linal::hcoord::create_translation(expectedOrigin[0], expectedOrigin[1], expectedOrigin[2]);
+  auto translationVec = linal::Vec3d{0.5, 0.5, 0.5};
+  auto trafo = linal::hcoord::create_translation(translationVec[0], translationVec[1], translationVec[2]);
   auto transformedAABB = Geometry::transformation(m_aabb, trafo);
+  auto expectedOrigin = linal::Vec3d{1, 1, 1};
   EXPECT_EQ(expectedOrigin, transformedAABB.getOrigin());
 }

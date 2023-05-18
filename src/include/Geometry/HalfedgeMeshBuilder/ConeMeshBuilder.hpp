@@ -42,7 +42,7 @@ public:
 
     const auto coneSeg = m_cone->get_segment();
 
-    linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec3_to_hvec(coneSeg.direction()));
+    linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec_to_hvec(coneSeg.direction()));
     linal::hcoord::set_translation(hTrafo, coneSeg.getSource());
     MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::setTransformation(hTrafo);
 

@@ -1,19 +1,20 @@
-#ifndef FILAPP_TRANSFORMVEC_HPP
-#define FILAPP_TRANSFORMVEC_HPP
+#ifndef GEOMETRY_TRANSFORMVEC_HPP
+#define GEOMETRY_TRANSFORMVEC_HPP
 
 #include <Geometry/Utils/Compiler.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/HMat.hpp>
+#include <linal/Vec3.hpp>
 
 namespace Geometry
 {
 
-template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR linal::Vec3<T> transformation(const linal::Vec3<T>& vec, const linal::hcoord::hmat<T>& trafo)
+template <typename T, std::size_t D>
+GEO_NODISCARD GEO_CONSTEXPR linal::Vec<T, D> transformation(const linal::Vec<T, D>& vec, const linal::hcoord::hmat<T>& trafo)
 {
-  linal::hcoord::hvec<T> result = trafo * linal::vec3ToHVec(vec);
-  return linal::hcoord::hvecToVec3(result);
+  linal::hcoord::hvec<T> result = trafo * linal::hcoord::vec_to_hvec<T,D>(vec);
+  return linal::hcoord::hvec_to_vec<T,D>(result);
 }
 
 } // namespace Geometry
 
-#endif // FILAPP_TRANSFORMVEC_HPP
+#endif // GEOMETRY_TRANSFORMVEC_HPP

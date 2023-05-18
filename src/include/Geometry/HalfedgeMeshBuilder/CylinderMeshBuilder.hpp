@@ -1,5 +1,5 @@
-#ifndef FILAPP_CYLINDERMESHBUILDER_HPP
-#define FILAPP_CYLINDERMESHBUILDER_HPP
+#ifndef GEOMETRY_CYLINDERMESHBUILDER_HPP
+#define GEOMETRY_CYLINDERMESHBUILDER_HPP
 
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/HalfedgeMeshBuilder/DiscretizeCircle.hpp>
@@ -42,7 +42,7 @@ public:
 
     const auto cylinderSeg = m_cylinder->getSegment();
 
-    linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec3_to_hvec(cylinderSeg.direction()));
+    linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec_to_hvec(cylinderSeg.direction()));
     linal::hcoord::set_translation(hTrafo, cylinderSeg.getSource());
     MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::setTransformation(hTrafo);
 
@@ -135,4 +135,4 @@ private:
 
 } // namespace Geometry
 
-#endif // FILAPP_CYLINDERMESHBUILDER_HPP
+#endif // GEOMETRY_CYLINDERMESHBUILDER_HPP

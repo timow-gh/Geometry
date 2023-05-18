@@ -1,5 +1,5 @@
-#ifndef FILAPP_TRANSFORMSEGMENT_HPP
-#define FILAPP_TRANSFORMSEGMENT_HPP
+#ifndef GEOMETRY_TRANSFORMSEGMENT_HPP
+#define GEOMETRY_TRANSFORMSEGMENT_HPP
 
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
@@ -18,4 +18,4 @@ GEO_NODISCARD GEO_CONSTEXPR Segment3<T> transformation(const Segment3<T>& segmen
 
 } // namespace Geometry
 
-#endif // FILAPP_TRANSFORMSEGMENT_HPP
+#endif // GEOMETRY_TRANSFORMSEGMENT_HPP

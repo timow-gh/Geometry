@@ -1,5 +1,5 @@
-#ifndef FILAPP_CIRCLEPOINTS_HPP
-#define FILAPP_CIRCLEPOINTS_HPP
+#ifndef GEOMETRY_CIRCLEPOINTS_HPP
+#define GEOMETRY_CIRCLEPOINTS_HPP
 
 #include <linal/Containers.hpp>
 #include <linal/Vec3.hpp>
@@ -22,4 +22,4 @@ void discretizeCircle(linal::Vec3Vector<TFloat>& points, TFloat circleRadius, st
 
 } // namespace Geometry
 
-#endif // FILAPP_CIRCLEPOINTS_HPP
+#endif // GEOMETRY_CIRCLEPOINTS_HPP
