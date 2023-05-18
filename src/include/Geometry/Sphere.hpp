@@ -1,10 +1,10 @@
 #ifndef GLFWTESTAPP_SPHERE_H
 #define GLFWTESTAPP_SPHERE_H
 
-#include <Core/Math/Eps.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec3.hpp>
 #include <linal/VecOperations.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {
@@ -28,9 +28,7 @@ public:
 
   GEO_NODISCARD GEO_CONSTEXPR bool contains(const linal::Vec3<T>& vec) const
   {
-    if (Core::isGreater(linal::norm2(linal::Vec3<T>{vec - m_origin}), m_radius))
-      return false;
-    return true;
+    return linal::isGreater(linal::norm2(linal::Vec3<T>{vec - m_origin}), m_radius);
   }
 
   GEO_CONSTEXPR bool operator==(const Sphere& rhs) const { return m_origin == rhs.m_origin && m_radius == rhs.m_radius; }

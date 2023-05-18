@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_DISTANCELINE_HPP
 #define GEOMETRY_DISTANCELINE_HPP
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
@@ -27,7 +27,7 @@ GEO_NODISCARD GEO_CONSTEXPR T distance(const Line<T, D>& lhs, const Line<T, D>& 
 {
   linal::Vec<T, D> cross = linal::cross(lhs.getDirection(), rhs.getDirection());
   T crossLen = linal::norm2(cross);
-  if (Core::isZero(crossLen))
+  if (linal::isZero(crossLen))
     return distance(lhs.getOrigin(), rhs);
   return linal::dot(linal::Vec<T, D>{lhs.getOrigin() - rhs.getOrigin()}, cross) / crossLen;
 }

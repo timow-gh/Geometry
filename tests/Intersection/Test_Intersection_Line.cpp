@@ -2,7 +2,6 @@
 #include <Geometry/Line.hpp>
 #include <linal/Vec2.hpp>
 #include <gtest/gtest.h>
-#include <iostream>
 
 using namespace Geometry;
 using namespace linal;

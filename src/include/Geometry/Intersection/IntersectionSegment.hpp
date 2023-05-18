@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_INTERSECTIONSEGMENT_HPP
 #define GEOMETRY_INTERSECTIONSEGMENT_HPP
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/Intersection/IntersectionInterval.hpp>
 #include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <Geometry/Interval.hpp>
@@ -22,7 +22,7 @@ namespace Geometry
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
 GEO_NODISCARD uint32_t
-intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& intersectionSeg, T eps = Core::eps_traits<T>::value())
+intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& intersectionSeg, T eps = linal::eps<T>::value)
 {
   linal::Vec<T, D> lhsSource = lhs.getSource();
   linal::Vec<T, D> lhsTarget = lhs.getTarget();
@@ -46,15 +46,15 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
   T sqrLenLhs = lhsDir[0] * lhsDir[0] + lhsDir[1] * lhsDir[1];
   T sqrLenRhs = rhsDir[0] * rhsDir[0] + rhsDir[1] * rhsDir[1];
 
-  if (!Core::isZero(sqrCross, eps * sqrLenLhs * sqrLenRhs))
+  if (!linal::isZero(sqrCross, eps * sqrLenLhs * sqrLenRhs))
   {
     // Lines are not parallel
     T s = (deltaSource[0] * rhsDir[1] - deltaSource[1] * rhsDir[0]) / cross;
-    if (Core::isLess(s, T(0), eps) || Core::isGreater(s, T(1), eps))
+    if (linal::isLess(s, T(0), eps) || linal::isGreater(s, T(1), eps))
       return 0;
 
     T t = (deltaSource[0] * lhsDir[1] - deltaSource[1] * lhsDir[0]) / cross;
-    if (Core::isLess(t, T(0), eps) || Core::isGreater(t, T(1), eps))
+    if (linal::isLess(t, T(0), eps) || linal::isGreater(t, T(1), eps))
       return 0;
 
     intersectionSeg.setSource(linal::Vec<T, D>(lhsSource + s * lhsDir));
@@ -65,7 +65,7 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
   // FixMe T sqrDeltaSource = linal::norm2Squared(deltaSource);
   cross = deltaSource[0] * lhsDir[1] - deltaSource[1] * lhsDir[0];
   sqrCross = cross * cross;
-  if (!Core::isZero(sqrCross, eps * sqrLenLhs * sqrLenRhs))
+  if (!linal::isZero(sqrCross, eps * sqrLenLhs * sqrLenRhs))
   {
     // Lines are parallel in the plane
     // Lines are different
@@ -97,7 +97,7 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
 GEO_NODISCARD uint32_t
-intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = Core::eps_traits<T>::value())
+intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = linal::eps<T>::value)
 {
   linal::Vec<T, D> segSource = seg.getSource();
   linal::Vec<T, D> segTarget = seg.getTarget();
@@ -119,11 +119,11 @@ intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& re
   T sqrCross = cross * cross;
   T sqrLenSeg = segDir[0] * segDir[0] + segDir[1] * segDir[1];
 
-  if (!Core::isZero(sqrCross, eps * sqrLenSeg))
+  if (!linal::isZero(sqrCross, eps * sqrLenSeg))
   {
     // Lines are not parallel
     T s = (deltaSource[0] * lineDir[1] - deltaSource[1] * lineDir[0]) / cross;
-    if (Core::isLess(s, T(0), eps) || Core::isGreater(s, T(1), eps))
+    if (linal::isLess(s, T(0), eps) || linal::isGreater(s, T(1), eps))
       return 0;
 
     result.setSource(linal::Vec<T, D>(segSource + s * segDir));
@@ -134,7 +134,7 @@ intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& re
   // FixMe T sqrDeltaSource = linal::norm2Squared(deltaSource);
   cross = deltaSource[0] * segDir[1] - deltaSource[1] * segDir[0];
   sqrCross = cross * cross;
-  if (!Core::isZero(sqrCross, eps * sqrLenSeg))
+  if (!linal::isZero(sqrCross, eps * sqrLenSeg))
   {
     // Lines are parallel in the plane
     // Lines are different

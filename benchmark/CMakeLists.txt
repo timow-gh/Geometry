@@ -20,7 +20,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             )
 endif ()
 
-set(LIBS Core::Types Geometry::Geometry benchmark::benchmark benchmark::benchmark_main)
+set(LIBS Geometry::Geometry benchmark::benchmark benchmark::benchmark_main)
 
 if (NOT MSVC)
     add_executable(Benchmark_LinAl LinAl.cpp)

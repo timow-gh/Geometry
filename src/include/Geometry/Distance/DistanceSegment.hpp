@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_DISTANCESEGMENT_HPP
 #define GEOMETRY_DISTANCESEGMENT_HPP
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>

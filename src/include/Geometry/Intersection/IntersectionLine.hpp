@@ -1,12 +1,13 @@
 #ifndef GEOMETRY_INTERSECTIONLINE_HPP
 #define GEOMETRY_INTERSECTIONLINE_HPP
 
-#include <Core/Math/Eps.hpp>
 #include <Geometry/Intersection/IntersectionPlane.hpp>
+#include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
 #include <linal/VecOperations.hpp>
+#include <linal/utils/Eps.hpp>
 #include <optional>
 
 namespace Geometry
@@ -18,7 +19,7 @@ namespace Geometry
 //! 2 -> Lines are the same
 //! 3 -> No intersection, skew lines
 template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::Vec<T, D>& intersectionVec, T eps = Core::eps_traits<T>::value())
+GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::Vec<T, D>& intersectionVec, T eps = linal::eps<T>::value)
 {
   linal::Vec<T, D> rhsOrigin = rhs.getOrigin();
   linal::Vec<T, D> lhsOrigin = lhs.getOrigin();
@@ -36,7 +37,7 @@ GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::Vec<T
 
   T cross = lhsDir[0] * rhsDir[1] - lhsDir[1] * rhsDir[0];
   T sqrCross = cross * cross;
-  if (!Core::isZero(sqrCross, eps))
+  if (!linal::isZero(sqrCross, eps))
   {
     // Lines are intersecting
     T s = (deltaOrigin[0] * rhsDir[1] - deltaOrigin[1] * rhsDir[0]) / cross;
@@ -47,7 +48,7 @@ GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::Vec<T
   // FixMe T sqrDeltaOrigin = linal::norm2Squared(deltaOrigin);
   cross = deltaOrigin[0] * lhsDir[1] - deltaOrigin[1] * lhsDir[0];
   sqrCross = cross * cross;
-  if (!Core::isZero(sqrCross, eps))
+  if (!linal::isZero(sqrCross, eps))
   {
     // Lines are parallel in the plane
     // Lines are different

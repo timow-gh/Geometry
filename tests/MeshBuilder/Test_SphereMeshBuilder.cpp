@@ -1,5 +1,5 @@
 #include "SphereTestHelper.h"
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/HalfedgeMesh/Vertex.hpp>
 #include <Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp>
 #include <Geometry/Sphere.hpp>

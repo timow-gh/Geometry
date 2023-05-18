@@ -1,7 +1,7 @@
 #ifndef FILAPP_CIRCLE_HPP
 #define FILAPP_CIRCLE_HPP
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/HMat.hpp>
 #include <linal/HMatRotation.hpp>

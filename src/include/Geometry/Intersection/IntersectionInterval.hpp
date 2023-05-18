@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_INTERSECTIONINTERVAL_HPP
 #define GEOMETRY_INTERSECTIONINTERVAL_HPP
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/Interval.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 
@@ -19,18 +19,18 @@ std::uint32_t intersection(Interval<T> lhs, Interval<T> rhs, Interval<T>& inters
   const T c = rhs.getStart();
   const T d = rhs.getEnd();
 
-  if (Core::isLess(b, c) || Core::isGreater(a, d))
+  if (linal::isLess(b, c) || linal::isGreater(a, d))
     return 0;
 
-  if (Core::isGreater(b, c))
+  if (linal::isGreater(b, c))
   {
-    if (Core::isLess(a, d))
+    if (linal::isLess(a, d))
     {
-      if (Core::isLess(a, c))
+      if (linal::isLess(a, c))
         intersection.setStart(c);
       else
         intersection.setStart(a);
-      if (Core::isGreater(b, d))
+      if (linal::isGreater(b, d))
         intersection.setEnd(d);
       else
         intersection.setEnd(b);

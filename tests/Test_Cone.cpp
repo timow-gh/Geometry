@@ -1,4 +1,4 @@
-#include <Core/Math/Constants.hpp>
+#include <linal/utils/Constants.hpp>
 #include <Geometry/Cone.hpp>
 #include <gtest/gtest.h>
 #include <linal/Vec3.hpp>
@@ -25,6 +25,6 @@ TEST_F(Fixture_Cone, slantHeight)
 TEST_F(Fixture_Cone, openingAngle)
 {
   auto openingAngle = m_cone.get_opening_angle();
-  // rad = 90 * Core::PI / 180
-  EXPECT_DOUBLE_EQ(openingAngle, 90 * Core::PI<double> / 180);
+  // rad = 90 * linal::PI / 180
+  EXPECT_DOUBLE_EQ(openingAngle, 90 * linal::PI_D / 180);
 }

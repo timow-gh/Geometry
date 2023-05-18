@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_DISTANCERAY_HPP
 #define GEOMETRY_DISTANCERAY_HPP
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
@@ -17,7 +17,7 @@ GEO_NODISCARD GEO_CONSTEXPR T distance(const Ray<T, D>& ray, linal::Vec<T, D> ve
 
   const T dotProduct = linal::dot(vecO, rayDirection);
   linal::Vec<T, D> distanceVec;
-  if (Core::isGreater(dotProduct, T(0)))
+  if (linal::isGreater(dotProduct, T(0)))
     distanceVec = linal::rejection(vecO, rayDirection);
   else
     distanceVec = ray.getOrigin() - vec;

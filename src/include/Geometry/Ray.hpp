@@ -1,7 +1,7 @@
 #ifndef GLFWTESTAPP_RAY_HPP
 #define GLFWTESTAPP_RAY_HPP
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>

@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_CONEMESHBUILDER_HPP
 #define GEOMETRY_CONEMESHBUILDER_HPP
 
-#include <Core/Math/Constants.hpp>
 #include <Geometry/Cone.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
@@ -10,6 +9,7 @@
 #include <linal/HMat.hpp>
 #include <linal/HMatRotation.hpp>
 #include <linal/HMatTranslation.hpp>
+#include <linal/utils/Constants.hpp>
 #include <optional>
 
 namespace Geometry

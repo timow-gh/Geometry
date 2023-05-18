@@ -1,7 +1,7 @@
 #ifndef FILAPP_CIRCLEPOINTS_HPP
 #define FILAPP_CIRCLEPOINTS_HPP
 
-#include <Core/Math/Constants.hpp>
+#include <linal/utils/Constants.hpp>
 #include <linal/Containers.hpp>
 #include <linal/Vec3.hpp>
 
@@ -11,7 +11,7 @@ namespace Geometry
 template <typename TFloat>
 void calcCirclePoints(linal::Vec3Vector<TFloat>& points, TFloat circleRadius, std::size_t azimuthCount)
 {
-  TFloat azimuthStep = TFloat(2.0) * TFloat(Core::PI<TFloat>) / static_cast<double>(azimuthCount);
+  TFloat azimuthStep = TFloat(2.0) * TFloat(linal::PI<TFloat>) / static_cast<double>(azimuthCount);
   for (std::size_t i{0}; i < azimuthCount; ++i)
   {
     TFloat azimuthAngle = i * azimuthStep;

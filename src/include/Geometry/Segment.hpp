@@ -1,7 +1,7 @@
 #ifndef GLFWTESTAPP_SEGMENT_H
 #define GLFWTESTAPP_SEGMENT_H
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>

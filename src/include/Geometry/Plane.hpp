@@ -1,7 +1,7 @@
 #ifndef GLFWTESTAPP_PLANE_HPP
 #define GLFWTESTAPP_PLANE_HPP
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec3.hpp>
 

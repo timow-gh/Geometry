@@ -1,7 +1,7 @@
-#include <Core/Math/Constants.hpp>
 #include <Geometry/Cuboid.hpp>
 #include <gtest/gtest.h>
 #include <linal/Vec3.hpp>
+#include <linal/utils/Constants.hpp>
 
 using namespace Geometry;
 

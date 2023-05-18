@@ -73,7 +73,6 @@ set_target_properties(tw_geometry
         EXPORT_NAME ${TARGET_ALIAS})
 target_link_libraries(tw_geometry
         PUBLIC
-        Core::Math
         CrossGuid::CrossGuid
         linal::linal)
 

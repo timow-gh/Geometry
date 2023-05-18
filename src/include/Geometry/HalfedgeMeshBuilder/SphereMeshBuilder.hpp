@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_SPHEREMESHBUILDER_HPP
 #define GEOMETRY_SPHEREMESHBUILDER_HPP
 
-#include <Core/Math/Constants.hpp>
+#include <linal/utils/Constants.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMesh/TriangleIndices.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
@@ -56,8 +56,8 @@ private:
   {
     linal::Vec3Vector<TFloat> points;
 
-    TFloat polarStep = Core::PI<TFloat> / static_cast<TFloat>(m_polarCount);
-    TFloat azimuthStep = TFloat{2.0} * Core::PI<TFloat> / static_cast<TFloat>(m_azimuthCount);
+    TFloat polarStep = linal::PI<TFloat> / static_cast<TFloat>(m_polarCount);
+    TFloat azimuthStep = TFloat{2.0} * linal::PI<TFloat> / static_cast<TFloat>(m_azimuthCount);
     TFloat radius = sphere.getRadius();
 
     for (uint32_t i{1}; i < m_polarCount; ++i)

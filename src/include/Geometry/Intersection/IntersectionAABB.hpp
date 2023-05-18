@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_INTERSECTIONAABB_HPP
 #define GEOMETRY_INTERSECTIONAABB_HPP
 
-#include <Core/Math/Eps.hpp>
+#include <linal/utils/Eps.hpp>
 #include <Geometry/AABB.hpp>
 #include <linal/Vec.hpp>
 
@@ -19,7 +19,7 @@ bool isIntersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs)
 
   for (std::size_t i = 0; i < D; ++i)
   {
-    if (Core::isGreater(std::abs(lhsOrigin[i] - rhsOrigin[i]), lhsExtends[i] + rhsExtends[i]))
+    if (linal::isGreater(std::abs(lhsOrigin[i] - rhsOrigin[i]), lhsExtends[i] + rhsExtends[i]))
       return false;
   }
   return true;
