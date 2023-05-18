@@ -1,4 +1,6 @@
 create_geometry_test(Test_Transformation_AABB)
 create_geometry_test(Test_Transformation_Circle2)
 create_geometry_test(Test_Transformation_Circle3)
-
+create_geometry_test(Test_Transformation_Cone)
+create_geometry_test(Test_Transformation_Cylinder)
+create_geometry_test(Test_Transformation_Sphere)

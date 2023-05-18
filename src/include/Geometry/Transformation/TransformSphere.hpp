@@ -4,7 +4,7 @@
 #include <Geometry/Sphere.hpp>
 #include <Geometry/Transformation/TransformVec.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/HMat.hpp>
 
 namespace Geometry
 {

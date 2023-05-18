@@ -4,13 +4,13 @@
 #include <Geometry/Cone.hpp>
 #include <Geometry/Transformation/TransformSegment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/HMat.hpp>
 
 namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR Cone<T> transformation(const Cone<T>& cone, const linal::hcoord::hmatd& trafo)
+GEO_NODISCARD GEO_CONSTEXPR Cone<T> transformation(const Cone<T>& cone, const linal::hcoord::hmat<T>& trafo)
 {
   return Cone<T>{Geometry::transformation(cone.get_segment(), trafo), cone.getRadius()};
 }

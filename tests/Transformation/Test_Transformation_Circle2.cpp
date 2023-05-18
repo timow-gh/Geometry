@@ -1,8 +1,6 @@
 #include <Geometry/Transformation/TransformCircle.hpp>
 #include <gtest/gtest.h>
-#include <linal/HMat.hpp>
 #include <linal/HMatTranslation.hpp>
-#include <linal/HVec.hpp>
 #include <linal/Vec2.hpp>
 
 using namespace linal;

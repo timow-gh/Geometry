@@ -4,7 +4,7 @@
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/Transformation/TransformSegment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/HMat.hpp>
 
 namespace Geometry
 {

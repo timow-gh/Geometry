@@ -1,9 +1,7 @@
 #include <Geometry/AABB.hpp>
 #include <Geometry/Transformation/TransformatonAABB.hpp>
 #include <gtest/gtest.h>
-#include <linal/HMat.hpp>
 #include <linal/HMatTranslation.hpp>
-#include <linal/HVec.hpp>
 #include <linal/Vec3.hpp>
 
 using namespace Geometry;
