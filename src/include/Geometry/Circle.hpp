@@ -2,9 +2,6 @@
 #define FILAPP_CIRCLE_HPP
 
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/HMat.hpp>
-#include <linal/HMatRotation.hpp>
-#include <linal/HMatTranslation.hpp>
 #include <linal/HVec.hpp>
 #include <linal/Vec2.hpp>
 #include <linal/Vec3.hpp>

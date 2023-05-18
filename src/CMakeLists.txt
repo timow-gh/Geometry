@@ -46,7 +46,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/Cone.hpp
         include/Geometry/Cuboid.hpp
         include/Geometry/Segment.hpp
-        include/Geometry/Lcs.hpp
         include/Geometry/Sphere.hpp
         include/Geometry/Line.hpp
         include/Geometry/Plane.hpp
