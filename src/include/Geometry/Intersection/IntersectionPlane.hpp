@@ -2,11 +2,11 @@
 #define GEOMETRY_INTERSECTIONPLANE_HPP
 
 #include <Core/Math/Eps.hpp>
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec3.hpp>
 #include <optional>
 

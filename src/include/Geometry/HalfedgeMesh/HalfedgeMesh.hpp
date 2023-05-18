@@ -1,8 +1,6 @@
 #ifndef GLFWTESTAPP_HALFEDGEMESH_H
 #define GLFWTESTAPP_HALFEDGEMESH_H
 
-#include <array>
-#include <vector>
 #include <CrossGuid/Guid.hpp>
 #include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
@@ -11,7 +9,9 @@
 #include <Geometry/HalfedgeMesh/MeshPoints.hpp>
 #include <Geometry/HalfedgeMesh/Vertex.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <array>
 #include <linal/Vec3.hpp>
+#include <vector>
 
 namespace Geometry
 {

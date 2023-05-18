@@ -22,10 +22,7 @@ public:
 
   using MeshPoints_t = MeshPoints<TFloat, TIndex>;
 
-  GEO_CONSTEXPR explicit MeshTriangleAdder(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh) GEO_NOEXCEPT
-      : m_halfedgeMesh(&halfedgeMesh)
-  {
-  }
+  GEO_CONSTEXPR explicit MeshTriangleAdder(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh) GEO_NOEXCEPT : m_halfedgeMesh(&halfedgeMesh) {}
 
   void operator()(const Triangle<TFloat, 3>& triangle)
   {

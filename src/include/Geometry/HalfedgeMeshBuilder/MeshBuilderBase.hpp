@@ -1,13 +1,13 @@
 #ifndef GEOMETRY_MESHBUILDERBASE_HPP
 #define GEOMETRY_MESHBUILDERBASE_HPP
 
-#include <vector>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp>
 #include <linal/HMat.hpp>
 #include <linal/HVec.hpp>
 #include <linal/Vec.hpp>
 #include <linal/VecOperations.hpp>
+#include <vector>
 
 namespace Geometry
 {

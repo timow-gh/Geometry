@@ -1,9 +1,9 @@
 #ifndef GLFWTESTAPP_VERTEX_H
 #define GLFWTESTAPP_VERTEX_H
 
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
 #include <Geometry/HalfedgeMesh/MeshTraits.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec3.hpp>
 
 namespace Geometry

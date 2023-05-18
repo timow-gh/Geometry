@@ -6,15 +6,13 @@
 #ifdef NDEBUG
 #define GEOMETRY_SPHERE_ASSERT(sphere)
 #else
-#define GEOMETRY_SPHERE_ASSERT(sphere)                                                                                  \
-  GEOMETRY_ASSERT(!Core::isZero(sphere.getRadius()))
+#define GEOMETRY_SPHERE_ASSERT(sphere) GEOMETRY_ASSERT(!Core::isZero(sphere.getRadius()))
 #endif
 
 #ifdef NDEBUG
 #define GEOMETRY_RAY_DIRECTION_ASSERT(ray)
 #else
-#define GEOMETRY_RAY_DIRECTION_ASSERT(ray)                                                                              \
-  GEOMETRY_ASSERT(!Core::isZero(linal::norm2Squared(ray.getDirection())))
+#define GEOMETRY_RAY_DIRECTION_ASSERT(ray) GEOMETRY_ASSERT(!Core::isZero(linal::norm2Squared(ray.getDirection())))
 #endif
 
 #endif // GEOMETRY_GEOMETRYASSERT_HPP

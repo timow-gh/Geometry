@@ -2,8 +2,8 @@
 #define GEOMETRY_INTERSECTIONINTERVAL_HPP
 
 #include <Core/Math/Eps.hpp>
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Interval.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 
 namespace Geometry
 {

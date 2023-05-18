@@ -1,9 +1,9 @@
 #ifndef FILAPP_TRANSFORMCYLINDER_HPP
 #define FILAPP_TRANSFORMCYLINDER_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/Transformation/TransformSegment.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry

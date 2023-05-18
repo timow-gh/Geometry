@@ -1,9 +1,9 @@
 #ifndef FILAPP_TRANSFORMSPHERE_HPP
 #define FILAPP_TRANSFORMSPHERE_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Sphere.hpp>
 #include <Geometry/Transformation/TransformVec.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry

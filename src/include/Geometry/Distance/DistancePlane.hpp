@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_DISTANCEPLANE_HPP
 #define GEOMETRY_DISTANCEPLANE_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Plane.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
 #include <linal/VecOperations.hpp>
 

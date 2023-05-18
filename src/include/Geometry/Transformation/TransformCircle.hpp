@@ -1,9 +1,9 @@
 #ifndef FILAPP_TRANSFORMCIRCLE_HPP
 #define FILAPP_TRANSFORMCIRCLE_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Circle.hpp>
 #include <Geometry/Transformation/TransformVec.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 
 namespace Geometry
 {

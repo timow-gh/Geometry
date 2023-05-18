@@ -1,10 +1,10 @@
 #ifndef GLFWTESTAPP_FACETUTILS_H
 #define GLFWTESTAPP_FACETUTILS_H
 
-#include <vector>
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <vector>
 
 namespace Geometry
 {

@@ -1,9 +1,9 @@
 #ifndef FILAPP_TRANSFORMCONE_HPP
 #define FILAPP_TRANSFORMCONE_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Cone.hpp>
 #include <Geometry/Transformation/TransformSegment.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry

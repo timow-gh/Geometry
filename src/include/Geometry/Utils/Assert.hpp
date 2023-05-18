@@ -45,18 +45,18 @@ inline void assertion(const char* fileName, int line, const char* funcName, cons
 {
   std::fprintf(stderr, "%s:%d: internal check failed in '%s': '%s'\n", fileName, line, funcName, message);
 }
-} // namespace linal
+} // namespace Geometry
 
 #if defined(NDEBUG) && NDEBUG
 #define GEO_ASSERT(...)
 #else
-#define GEO_ASSERT(...)                                                                                                               \
+#define GEO_ASSERT(...)                                                                                                                    \
   do                                                                                                                                       \
   {                                                                                                                                        \
-    if (GEO_UNLIKELY(!(__VA_ARGS__)))                                                                                                 \
+    if (GEO_UNLIKELY(!(__VA_ARGS__)))                                                                                                      \
     {                                                                                                                                      \
       ::linal::assertion(__FILE__, __LINE__, __func__, #__VA_ARGS__);                                                                      \
-      GEO_ASSERT_TRAP();                                                                                                              \
+      GEO_ASSERT_TRAP();                                                                                                                   \
     }                                                                                                                                      \
   }                                                                                                                                        \
   while (false)

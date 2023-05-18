@@ -1,8 +1,8 @@
 #ifndef FILAPP_TRANSFORMSEGMENT_HPP
 #define FILAPP_TRANSFORMSEGMENT_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Segment.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <LinAl/LinearAlgebra.hpp>
 
 namespace Geometry

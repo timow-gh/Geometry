@@ -1,11 +1,11 @@
 #ifndef FILAPP_HALFEDGEINDICES_HPP
 #define FILAPP_HALFEDGEINDICES_HPP
 
-#include <vector>
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <cstdint>
+#include <vector>
 
 namespace Geometry
 {
