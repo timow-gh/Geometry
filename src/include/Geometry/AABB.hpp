@@ -4,42 +4,42 @@
 #include <Geometry/Details/AABBDetails.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <array>
-#include <linal/Containers.hpp>
-#include <linal/Vec.hpp>
+#include <linal/containers.hpp>
+#include <linal/vec.hpp>
 
 namespace Geometry
 {
 
 template <typename TFloat, std::size_t D>
 class AABB {
-  linal::Vec<TFloat, D> m_origin;
+  linal::vec<TFloat, D> m_origin;
   std::array<TFloat, D> m_extends;
 
 public:
-  GEO_CONSTEXPR AABB(linal::Vec<TFloat, D> origin, TFloat extend)
+  GEO_CONSTEXPR AABB(linal::vec<TFloat, D> origin, TFloat extend)
       : m_origin(origin)
   {
     m_extends.fill(extend);
   }
-  GEO_CONSTEXPR AABB(linal::Vec<TFloat, D> origin, const std::array<TFloat, D>& extend)
+  GEO_CONSTEXPR AABB(linal::vec<TFloat, D> origin, const std::array<TFloat, D>& extend)
       : m_origin(origin)
       , m_extends(extend)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR linal::Vec<TFloat, D> getOrigin() const { return m_origin; }
-  GEO_CONSTEXPR void setOrigin(linal::Vec<TFloat, D> origin) { m_origin = origin; }
+  GEO_NODISCARD GEO_CONSTEXPR linal::vec<TFloat, D> getOrigin() const { return m_origin; }
+  GEO_CONSTEXPR void setOrigin(linal::vec<TFloat, D> origin) { m_origin = origin; }
 
   GEO_NODISCARD GEO_CONSTEXPR const std::array<TFloat, D>& getExtends() const { return m_extends; }
   GEO_CONSTEXPR void setExtends(const std::array<TFloat, D>& extends) { m_extends = extends; }
 };
 
 template <typename TFloat, std::size_t D>
-AABB<TFloat, D> makeAABB(const linal::VecVector<TFloat, D>& points)
+AABB<TFloat, D> makeAABB(const linal::vecvector<TFloat, D>& points)
 {
   using namespace details;
 
-  linal::VecArray<TFloat, D, D> axis = {linal::Vec<TFloat, D>{1, 0, 0}, linal::Vec<TFloat, D>{0, 1, 0}, linal::Vec<TFloat, D>{0, 0, 1}};
+  linal::vecArray<TFloat, D, D> axis = {linal::vec<TFloat, D>{1, 0, 0}, linal::vec<TFloat, D>{0, 1, 0}, linal::vec<TFloat, D>{0, 0, 1}};
 
   std::array<MinMax<TFloat>, 3> minMaxes;
   for (std::size_t i = 0; i < D; ++i)
@@ -49,7 +49,7 @@ AABB<TFloat, D> makeAABB(const linal::VecVector<TFloat, D>& points)
   for (std::size_t i = 0; i < D; ++i)
     extends[i] = (minMaxes[i].max - minMaxes[i].min) / TFloat(2);
 
-  return AABB<TFloat, D>{linal::Vec<TFloat, D>{minMaxes[0].min + extends[0], minMaxes[1].min + extends[1], minMaxes[2].min + extends[2]},
+  return AABB<TFloat, D>{linal::vec<TFloat, D>{minMaxes[0].min + extends[0], minMaxes[1].min + extends[1], minMaxes[2].min + extends[2]},
                          extends};
 }
 

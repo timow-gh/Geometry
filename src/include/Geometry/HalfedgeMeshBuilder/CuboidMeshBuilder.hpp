@@ -9,7 +9,7 @@
 #include <Geometry/Utils/Compiler.hpp>
 #include <algorithm>
 #include <array>
-#include <linal/Vec3.hpp>
+#include <linal/vec3.hpp>
 #include <optional>
 
 namespace Geometry
@@ -44,15 +44,15 @@ private:
   std::array<Triangle<TFloat, 3>, 12> calcCuboidTriangles()
   {
     auto sides = m_cube->getSideVectors();
-    linal::Vec3d defaultOrigin{0};
+    linal::vec3d defaultOrigin{0};
 
-    const linal::Vec3<TFloat>& x = sides[0];
-    const linal::Vec3<TFloat>& y = sides[1];
-    const linal::Vec3<TFloat>& z = sides[2];
+    const linal::vec3<TFloat>& x = sides[0];
+    const linal::vec3<TFloat>& y = sides[1];
+    const linal::vec3<TFloat>& z = sides[2];
 
     std::array<Triangle<TFloat, 3>, 12> triangles;
 
-    linal::Vec3d diag = y + z;
+    linal::vec3d diag = y + z;
     calcCuboidFaceTriangles(triangles, {defaultOrigin, z, diag, y}, m_cube->getOrigin(), x, 0);
 
     diag = x + z;
@@ -65,9 +65,9 @@ private:
   }
 
   void calcCuboidFaceTriangles(std::array<Triangle<TFloat, 3>, 12>& triangles,
-                               linal::Vec3Array<TFloat, 4> vectors,
-                               const linal::Vec3<TFloat>& origin,
-                               const linal::Vec3<TFloat>& translationVec,
+                               linal::vec3Array<TFloat, 4> vectors,
+                               const linal::vec3<TFloat>& origin,
+                               const linal::vec3<TFloat>& translationVec,
                                std::size_t insertIndex)
   {
     for (auto& vec: vectors)

@@ -2,22 +2,22 @@
 #define GEOMETRY_POLYLINE_H
 
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/Containers.hpp>
-#include <linal/Vec3.hpp>
+#include <linal/containers.hpp>
+#include <linal/vec3.hpp>
 
 namespace Geometry
 {
 template <typename T, std::size_t D>
 class PolyLine {
-  linal::VecVector<T, D> m_points;
+  linal::vecvector<T, D> m_points;
 
 public:
-  GEO_CONSTEXPR PolyLine(const linal::VecVector<T, D>& mPoints)
+  GEO_CONSTEXPR PolyLine(const linal::vecvector<T, D>& mPoints)
       : m_points(mPoints)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const linal::VecVector<T, D>& getPoints() const { return m_points; }
+  GEO_NODISCARD GEO_CONSTEXPR const linal::vecvector<T, D>& getPoints() const { return m_points; }
 };
 
 template <typename T>

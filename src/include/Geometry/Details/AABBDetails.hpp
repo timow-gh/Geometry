@@ -3,9 +3,9 @@
 
 #include <Geometry/AABB.hpp>
 #include <cstdint>
-#include <linal/Containers.hpp>
-#include <linal/Vec.hpp>
-#include <linal/VecOperations.hpp>
+#include <linal/containers.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
@@ -21,7 +21,7 @@ struct MinMax
 };
 
 template <typename TFloat, std::size_t D>
-MinMax<TFloat> extremePointsAlongDirection(linal::Vec<TFloat, D> dir, const linal::VecVector<TFloat, D>& points)
+MinMax<TFloat> extremePointsAlongDirection(linal::vec<TFloat, D> dir, const linal::vecvector<TFloat, D>& points)
 {
   TFloat minDist = std::numeric_limits<TFloat>::max();
   TFloat maxDist = std::numeric_limits<TFloat>::lowest();

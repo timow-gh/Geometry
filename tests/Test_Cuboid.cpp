@@ -1,7 +1,7 @@
 #include <Geometry/Cuboid.hpp>
 #include <gtest/gtest.h>
-#include <linal/Vec3.hpp>
-#include <linal/utils/Constants.hpp>
+#include <linal/vec3.hpp>
+#include <linal/utils/constants.hpp>
 
 using namespace Geometry;
 
@@ -12,6 +12,6 @@ protected:
 
 TEST_F(Fixture_Cuboid, transformation)
 {
-  auto expectedOrigin = linal::Vec3d{0, 0, 0};
+  auto expectedOrigin = linal::vec3d{0, 0, 0};
   EXPECT_EQ(expectedOrigin, m_cuboid.getOrigin());
 }

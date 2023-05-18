@@ -1,7 +1,7 @@
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <gtest/gtest.h>
-#include <linal/Containers.hpp>
-#include <linal/Vec3.hpp>
+#include <linal/containers.hpp>
+#include <linal/vec3.hpp>
 
 using namespace Geometry;
 
@@ -33,8 +33,8 @@ TEST(HalfedgeMesh, IsMoveAssignable)
 TEST(HalfedgeMesh, vertexPoints)
 {
   HalfedgeMesh<float> heMesh{};
-  [[maybe_unused]] linal::Vec3Vector<float>& vertexPoints = heMesh.getMeshPoints().getPoints();
+  [[maybe_unused]] linal::vec3vector<float>& vertexPoints = heMesh.getMeshPoints().getPoints();
 
   const HalfedgeMesh<float>& constMesh = heMesh;
-  [[maybe_unused]] const linal::Vec3Vector<float>& constVertexPoints = constMesh.getMeshPoints().getPoints();
+  [[maybe_unused]] const linal::vec3vector<float>& constVertexPoints = constMesh.getMeshPoints().getPoints();
 }

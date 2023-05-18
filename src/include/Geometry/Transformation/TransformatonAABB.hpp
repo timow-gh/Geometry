@@ -3,9 +3,9 @@
 
 #include <Geometry/AABB.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/HMat.hpp>
-#include <linal/HMatRotation.hpp>
-#include <linal/HVec.hpp>
+#include <linal/hmat.hpp>
+#include <linal/hmat_rotation.hpp>
+#include <linal/hvec.hpp>
 
 namespace Geometry
 {

@@ -1,14 +1,13 @@
 #include "SphereTestHelper.h"
-#include <linal/utils/Eps.hpp>
+#include <linal/utils/eps.hpp>
 #include <Geometry/HalfedgeMesh/Vertex.hpp>
 #include <Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp>
 #include <Geometry/Sphere.hpp>
 #include <gtest/gtest.h>
-#include <linal/Vec3.hpp>
+#include <linal/vec3.hpp>
 
 using namespace MeshTestHelper;
 using namespace Geometry;
-using namespace linal;
 
 class Test_MeshBuilder_Sphere : public ::testing::Test {
 protected:
@@ -16,7 +15,7 @@ protected:
   std::unique_ptr<HalfedgeMesh<double>> m_sphereMesh;
 
   Test_MeshBuilder_Sphere()
-      : m_sphere({ZERO_VEC3D, 3.0})
+      : m_sphere({linal::ZERO_VEC3D, 3.0})
   {
     m_sphereMesh = SphereMeshBuilder<double, std::size_t>().setSphere(m_sphere).build();
   }

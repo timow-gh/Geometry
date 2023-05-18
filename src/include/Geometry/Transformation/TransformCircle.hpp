@@ -4,7 +4,7 @@
 #include <Geometry/Circle.hpp>
 #include <Geometry/Transformation/TransformVec.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/HMat.hpp>
+#include <linal/hmat.hpp>
 
 namespace Geometry
 {
@@ -12,7 +12,7 @@ namespace Geometry
 template <typename T>
 GEO_NODISCARD GEO_CONSTEXPR Circle2<T> transformation(const Circle2<T>& circle, const linal::hcoord::hmat<T>& hmat)
 {
-  linal::Vec2<T> vec = transformation(circle.getOrigin(), hmat);
+  linal::vec2<T> vec = transformation(circle.getOrigin(), hmat);
   return Circle2<T>{vec, circle.getRadius()};
 }
 

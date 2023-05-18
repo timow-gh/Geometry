@@ -1,11 +1,11 @@
 #include "SphereTestHelper.h"
 #include <Geometry/Distance/DistanceSphere.hpp>
-#include <linal/utils/Eps.hpp>
+#include <linal/utils/eps.hpp>
 
 namespace MeshTestHelper
 {
 
-testing::AssertionResult isPointOnSphere(const Geometry::Sphere<double>& sphere, const linal::Vec3d& vec)
+testing::AssertionResult isPointOnSphere(const Geometry::Sphere<double>& sphere, const linal::vec3d& vec)
 {
   constexpr double DIST_ALLOWED = linal::eps_f64;
   double dist = Geometry::distance(vec, sphere);

@@ -2,9 +2,9 @@
 #include <Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp>
 #include <Geometry/Sphere.hpp>
 #include <gtest/gtest.h>
-#include <linal/Containers.hpp>
-#include <linal/Vec2.hpp>
-#include <linal/Vec3.hpp>
+#include <linal/containers.hpp>
+#include <linal/vec2.hpp>
+#include <linal/vec3.hpp>
 
 using namespace Geometry;
 
@@ -15,7 +15,7 @@ protected:
 
 TEST_F(AABBTest2f, aabb2f_constructor)
 {
-  linal::Vec2d expectedOrigin{0, 0};
+  linal::vec2d expectedOrigin{0, 0};
   EXPECT_EQ(aabb.getOrigin(), expectedOrigin);
 
   for (auto value: aabb.getExtends())
@@ -29,7 +29,7 @@ protected:
 
 TEST_F(AABBTest3f, aabb3f_constructor)
 {
-  linal::Vec3d expectedOrigin{0, 0, 0};
+  linal::vec3d expectedOrigin{0, 0, 0};
   EXPECT_EQ(aabb.getOrigin(), expectedOrigin);
 
   for (auto value: aabb.getExtends())
@@ -43,7 +43,7 @@ protected:
 
 TEST_F(AABBTest2d, aabb2f_constructor)
 {
-  linal::Vec2d expectedOrigin{0, 0};
+  linal::vec2d expectedOrigin{0, 0};
   EXPECT_EQ(aabb.getOrigin(), expectedOrigin);
 
   for (auto value: aabb.getExtends())
@@ -57,7 +57,7 @@ protected:
 
 TEST_F(AABBTest3d, aabb3f_constructor)
 {
-  linal::Vec3d expectedOrigin{0, 0, 0};
+  linal::vec3d expectedOrigin{0, 0, 0};
   EXPECT_EQ(aabb.getOrigin(), expectedOrigin);
 
   for (auto value: aabb.getExtends())
@@ -66,13 +66,13 @@ TEST_F(AABBTest3d, aabb3f_constructor)
 
 TEST_F(AABBTest3d, fromcubepoints)
 {
-  linal::Vec3dVector points{{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 1}};
+  linal::vec3dvector points{{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 1}};
   AABB3d box = makeAABB(points);
 
-  linal::Vec3d expectedOrigin{0.5, 0.5, 0.5};
+  linal::vec3d expectedOrigin{0.5, 0.5, 0.5};
   EXPECT_EQ(box.getOrigin(), expectedOrigin);
 
-  linal::Vec3d expectedExtend{0.5, 0.5, 0.5};
+  linal::vec3d expectedExtend{0.5, 0.5, 0.5};
   auto extends = box.getExtends();
   for (size_t i = 0; i < 3; ++i)
     EXPECT_DOUBLE_EQ(extends[i], expectedExtend[i]);
@@ -80,7 +80,7 @@ TEST_F(AABBTest3d, fromcubepoints)
 
 TEST_F(AABBTest3d, makeaabb_empty)
 {
-  linal::Vec3dVector points{};
+  linal::vec3dvector points{};
   AABB3d box = makeAABB(points);
 
   double negInf = -std::numeric_limits<double>::infinity();
@@ -96,10 +96,10 @@ TEST_F(AABBTest3f, from_sphere_at_origin)
       Geometry::SphereMeshBuilder<float, std::size_t>().setSphere(sphere).build();
   AABB3f box = makeAABB(sphereMesh->getPoints());
 
-  linal::Vec3f expectedOrigin{0, 0, 0};
+  linal::vec3f expectedOrigin{0, 0, 0};
   EXPECT_EQ(box.getOrigin(), expectedOrigin);
 
-  linal::Vec3f expectedExtend{1, 1, 1};
+  linal::vec3f expectedExtend{1, 1, 1};
   auto extends = box.getExtends();
   for (size_t i = 0; i < 3; ++i)
     EXPECT_FLOAT_EQ(extends[i], expectedExtend[i]);
@@ -107,7 +107,7 @@ TEST_F(AABBTest3f, from_sphere_at_origin)
 
 TEST_F(AABBTest3f, from_sphere_a)
 {
-  linal::Vec3f expectedOrigin{1, 2, 3};
+  linal::vec3f expectedOrigin{1, 2, 3};
   Geometry::Sphere<float> sphere{expectedOrigin, 3.2f};
   std::unique_ptr<HalfedgeMesh<float, std::size_t>> sphereMesh =
       Geometry::SphereMeshBuilder<float, std::size_t>().setSphere(sphere).build();
@@ -115,7 +115,7 @@ TEST_F(AABBTest3f, from_sphere_a)
 
   EXPECT_EQ(box.getOrigin(), expectedOrigin);
 
-  linal::Vec3f expectedExtend{3.2f, 3.2f, 3.2f};
+  linal::vec3f expectedExtend{3.2f, 3.2f, 3.2f};
   auto extends = box.getExtends();
   for (size_t i = 0; i < 3; ++i)
     EXPECT_FLOAT_EQ(extends[i], expectedExtend[i]);

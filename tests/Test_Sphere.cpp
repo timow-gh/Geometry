@@ -19,18 +19,18 @@ class Sphere_Contains_Fixture : public ::testing::Test {
 
 TEST_F(Sphere_Contains_Fixture, inside)
 {
-    bool contains = m_sphere.contains(linal::Vec3d{0.5, 0, 0});
+    bool contains = m_sphere.contains(linal::vec3d{0.5, 0, 0});
     EXPECT_TRUE(contains);
 }
 
 TEST_F(Sphere_Contains_Fixture, boundary)
 {
-    bool contains = m_sphere.contains(linal::Vec3d{1.0, 0, 0});
+    bool contains = m_sphere.contains(linal::vec3d{1.0, 0, 0});
     EXPECT_TRUE(contains);
 }
 
 TEST_F(Sphere_Contains_Fixture, outside)
 {
-    bool contains = m_sphere.contains(linal::Vec3d{1.5, 0, 0});
+    bool contains = m_sphere.contains(linal::vec3d{1.5, 0, 0});
     EXPECT_FALSE(contains);
 }

@@ -5,7 +5,6 @@
 #include <gtest/gtest.h>
 
 using namespace Geometry;
-using namespace linal;
 
 class VertexTest : public ::testing::Test {
   protected:
@@ -26,9 +25,9 @@ TEST_F(VertexTest, isValid)
 
 TEST_F(VertexTest, getVector)
 {
-    [[maybe_unused]] Vec3f point = m_vertex.getVector();
+    [[maybe_unused]] linal::vec3f point = m_vertex.getVector();
     const auto& constVertex = m_vertex;
-    [[maybe_unused]] const Vec3f& cPoint = constVertex.getVector();
+    [[maybe_unused]] const linal::vec3f& cPoint = constVertex.getVector();
 }
 
 TEST_F(VertexTest, vertexIndex)

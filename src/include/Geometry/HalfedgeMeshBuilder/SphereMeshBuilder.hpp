@@ -7,9 +7,9 @@
 #include <Geometry/Sphere.hpp>
 #include <Geometry/Triangle.hpp>
 #include <cmath>
-#include <linal/Vec.hpp>
-#include <linal/Vec3.hpp>
-#include <linal/utils/Constants.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec3.hpp>
+#include <linal/utils/constants.hpp>
 #include <memory>
 #include <optional>
 
@@ -52,9 +52,9 @@ public:
   }
 
 private:
-  linal::Vec3Vector<TFloat> calcSpherePoints(const Sphere<TFloat>& sphere)
+  linal::vec3vector<TFloat> calcSpherePoints(const Sphere<TFloat>& sphere)
   {
-    linal::Vec3Vector<TFloat> points;
+    linal::vec3vector<TFloat> points;
 
     TFloat polarStep = linal::PI<TFloat> / static_cast<TFloat>(m_polarCount);
     TFloat azimuthStep = TFloat{2.0} * linal::PI<TFloat> / static_cast<TFloat>(m_azimuthCount);
@@ -71,13 +71,13 @@ private:
         TFloat azimuthAngle = j * azimuthStep;
         TFloat x = projRadius * std::cos(azimuthAngle);
         TFloat y = projRadius * std::sin(azimuthAngle);
-        points.push_back(linal::Vec3<TFloat>{x, y, z});
+        points.push_back(linal::vec3<TFloat>{x, y, z});
       }
     }
 
     // Poles
-    points.push_back(linal::Vec3<TFloat>{0, 0, radius});
-    points.push_back(linal::Vec3<TFloat>{0, 0, -radius});
+    points.push_back(linal::vec3<TFloat>{0, 0, radius});
+    points.push_back(linal::vec3<TFloat>{0, 0, -radius});
 
     const auto& sphereOrigin = sphere.getOrigin();
     if (sphereOrigin != linal::ZERO_VEC3D)
@@ -87,7 +87,7 @@ private:
     return points;
   }
 
-  std::vector<TIndex> calcSphereTriangleIndices(const linal::Vec3Vector<TFloat>& spherePoints)
+  std::vector<TIndex> calcSphereTriangleIndices(const linal::vec3vector<TFloat>& spherePoints)
   {
     auto toIdx = [azimuthCount = m_azimuthCount](TIndex i, TIndex j) -> TIndex { return static_cast<TIndex>(i * azimuthCount + j); };
 

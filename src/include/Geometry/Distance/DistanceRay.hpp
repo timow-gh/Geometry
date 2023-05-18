@@ -3,21 +3,21 @@
 
 #include <Geometry/Ray.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/Vec.hpp>
-#include <linal/VecOperations.hpp>
-#include <linal/utils/Eps.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec_operations.hpp>
+#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR T distance(const Ray<T, D>& ray, linal::Vec<T, D> vec)
+GEO_NODISCARD GEO_CONSTEXPR T distance(const Ray<T, D>& ray, linal::vec<T, D> vec)
 {
-  linal::Vec<T, D> vecO{vec - ray.getOrigin()};
-  const linal::Vec<T, D> rayDirection = ray.getDirection();
+  linal::vec<T, D> vecO{vec - ray.getOrigin()};
+  const linal::vec<T, D> rayDirection = ray.getDirection();
 
   const T dotProduct = linal::dot(vecO, rayDirection);
-  linal::Vec<T, D> distanceVec;
+  linal::vec<T, D> distanceVec;
   if (linal::isGreater(dotProduct, T(0)))
     distanceVec = linal::rejection(vecO, rayDirection);
   else
@@ -27,7 +27,7 @@ GEO_NODISCARD GEO_CONSTEXPR T distance(const Ray<T, D>& ray, linal::Vec<T, D> ve
 }
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR T distance(linal::Vec<T, D> vec, const Ray<T, D>& ray)
+GEO_NODISCARD GEO_CONSTEXPR T distance(linal::vec<T, D> vec, const Ray<T, D>& ray)
 {
   return distance(ray, vec);
 }

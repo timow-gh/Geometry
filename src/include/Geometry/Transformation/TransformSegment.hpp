@@ -3,9 +3,9 @@
 
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/HMat.hpp>
-#include <linal/HVec.hpp>
-#include <linal/Vec3.hpp>
+#include <linal/hmat.hpp>
+#include <linal/hvec.hpp>
+#include <linal/vec3.hpp>
 
 namespace Geometry
 {

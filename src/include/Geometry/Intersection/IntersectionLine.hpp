@@ -5,9 +5,9 @@
 #include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/Vec.hpp>
-#include <linal/VecOperations.hpp>
-#include <linal/utils/Eps.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec_operations.hpp>
+#include <linal/utils/eps.hpp>
 #include <optional>
 
 namespace Geometry
@@ -19,14 +19,14 @@ namespace Geometry
 //! 2 -> Lines are the same
 //! 3 -> No intersection, skew lines
 template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::Vec<T, D>& intersectionVec, T eps = linal::eps<T>::value)
+GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::vec<T, D>& intersectionVec, T eps = linal::eps<T>::value)
 {
-  linal::Vec<T, D> rhsOrigin = rhs.getOrigin();
-  linal::Vec<T, D> lhsOrigin = lhs.getOrigin();
-  linal::Vec<T, D> rhsDir = rhs.getDirection();
-  linal::Vec<T, D> lhsDir = lhs.getDirection();
+  linal::vec<T, D> rhsOrigin = rhs.getOrigin();
+  linal::vec<T, D> lhsOrigin = lhs.getOrigin();
+  linal::vec<T, D> rhsDir = rhs.getDirection();
+  linal::vec<T, D> lhsDir = lhs.getDirection();
 
-  linal::Vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
+  linal::vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
 
   if constexpr (D == 3)
   {
@@ -41,7 +41,7 @@ GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::Vec<T
   {
     // Lines are intersecting
     T s = (deltaOrigin[0] * rhsDir[1] - deltaOrigin[1] * rhsDir[0]) / cross;
-    intersectionVec = linal::Vec<T, D>(lhsOrigin + s * lhsDir);
+    intersectionVec = linal::vec<T, D>(lhsOrigin + s * lhsDir);
     return 1;
   }
 

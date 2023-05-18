@@ -6,10 +6,10 @@
 #include <Geometry/HalfedgeMeshBuilder/DiscretizeCircle.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/HMat.hpp>
-#include <linal/HMatRotation.hpp>
-#include <linal/HMatTranslation.hpp>
-#include <linal/utils/Constants.hpp>
+#include <linal/hmat.hpp>
+#include <linal/hmat_rotation.hpp>
+#include <linal/hmat_translation.hpp>
+#include <linal/utils/constants.hpp>
 #include <optional>
 
 namespace Geometry
@@ -52,17 +52,17 @@ public:
   }
 
 private:
-  linal::Vec3Vector<TFloat> calcConePoints(const Geometry::Cone<TFloat>& cone) const
+  linal::vec3vector<TFloat> calcConePoints(const Geometry::Cone<TFloat>& cone) const
   {
-    linal::Vec3Vector<TFloat> points;
+    linal::vec3vector<TFloat> points;
     discretizeCircle(points, cone.getRadius(), m_azimuthCount);
 
-    points.push_back(linal::Vec3<TFloat>{0, 0, 0});
-    points.push_back(linal::Vec3<TFloat>{0, 0, cone.get_segment().length()});
+    points.push_back(linal::vec3<TFloat>{0, 0, 0});
+    points.push_back(linal::vec3<TFloat>{0, 0, cone.get_segment().length()});
 
     return points;
   }
-  std::vector<TIndex> calcConeTriangleIndices(const linal::Vec3Vector<TFloat>& conePoints) const
+  std::vector<TIndex> calcConeTriangleIndices(const linal::vec3vector<TFloat>& conePoints) const
   {
     std::vector<TIndex> indices;
     TIndex size = static_cast<TIndex>(conePoints.size());

@@ -1,7 +1,7 @@
-#include <linal/utils/Constants.hpp>
+#include <linal/utils/constants.hpp>
 #include <Geometry/Cone.hpp>
 #include <gtest/gtest.h>
-#include <linal/Vec3.hpp>
+#include <linal/vec3.hpp>
 
 using namespace Geometry;
 

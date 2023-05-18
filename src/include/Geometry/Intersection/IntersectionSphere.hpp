@@ -5,8 +5,8 @@
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Sphere.hpp>
-#include <linal/Vec3.hpp>
-#include <linal/utils/Eps.hpp>
+#include <linal/vec3.hpp>
+#include <linal/utils/eps.hpp>
 #include <optional>
 
 namespace Geometry
@@ -15,15 +15,15 @@ namespace Geometry
 template <typename T>
 struct SphereIntersection
 {
-  std::optional<linal::Vec3<T>> first;
-  std::optional<linal::Vec3<T>> second;
+  std::optional<linal::vec3<T>> first;
+  std::optional<linal::vec3<T>> second;
 
   SphereIntersection() = default;
-  explicit SphereIntersection(const linal::Vec3<T>& firstIntersection)
+  explicit SphereIntersection(const linal::vec3<T>& firstIntersection)
       : first(firstIntersection)
   {
   }
-  SphereIntersection(const linal::Vec3<T>& firstIntersection, const linal::Vec3<T>& secondIntersection)
+  SphereIntersection(const linal::vec3<T>& firstIntersection, const linal::vec3<T>& secondIntersection)
       : first(firstIntersection)
       , second(secondIntersection)
   {
@@ -36,12 +36,12 @@ template <typename T>
 SphereIntersection<T> intersection(const Sphere<T>& sphere, const Line3<T>& line, T eps = linal::eps<T>::value)
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
-  const linal::Vec3<T>& sphereOrigin = sphere.getOrigin();
+  const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
   const T radius = sphere.getRadius();
-  const linal::Vec3<T>& lineOrigin = line.getOrigin();
-  const linal::Vec3<T>& lineDir = line.getDirection();
+  const linal::vec3<T>& lineOrigin = line.getOrigin();
+  const linal::vec3<T>& lineDir = line.getDirection();
 
-  const linal::Vec3<T> deltaOrigin = (lineOrigin - sphereOrigin);
+  const linal::vec3<T> deltaOrigin = (lineOrigin - sphereOrigin);
   const T a = linal::dot(lineDir, lineDir);
   const T b = 2 * linal::dot(lineDir, deltaOrigin);
   const T c = linal::dot(deltaOrigin, deltaOrigin) - radius * radius;
@@ -67,12 +67,12 @@ template <typename T>
 SphereIntersection<T> intersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = linal::eps<T>::value)
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
-  const linal::Vec3<T>& sphereOrigin = sphere.getOrigin();
+  const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
   const T radius = sphere.getRadius();
-  const linal::Vec3<T>& rayOrigin = ray.getOrigin();
-  const linal::Vec3<T>& rayDir = ray.getDirection();
+  const linal::vec3<T>& rayOrigin = ray.getOrigin();
+  const linal::vec3<T>& rayDir = ray.getDirection();
 
-  const linal::Vec3<T> deltaOrigin = (rayOrigin - sphereOrigin);
+  const linal::vec3<T> deltaOrigin = (rayOrigin - sphereOrigin);
   const T a = linal::dot(rayDir, rayDir);
   const T b = 2 * linal::dot(rayDir, deltaOrigin);
   const T c = linal::dot(deltaOrigin, deltaOrigin) - radius * radius;
@@ -105,13 +105,13 @@ template <typename T>
 SphereIntersection<T> intersection(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = linal::eps<T>::value)
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
-  const linal::Vec3<T>& sphereOrigin = sphere.getOrigin();
+  const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
   const T radius = sphere.getRadius();
-  const linal::Vec3<T>& segSource = segment.getSource();
-  const linal::Vec3<T>& segTarget = segment.getTarget();
+  const linal::vec3<T>& segSource = segment.getSource();
+  const linal::vec3<T>& segTarget = segment.getTarget();
 
-  const linal::Vec3<T> deltaOrigin = (segSource - sphereOrigin);
-  const linal::Vec3<T> segDir = (segTarget - segSource);
+  const linal::vec3<T> deltaOrigin = (segSource - sphereOrigin);
+  const linal::vec3<T> segDir = (segTarget - segSource);
 
   const T a = linal::dot(segDir, segDir);
   const T b = 2 * linal::dot(segDir, deltaOrigin);

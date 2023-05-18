@@ -2,15 +2,15 @@
 #define GEOMETRY_TRANSFORMVEC_HPP
 
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/HMat.hpp>
-#include <linal/HVec.hpp>
-#include <linal/Vec3.hpp>
+#include <linal/hmat.hpp>
+#include <linal/hvec.hpp>
+#include <linal/vec3.hpp>
 
 namespace Geometry
 {
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR linal::Vec<T, D> transformation(const linal::Vec<T, D>& vec, const linal::hcoord::hmat<T>& trafo)
+GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> transformation(const linal::vec<T, D>& vec, const linal::hcoord::hmat<T>& trafo)
 {
   linal::hcoord::hvec<T> result = trafo * linal::hcoord::vec_to_hvec<T, D>(vec);
   return linal::hcoord::hvec_to_vec<T, D>(result);

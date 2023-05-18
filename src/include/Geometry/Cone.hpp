@@ -3,7 +3,7 @@
 
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/Vec3.hpp>
+#include <linal/vec3.hpp>
 
 namespace Geometry
 {
@@ -14,7 +14,7 @@ class Cone {
 
 public:
   GEO_CONSTEXPR
-  Cone(const linal::Vec3<T>& circleMidPoint, const linal::Vec3<T>& peak, const T& radius)
+  Cone(const linal::vec3<T>& circleMidPoint, const linal::vec3<T>& peak, const T& radius)
       : m_segment(Segment3<T>{circleMidPoint, peak})
       , m_radius(radius)
   {

@@ -8,9 +8,9 @@
 #include <Geometry/Plane.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/Vec.hpp>
-#include <linal/VecOperations.hpp>
-#include <linal/utils/Eps.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec_operations.hpp>
+#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
@@ -24,14 +24,14 @@ template <typename T, std::size_t D>
 GEO_NODISCARD uint32_t
 intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& intersectionSeg, T eps = linal::eps<T>::value)
 {
-  linal::Vec<T, D> lhsSource = lhs.getSource();
-  linal::Vec<T, D> lhsTarget = lhs.getTarget();
-  linal::Vec<T, D> rhsSource = rhs.getSource();
-  linal::Vec<T, D> rhsTarget = rhs.getTarget();
+  linal::vec<T, D> lhsSource = lhs.getSource();
+  linal::vec<T, D> lhsTarget = lhs.getTarget();
+  linal::vec<T, D> rhsSource = rhs.getSource();
+  linal::vec<T, D> rhsTarget = rhs.getTarget();
 
-  linal::Vec<T, D> deltaSource = rhsSource - lhsSource;
-  linal::Vec<T, D> lhsDir = lhsTarget - lhsSource;
-  linal::Vec<T, D> rhsDir = rhsTarget - rhsSource;
+  linal::vec<T, D> deltaSource = rhsSource - lhsSource;
+  linal::vec<T, D> lhsDir = lhsTarget - lhsSource;
+  linal::vec<T, D> rhsDir = rhsTarget - rhsSource;
 
   // TODO extract function: is planar to plane (see line intersection)
   if constexpr (D == 3)
@@ -57,7 +57,7 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
     if (linal::isLess(t, T(0), eps) || linal::isGreater(t, T(1), eps))
       return 0;
 
-    intersectionSeg.setSource(linal::Vec<T, D>(lhsSource + s * lhsDir));
+    intersectionSeg.setSource(linal::vec<T, D>(lhsSource + s * lhsDir));
     return 1;
   }
 
@@ -81,11 +81,11 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
   uint32_t res = intersection(sInterval, Interval{T(0), T(1)}, iInterval);
   if (res == 1 || res == 2)
   {
-    intersectionSeg.setSource(linal::Vec<T, D>(lhsSource + iInterval.getStart() * lhsDir));
+    intersectionSeg.setSource(linal::vec<T, D>(lhsSource + iInterval.getStart() * lhsDir));
   }
   if (res == 2)
   {
-    intersectionSeg.setTarget(linal::Vec<T, D>(lhsSource + iInterval.getEnd() * lhsDir));
+    intersectionSeg.setTarget(linal::vec<T, D>(lhsSource + iInterval.getEnd() * lhsDir));
   }
   return res;
 }
@@ -98,13 +98,13 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
 template <typename T, std::size_t D>
 GEO_NODISCARD uint32_t intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = linal::eps<T>::value)
 {
-  linal::Vec<T, D> segSource = seg.getSource();
-  linal::Vec<T, D> segTarget = seg.getTarget();
-  linal::Vec<T, D> lineOrigin = line.getOrigin();
-  linal::Vec<T, D> lineDir = line.getDirection();
+  linal::vec<T, D> segSource = seg.getSource();
+  linal::vec<T, D> segTarget = seg.getTarget();
+  linal::vec<T, D> lineOrigin = line.getOrigin();
+  linal::vec<T, D> lineDir = line.getDirection();
 
-  linal::Vec<T, D> deltaSource = lineOrigin - segSource;
-  linal::Vec<T, D> segDir = segTarget - segSource;
+  linal::vec<T, D> deltaSource = lineOrigin - segSource;
+  linal::vec<T, D> segDir = segTarget - segSource;
 
   // TODO extract function: is planar to plane (see line intersection)
   if GEO_CONSTEXPR (D == 3)
@@ -125,7 +125,7 @@ GEO_NODISCARD uint32_t intersection(const Segment<T, D>& seg, const Line<T, D>& 
     if (linal::isLess(s, T(0), eps) || linal::isGreater(s, T(1), eps))
       return 0;
 
-    result.setSource(linal::Vec<T, D>(segSource + s * segDir));
+    result.setSource(linal::vec<T, D>(segSource + s * segDir));
     return 1;
   }
 

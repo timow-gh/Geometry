@@ -4,7 +4,7 @@
 #include <Geometry/Cone.hpp>
 #include <Geometry/Transformation/TransformSegment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/HMat.hpp>
+#include <linal/hmat.hpp>
 
 namespace Geometry
 {
