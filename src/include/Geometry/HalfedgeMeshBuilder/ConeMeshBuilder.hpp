@@ -3,7 +3,7 @@
 
 #include <Geometry/Cone.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
-#include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
+#include <Geometry/HalfedgeMeshBuilder/DiscretizeCircle.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/HMat.hpp>
@@ -14,6 +14,7 @@
 
 namespace Geometry
 {
+
 template <typename TFloat, typename TIndex>
 class ConeMeshBuilder : public MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>> {
   std::optional<Cone<TFloat>> m_cone;
@@ -54,7 +55,7 @@ private:
   linal::Vec3Vector<TFloat> calcConePoints(const Geometry::Cone<TFloat>& cone) const
   {
     linal::Vec3Vector<TFloat> points;
-    calcCirclePoints(points, cone.getRadius(), m_azimuthCount);
+    discretizeCircle(points, cone.getRadius(), m_azimuthCount);
 
     points.push_back(linal::Vec3<TFloat>{0, 0, 0});
     points.push_back(linal::Vec3<TFloat>{0, 0, cone.get_segment().length()});
@@ -90,6 +91,7 @@ private:
     return indices;
   }
 };
+
 } // namespace Geometry
 
 #endif // GEOMETRY_CONEMESHBUILDER_HPP

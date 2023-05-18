@@ -8,16 +8,19 @@
 
 namespace Geometry
 {
+
 template <typename T>
 GEO_NODISCARD T signedDistance(const linal::Vec3<T>& vec, const Sphere<T>& sphere)
 {
   return linal::norm2(linal::Vec3<T>{vec - sphere.getOrigin()}) - sphere.getRadius();
 }
+
 template <typename T>
 GEO_NODISCARD T distance(const linal::Vec3<T>& vec, const Sphere<T>& sphere)
 {
   return std::abs(signedDistance(vec, sphere));
 }
+
 } // namespace Geometry
 
 #endif // GEOMETRY_DISTANCESPHERE_H

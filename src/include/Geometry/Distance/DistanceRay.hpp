@@ -9,6 +9,7 @@
 
 namespace Geometry
 {
+
 template <typename T, std::size_t D>
 GEO_NODISCARD GEO_CONSTEXPR T distance(const Ray<T, D>& ray, linal::Vec<T, D> vec)
 {

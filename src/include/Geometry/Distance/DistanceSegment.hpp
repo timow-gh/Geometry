@@ -10,6 +10,7 @@
 
 namespace Geometry
 {
+
 template <typename T, std::size_t D>
 GEO_CONSTEXPR T distance(const Segment<T, D>& segment, linal::Vec<T, D> vec)
 {

@@ -8,6 +8,7 @@
 
 namespace Geometry
 {
+
 template <typename T, std::size_t D>
 GEO_NODISCARD GEO_CONSTEXPR T distance(const Plane<T>& plane, linal::Vec<T, D> vec)
 {
@@ -20,6 +21,7 @@ GEO_NODISCARD GEO_CONSTEXPR T distance(linal::Vec<T, D> vec, const Plane<T>& pla
 {
   return distance(plane, vec);
 }
+
 } // namespace Geometry
 
 #endif // GEOMETRY_DISTANCEPLANE_HPP

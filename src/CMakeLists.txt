@@ -12,7 +12,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/MeshIndexTraits.hpp
         include/Geometry/HalfedgeMesh/MeshTraits.hpp
         include/Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp
-        include/Geometry/HalfedgeMeshBuilder/CirclePoints.hpp
+        include/Geometry/HalfedgeMeshBuilder/DiscretizeCircle.hpp
         include/Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp
         include/Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp
         include/Geometry/HalfedgeMeshBuilder/CylinderMeshBuilder.hpp

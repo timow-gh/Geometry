@@ -2,7 +2,7 @@
 #define FILAPP_CYLINDERMESHBUILDER_HPP
 
 #include <Geometry/Cylinder.hpp>
-#include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
+#include <Geometry/HalfedgeMeshBuilder/DiscretizeCircle.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
@@ -14,6 +14,7 @@
 
 namespace Geometry
 {
+
 template <typename TFloat, typename TIndex>
 class CylinderMeshBuilder : public MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>> {
   std::optional<Cylinder<TFloat>> m_cylinder;
@@ -57,7 +58,7 @@ private:
     points.reserve(2 * m_azimuthCount + 2);
 
     const Segment3<TFloat>& segment = m_cylinder->getSegment();
-    calcCirclePoints(points, m_cylinder->getRadius(), m_azimuthCount);
+    discretizeCircle(points, m_cylinder->getRadius(), m_azimuthCount);
 
     std::size_t circlePointsSize = points.size();
     double segLength = segment.length();
@@ -131,6 +132,7 @@ private:
     return indices;
   }
 };
+
 } // namespace Geometry
 
 #endif // FILAPP_CYLINDERMESHBUILDER_HPP
