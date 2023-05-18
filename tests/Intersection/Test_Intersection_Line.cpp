@@ -1,13 +1,11 @@
-
-
 #include <Geometry/Intersection/IntersectionLine.hpp>
 #include <Geometry/Line.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec2.hpp>
 #include <gtest/gtest.h>
 #include <iostream>
 
 using namespace Geometry;
-using namespace LinAl;
+using namespace linal;
 
 TEST(Line2dLine2d, Intersection_OrthogonalA)
 {

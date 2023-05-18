@@ -1,10 +1,8 @@
 #include <Geometry/Intersection/IntersectionInterval.hpp>
 #include <Geometry/Interval.hpp>
-#include <LinAl/LinearAlgebra.hpp>
 #include <gtest/gtest.h>
 
 using namespace Geometry;
-using namespace LinAl;
 
 TEST(Interval, Disjunct_LHS)
 {

@@ -1,78 +1,70 @@
-#if !defined(_MSVC_LANG)
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wredundant-decls"
-#endif
-
 #include <Geometry/Intersection/IntersectionSegment.hpp>
 #include <Geometry/Segment.hpp>
 #include <benchmark/benchmark.h>
+#include <linal/Vec2.hpp>
+#include <linal/Vec3.hpp>
 
 using namespace Geometry;
-using namespace LinAl;
 
 static void BM_Intersection_Seg3dSeg3d(benchmark::State& state)
 {
-    Segment3d segA{ZERO_VEC3D, Vec3d{2, 0, 0}};
-    Segment3d segB{Vec3d{1, 0, 0}, Y_VEC3D};
+  Segment3d segA{linal::ZERO_VEC3D, linal::Vec3d{2, 0, 0}};
+  Segment3d segB{linal::Vec3d{1, 0, 0}, linal::Y_VEC3D};
 
-    for (auto _: state)
-    {
-        Segment3d intersection;
-        uint32_t res = Geometry::intersection(segA, segB, intersection);
-        benchmark::DoNotOptimize(res);
-        benchmark::DoNotOptimize(intersection);
-    }
+  for (auto _: state)
+  {
+    Segment3d intersection;
+    uint32_t res = Geometry::intersection(segA, segB, intersection);
+    benchmark::DoNotOptimize(res);
+    benchmark::DoNotOptimize(intersection);
+  }
 }
 BENCHMARK(BM_Intersection_Seg3dSeg3d);
 
 static void BM_Intersection_Seg3fSeg3f(benchmark::State& state)
 {
-    Segment3f segA{ZERO_VEC3F, Vec3f{2, 0, 0}};
-    Segment3f segB{Vec3f{1, 0, 0}, Y_VEC3F};
+  Segment3f segA{linal::ZERO_VEC3F, linal::Vec3f{2, 0, 0}};
+  Segment3f segB{linal::Vec3f{1, 0, 0}, linal::Y_VEC3F};
 
-    for (auto _: state)
-    {
-        Segment3f intersection;
-        uint32_t res = Geometry::intersection(segA, segB, intersection);
-        benchmark::DoNotOptimize(res);
-        benchmark::DoNotOptimize(intersection);
-    }
+  for (auto _: state)
+  {
+    Segment3f intersection;
+    uint32_t res = Geometry::intersection(segA, segB, intersection);
+    benchmark::DoNotOptimize(res);
+    benchmark::DoNotOptimize(intersection);
+  }
 }
 BENCHMARK(BM_Intersection_Seg3fSeg3f);
 
 static void BM_Intersection_Seg2dSeg2d(benchmark::State& state)
 {
-    Segment2d segA{ZERO_VEC2D, Vec2d{2, 0}};
-    Segment2d segB{Vec2d{1, 0}, Y_VEC2D};
+  Segment2d segA{linal::ZERO_VEC2D, linal::Vec2d{2, 0}};
+  Segment2d segB{linal::Vec2d{1, 0}, linal::Y_VEC2D};
 
-    for (auto _: state)
-    {
-        Segment2d intersection;
-        uint32_t res = Geometry::intersection(segA, segB, intersection);
-        benchmark::DoNotOptimize(res);
-        benchmark::DoNotOptimize(intersection);
-    }
+  for (auto _: state)
+  {
+    Segment2d intersection;
+    uint32_t res = Geometry::intersection(segA, segB, intersection);
+    benchmark::DoNotOptimize(res);
+    benchmark::DoNotOptimize(intersection);
+  }
 }
 BENCHMARK(BM_Intersection_Seg2dSeg2d);
 
 static void BM_Intersection_Seg2fSeg2f(benchmark::State& state)
 {
-    Segment2f segA{ZERO_VEC2F, Vec2f{2, 0}};
-    Segment2f segB{Vec2f{1, 0}, Y_VEC2F};
+  Segment2f segA{linal::ZERO_VEC2F, linal::Vec2f{2, 0}};
+  Segment2f segB{linal::Vec2f{1, 0}, linal::Y_VEC2F};
 
-    for (auto _: state)
-    {
-        Segment2f intersection;
-        uint32_t res = Geometry::intersection(segA, segB, intersection);
-        benchmark::DoNotOptimize(res);
-        benchmark::DoNotOptimize(intersection);
-    }
+  for (auto _: state)
+  {
+    Segment2f intersection;
+    uint32_t res = Geometry::intersection(segA, segB, intersection);
+    benchmark::DoNotOptimize(res);
+    benchmark::DoNotOptimize(intersection);
+  }
 }
 BENCHMARK(BM_Intersection_Seg2fSeg2f);
 
 // Run the benchmark
 BENCHMARK_MAIN();
-
-#if !defined(_MSVC_LANG)
-#pragma GCC diagnostic pop
-#endif

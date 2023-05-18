@@ -1,8 +1,9 @@
 #ifndef GEOMETRY_INTERSECTIONAABB_HPP
 #define GEOMETRY_INTERSECTIONAABB_HPP
 
+#include <Core/Math/Eps.hpp>
 #include <Geometry/AABB.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec.hpp>
 
 namespace Geometry
 {
@@ -10,8 +11,8 @@ namespace Geometry
 template <typename TFloat, std::size_t D>
 bool isIntersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs)
 {
-  LinAl::Vec<TFloat, D> lhsOrigin = lhs.getOrigin();
-  LinAl::Vec<TFloat, D> rhsOrigin = rhs.getOrigin();
+  linal::Vec<TFloat, D> lhsOrigin = lhs.getOrigin();
+  linal::Vec<TFloat, D> rhsOrigin = rhs.getOrigin();
 
   Core::TArray<TFloat, D> lhsExtends = lhs.getExtends();
   Core::TArray<TFloat, D> rhsExtends = rhs.getExtends();

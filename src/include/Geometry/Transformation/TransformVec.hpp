@@ -8,10 +8,10 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR LinAl::Vec3<T> transformation(const LinAl::Vec3<T>& vec, const LinAl::HMatrix<T>& trafo)
+GEO_NODISCARD GEO_CONSTEXPR linal::Vec3<T> transformation(const linal::Vec3<T>& vec, const linal::hcoord::hmat<T>& trafo)
 {
-  LinAl::HVec<T> result = trafo * LinAl::vec3ToHVec(vec);
-  return LinAl::hVecToVec3(result);
+  linal::hcoord::hvec<T> result = trafo * linal::vec3ToHVec(vec);
+  return linal::hcoord::hvecToVec3(result);
 }
 
 } // namespace Geometry

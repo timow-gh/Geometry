@@ -4,7 +4,7 @@
 namespace MeshTestHelper
 {
 
-testing::AssertionResult isPointOnSphere(const Geometry::Sphere<double>& sphere, const LinAl::Vec3d& vec)
+testing::AssertionResult isPointOnSphere(const Geometry::Sphere<double>& sphere, const linal::Vec3d& vec)
 {
     constexpr double DIST_ALLOWED = Core::EPS_D;
     double dist = Geometry::distance(vec, sphere);

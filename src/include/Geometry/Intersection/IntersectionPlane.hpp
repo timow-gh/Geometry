@@ -7,47 +7,47 @@
 #include <Geometry/Plane.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec3.hpp>
 #include <optional>
 
 namespace Geometry
 {
 template <typename T>
 std::optional<T>
-calcIntersectionParameter(LinAl::Vec3<T> planeOrigin, LinAl::Vec3<T> planeNormal, LinAl::Vec3<T> lineOrigin, LinAl::Vec3<T> lineDir, T eps)
+calcIntersectionParameter(linal::Vec3<T> planeOrigin, linal::Vec3<T> planeNormal, linal::Vec3<T> lineOrigin, linal::Vec3<T> lineDir, T eps)
 {
   // Check parallel
-  if (Core::isZero(LinAl::dot(lineDir, planeNormal), eps))
+  if (Core::isZero(linal::dot(lineDir, planeNormal), eps))
     return std::nullopt;
 
-  const LinAl::Vec3<T> vec = planeOrigin - lineOrigin;
-  return (LinAl::dot(vec, planeNormal)) / LinAl::dot(lineDir, planeNormal);
+  const linal::Vec3<T> vec = planeOrigin - lineOrigin;
+  return (linal::dot(vec, planeNormal)) / linal::dot(lineDir, planeNormal);
 }
 
 template <typename T>
-GEO_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Line3<T> line, T eps = Core::eps_traits<T>::value())
+GEO_CONSTEXPR std::optional<linal::Vec3<T>> intersection(Plane<T> plane, Line3<T> line, T eps = Core::eps_traits<T>::value())
 {
-  LinAl::Vec3<T> planeOrigin = plane.getOrigin();
-  LinAl::Vec3<T> planeNormal = plane.getNormal();
-  LinAl::Vec3<T> lineOrigin = line.getOrigin();
-  LinAl::Vec3<T> lineDir = line.getDirection();
+  linal::Vec3<T> planeOrigin = plane.getOrigin();
+  linal::Vec3<T> planeNormal = plane.getNormal();
+  linal::Vec3<T> lineOrigin = line.getOrigin();
+  linal::Vec3<T> lineDir = line.getDirection();
 
-  auto dirDot = LinAl::dot(lineDir, planeNormal);
+  auto dirDot = linal::dot(lineDir, planeNormal);
   // Check parallel
   if (Core::isZero(dirDot, eps))
     return std::nullopt;
 
-  const auto paramD = LinAl::dot(LinAl::Vec3<T>{planeOrigin - lineOrigin}, planeNormal) / dirDot;
+  const auto paramD = linal::dot(linal::Vec3<T>{planeOrigin - lineOrigin}, planeNormal) / dirDot;
   return lineOrigin + paramD * lineDir;
 }
 
 template <typename T>
-GEO_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Ray3<T> ray, T eps = Core::eps_traits<T>::value())
+GEO_CONSTEXPR std::optional<linal::Vec3<T>> intersection(Plane<T> plane, Ray3<T> ray, T eps = Core::eps_traits<T>::value())
 {
-  LinAl::Vec3<T> planeOrigin = plane.getOrigin();
-  LinAl::Vec3<T> planeNormal = plane.getNormal();
-  LinAl::Vec3<T> rayOrigin = ray.getOrigin();
-  LinAl::Vec3<T> rayDir = ray.getDirection();
+  linal::Vec3<T> planeOrigin = plane.getOrigin();
+  linal::Vec3<T> planeNormal = plane.getNormal();
+  linal::Vec3<T> rayOrigin = ray.getOrigin();
+  linal::Vec3<T> rayDir = ray.getDirection();
 
   if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, rayOrigin, rayDir, eps))
   {
@@ -58,12 +58,12 @@ GEO_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Ray3<T>
 }
 
 template <typename T>
-GEO_CONSTEXPR std::optional<LinAl::Vec3<T>> intersection(Plane<T> plane, Segment3<T> seg, T eps = Core::eps_traits<T>::value())
+GEO_CONSTEXPR std::optional<linal::Vec3<T>> intersection(Plane<T> plane, Segment3<T> seg, T eps = Core::eps_traits<T>::value())
 {
-  LinAl::Vec3<T> planeOrigin = plane.getOrigin();
-  LinAl::Vec3<T> planeNormal = plane.getNormal();
-  LinAl::Vec3<T> segSource = seg.getSource();
-  LinAl::Vec3<T> segDir = seg.getTarget() - segSource;
+  linal::Vec3<T> planeOrigin = plane.getOrigin();
+  linal::Vec3<T> planeNormal = plane.getNormal();
+  linal::Vec3<T> segSource = seg.getSource();
+  linal::Vec3<T> segDir = seg.getTarget() - segSource;
 
   if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, segSource, segDir, eps))
   {

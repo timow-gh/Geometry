@@ -9,7 +9,7 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR Circle3<T> transformation(const Circle3<T>& circle, const LinAl::HMatrix<T>& transformation)
+GEO_NODISCARD GEO_CONSTEXPR Circle3<T> transformation(const Circle3<T>& circle, const linal::hcoord::hmat<T>& transformation)
 {
   return Circle3<T>{transformation(circle.getOrigin(), transformation), circle.getRadius(), circle.getNormal()};
 }

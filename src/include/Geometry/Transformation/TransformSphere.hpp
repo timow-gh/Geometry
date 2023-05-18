@@ -10,7 +10,7 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR Sphere<T> transformation(const Sphere<T>& sphere, const LinAl::HMatrix<T>& trafo)
+GEO_NODISCARD GEO_CONSTEXPR Sphere<T> transformation(const Sphere<T>& sphere, const linal::hcoord::hmat<T>& trafo)
 {
   return Sphere<T>{transformation(sphere.getOrigin(), trafo), sphere.getRadius()};
 }

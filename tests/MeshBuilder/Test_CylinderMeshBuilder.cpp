@@ -1,10 +1,10 @@
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CylinderMeshBuilder.hpp>
-#include <LinAl/LinearAlgebra.hpp>
 #include <gtest/gtest.h>
+#include <linal/Vec3.hpp>
 
 using namespace Geometry;
-using namespace LinAl;
+using namespace linal;
 
 TEST(CylinderMeshBuilder, createCylinderMesh)
 {

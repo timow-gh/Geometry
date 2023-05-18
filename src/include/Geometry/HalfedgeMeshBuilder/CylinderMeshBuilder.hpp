@@ -1,11 +1,15 @@
 #ifndef FILAPP_CYLINDERMESHBUILDER_HPP
 #define FILAPP_CYLINDERMESHBUILDER_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
 #include <Geometry/Segment.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/HMat.hpp>
+#include <linal/HMatRotation.hpp>
+#include <linal/HMatTranslation.hpp>
+#include <linal/HVec.hpp>
 #include <optional>
 
 namespace Geometry
@@ -35,25 +39,25 @@ public:
     if (!m_cylinder)
       return nullptr;
 
-    const auto cylinderSeg = m_cylinder->get_segment();
+    const auto cylinderSeg = m_cylinder->getSegment();
 
-    LinAl::HMatrixd hTrafo = LinAl::hMatRotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(cylinderSeg.direction()));
-    LinAl::setTranslation(hTrafo, cylinderSeg.getSource());
+    linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec3_to_hvec(cylinderSeg.direction()));
+    linal::hcoord::set_translation(hTrafo, cylinderSeg.getSource());
     MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::setTransformation(hTrafo);
 
-    LinAl::Vec3Vector<TFloat> cylPoints = calcCylinderPoints();
+    linal::Vec3Vector<TFloat> cylPoints = calcCylinderPoints();
     const auto cylinderTriangleIndices = calcCylinderTriangleIndices(cylPoints);
     return MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::buildTriangleHeMesh(cylPoints, cylinderTriangleIndices);
   }
 
 private:
-  LinAl::Vec3Vector<TFloat> calcCylinderPoints() const
+  linal::Vec3Vector<TFloat> calcCylinderPoints() const
   {
-    LinAl::Vec3Vector<TFloat> points;
+    linal::Vec3Vector<TFloat> points;
     points.reserve(2 * m_azimuthCount + 2);
 
-    const Segment3<TFloat>& segment = m_cylinder->get_segment();
-    calcCirclePoints(points, m_cylinder->get_radius(), m_azimuthCount);
+    const Segment3<TFloat>& segment = m_cylinder->getSegment();
+    calcCirclePoints(points, m_cylinder->getRadius(), m_azimuthCount);
 
     std::size_t circlePointsSize = points.size();
     double segLength = segment.length();
@@ -63,8 +67,8 @@ private:
       points.back()[2] += segLength;
     }
 
-    points.push_back(LinAl::Vec3<TFloat>{0, 0, 0});
-    points.push_back(LinAl::Vec3<TFloat>{0, 0, segLength});
+    points.push_back(linal::Vec3<TFloat>{0, 0, 0});
+    points.push_back(linal::Vec3<TFloat>{0, 0, segLength});
 
     return points;
   }
@@ -85,7 +89,7 @@ private:
     indices.push_back(circleEndIdx - 1);
   }
 
-  Core::TVector<TIndex> calcCylinderTriangleIndices(const LinAl::Vec3Vector<TFloat>& cylinderPoints) const
+  Core::TVector<TIndex> calcCylinderTriangleIndices(const linal::Vec3Vector<TFloat>& cylinderPoints) const
   {
     // Bottom circle
     Core::TVector<TIndex> indices;

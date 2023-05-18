@@ -7,8 +7,9 @@
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
 #include <Geometry/Sphere.hpp>
 #include <Geometry/Triangle.hpp>
-#include <LinAl/LinearAlgebra.hpp>
 #include <cmath>
+#include <linal/Vec.hpp>
+#include <linal/Vec3.hpp>
 #include <memory>
 #include <optional>
 
@@ -47,14 +48,13 @@ public:
 
     auto spherePoints = calcSpherePoints(*m_sphere);
     auto triangleIndices = calcSphereTriangleIndices(spherePoints);
-    return MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>>::buildTriangleHeMesh(spherePoints,
-                                                                                                                   triangleIndices);
+    return MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>>::buildTriangleHeMesh(spherePoints, triangleIndices);
   }
 
 private:
-  LinAl::Vec3Vector<TFloat> calcSpherePoints(const Sphere<TFloat>& sphere)
+  linal::Vec3Vector<TFloat> calcSpherePoints(const Sphere<TFloat>& sphere)
   {
-    LinAl::Vec3Vector<TFloat> points;
+    linal::Vec3Vector<TFloat> points;
 
     TFloat polarStep = Core::PI<TFloat> / static_cast<TFloat>(m_polarCount);
     TFloat azimuthStep = TFloat{2.0} * Core::PI<TFloat> / static_cast<TFloat>(m_azimuthCount);
@@ -71,26 +71,25 @@ private:
         TFloat azimuthAngle = j * azimuthStep;
         TFloat x = projRadius * std::cos(azimuthAngle);
         TFloat y = projRadius * std::sin(azimuthAngle);
-        points.push_back(LinAl::Vec3<TFloat>{x, y, z});
+        points.push_back(linal::Vec3<TFloat>{x, y, z});
       }
     }
 
     // Poles
-    points.push_back(LinAl::Vec3<TFloat>{0, 0, radius});
-    points.push_back(LinAl::Vec3<TFloat>{0, 0, -radius});
+    points.push_back(linal::Vec3<TFloat>{0, 0, radius});
+    points.push_back(linal::Vec3<TFloat>{0, 0, -radius});
 
     const auto& sphereOrigin = sphere.getOrigin();
-    if (sphereOrigin != LinAl::ZERO_VEC3D)
+    if (sphereOrigin != linal::ZERO_VEC3D)
       for (auto& point: points)
         point += sphereOrigin;
 
     return points;
   }
 
-  Core::TVector<TIndex> calcSphereTriangleIndices(const LinAl::Vec3Vector<TFloat>& spherePoints)
+  Core::TVector<TIndex> calcSphereTriangleIndices(const linal::Vec3Vector<TFloat>& spherePoints)
   {
-    auto toIdx = [azimuthCount = m_azimuthCount](TIndex i, TIndex j) -> TIndex
-    { return static_cast<TIndex>(i * azimuthCount + j); };
+    auto toIdx = [azimuthCount = m_azimuthCount](TIndex i, TIndex j) -> TIndex { return static_cast<TIndex>(i * azimuthCount + j); };
 
     Core::TVector<TIndex> triangleIndices;
 

@@ -1,10 +1,8 @@
 #ifndef GLFWTESTAPP_CYLINDER_HPP
 #define GLFWTESTAPP_CYLINDER_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
-#include <Geometry/Lcs.hpp>
 #include <Geometry/Segment.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 
 namespace Geometry
 {

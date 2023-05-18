@@ -3,7 +3,7 @@
 
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec3.hpp>
 
 namespace Geometry
 {
@@ -14,7 +14,7 @@ class Cone {
 
 public:
   GEO_CONSTEXPR
-  Cone(const LinAl::Vec3<T>& circleMidPoint, const LinAl::Vec3<T>& peak, const T& radius)
+  Cone(const linal::Vec3<T>& circleMidPoint, const linal::Vec3<T>& peak, const T& radius)
       : m_segment(Segment3<T>{circleMidPoint, peak})
       , m_radius(radius)
   {
@@ -27,7 +27,7 @@ public:
   }
 
   GEO_NODISCARD GEO_CONSTEXPR const Segment3<T>& get_segment() const { return m_segment; }
-  GEO_NODISCARD GEO_CONSTEXPR const T& get_radius() const { return m_radius; }
+  GEO_NODISCARD GEO_CONSTEXPR const T& getRadius() const { return m_radius; }
   GEO_NODISCARD GEO_CONSTEXPR T get_height() const { return m_segment.length(); }
   GEO_NODISCARD GEO_CONSTEXPR T get_slant_height() const
   {

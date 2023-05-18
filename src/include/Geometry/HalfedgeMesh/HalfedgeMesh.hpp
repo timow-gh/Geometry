@@ -3,7 +3,6 @@
 
 #include <Core/Types/TArray.hpp>
 #include <Core/Types/TVector.hpp>
-#include <Geometry/Utils/Compiler.hpp>
 #include <CrossGuid/Guid.hpp>
 #include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
@@ -11,7 +10,8 @@
 #include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
 #include <Geometry/HalfedgeMesh/MeshPoints.hpp>
 #include <Geometry/HalfedgeMesh/Vertex.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/Vec3.hpp>
 
 namespace Geometry
 {
@@ -37,7 +37,7 @@ public:
   GEO_CONSTEXPR HalfedgeMesh& operator=(HalfedgeMesh&& rhs) GEO_NOEXCEPT = default;
 
   // clang-format off
-  GEO_NODISCARD GEO_CONSTEXPR LinAl::Vec3<TFloat> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().getValue()); }
+  GEO_NODISCARD GEO_CONSTEXPR linal::Vec3<TFloat> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().getValue()); }
 
   GEO_NODISCARD GEO_CONSTEXPR Vertex_t getVertex(const VertexIndex_t vertexIndex) const { return vertices[vertexIndex.getValue()]; }
   GEO_NODISCARD GEO_CONSTEXPR Halfedge_t getHalfedge(const HalfedgeIndex_t halfedgeIndex) const { return halfedges[halfedgeIndex.getValue()]; }
@@ -47,7 +47,7 @@ public:
   GEO_NODISCARD GEO_CONSTEXPR Halfedge_t& getHalfedge(HalfedgeIndex_t halfedgeIndex) { return halfedges[halfedgeIndex.getValue()]; }
   GEO_NODISCARD GEO_CONSTEXPR Facet_t& getFacet(FacetIndex_t facetIndex) { return facets[facetIndex.getValue()]; }
 
-  GEO_NODISCARD GEO_CONSTEXPR LinAl::Vec3Vector<TFloat>& getPoints() { return meshPoints.getPoints(); }
+  GEO_NODISCARD GEO_CONSTEXPR linal::Vec3Vector<TFloat>& getPoints() { return meshPoints.getPoints(); }
   // clang-format on
 
   GEO_NODISCARD const Core::TVector<Vertex_t>& getVertices() const { return vertices; }
@@ -86,7 +86,7 @@ public:
     return false;
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool contains(const LinAl::Vec3<TFloat>& vector) const { return meshPoints.contains(vector); }
+  GEO_NODISCARD GEO_CONSTEXPR bool contains(const linal::Vec3<TFloat>& vector) const { return meshPoints.contains(vector); }
 
 private:
   Core::TVector<Vertex_t> vertices;

@@ -2,11 +2,14 @@
 #define GEOMETRY_CONEMESHBUILDER_HPP
 
 #include <Core/Math/Constants.hpp>
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Cone.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CirclePoints.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/HMat.hpp>
+#include <linal/HMatRotation.hpp>
+#include <linal/HMatTranslation.hpp>
 #include <optional>
 
 namespace Geometry
@@ -38,8 +41,8 @@ public:
 
     const auto coneSeg = m_cone->get_segment();
 
-    LinAl::HMatrixd hTrafo = LinAl::hMatRotationAlign(LinAl::Z_HVECD, LinAl::vec3ToHVec(coneSeg.direction()));
-    LinAl::setTranslation(hTrafo, coneSeg.getSource());
+    linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec3_to_hvec(coneSeg.direction()));
+    linal::hcoord::set_translation(hTrafo, coneSeg.getSource());
     MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::setTransformation(hTrafo);
 
     auto conePoints = calcConePoints(*m_cone);
@@ -48,17 +51,17 @@ public:
   }
 
 private:
-  LinAl::Vec3Vector<TFloat> calcConePoints(const Geometry::Cone<TFloat>& cone) const
+  linal::Vec3Vector<TFloat> calcConePoints(const Geometry::Cone<TFloat>& cone) const
   {
-    LinAl::Vec3Vector<TFloat> points;
-    calcCirclePoints(points, cone.get_radius(), m_azimuthCount);
+    linal::Vec3Vector<TFloat> points;
+    calcCirclePoints(points, cone.getRadius(), m_azimuthCount);
 
-    points.push_back(LinAl::Vec3<TFloat>{0, 0, 0});
-    points.push_back(LinAl::Vec3<TFloat>{0, 0, cone.get_segment().length()});
+    points.push_back(linal::Vec3<TFloat>{0, 0, 0});
+    points.push_back(linal::Vec3<TFloat>{0, 0, cone.get_segment().length()});
 
     return points;
   }
-  Core::TVector<TIndex> calcConeTriangleIndices(const LinAl::Vec3Vector<TFloat>& conePoints) const
+  Core::TVector<TIndex> calcConeTriangleIndices(const linal::Vec3Vector<TFloat>& conePoints) const
   {
     Core::TVector<TIndex> indices;
     TIndex size = static_cast<TIndex>(conePoints.size());

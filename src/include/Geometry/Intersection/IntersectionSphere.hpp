@@ -6,7 +6,7 @@
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Sphere.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec3.hpp>
 #include <optional>
 
 namespace Geometry
@@ -15,15 +15,15 @@ namespace Geometry
 template <typename T>
 struct SphereIntersection
 {
-  std::optional<LinAl::Vec3<T>> first;
-  std::optional<LinAl::Vec3<T>> second;
+  std::optional<linal::Vec3<T>> first;
+  std::optional<linal::Vec3<T>> second;
 
   SphereIntersection() = default;
-  explicit SphereIntersection(const LinAl::Vec3<T>& firstIntersection)
+  explicit SphereIntersection(const linal::Vec3<T>& firstIntersection)
       : first(firstIntersection)
   {
   }
-  SphereIntersection(const LinAl::Vec3<T>& firstIntersection, const LinAl::Vec3<T>& secondIntersection)
+  SphereIntersection(const linal::Vec3<T>& firstIntersection, const linal::Vec3<T>& secondIntersection)
       : first(firstIntersection)
       , second(secondIntersection)
   {
@@ -36,15 +36,15 @@ template <typename T>
 SphereIntersection<T> intersection(const Sphere<T>& sphere, const Line3<T>& line, T eps = Core::eps_traits<T>::value())
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
-  const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();
+  const linal::Vec3<T>& sphereOrigin = sphere.getOrigin();
   const T radius = sphere.getRadius();
-  const LinAl::Vec3<T>& lineOrigin = line.getOrigin();
-  const LinAl::Vec3<T>& lineDir = line.getDirection();
+  const linal::Vec3<T>& lineOrigin = line.getOrigin();
+  const linal::Vec3<T>& lineDir = line.getDirection();
 
-  const LinAl::Vec3<T> deltaOrigin = (lineOrigin - sphereOrigin);
-  const T a = LinAl::dot(lineDir, lineDir);
-  const T b = 2 * LinAl::dot(lineDir, deltaOrigin);
-  const T c = LinAl::dot(deltaOrigin, deltaOrigin) - radius * radius;
+  const linal::Vec3<T> deltaOrigin = (lineOrigin - sphereOrigin);
+  const T a = linal::dot(lineDir, lineDir);
+  const T b = 2 * linal::dot(lineDir, deltaOrigin);
+  const T c = linal::dot(deltaOrigin, deltaOrigin) - radius * radius;
   const T discriminant = b * b - 4 * a * c;
 
   if (Core::isGreater(discriminant, T(0), eps))
@@ -67,15 +67,15 @@ template <typename T>
 SphereIntersection<T> intersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = Core::eps_traits<T>::value())
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
-  const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();
+  const linal::Vec3<T>& sphereOrigin = sphere.getOrigin();
   const T radius = sphere.getRadius();
-  const LinAl::Vec3<T>& rayOrigin = ray.getOrigin();
-  const LinAl::Vec3<T>& rayDir = ray.getDirection();
+  const linal::Vec3<T>& rayOrigin = ray.getOrigin();
+  const linal::Vec3<T>& rayDir = ray.getDirection();
 
-  const LinAl::Vec3<T> deltaOrigin = (rayOrigin - sphereOrigin);
-  const T a = LinAl::dot(rayDir, rayDir);
-  const T b = 2 * LinAl::dot(rayDir, deltaOrigin);
-  const T c = LinAl::dot(deltaOrigin, deltaOrigin) - radius * radius;
+  const linal::Vec3<T> deltaOrigin = (rayOrigin - sphereOrigin);
+  const T a = linal::dot(rayDir, rayDir);
+  const T b = 2 * linal::dot(rayDir, deltaOrigin);
+  const T c = linal::dot(deltaOrigin, deltaOrigin) - radius * radius;
   const T discriminant = b * b - 4 * a * c;
 
   if (Core::isGreater(discriminant, T(0), eps))
@@ -105,17 +105,17 @@ template <typename T>
 SphereIntersection<T> intersection(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = Core::eps_traits<T>::value())
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
-  const LinAl::Vec3<T>& sphereOrigin = sphere.getOrigin();
+  const linal::Vec3<T>& sphereOrigin = sphere.getOrigin();
   const T radius = sphere.getRadius();
-  const LinAl::Vec3<T>& segSource = segment.getSource();
-  const LinAl::Vec3<T>& segTarget = segment.getTarget();
+  const linal::Vec3<T>& segSource = segment.getSource();
+  const linal::Vec3<T>& segTarget = segment.getTarget();
 
-  const LinAl::Vec3<T> deltaOrigin = (segSource - sphereOrigin);
-  const LinAl::Vec3<T> segDir = (segTarget - segSource);
+  const linal::Vec3<T> deltaOrigin = (segSource - sphereOrigin);
+  const linal::Vec3<T> segDir = (segTarget - segSource);
 
-  const T a = LinAl::dot(segDir, segDir);
-  const T b = 2 * LinAl::dot(segDir, deltaOrigin);
-  const T c = LinAl::dot(deltaOrigin, deltaOrigin) - radius * radius;
+  const T a = linal::dot(segDir, segDir);
+  const T b = 2 * linal::dot(segDir, deltaOrigin);
+  const T c = linal::dot(deltaOrigin, deltaOrigin) - radius * radius;
   const T discriminant = b * b - 4 * a * c;
 
   if (Core::isGreater(discriminant, T(0), eps))

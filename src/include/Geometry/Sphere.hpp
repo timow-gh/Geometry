@@ -2,32 +2,33 @@
 #define GLFWTESTAPP_SPHERE_H
 
 #include <Core/Math/Eps.hpp>
-#include <Geometry/Lcs.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/Vec3.hpp>
+#include <linal/VecOperations.hpp>
 
 namespace Geometry
 {
 template <typename T>
 class Sphere {
-  LinAl::Vec3<T> m_origin;
+  linal::Vec3<T> m_origin;
   T m_radius;
 
 public:
-  GEO_CONSTEXPR Sphere(const LinAl::Vec3<T>& origin, T radius)
+  Sphere(const linal::Vec3<T>& origin, T radius)
       : m_origin(origin)
       , m_radius(radius)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
+  GEO_NODISCARD GEO_CONSTEXPR const linal::Vec3<T>& getOrigin() const { return m_origin; }
   GEO_NODISCARD GEO_CONSTEXPR T getRadius() const { return m_radius; }
 
-  GEO_CONSTEXPR void setOrigin(const LinAl::Vec3<T>& origin) { m_origin = origin; }
+  GEO_CONSTEXPR void setOrigin(const linal::Vec3<T>& origin) { m_origin = origin; }
   GEO_CONSTEXPR void setRadius(T radius) { m_radius = radius; }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool contains(const LinAl::Vec3<T>& vec) const
+  GEO_NODISCARD GEO_CONSTEXPR bool contains(const linal::Vec3<T>& vec) const
   {
-    if (Core::isGreater(LinAl::norm2(LinAl::Vec3<T>{vec - m_origin}), m_radius))
+    if (Core::isGreater(linal::norm2(linal::Vec3<T>{vec - m_origin}), m_radius))
       return false;
     return true;
   }

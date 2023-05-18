@@ -1,17 +1,25 @@
 #ifndef MESHLER_MESHBUILDER_HPP
 #define MESHLER_MESHBUILDER_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
-#include <Geometry/Fwd/FwdCone.hpp>
-#include <Geometry/Fwd/FwdCuboid.hpp>
-#include <Geometry/Fwd/FwdCylinder.hpp>
-#include <Geometry/Fwd/FwdSphere.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderConfig.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <functional>
 #include <memory>
 
 namespace Geometry
 {
+
+template <typename T>
+class Sphere;
+
+template <typename T>
+class Cone;
+
+template <typename T>
+class Cylinder;
+
+template <typename T>
+class Cuboid;
 
 template <typename TFloat, typename TIndex>
 class HalfedgeMesh;

@@ -25,17 +25,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/Distance/DistanceSegment.hpp
         include/Geometry/Distance/DistancePlane.hpp
         include/Geometry/Distance/DistanceSphere.hpp
-        include/Geometry/Fwd/FwdLine.hpp
-        include/Geometry/Fwd/FwdRay.hpp
-        include/Geometry/Fwd/FwdSegment.hpp
-        include/Geometry/Fwd/FwdPlane.hpp
-        include/Geometry/Fwd/FwdSphere.hpp
-        include/Geometry/Fwd/FwdCircle.hpp
-        include/Geometry/Fwd/FwdCylinder.hpp
-        include/Geometry/Fwd/FwdCone.hpp
-        include/Geometry/Fwd/FwdCuboid.hpp
-        include/Geometry/Fwd/FwdHalfedgeMesh.hpp
-        include/Geometry/Fwd/FwdAABB.hpp
         include/Geometry/Intersection/IntersectionAABB.hpp
         include/Geometry/Intersection/IntersectionInterval.hpp
         include/Geometry/Intersection/IntersectionLine.hpp
@@ -84,11 +73,10 @@ set_target_properties(tw_geometry
         EXPORT_NAME ${TARGET_ALIAS})
 target_link_libraries(tw_geometry
         PUBLIC
-        Core::Utils
         Core::Types
         Core::Math
         CrossGuid::CrossGuid
-        LinAl::LinAl)
+        linal::linal)
 
 if (${PROJECT_NAME}_INSTALL)
     install(DIRECTORY "include/Geometry" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")

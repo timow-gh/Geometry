@@ -3,19 +3,20 @@
 
 #include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Plane.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec.hpp>
+#include <linal/VecOperations.hpp>
 
 namespace Geometry
 {
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR T distance(const Plane<T>& plane, LinAl::Vec<T, D> vec)
+GEO_NODISCARD GEO_CONSTEXPR T distance(const Plane<T>& plane, linal::Vec<T, D> vec)
 {
-  LinAl::Vec<T, D> vecToPlane = plane.getOrigin() - vec;
-  return std::abs(LinAl::dot(vecToPlane, plane.getNormal()));
+  linal::Vec<T, D> vecToPlane = plane.getOrigin() - vec;
+  return std::abs(linal::dot(vecToPlane, plane.getNormal()));
 }
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR T distance(LinAl::Vec<T, D> vec, const Plane<T>& plane)
+GEO_NODISCARD GEO_CONSTEXPR T distance(linal::Vec<T, D> vec, const Plane<T>& plane)
 {
   return distance(plane, vec);
 }

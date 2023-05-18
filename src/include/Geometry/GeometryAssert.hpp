@@ -14,7 +14,7 @@
 #define GEOMETRY_RAY_DIRECTION_ASSERT(ray)
 #else
 #define GEOMETRY_RAY_DIRECTION_ASSERT(ray)                                                                              \
-  GEOMETRY_ASSERT(!Core::isZero(LinAl::norm2Squared(ray.getDirection())))
+  GEOMETRY_ASSERT(!Core::isZero(linal::norm2Squared(ray.getDirection())))
 #endif
 
 #endif // GEOMETRY_GEOMETRYASSERT_HPP

@@ -10,9 +10,9 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR Cone<T> transformation(const Cone<T>& cone, const LinAl::HMatrixd& trafo)
+GEO_NODISCARD GEO_CONSTEXPR Cone<T> transformation(const Cone<T>& cone, const linal::hcoord::hmatd& trafo)
 {
-  return Cone<T>{Geometry::transformation(cone.get_segment(), trafo), cone.get_radius()};
+  return Cone<T>{Geometry::transformation(cone.get_segment(), trafo), cone.getRadius()};
 }
 
 } // namespace Geometry

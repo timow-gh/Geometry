@@ -3,12 +3,12 @@
 #include <Geometry/Plane.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec3.hpp>
 #include <gtest/gtest.h>
 #include <iostream>
 
 using namespace Geometry;
-using namespace LinAl;
+using namespace linal;
 
 TEST(PlaneLine, Parallel_InLine)
 {
@@ -102,7 +102,7 @@ TEST(PlaneRay3d, Touching_Target)
     Plane<double> plane(Vec3d{0, 0, 0}, Vec3d{0, 0, 1});
     Vec3d raySource = Vec3d{-2, -2, -1};
     Vec3d rayDir = Vec3d{-1, -1, 0} - raySource;
-    Ray3d ray{raySource, LinAl::normalize(rayDir)};
+    Ray3d ray{raySource, linal::normalize(rayDir)};
     auto intersection = Geometry::intersection(plane, ray);
     EXPECT_EQ(intersection, (Vec3f{-1, -1, 0}));
 }
@@ -112,7 +112,7 @@ TEST(PlaneRay3d, Parallel)
     Plane<double> plane(ZERO_VEC3D, Z_VEC3D);
     Vec3d raySource = ZERO_VEC3D;
     Vec3d rayDir = X_VEC3D - raySource;
-    Ray3d ray{raySource, LinAl::normalize(rayDir)};
+    Ray3d ray{raySource, linal::normalize(rayDir)};
     auto intersection = Geometry::intersection(plane, ray);
     EXPECT_EQ(intersection, std::nullopt);
 }

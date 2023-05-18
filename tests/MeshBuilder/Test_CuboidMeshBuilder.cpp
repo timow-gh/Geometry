@@ -1,10 +1,10 @@
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp>
-#include <LinAl/LinearAlgebra.hpp>
 #include <gtest/gtest.h>
+#include <linal/Vec3.hpp>
 
 using namespace Geometry;
-using namespace LinAl;
+using namespace linal;
 
 TEST(MeshBuilder, createACubeMesh)
 {

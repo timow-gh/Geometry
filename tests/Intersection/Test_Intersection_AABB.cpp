@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 using namespace Geometry;
-using namespace LinAl;
+using namespace linal;
 
 TEST(AABBTest2f_Intersection, isIntersecting)
 {

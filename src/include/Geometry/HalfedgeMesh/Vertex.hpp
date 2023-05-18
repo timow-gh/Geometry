@@ -4,7 +4,7 @@
 #include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
 #include <Geometry/HalfedgeMesh/MeshTraits.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec3.hpp>
 
 namespace Geometry
 {
@@ -31,7 +31,7 @@ public:
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR LinAl::Vec3<TFloat> getVector() const { return m_mesh->getVector(*this); }
+  GEO_NODISCARD GEO_CONSTEXPR linal::Vec3<TFloat> getVector() const { return m_mesh->getVector(*this); }
 
   GEO_NODISCARD GEO_CONSTEXPR VertexIndex_t getIndex() const { return m_vIndex; }
 

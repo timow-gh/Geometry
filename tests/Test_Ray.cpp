@@ -1,13 +1,11 @@
-#include <Geometry/GeometryAssert.hpp>
 #include <Geometry/Ray.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec3.hpp>
 #include <gtest/gtest.h>
 
 using namespace Geometry;
-using namespace LinAl;
 
 TEST(Ray_Constructor, Default_Constructor)
 {
-    Ray ray{LinAl::Vec3f{}, LinAl::X_VEC3F};
+    Ray ray{linal::Vec3f{}, linal::X_VEC3F};
 }
 

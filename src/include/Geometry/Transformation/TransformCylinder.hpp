@@ -10,7 +10,7 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR Cylinder<T> transformation(const Cylinder<T>& cylinder, const LinAl::HMatrix<T>& trafo)
+GEO_NODISCARD GEO_CONSTEXPR Cylinder<T> transformation(const Cylinder<T>& cylinder, const linal::hcoord::hmat<T>& trafo)
 {
   return Cylinder<T>{transformation(cylinder.getSegment(), trafo), cylinder.getRadius()};
 }

@@ -8,7 +8,7 @@
 #include <Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp>
 #include <Geometry/Triangle.hpp>
 #include <Geometry/Utils/Assert.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <linal/Vec3.hpp>
 #include <algorithm>
 #include <optional>
 
@@ -44,15 +44,15 @@ private:
   Core::TArray<Triangle<TFloat, 3>, 12> calcCuboidTriangles()
   {
     auto sides = m_cube->getSideVectors();
-    LinAl::Vec3d defaultOrigin{0};
+    linal::Vec3d defaultOrigin{0};
 
-    const LinAl::Vec3<TFloat>& x = sides[0];
-    const LinAl::Vec3<TFloat>& y = sides[1];
-    const LinAl::Vec3<TFloat>& z = sides[2];
+    const linal::Vec3<TFloat>& x = sides[0];
+    const linal::Vec3<TFloat>& y = sides[1];
+    const linal::Vec3<TFloat>& z = sides[2];
 
     Core::TArray<Triangle<TFloat, 3>, 12> triangles;
 
-    LinAl::Vec3d diag = y + z;
+    linal::Vec3d diag = y + z;
     calcCuboidFaceTriangles(triangles, {defaultOrigin, z, diag, y}, m_cube->getOrigin(), x, 0);
 
     diag = x + z;
@@ -65,9 +65,9 @@ private:
   }
 
   void calcCuboidFaceTriangles(Core::TArray<Triangle<TFloat, 3>, 12>& triangles,
-                               LinAl::Vec3Array<TFloat, 4> vectors,
-                               const LinAl::Vec3<TFloat>& origin,
-                               const LinAl::Vec3<TFloat>& translationVec,
+                               linal::Vec3Array<TFloat, 4> vectors,
+                               const linal::Vec3<TFloat>& origin,
+                               const linal::Vec3<TFloat>& translationVec,
                                std::size_t insertIndex)
   {
     for (auto& vec: vectors)

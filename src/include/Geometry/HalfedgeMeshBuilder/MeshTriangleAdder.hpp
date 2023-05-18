@@ -50,8 +50,8 @@ private:
                           Core::TVector<Vertex_t>& vertices,
                           Core::TArray<VertexIndex_t, 3>& vertexIndices) const
   {
-    // Create or find the Vertex of the LinAl::Vec3
-    const LinAl::VecArray<TFloat, 3, 3> trianglePoints = triangle.getTrianglePoints();
+    // Create or find the Vertex of the linal::Vec3
+    const linal::VecArray<TFloat, 3, 3> trianglePoints = triangle.getTrianglePoints();
     for (std::size_t i = 0; i < 3; ++i)
     {
       VertexIndex_t vertexIndex;

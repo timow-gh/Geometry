@@ -39,7 +39,7 @@
 #define GEO_ASSERT_TRAP() ::std::abort()
 #endif
 
-namespace linal
+namespace Geometry
 {
 inline void assertion(const char* fileName, int line, const char* funcName, const char* message)
 {

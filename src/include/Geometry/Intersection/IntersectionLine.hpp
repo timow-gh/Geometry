@@ -2,10 +2,11 @@
 #define GEOMETRY_INTERSECTIONLINE_HPP
 
 #include <Core/Math/Eps.hpp>
-#include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <Geometry/Plane.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/Vec.hpp>
+#include <linal/VecOperations.hpp>
 #include <optional>
 
 namespace Geometry
@@ -17,19 +18,18 @@ namespace Geometry
 //! 2 -> Lines are the same
 //! 3 -> No intersection, skew lines
 template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t
-intersection(Line<T, D> lhs, Line<T, D> rhs, LinAl::Vec<T, D>& intersectionVec, T eps = Core::eps_traits<T>::value())
+GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::Vec<T, D>& intersectionVec, T eps = Core::eps_traits<T>::value())
 {
-  LinAl::Vec<T, D> rhsOrigin = rhs.getOrigin();
-  LinAl::Vec<T, D> lhsOrigin = lhs.getOrigin();
-  LinAl::Vec<T, D> rhsDir = rhs.getDirection();
-  LinAl::Vec<T, D> lhsDir = lhs.getDirection();
+  linal::Vec<T, D> rhsOrigin = rhs.getOrigin();
+  linal::Vec<T, D> lhsOrigin = lhs.getOrigin();
+  linal::Vec<T, D> rhsDir = rhs.getDirection();
+  linal::Vec<T, D> lhsDir = lhs.getDirection();
 
-  LinAl::Vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
+  linal::Vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
 
   if constexpr (D == 3)
   {
-    Plane<T> plane{lhsOrigin, LinAl::cross(deltaOrigin, lhsDir)};
+    Plane<T> plane{lhsOrigin, linal::cross(deltaOrigin, lhsDir)};
     if (intersection(plane, rhs))
       return 3;
   }
@@ -40,11 +40,11 @@ intersection(Line<T, D> lhs, Line<T, D> rhs, LinAl::Vec<T, D>& intersectionVec, 
   {
     // Lines are intersecting
     T s = (deltaOrigin[0] * rhsDir[1] - deltaOrigin[1] * rhsDir[0]) / cross;
-    intersectionVec = LinAl::Vec<T, D>(lhsOrigin + s * lhsDir);
+    intersectionVec = linal::Vec<T, D>(lhsOrigin + s * lhsDir);
     return 1;
   }
 
-  // FixMe T sqrDeltaOrigin = LinAl::norm2Squared(deltaOrigin);
+  // FixMe T sqrDeltaOrigin = linal::norm2Squared(deltaOrigin);
   cross = deltaOrigin[0] * lhsDir[1] - deltaOrigin[1] * lhsDir[0];
   sqrCross = cross * cross;
   if (!Core::isZero(sqrCross, eps))

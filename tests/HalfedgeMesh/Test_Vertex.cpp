@@ -5,7 +5,7 @@
 #include <gtest/gtest.h>
 
 using namespace Geometry;
-using namespace LinAl;
+using namespace linal;
 
 class VertexTest : public ::testing::Test {
   protected:
