@@ -37,6 +37,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Transformation/TransformCone.hpp
         include/Geometry/Transformation/TransformCylinder.hpp
         include/Geometry/Transformation/TransformSphere.hpp
+        include/Geometry/Transformation/TransformatonAABB.hpp
         include/Geometry/Utils/Assert.hpp
         include/Geometry/Utils/Compiler.hpp
         include/Geometry/Utils/Warnings.hpp
@@ -48,12 +49,13 @@ set(geometry_TARGET_HEADER
         include/Geometry/Sphere.hpp
         include/Geometry/Line.hpp
         include/Geometry/Plane.hpp
+        include/Geometry/ExtremePointsInDirection.hpp
         include/Geometry/Cylinder.hpp
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
         include/Geometry/PolyLine.hpp
         include/Geometry/GeometryAssert.hpp
-        include/Geometry/Transformation/TransformatonAABB.hpp)
+        )
 
 set(geometry_TARGET_SOURCES
         source/HalfedgeMeshBuilder/MeshBuilder.cpp

@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_SPHERE_H
-#define GLFWTESTAPP_SPHERE_H
+#ifndef GEOMETRY_SPHERE_H
+#define GEOMETRY_SPHERE_H
 
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/vec3.hpp>
@@ -37,4 +37,4 @@ public:
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_SPHERE_H
+#endif // GEOMETRY_SPHERE_H

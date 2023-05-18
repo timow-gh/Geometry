@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_PLANE_HPP
-#define GLFWTESTAPP_PLANE_HPP
+#ifndef GEOMETRY_PLANE_HPP
+#define GEOMETRY_PLANE_HPP
 
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/vec3.hpp>
@@ -30,4 +30,4 @@ public:
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_PLANE_HPP
+#endif // GEOMETRY_PLANE_HPP

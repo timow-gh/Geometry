@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_SEGMENT_H
-#define GLFWTESTAPP_SEGMENT_H
+#ifndef GEOMETRY_SEGMENT_H
+#define GEOMETRY_SEGMENT_H
 
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
@@ -58,4 +58,4 @@ using Segment3d = Segment3<double>;
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_SEGMENT_H
+#endif // GEOMETRY_SEGMENT_H

@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_HALFEDGEMESH_H
-#define GLFWTESTAPP_HALFEDGEMESH_H
+#ifndef GEOMETRY_HALFEDGEMESH_H
+#define GEOMETRY_HALFEDGEMESH_H
 
 #include <CrossGuid/Guid.hpp>
 #include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>
@@ -97,4 +97,4 @@ private:
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_HALFEDGEMESH_H
+#endif // GEOMETRY_HALFEDGEMESH_H

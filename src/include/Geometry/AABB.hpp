@@ -2,6 +2,7 @@
 #define GEOMETRY_AABB_HPP
 
 #include <Geometry/Details/AABBDetails.hpp>
+#include <Geometry/ExtremePointsInDirection.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <array>
 #include <linal/containers.hpp>

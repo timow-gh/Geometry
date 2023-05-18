@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_CYLINDER_HPP
-#define GLFWTESTAPP_CYLINDER_HPP
+#ifndef GEOMETRY_CYLINDER_HPP
+#define GEOMETRY_CYLINDER_HPP
 
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
@@ -29,4 +29,4 @@ public:
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_CYLINDER_HPP
+#endif // GEOMETRY_CYLINDER_HPP

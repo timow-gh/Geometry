@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_CUBE_H
-#define GLFWTESTAPP_CUBE_H
+#ifndef GEOMETRY_CUBE_H
+#define GEOMETRY_CUBE_H
 
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/containers.hpp>
@@ -68,4 +68,4 @@ GEO_NODISCARD GEO_CONSTEXPR linal::vec3Array<T, 8> calcCuboidVertices(const Cubo
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_CUBE_H
+#endif // GEOMETRY_CUBE_H

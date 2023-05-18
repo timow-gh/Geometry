@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_FACETUTILS_H
-#define GLFWTESTAPP_FACETUTILS_H
+#ifndef GEOMETRY_FACETUTILS_H
+#define GEOMETRY_FACETUTILS_H
 
 #include <Geometry/HalfedgeMesh/Facet.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
@@ -29,4 +29,4 @@ GEO_CONSTEXPR std::vector<Halfedge<TFloat, TIndex>> calcHalfedges(const Facet<TF
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_FACETUTILS_H
+#endif // GEOMETRY_FACETUTILS_H

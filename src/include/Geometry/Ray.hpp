@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_RAY_HPP
-#define GLFWTESTAPP_RAY_HPP
+#ifndef GEOMETRY_RAY_HPP
+#define GEOMETRY_RAY_HPP
 
 #include <Geometry/Ray.hpp>
 #include <Geometry/Utils/Compiler.hpp>
@@ -43,4 +43,4 @@ using Ray3d = Ray3<double>;
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_RAY_HPP
+#endif // GEOMETRY_RAY_HPP

@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_VERTEX_H
-#define GLFWTESTAPP_VERTEX_H
+#ifndef GEOMETRY_VERTEX_H
+#define GEOMETRY_VERTEX_H
 
 #include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
 #include <Geometry/HalfedgeMesh/MeshTraits.hpp>
@@ -58,4 +58,4 @@ private:
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_VERTEX_H
+#endif // GEOMETRY_VERTEX_H

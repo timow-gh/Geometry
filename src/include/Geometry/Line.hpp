@@ -1,5 +1,5 @@
-#ifndef GLFWTESTAPP_LINE_H
-#define GLFWTESTAPP_LINE_H
+#ifndef GEOMETRY_LINE_H
+#define GEOMETRY_LINE_H
 
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/vec.hpp>
@@ -42,4 +42,4 @@ using Line3d = Line3<double>;
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_LINE_H
+#endif // GEOMETRY_LINE_H
