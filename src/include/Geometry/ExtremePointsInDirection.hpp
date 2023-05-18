@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_EXTREMEPOINTSINDIRECTION_HPP
 #define GEOMETRY_EXTREMEPOINTSINDIRECTION_HPP
 
+#include <Geometry/Utils/Assert.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <cstdint>
 #include <linal/containers.hpp>
@@ -21,6 +22,9 @@ template <typename TFloat, std::size_t D>
 GEO_NODISCARD GEO_CONSTEXPR MinMax<TFloat> extremePointsAlongDirection(linal::vec<TFloat, D> dir,
                                                                        const linal::vecvector<TFloat, D>& points) GEO_NOEXCEPT
 {
+  GEO_ASSERT(!points.empty());
+  GEO_ASSERT(linal::norm2(dir) == TFloat{1});
+
   TFloat minDist = std::numeric_limits<TFloat>::max();
   TFloat maxDist = std::numeric_limits<TFloat>::lowest();
 

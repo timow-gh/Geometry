@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_AABB_HPP
 #define GEOMETRY_AABB_HPP
 
-#include <Geometry/Details/AABBDetails.hpp>
 #include <Geometry/ExtremePointsInDirection.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <array>
@@ -38,7 +37,7 @@ public:
 template <typename TFloat, std::size_t D>
 AABB<TFloat, D> makeAABB(const linal::vecvector<TFloat, D>& points)
 {
-  using namespace details;
+  GEO_ASSERT(!points.empty());
 
   linal::vecArray<TFloat, D, D> axis = {linal::vec<TFloat, D>{1, 0, 0}, linal::vec<TFloat, D>{0, 1, 0}, linal::vec<TFloat, D>{0, 0, 1}};
 

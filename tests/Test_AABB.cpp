@@ -78,17 +78,6 @@ TEST_F(AABBTest3d, fromcubepoints)
     EXPECT_DOUBLE_EQ(extends[i], expectedExtend[i]);
 }
 
-TEST_F(AABBTest3d, makeaabb_empty)
-{
-  linal::vec3dvector points{};
-  AABB3d box = makeAABB(points);
-
-  double negInf = -std::numeric_limits<double>::infinity();
-  auto extends = box.getExtends();
-  for (auto extend: box.getExtends())
-    EXPECT_DOUBLE_EQ(extend, negInf);
-}
-
 TEST_F(AABBTest3f, from_sphere_at_origin)
 {
   Geometry::Sphere<float> sphere{{0, 0, 0}, 1.0f};
