@@ -5,9 +5,9 @@ namespace Geometry
 {
 
 template <typename TFloat, typename TIndex, typename U>
-GEO_CONSTEXPR Core::TVector<U> calcTriangleIndices(const Core::TVector<Facet<TFloat, TIndex>>& facets)
+GEO_CONSTEXPR std::vector<U> calcTriangleIndices(const std::vector<Facet<TFloat, TIndex>>& facets)
 {
-  Core::TVector<U> result;
+  std::vector<U> result;
   for (const auto& facet: facets)
     for (const Geometry::Halfedge<TFloat, TIndex> halfedge: Geometry::calcHalfedges(facet))
       result.push_back(static_cast<U>(halfedge.getVertexIndex().getValue()));

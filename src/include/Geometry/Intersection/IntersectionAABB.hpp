@@ -14,8 +14,8 @@ bool isIntersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs)
   linal::Vec<TFloat, D> lhsOrigin = lhs.getOrigin();
   linal::Vec<TFloat, D> rhsOrigin = rhs.getOrigin();
 
-  Core::TArray<TFloat, D> lhsExtends = lhs.getExtends();
-  Core::TArray<TFloat, D> rhsExtends = rhs.getExtends();
+  std::array<TFloat, D> lhsExtends = lhs.getExtends();
+  std::array<TFloat, D> rhsExtends = rhs.getExtends();
 
   for (std::size_t i = 0; i < D; ++i)
   {

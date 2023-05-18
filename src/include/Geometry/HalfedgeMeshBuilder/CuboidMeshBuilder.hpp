@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_CUBOIDMESHBUILDER_HPP
 #define GEOMETRY_CUBOIDMESHBUILDER_HPP
 
-#include <Core/Types/TArray.hpp>
+#include <array>
 #include <Geometry/Utils/Compiler.hpp>
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
@@ -34,14 +34,14 @@ public:
     if (!m_cube)
       return nullptr;
 
-    Core::TArray<Triangle<TFloat, 3>, 12> triangles = calcCuboidTriangles();
+    std::array<Triangle<TFloat, 3>, 12> triangles = calcCuboidTriangles();
     auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
     std::for_each(triangles.cbegin(), triangles.cend(), MeshTriangleAdder<TFloat, TIndex>(*heMesh));
     return heMesh;
   }
 
 private:
-  Core::TArray<Triangle<TFloat, 3>, 12> calcCuboidTriangles()
+  std::array<Triangle<TFloat, 3>, 12> calcCuboidTriangles()
   {
     auto sides = m_cube->getSideVectors();
     linal::Vec3d defaultOrigin{0};
@@ -50,7 +50,7 @@ private:
     const linal::Vec3<TFloat>& y = sides[1];
     const linal::Vec3<TFloat>& z = sides[2];
 
-    Core::TArray<Triangle<TFloat, 3>, 12> triangles;
+    std::array<Triangle<TFloat, 3>, 12> triangles;
 
     linal::Vec3d diag = y + z;
     calcCuboidFaceTriangles(triangles, {defaultOrigin, z, diag, y}, m_cube->getOrigin(), x, 0);
@@ -64,7 +64,7 @@ private:
     return triangles;
   }
 
-  void calcCuboidFaceTriangles(Core::TArray<Triangle<TFloat, 3>, 12>& triangles,
+  void calcCuboidFaceTriangles(std::array<Triangle<TFloat, 3>, 12>& triangles,
                                linal::Vec3Array<TFloat, 4> vectors,
                                const linal::Vec3<TFloat>& origin,
                                const linal::Vec3<TFloat>& translationVec,

@@ -1,8 +1,8 @@
 #ifndef GLFWTESTAPP_HALFEDGEMESH_H
 #define GLFWTESTAPP_HALFEDGEMESH_H
 
-#include <Core/Types/TArray.hpp>
-#include <Core/Types/TVector.hpp>
+#include <array>
+#include <vector>
 #include <CrossGuid/Guid.hpp>
 #include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
@@ -50,14 +50,14 @@ public:
   GEO_NODISCARD GEO_CONSTEXPR linal::Vec3Vector<TFloat>& getPoints() { return meshPoints.getPoints(); }
   // clang-format on
 
-  GEO_NODISCARD const Core::TVector<Vertex_t>& getVertices() const { return vertices; }
-  GEO_NODISCARD Core::TVector<Vertex_t>& getVertices() { return vertices; }
+  GEO_NODISCARD const std::vector<Vertex_t>& getVertices() const { return vertices; }
+  GEO_NODISCARD std::vector<Vertex_t>& getVertices() { return vertices; }
 
-  GEO_NODISCARD const Core::TVector<Halfedge_t>& getHalfedges() const { return halfedges; }
-  GEO_NODISCARD Core::TVector<Halfedge_t>& getHalfedges() { return halfedges; }
+  GEO_NODISCARD const std::vector<Halfedge_t>& getHalfedges() const { return halfedges; }
+  GEO_NODISCARD std::vector<Halfedge_t>& getHalfedges() { return halfedges; }
 
-  GEO_NODISCARD const Core::TVector<Facet_t>& getFacets() const { return facets; }
-  GEO_NODISCARD Core::TVector<Facet_t>& getFacets() { return facets; }
+  GEO_NODISCARD const std::vector<Facet_t>& getFacets() const { return facets; }
+  GEO_NODISCARD std::vector<Facet_t>& getFacets() { return facets; }
 
   GEO_NODISCARD const MeshPoints_t& getMeshPoints() const { return meshPoints; }
   GEO_NODISCARD MeshPoints_t& getMeshPoints() { return meshPoints; }
@@ -89,9 +89,9 @@ public:
   GEO_NODISCARD GEO_CONSTEXPR bool contains(const linal::Vec3<TFloat>& vector) const { return meshPoints.contains(vector); }
 
 private:
-  Core::TVector<Vertex_t> vertices;
-  Core::TVector<Halfedge_t> halfedges;
-  Core::TVector<Facet_t> facets;
+  std::vector<Vertex_t> vertices;
+  std::vector<Halfedge_t> halfedges;
+  std::vector<Facet_t> facets;
   MeshPoints_t meshPoints;
 };
 

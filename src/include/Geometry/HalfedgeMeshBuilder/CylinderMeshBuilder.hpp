@@ -73,7 +73,7 @@ private:
     return points;
   }
 
-  void calcCircleBufferIndices(Core::TVector<TIndex>& indices,
+  void calcCircleBufferIndices(std::vector<TIndex>& indices,
                                const TIndex midPointIdx,
                                const TIndex circleStartIdx,
                                const TIndex circleEndIdx) const
@@ -89,10 +89,10 @@ private:
     indices.push_back(circleEndIdx - 1);
   }
 
-  Core::TVector<TIndex> calcCylinderTriangleIndices(const linal::Vec3Vector<TFloat>& cylinderPoints) const
+  std::vector<TIndex> calcCylinderTriangleIndices(const linal::Vec3Vector<TFloat>& cylinderPoints) const
   {
     // Bottom circle
-    Core::TVector<TIndex> indices;
+    std::vector<TIndex> indices;
     const std::size_t cylPointsSize = cylinderPoints.size();
 
     const TIndex bottomMidPointIdx = cylPointsSize - 2;

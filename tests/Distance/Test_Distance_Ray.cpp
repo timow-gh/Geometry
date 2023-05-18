@@ -1,9 +1,9 @@
-#include <Core/Types/TVector.hpp>
 #include <Geometry/Distance/DistanceRay.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Ray.hpp>
 #include <gtest/gtest.h>
 #include <linal/Vec3.hpp>
+#include <vector>
 
 using namespace Geometry;
 using namespace linal;
@@ -51,7 +51,7 @@ TEST(Distance_Ray, NextToLine_UnitDist)
 
 class Test_Ray_Creator : public ::testing::Test {
 protected:
-  Core::TVector<Ray3d> m_ray3ds;
+  std::vector<Ray3d> m_ray3ds;
 
   void SetUp() override
   {
@@ -63,7 +63,7 @@ protected:
 
 TEST_F(Test_Ray_Creator, RayTestFixtureTest)
 {
-  Core::TVector<Ray3d> ray3ds;
+  std::vector<Ray3d> ray3ds;
   for (const auto& ray: m_ray3ds)
     ray3ds.push_back(ray);
   EXPECT_EQ(ray3ds.size(), 3);

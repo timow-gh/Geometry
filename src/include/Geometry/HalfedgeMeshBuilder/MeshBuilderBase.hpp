@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_MESHBUILDERBASE_HPP
 #define GEOMETRY_MESHBUILDERBASE_HPP
 
-#include <Core/Types/TVector.hpp>
+#include <vector>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp>
 #include <linal/HMat.hpp>
@@ -18,7 +18,7 @@ protected:
   linal::hcoord::hmat<TFloat> m_transformation = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 
   std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> buildTriangleHeMesh(const linal::Vec3Vector<TFloat>& points,
-                                                                    const Core::TVector<TIndex>& triangleIndices) const
+                                                                    const std::vector<TIndex>& triangleIndices) const
   {
     auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
     MeshTriangleAdder<TFloat, TIndex> meshTriangleAdder{*heMesh};

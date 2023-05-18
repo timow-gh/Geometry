@@ -61,9 +61,9 @@ private:
 
     return points;
   }
-  Core::TVector<TIndex> calcConeTriangleIndices(const linal::Vec3Vector<TFloat>& conePoints) const
+  std::vector<TIndex> calcConeTriangleIndices(const linal::Vec3Vector<TFloat>& conePoints) const
   {
-    Core::TVector<TIndex> indices;
+    std::vector<TIndex> indices;
     TIndex size = static_cast<TIndex>(conePoints.size());
     TIndex topIdx = size - 1;
     TIndex bottomIdx = size - 2;

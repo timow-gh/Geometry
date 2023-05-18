@@ -1,9 +1,9 @@
 #ifndef GEOMETRY_AABB_HPP
 #define GEOMETRY_AABB_HPP
 
-#include <Core/Types/TArray.hpp>
 #include <Geometry/Details/AABBDetails.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <array>
 #include <linal/Containers.hpp>
 #include <linal/Vec.hpp>
 
@@ -13,7 +13,7 @@ namespace Geometry
 template <typename TFloat, std::size_t D>
 class AABB {
   linal::Vec<TFloat, D> m_origin;
-  Core::TArray<TFloat, D> m_extends;
+  std::array<TFloat, D> m_extends;
 
 public:
   GEO_CONSTEXPR AABB(linal::Vec<TFloat, D> origin, TFloat extend)
@@ -21,7 +21,7 @@ public:
   {
     m_extends.fill(extend);
   }
-  GEO_CONSTEXPR AABB(linal::Vec<TFloat, D> origin, const Core::TArray<TFloat, D>& extend)
+  GEO_CONSTEXPR AABB(linal::Vec<TFloat, D> origin, const std::array<TFloat, D>& extend)
       : m_origin(origin)
       , m_extends(extend)
   {
@@ -30,8 +30,8 @@ public:
   GEO_NODISCARD GEO_CONSTEXPR linal::Vec<TFloat, D> getOrigin() const { return m_origin; }
   GEO_CONSTEXPR void setOrigin(linal::Vec<TFloat, D> origin) { m_origin = origin; }
 
-  GEO_NODISCARD GEO_CONSTEXPR const Core::TArray<TFloat, D>& getExtends() const { return m_extends; }
-  GEO_CONSTEXPR void setExtends(const Core::TArray<TFloat, D>& extends) { m_extends = extends; }
+  GEO_NODISCARD GEO_CONSTEXPR const std::array<TFloat, D>& getExtends() const { return m_extends; }
+  GEO_CONSTEXPR void setExtends(const std::array<TFloat, D>& extends) { m_extends = extends; }
 };
 
 template <typename TFloat, std::size_t D>
@@ -41,11 +41,11 @@ AABB<TFloat, D> makeAABB(const linal::VecVector<TFloat, D>& points)
 
   linal::VecArray<TFloat, D, D> axis = {linal::Vec<TFloat, D>{1, 0, 0}, linal::Vec<TFloat, D>{0, 1, 0}, linal::Vec<TFloat, D>{0, 0, 1}};
 
-  Core::TArray<MinMax<TFloat>, 3> minMaxes;
+  std::array<MinMax<TFloat>, 3> minMaxes;
   for (std::size_t i = 0; i < D; ++i)
     minMaxes[i] = extremePointsAlongDirection(axis[i], points);
 
-  Core::TArray<TFloat, D> extends;
+  std::array<TFloat, D> extends;
   for (std::size_t i = 0; i < D; ++i)
     extends[i] = (minMaxes[i].max - minMaxes[i].min) / TFloat(2);
 

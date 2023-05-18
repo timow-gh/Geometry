@@ -3,7 +3,6 @@
 #include <linal/Containers.hpp>
 #include <linal/Vec3.hpp>
 
-using namespace Core;
 using namespace Geometry;
 
 TEST(HalfedgeMesh, IsDefaultConstructible)

@@ -58,9 +58,9 @@ private:
 };
 
 template <typename TFloat, typename U>
-GEO_CONSTEXPR Core::TVector<U> vectorsToComponents(const linal::Vec3Vector<TFloat>& vectors)
+GEO_CONSTEXPR std::vector<U> vectorsToComponents(const linal::Vec3Vector<TFloat>& vectors)
 {
-  Core::TVector<U> result;
+  std::vector<U> result;
   for (const linal::Vec3<TFloat>& vector: vectors)
     for (std::size_t i{0}; i < 3; ++i)
     {

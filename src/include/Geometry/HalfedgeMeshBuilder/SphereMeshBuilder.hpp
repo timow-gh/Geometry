@@ -87,11 +87,11 @@ private:
     return points;
   }
 
-  Core::TVector<TIndex> calcSphereTriangleIndices(const linal::Vec3Vector<TFloat>& spherePoints)
+  std::vector<TIndex> calcSphereTriangleIndices(const linal::Vec3Vector<TFloat>& spherePoints)
   {
     auto toIdx = [azimuthCount = m_azimuthCount](TIndex i, TIndex j) -> TIndex { return static_cast<TIndex>(i * azimuthCount + j); };
 
-    Core::TVector<TIndex> triangleIndices;
+    std::vector<TIndex> triangleIndices;
 
     const TIndex pointsSize = static_cast<TIndex>(spherePoints.size());
 
