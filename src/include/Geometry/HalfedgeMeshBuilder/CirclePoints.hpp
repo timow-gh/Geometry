@@ -1,9 +1,9 @@
 #ifndef FILAPP_CIRCLEPOINTS_HPP
 #define FILAPP_CIRCLEPOINTS_HPP
 
-#include <linal/utils/Constants.hpp>
 #include <linal/Containers.hpp>
 #include <linal/Vec3.hpp>
+#include <linal/utils/Constants.hpp>
 
 namespace Geometry
 {

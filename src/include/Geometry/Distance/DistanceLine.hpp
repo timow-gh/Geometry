@@ -1,11 +1,11 @@
 #ifndef GEOMETRY_DISTANCELINE_HPP
 #define GEOMETRY_DISTANCELINE_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
 #include <linal/VecOperations.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {

@@ -1,11 +1,11 @@
 #ifndef GEOMETRY_DISTANCERAY_HPP
 #define GEOMETRY_DISTANCERAY_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
 #include <linal/VecOperations.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {

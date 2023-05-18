@@ -1,11 +1,11 @@
 #ifndef GLFWTESTAPP_SEGMENT_H
 #define GLFWTESTAPP_SEGMENT_H
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
 #include <linal/VecOperations.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {

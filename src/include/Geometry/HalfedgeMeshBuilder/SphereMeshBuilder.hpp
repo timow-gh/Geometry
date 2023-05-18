@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_SPHEREMESHBUILDER_HPP
 #define GEOMETRY_SPHEREMESHBUILDER_HPP
 
-#include <linal/utils/Constants.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMesh/TriangleIndices.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp>
@@ -10,6 +9,7 @@
 #include <cmath>
 #include <linal/Vec.hpp>
 #include <linal/Vec3.hpp>
+#include <linal/utils/Constants.hpp>
 #include <memory>
 #include <optional>
 

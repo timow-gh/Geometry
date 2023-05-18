@@ -1,12 +1,12 @@
 #ifndef GEOMETRY_DISTANCESEGMENT_HPP
 #define GEOMETRY_DISTANCESEGMENT_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
 #include <linal/VecOperations.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {

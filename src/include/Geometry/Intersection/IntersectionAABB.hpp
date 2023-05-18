@@ -1,9 +1,9 @@
 #ifndef GEOMETRY_INTERSECTIONAABB_HPP
 #define GEOMETRY_INTERSECTIONAABB_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/AABB.hpp>
 #include <linal/Vec.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {

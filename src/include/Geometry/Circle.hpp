@@ -1,7 +1,6 @@
 #ifndef FILAPP_CIRCLE_HPP
 #define FILAPP_CIRCLE_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/HMat.hpp>
 #include <linal/HMatRotation.hpp>
@@ -10,6 +9,7 @@
 #include <linal/Vec2.hpp>
 #include <linal/Vec3.hpp>
 #include <linal/VecOperations.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {

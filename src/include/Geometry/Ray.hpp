@@ -1,10 +1,10 @@
 #ifndef GLFWTESTAPP_RAY_HPP
 #define GLFWTESTAPP_RAY_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {

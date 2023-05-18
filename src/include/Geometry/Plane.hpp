@@ -1,9 +1,9 @@
 #ifndef GLFWTESTAPP_PLANE_HPP
 #define GLFWTESTAPP_PLANE_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec3.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {

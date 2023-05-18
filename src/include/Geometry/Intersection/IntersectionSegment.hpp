@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_INTERSECTIONSEGMENT_HPP
 #define GEOMETRY_INTERSECTIONSEGMENT_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Intersection/IntersectionInterval.hpp>
 #include <Geometry/Intersection/IntersectionPlane.hpp>
 #include <Geometry/Interval.hpp>
@@ -11,6 +10,7 @@
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/Vec.hpp>
 #include <linal/VecOperations.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {
@@ -96,8 +96,7 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
 //! 2 -> Overlap, the intersection is the segment
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t
-intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = linal::eps<T>::value)
+GEO_NODISCARD uint32_t intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = linal::eps<T>::value)
 {
   linal::Vec<T, D> segSource = seg.getSource();
   linal::Vec<T, D> segTarget = seg.getTarget();

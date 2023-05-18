@@ -1,9 +1,9 @@
 #ifndef GEOMETRY_INTERSECTIONINTERVAL_HPP
 #define GEOMETRY_INTERSECTIONINTERVAL_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Interval.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/Eps.hpp>
 
 namespace Geometry
 {

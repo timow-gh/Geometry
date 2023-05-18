@@ -1,12 +1,12 @@
 #ifndef GEOMETRY_INTERSECTIONSPHERE_HPP
 #define GEOMETRY_INTERSECTIONSPHERE_HPP
 
-#include <linal/utils/Eps.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Sphere.hpp>
 #include <linal/Vec3.hpp>
+#include <linal/utils/Eps.hpp>
 #include <optional>
 
 namespace Geometry
