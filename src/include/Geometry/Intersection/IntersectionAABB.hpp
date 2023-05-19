@@ -2,8 +2,8 @@
 #define GEOMETRY_INTERSECTIONAABB_HPP
 
 #include <Geometry/AABB.hpp>
-#include <linal/vec.hpp>
 #include <linal/utils/eps.hpp>
+#include <linal/vec.hpp>
 
 namespace Geometry
 {
@@ -11,16 +11,17 @@ namespace Geometry
 template <typename TFloat, std::size_t D>
 bool isIntersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs)
 {
-  linal::vec<TFloat, D> lhsOrigin = lhs.getOrigin();
-  linal::vec<TFloat, D> rhsOrigin = rhs.getOrigin();
-
-  std::array<TFloat, D> lhsExtends = lhs.getExtends();
-  std::array<TFloat, D> rhsExtends = rhs.getExtends();
+  auto lhsMax = lhs.get_max();
+  auto lhsMin = lhs.get_min();
+  auto rhsMax = rhs.get_max();
+  auto rhsMin = rhs.get_min();
 
   for (std::size_t i = 0; i < D; ++i)
   {
-    if (linal::isGreater(std::abs(lhsOrigin[i] - rhsOrigin[i]), lhsExtends[i] + rhsExtends[i]))
+    if (lhsMax[i] < rhsMin[i] || lhsMin[i] > rhsMax[i])
+    {
       return false;
+    }
   }
   return true;
 }

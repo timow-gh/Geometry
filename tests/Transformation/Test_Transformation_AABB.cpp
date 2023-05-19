@@ -16,6 +16,6 @@ TEST_F(fixture_transformation_aabb3d, aabb)
   auto translationVec = linal::vec3d{0.5, 0.5, 0.5};
   auto trafo = linal::hcoord::create_translation(translationVec[0], translationVec[1], translationVec[2]);
   auto transformedAABB = Geometry::transformation(m_aabb, trafo);
-  auto expectedOrigin = linal::vec3d{1, 1, 1};
-  EXPECT_EQ(expectedOrigin, transformedAABB.getOrigin());
+  auto expectedMin = linal::vec3d{1, 1, 1};
+  EXPECT_EQ(expectedMin, transformedAABB.get_min());
 }

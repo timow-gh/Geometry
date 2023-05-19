@@ -1,5 +1,4 @@
 set(geometry_TARGET_HEADER
-        include/Geometry/Details/AABBDetails.hpp
         include/Geometry/HalfedgeMesh/Halfedge.hpp
         include/Geometry/HalfedgeMesh/HalfedgeIndices.hpp
         include/Geometry/HalfedgeMesh/Facet.hpp
