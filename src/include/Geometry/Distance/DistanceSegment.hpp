@@ -4,15 +4,15 @@
 #include <Geometry/Line.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
-#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
 
 template <typename T, std::size_t D>
-GEO_CONSTEXPR T distance(const Segment<T, D>& segment, linal::vec<T, D> vec)
+GEO_NODISCARD GEO_CONSTEXPR T distance(const Segment<T, D>& segment, linal::vec<T, D> vec)
 {
   linal::vec<T, D> source = segment.getSource();
   linal::vec<T, D> ps = vec - source;
@@ -24,13 +24,13 @@ GEO_CONSTEXPR T distance(const Segment<T, D>& segment, linal::vec<T, D> vec)
 }
 
 template <typename T, std::size_t D>
-GEO_CONSTEXPR T distance(linal::vec<T, D> vec, const Segment<T, D>& segment)
+GEO_NODISCARD GEO_CONSTEXPR T distance(linal::vec<T, D> vec, const Segment<T, D>& segment)
 {
   return distance(segment, vec);
 }
 
 template <typename T, std::size_t D>
-GEO_CONSTEXPR T distance(const Line<T, D>& line, const Segment<T, D>& segment)
+GEO_NODISCARD GEO_CONSTEXPR T distance(const Line<T, D>& line, const Segment<T, D>& segment)
 {
   return distance(segment, line);
 }

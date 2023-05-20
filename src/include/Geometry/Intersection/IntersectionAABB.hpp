@@ -9,7 +9,7 @@ namespace Geometry
 {
 
 template <typename TFloat, std::size_t D>
-bool isIntersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs)
+GEO_NODISCARD GEO_CONSTEXPR bool isIntersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs) GEO_NOEXCEPT
 {
   auto lhsMax = lhs.get_max();
   auto lhsMin = lhs.get_min();
