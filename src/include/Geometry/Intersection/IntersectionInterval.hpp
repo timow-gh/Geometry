@@ -7,12 +7,13 @@
 
 namespace Geometry
 {
+
 //! return value:
 //! 0 -> no intersection
 //! 1 -> intersection at single point (start of intersection)
 //! 2 -> intersection is an interval
 template <typename T>
-std::uint32_t intersection(Interval<T> lhs, Interval<T> rhs, Interval<T>& intersection)
+GEO_NODISCARD GEO_CONSTEXPR std::uint32_t intersection(Interval<T> lhs, Interval<T> rhs, Interval<T>& intersection)
 {
   const T a = lhs.getStart();
   const T b = lhs.getEnd();
@@ -50,6 +51,7 @@ std::uint32_t intersection(Interval<T> lhs, Interval<T> rhs, Interval<T>& inters
     return 1;
   }
 }
+
 } // namespace Geometry
 
 #endif // GEOMETRY_INTERSECTIONINTERVAL_HPP

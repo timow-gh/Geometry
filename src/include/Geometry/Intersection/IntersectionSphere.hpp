@@ -5,8 +5,8 @@
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Sphere.hpp>
-#include <linal/vec3.hpp>
 #include <linal/utils/eps.hpp>
+#include <linal/vec3.hpp>
 #include <optional>
 
 namespace Geometry
@@ -19,21 +19,18 @@ struct SphereIntersection
   std::optional<linal::vec3<T>> second;
 
   SphereIntersection() = default;
-  explicit SphereIntersection(const linal::vec3<T>& firstIntersection)
-      : first(firstIntersection)
-  {
-  }
-  SphereIntersection(const linal::vec3<T>& firstIntersection, const linal::vec3<T>& secondIntersection)
+  GEO_CONSTEXPR explicit SphereIntersection(const linal::vec3<T>& firstIntersection) GEO_NOEXCEPT : first(firstIntersection) {}
+  GEO_CONSTEXPR SphereIntersection(const linal::vec3<T>& firstIntersection, const linal::vec3<T>& secondIntersection) GEO_NOEXCEPT
       : first(firstIntersection)
       , second(secondIntersection)
   {
   }
 
-  GEO_NODISCARD bool hasIntersection() const { return first || second; }
+  GEO_NODISCARD GEO_CONSTEXPR bool hasIntersection() const GEO_NOEXCEPT { return first || second; }
 };
 
 template <typename T>
-SphereIntersection<T> intersection(const Sphere<T>& sphere, const Line3<T>& line, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersection(const Sphere<T>& sphere, const Line3<T>& line, T eps = linal::eps<T>::value)
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
   const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -64,7 +61,7 @@ SphereIntersection<T> intersection(const Sphere<T>& sphere, const Line3<T>& line
 }
 
 template <typename T>
-SphereIntersection<T> intersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = linal::eps<T>::value)
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
   const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -102,7 +99,8 @@ SphereIntersection<T> intersection(const Sphere<T>& sphere, const Ray3<T>& ray, 
 }
 
 template <typename T>
-SphereIntersection<T> intersection(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T>
+intersection(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = linal::eps<T>::value)
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
   const linal::vec3<T>& sphereOrigin = sphere.getOrigin();

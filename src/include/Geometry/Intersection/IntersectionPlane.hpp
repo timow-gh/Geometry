@@ -6,14 +6,14 @@
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/vec3.hpp>
 #include <linal/utils/eps.hpp>
+#include <linal/vec3.hpp>
 #include <optional>
 
 namespace Geometry
 {
 template <typename T>
-std::optional<T>
+GEO_NODISCARD std::optional<T>
 calcIntersectionParameter(linal::vec3<T> planeOrigin, linal::vec3<T> planeNormal, linal::vec3<T> lineOrigin, linal::vec3<T> lineDir, T eps)
 {
   // Check parallel
@@ -25,7 +25,7 @@ calcIntersectionParameter(linal::vec3<T> planeOrigin, linal::vec3<T> planeNormal
 }
 
 template <typename T>
-GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Line3<T> line, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Line3<T> line, T eps = linal::eps<T>::value)
 {
   linal::vec3<T> planeOrigin = plane.getOrigin();
   linal::vec3<T> planeNormal = plane.getNormal();
@@ -42,7 +42,7 @@ GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Line3<T
 }
 
 template <typename T>
-GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Ray3<T> ray, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Ray3<T> ray, T eps = linal::eps<T>::value)
 {
   linal::vec3<T> planeOrigin = plane.getOrigin();
   linal::vec3<T> planeNormal = plane.getNormal();
@@ -58,7 +58,7 @@ GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Ray3<T>
 }
 
 template <typename T>
-GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Segment3<T> seg, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Segment3<T> seg, T eps = linal::eps<T>::value)
 {
   linal::vec3<T> planeOrigin = plane.getOrigin();
   linal::vec3<T> planeNormal = plane.getNormal();

@@ -22,18 +22,23 @@ class AABB {
   linal::vec<TFloat, D> m_max;
 
 public:
-  GEO_CONSTEXPR AABB() GEO_NOEXCEPT = default;
+  /** @brief Construct a new, invalid AABB  */
+  GEO_CONSTEXPR AABB() GEO_NOEXCEPT
+      : m_min{TFloat{1.0}}
+      , m_max{TFloat{-1.0}}
+  {
+  }
+
   GEO_CONSTEXPR AABB(linal::vec<TFloat, D> min, linal::vec<TFloat, D> max) GEO_NOEXCEPT
       : m_min{min}
       , m_max{max}
   {
-    GEO_ASSERT(m_min[0] <= m_max[0]);
-    GEO_ASSERT(m_min[1] <= m_max[1]);
-    GEO_ASSERT(m_min[2] <= m_max[2]);
+    GEO_ASSERT(is_valid());
   }
 
   GEO_CONSTEXPR AABB(linal::vec<TFloat, D> min, TFloat extend) GEO_NOEXCEPT : m_min{min}
   {
+    GEO_ASSERT(extend >= TFloat{0.0});
     for (std::size_t i = 0; i < D; ++i)
     {
       m_max[i] = min[i] + extend;
@@ -47,6 +52,22 @@ public:
   GEO_CONSTEXPR void set_max(linal::vec<TFloat, D> max) GEO_NOEXCEPT { m_max = max; }
 
   GEO_NODISCARD GEO_CONSTEXPR linal::vec<TFloat, D> get_center() const GEO_NOEXCEPT { return (m_min + (m_max - m_min) / TFloat{2}); }
+
+  /** @brief Checks if min and max are valid
+   *
+   * @return true, if min <= max in every direction
+   */
+  GEO_NODISCARD GEO_CONSTEXPR bool is_valid() const GEO_NOEXCEPT
+  {
+    for (std::size_t i = 0; i < D; ++i)
+    {
+      if (m_min[i] > m_max[i])
+      {
+        return false;
+      }
+    }
+    return true;
+  }
 
   /**
    * @brief Check if the AABB is empty

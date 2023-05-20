@@ -12,6 +12,7 @@
 
 namespace Geometry
 {
+
 //! Line-Line intersection (Schneider - Geometric Tools for Computer Graphics)
 //! return values:
 //! 0 -> No intersection, lines parallel and different
@@ -57,6 +58,7 @@ GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::vec<T
   // Lines are the same
   return 2;
 }
+
 } // namespace Geometry
 
 #endif // GEOMETRY_INTERSECTIONLINE_HPP

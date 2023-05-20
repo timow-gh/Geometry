@@ -10,6 +10,12 @@ protected:
   AABB3d aabb{{0, 0, 0}, 1.0};
 };
 
+TEST(AABBIsValid, default_constructor)
+{
+  AABB3d const aabb;
+  EXPECT_FALSE(aabb.is_valid());
+}
+
 TEST_F(AABBTest3d, from_cube_points)
 {
   linal::vec3dvector const points{{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 1}};
