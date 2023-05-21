@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_INTERSECTIONPLANE_HPP
-#define GEOMETRY_INTERSECTIONPLANE_HPP
+#ifndef GEOMETRY_INTERSECTPLANE_HPP
+#define GEOMETRY_INTERSECTPLANE_HPP
 
 #include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
@@ -25,7 +25,7 @@ calcIntersectionParameter(linal::vec3<T> planeOrigin, linal::vec3<T> planeNormal
 }
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Line3<T> line, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersect(Plane<T> plane, Line3<T> line, T eps = linal::eps<T>::value)
 {
   linal::vec3<T> planeOrigin = plane.getOrigin();
   linal::vec3<T> planeNormal = plane.getNormal();
@@ -35,14 +35,16 @@ GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> 
   auto dirDot = linal::dot(lineDir, planeNormal);
   // Check parallel
   if (linal::isZero(dirDot, eps))
+  {
     return std::nullopt;
+  }
 
   const auto paramD = linal::dot(linal::vec3<T>{planeOrigin - lineOrigin}, planeNormal) / dirDot;
   return lineOrigin + paramD * lineDir;
 }
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Ray3<T> ray, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersect(Plane<T> plane, Ray3<T> ray, T eps = linal::eps<T>::value)
 {
   linal::vec3<T> planeOrigin = plane.getOrigin();
   linal::vec3<T> planeNormal = plane.getNormal();
@@ -52,13 +54,15 @@ GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> 
   if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, rayOrigin, rayDir, eps))
   {
     if (linal::isGreater(*paramD, T(0), eps))
+    {
       return rayOrigin + paramD.value() * rayDir;
+    }
   }
   return std::nullopt;
 }
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> plane, Segment3<T> seg, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersect(Plane<T> plane, Segment3<T> seg, T eps = linal::eps<T>::value)
 {
   linal::vec3<T> planeOrigin = plane.getOrigin();
   linal::vec3<T> planeNormal = plane.getNormal();
@@ -68,11 +72,13 @@ GEO_NODISCARD GEO_CONSTEXPR std::optional<linal::vec3<T>> intersection(Plane<T> 
   if (auto paramD = calcIntersectionParameter(planeOrigin, planeNormal, segSource, segDir, eps))
   {
     if (linal::isGreater(*paramD, T(0), eps) && linal::isLessEq(*paramD, T(1), eps))
+    {
       return segSource + paramD.value() * segDir;
+    }
   }
   return std::nullopt;
 }
 
 } // namespace Geometry
 
-#endif // GEOMETRY_INTERSECTIONPLANE_HPP
+#endif // GEOMETRY_INTERSECTPLANE_HPP

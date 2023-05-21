@@ -1,4 +1,4 @@
-#include <Geometry/Intersection/IntersectionPlane.hpp>
+#include <Geometry/Intersect/IntersectPlane.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
@@ -13,7 +13,7 @@ static void BM_Intersection_PlaneLine3d(benchmark::State& state)
   Line3d line{linal::vec3d{1, 1, 1}, linal::X_VEC3D};
   for (auto _: state)
   {
-    auto intersection = Geometry::intersection(plane, line);
+    auto intersection = Geometry::intersect(plane, line);
     benchmark::DoNotOptimize(intersection);
   }
 }
@@ -25,7 +25,7 @@ static void BM_Intersection_PlaneRay3d(benchmark::State& state)
   Ray3d ray{linal::vec3d{1, 1, 1}, -linal::X_VEC3D};
   for (auto _: state)
   {
-    auto intersection = Geometry::intersection(plane, ray);
+    auto intersection = Geometry::intersect(plane, ray);
     benchmark::DoNotOptimize(intersection);
   }
 }
@@ -37,7 +37,7 @@ static void BM_Intersection_PlaneSegment3d(benchmark::State& state)
   Segment3d segment{linal::vec3d{-1, 1, 1}, linal::X_VEC3D};
   for (auto _: state)
   {
-    auto intersection = Geometry::intersection(plane, segment);
+    auto intersection = Geometry::intersect(plane, segment);
     benchmark::DoNotOptimize(intersection);
   }
 }

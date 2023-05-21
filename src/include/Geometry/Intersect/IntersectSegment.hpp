@@ -1,16 +1,16 @@
-#ifndef GEOMETRY_INTERSECTIONSEGMENT_HPP
-#define GEOMETRY_INTERSECTIONSEGMENT_HPP
+#ifndef GEOMETRY_INTERSECTSEGMENT_HPP
+#define GEOMETRY_INTERSECTSEGMENT_HPP
 
-#include <Geometry/Intersection/IntersectionInterval.hpp>
-#include <Geometry/Intersection/IntersectionPlane.hpp>
+#include <Geometry/Intersect/IntersectInterval.hpp>
+#include <Geometry/Intersect/IntersectPlane.hpp>
 #include <Geometry/Interval.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
-#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
@@ -22,7 +22,7 @@ namespace Geometry
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
 GEO_NODISCARD uint32_t
-intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& intersectionSeg, T eps = linal::eps<T>::value)
+intersect(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& intersectionSeg, T eps = linal::eps<T>::value)
 {
   linal::vec<T, D> lhsSource = lhs.getSource();
   linal::vec<T, D> lhsTarget = lhs.getTarget();
@@ -37,8 +37,10 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
   if constexpr (D == 3)
   {
     Plane<T> plane{lhsSource, linal::cross(deltaSource, lhsDir)};
-    if (intersection(plane, (Line<T, D>{rhsSource, rhsDir})))
+    if (intersect(plane, (Line<T, D>{rhsSource, rhsDir})))
+    {
       return 3;
+    }
   }
 
   T cross = lhsDir[0] * rhsDir[1] - lhsDir[1] * rhsDir[0];
@@ -51,14 +53,20 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
     // Lines are not parallel
     T s = (deltaSource[0] * rhsDir[1] - deltaSource[1] * rhsDir[0]) / cross;
     if (linal::isLess(s, T(0), eps) || linal::isGreater(s, T(1), eps))
+    {
       return 0;
+    }
 
     T t = (deltaSource[0] * lhsDir[1] - deltaSource[1] * lhsDir[0]) / cross;
     if (linal::isLess(t, T(0), eps) || linal::isGreater(t, T(1), eps))
+    {
       return 0;
+    }
 
     intersectionSeg.setSource(linal::vec<T, D>(lhsSource + s * lhsDir));
-    return 1;
+    {
+      return 1;
+    }
   }
 
   // TODO extract function: is parallel in plane (see line intersection)
@@ -78,7 +86,7 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
   T sMax = std::max(s0, s1);
   Interval sInterval{sMin, sMax};
   Interval<T> iInterval;
-  uint32_t res = intersection(sInterval, Interval{T(0), T(1)}, iInterval);
+  uint32_t res = intersect(sInterval, Interval{T(0), T(1)}, iInterval);
   if (res == 1 || res == 2)
   {
     intersectionSeg.setSource(linal::vec<T, D>(lhsSource + iInterval.getStart() * lhsDir));
@@ -96,7 +104,7 @@ intersection(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& 
 //! 2 -> Overlap, the intersection is the segment
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t intersection(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = linal::eps<T>::value)
+GEO_NODISCARD uint32_t intersect(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = linal::eps<T>::value)
 {
   linal::vec<T, D> segSource = seg.getSource();
   linal::vec<T, D> segTarget = seg.getTarget();
@@ -110,7 +118,7 @@ GEO_NODISCARD uint32_t intersection(const Segment<T, D>& seg, const Line<T, D>& 
   if GEO_CONSTEXPR (D == 3)
   {
     Plane<T> plane{segSource, linal::cross(deltaSource, segDir)};
-    if (intersection(plane, line))
+    if (intersect(plane, line))
       return 3;
   }
 
@@ -146,4 +154,4 @@ GEO_NODISCARD uint32_t intersection(const Segment<T, D>& seg, const Line<T, D>& 
 }
 } // namespace Geometry
 
-#endif // GEOMETRY_INTERSECTIONSEGMENT_HPP
+#endif // GEOMETRY_INTERSECTSEGMENT_HPP

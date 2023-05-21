@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_INTERSECTIONAABB_HPP
-#define GEOMETRY_INTERSECTIONAABB_HPP
+#ifndef GEOMETRY_INTERSECTAABB_HPP
+#define GEOMETRY_INTERSECTAABB_HPP
 
 #include <Geometry/AABB.hpp>
 #include <linal/utils/eps.hpp>
@@ -9,7 +9,7 @@ namespace Geometry
 {
 
 template <typename TFloat, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR bool isIntersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs) GEO_NOEXCEPT
+GEO_NODISCARD GEO_CONSTEXPR bool is_intersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs) GEO_NOEXCEPT
 {
   auto lhsMax = lhs.get_max();
   auto lhsMin = lhs.get_min();
@@ -27,4 +27,4 @@ GEO_NODISCARD GEO_CONSTEXPR bool isIntersecting(AABB<TFloat, D> lhs, AABB<TFloat
 }
 
 } // namespace Geometry
-#endif // GEOMETRY_INTERSECTIONAABB_HPP
+#endif // GEOMETRY_INTERSECTAABB_HPP

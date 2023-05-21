@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_INTERSECTIONSPHERE_HPP
-#define GEOMETRY_INTERSECTIONSPHERE_HPP
+#ifndef GEOMETRY_INTERSECTSPHERE_HPP
+#define GEOMETRY_INTERSECTSPHERE_HPP
 
 #include <Geometry/Line.hpp>
 #include <Geometry/Ray.hpp>
@@ -30,7 +30,7 @@ struct SphereIntersection
 };
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersection(const Sphere<T>& sphere, const Line3<T>& line, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersect(const Sphere<T>& sphere, const Line3<T>& line, T eps = linal::eps<T>::value)
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
   const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -61,7 +61,7 @@ GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersection(const Sphere<T>& 
 }
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersection(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = linal::eps<T>::value)
+GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersect(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = linal::eps<T>::value)
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
   const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -84,23 +84,29 @@ GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersection(const Sphere<T>& 
 
     SphereIntersection<T> result;
     if (linal::isGreaterEq(t1, T(0), eps))
+    {
       result.first = rayOrigin + t1 * rayDir;
+    }
     if (linal::isGreaterEq(t2, T(0), eps))
+    {
       result.second = rayOrigin + t2 * rayDir;
+    }
     return result;
   }
   else if (linal::isZero(discriminant, eps))
   {
     T t = -b / 2 * a;
     if (linal::isGreaterEq(t, T(0), eps))
+    {
       return SphereIntersection<T>(rayOrigin + t * rayDir);
+    }
   }
   return {};
 }
 
 template <typename T>
 GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T>
-intersection(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = linal::eps<T>::value)
+intersect(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = linal::eps<T>::value)
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
   const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
@@ -125,21 +131,29 @@ intersection(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = linal:
 
     SphereIntersection<T> result;
     if (linal::isGreaterEq(t1, T(0), eps) && linal::isLessEq(t1, T(1), eps))
+    {
       result.first = segSource + t1 * segDir;
+    }
     if (linal::isGreaterEq(t2, T(0), eps) && linal::isLessEq(t2, T(1), eps))
+    {
       result.second = segSource + t2 * segDir;
+    }
     if (!result.first && !result.second)
+    {
       return {};
+    }
     return result;
   }
   else if (linal::isZero(discriminant, eps))
   {
     T t = -b / 2 * a;
     if (linal::isGreaterEq(t, T(0), eps) && linal::isLessEq(t, T(1), eps))
+    {
       return SphereIntersection<T>(segSource + t * segDir);
+    }
   }
   return {};
 }
 } // namespace Geometry
 
-#endif // GEOMETRY_INTERSECTIONSPHERE_HPP
+#endif // GEOMETRY_INTERSECTSPHERE_HPP

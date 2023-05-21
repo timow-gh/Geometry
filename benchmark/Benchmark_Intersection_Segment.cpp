@@ -1,4 +1,4 @@
-#include <Geometry/Intersection/IntersectionSegment.hpp>
+#include <Geometry/Intersect/IntersectSegment.hpp>
 #include <Geometry/Segment.hpp>
 #include <benchmark/benchmark.h>
 #include <linal/vec2.hpp>
@@ -14,7 +14,7 @@ static void BM_Intersection_Seg3dSeg3d(benchmark::State& state)
   for (auto _: state)
   {
     Segment3d intersection;
-    uint32_t res = Geometry::intersection(segA, segB, intersection);
+    uint32_t res = Geometry::intersect(segA, segB, intersection);
     benchmark::DoNotOptimize(res);
     benchmark::DoNotOptimize(intersection);
   }
@@ -29,7 +29,7 @@ static void BM_Intersection_Seg3fSeg3f(benchmark::State& state)
   for (auto _: state)
   {
     Segment3f intersection;
-    uint32_t res = Geometry::intersection(segA, segB, intersection);
+    uint32_t res = Geometry::intersect(segA, segB, intersection);
     benchmark::DoNotOptimize(res);
     benchmark::DoNotOptimize(intersection);
   }
@@ -44,7 +44,7 @@ static void BM_Intersection_Seg2dSeg2d(benchmark::State& state)
   for (auto _: state)
   {
     Segment2d intersection;
-    uint32_t res = Geometry::intersection(segA, segB, intersection);
+    uint32_t res = Geometry::intersect(segA, segB, intersection);
     benchmark::DoNotOptimize(res);
     benchmark::DoNotOptimize(intersection);
   }
@@ -59,7 +59,7 @@ static void BM_Intersection_Seg2fSeg2f(benchmark::State& state)
   for (auto _: state)
   {
     Segment2f intersection;
-    uint32_t res = Geometry::intersection(segA, segB, intersection);
+    uint32_t res = Geometry::intersect(segA, segB, intersection);
     benchmark::DoNotOptimize(res);
     benchmark::DoNotOptimize(intersection);
   }

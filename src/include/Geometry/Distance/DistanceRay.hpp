@@ -3,9 +3,9 @@
 
 #include <Geometry/Ray.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
-#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
@@ -19,9 +19,13 @@ GEO_NODISCARD GEO_CONSTEXPR T distance(const Ray<T, D>& ray, linal::vec<T, D> ve
   const T dotProduct = linal::dot(vecO, rayDirection);
   linal::vec<T, D> distanceVec;
   if (linal::isGreater(dotProduct, T(0)))
+  {
     distanceVec = linal::rejection(vecO, rayDirection);
+  }
   else
+  {
     distanceVec = ray.getOrigin() - vec;
+  }
 
   return linal::norm2(distanceVec);
 }

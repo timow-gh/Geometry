@@ -3,7 +3,7 @@
 #pragma GCC diagnostic ignored "-Wredundant-decls"
 #endif
 
-#include <Geometry/Intersection/IntersectionLine.hpp>
+#include <Geometry/Intersect/IntersectLine.hpp>
 #include <Geometry/Line.hpp>
 #include <benchmark/benchmark.h>
 #include <linal/vec2.hpp>
@@ -20,7 +20,7 @@ static void BM_Intersection_Line3dLine3d(benchmark::State& state)
   uint32_t res;
   for (auto _: state)
   {
-    res = Geometry::intersection(lineA, lineB, intersection);
+    res = Geometry::intersect(lineA, lineB, intersection);
     benchmark::DoNotOptimize(res);
     benchmark::DoNotOptimize(intersection);
   }
@@ -35,7 +35,7 @@ static void BM_Intersection_Line3fLine3f(benchmark::State& state)
   for (auto _: state)
   {
     linal::vec3f intersection;
-    uint32_t res = Geometry::intersection(lineA, lineB, intersection);
+    uint32_t res = Geometry::intersect(lineA, lineB, intersection);
     benchmark::DoNotOptimize(res);
     benchmark::DoNotOptimize(intersection);
   }
@@ -50,7 +50,7 @@ static void BM_Intersection_Line2dLine2d(benchmark::State& state)
   for (auto _: state)
   {
     linal::vec2d intersection;
-    uint32_t res = Geometry::intersection(lineA, lineB, intersection);
+    uint32_t res = Geometry::intersect(lineA, lineB, intersection);
     benchmark::DoNotOptimize(res);
     benchmark::DoNotOptimize(intersection);
   }
@@ -65,7 +65,7 @@ static void BM_Intersection_Line2fLine2f(benchmark::State& state)
   for (auto _: state)
   {
     linal::vec2f intersection;
-    uint32_t res = Geometry::intersection(lineA, lineB, intersection);
+    uint32_t res = Geometry::intersect(lineA, lineB, intersection);
     benchmark::DoNotOptimize(res);
     benchmark::DoNotOptimize(intersection);
   }

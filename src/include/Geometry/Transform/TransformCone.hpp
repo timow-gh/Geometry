@@ -2,7 +2,7 @@
 #define GEOMETRY_TRANSFORMCONE_HPP
 
 #include <Geometry/Cone.hpp>
-#include <Geometry/Transformation/TransformSegment.hpp>
+#include <Geometry/Transform/TransformSegment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/hmat.hpp>
 
@@ -10,9 +10,9 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR Cone<T> transformation(const Cone<T>& cone, const linal::hcoord::hmat<T>& trafo)
+GEO_NODISCARD GEO_CONSTEXPR Cone<T> transform(const Cone<T>& cone, const linal::hcoord::hmat<T>& trafo)
 {
-  return Cone<T>{Geometry::transformation(cone.get_segment(), trafo), cone.getRadius()};
+  return Cone<T>{Geometry::transform(cone.get_segment(), trafo), cone.getRadius()};
 }
 
 } // namespace Geometry

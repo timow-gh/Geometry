@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_TRANSFORMATONAABB_HPP
-#define GEOMETRY_TRANSFORMATONAABB_HPP
+#ifndef GEOMETRY_TRANSFORMAABB_HPP
+#define GEOMETRY_TRANSFORMAABB_HPP
 
 #include <Geometry/AABB.hpp>
 #include <Geometry/Utils/Compiler.hpp>
@@ -11,7 +11,7 @@ namespace Geometry
 {
 
 template <typename TFloat, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR AABB<TFloat, D> transformation(const AABB<TFloat, D>& aabb, const linal::hcoord::hmat<TFloat>& trafo)
+GEO_NODISCARD GEO_CONSTEXPR AABB<TFloat, D> transform(const AABB<TFloat, D>& aabb, const linal::hcoord::hmat<TFloat>& trafo)
 {
   linal::hcoord::hvec<TFloat> min = trafo * linal::hcoord::vec_to_hvec<TFloat, D>(aabb.get_min());
   linal::hcoord::hvec<TFloat> max = trafo * linal::hcoord::vec_to_hvec<TFloat, D>(aabb.get_max());
@@ -19,4 +19,4 @@ GEO_NODISCARD GEO_CONSTEXPR AABB<TFloat, D> transformation(const AABB<TFloat, D>
 }
 
 } // namespace Geometry
-#endif // GEOMETRY_TRANSFORMATONAABB_HPP
+#endif // GEOMETRY_TRANSFORMAABB_HPP

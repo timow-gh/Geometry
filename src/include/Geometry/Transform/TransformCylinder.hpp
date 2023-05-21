@@ -2,7 +2,7 @@
 #define GEOMETRY_TRANSFORMCYLINDER_HPP
 
 #include <Geometry/Cylinder.hpp>
-#include <Geometry/Transformation/TransformSegment.hpp>
+#include <Geometry/Transform/TransformSegment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/hmat.hpp>
 
@@ -10,9 +10,9 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR Cylinder<T> transformation(const Cylinder<T>& cylinder, const linal::hcoord::hmat<T>& trafo)
+GEO_NODISCARD GEO_CONSTEXPR Cylinder<T> transform(const Cylinder<T>& cylinder, const linal::hcoord::hmat<T>& trafo)
 {
-  return Cylinder<T>{transformation(cylinder.getSegment(), trafo), cylinder.getRadius()};
+  return Cylinder<T>{transform(cylinder.getSegment(), trafo), cylinder.getRadius()};
 }
 
 } // namespace Geometry

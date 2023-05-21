@@ -1,13 +1,13 @@
-#ifndef GEOMETRY_INTERSECTIONLINE_HPP
-#define GEOMETRY_INTERSECTIONLINE_HPP
+#ifndef GEOMETRY_INTERSECTLINE_HPP
+#define GEOMETRY_INTERSECTLINE_HPP
 
-#include <Geometry/Intersection/IntersectionPlane.hpp>
+#include <Geometry/Intersect/IntersectPlane.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
-#include <linal/utils/eps.hpp>
 #include <optional>
 
 namespace Geometry
@@ -20,7 +20,7 @@ namespace Geometry
 //! 2 -> Lines are the same
 //! 3 -> No intersection, skew lines
 template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::vec<T, D>& intersectionVec, T eps = linal::eps<T>::value)
+GEO_NODISCARD uint32_t intersect(Line<T, D> lhs, Line<T, D> rhs, linal::vec<T, D>& intersectionVec, T eps = linal::eps<T>::value)
 {
   linal::vec<T, D> rhsOrigin = rhs.getOrigin();
   linal::vec<T, D> lhsOrigin = lhs.getOrigin();
@@ -32,8 +32,10 @@ GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::vec<T
   if constexpr (D == 3)
   {
     Plane<T> plane{lhsOrigin, linal::cross(deltaOrigin, lhsDir)};
-    if (intersection(plane, rhs))
+    if (intersect(plane, rhs))
+    {
       return 3;
+    }
   }
 
   T cross = lhsDir[0] * rhsDir[1] - lhsDir[1] * rhsDir[0];
@@ -61,4 +63,4 @@ GEO_NODISCARD uint32_t intersection(Line<T, D> lhs, Line<T, D> rhs, linal::vec<T
 
 } // namespace Geometry
 
-#endif // GEOMETRY_INTERSECTIONLINE_HPP
+#endif // GEOMETRY_INTERSECTLINE_HPP

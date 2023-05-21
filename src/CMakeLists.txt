@@ -24,19 +24,19 @@ set(geometry_TARGET_HEADER
         include/Geometry/Distance/DistanceSegment.hpp
         include/Geometry/Distance/DistancePlane.hpp
         include/Geometry/Distance/DistanceSphere.hpp
-        include/Geometry/Intersection/IntersectionAABB.hpp
-        include/Geometry/Intersection/IntersectionInterval.hpp
-        include/Geometry/Intersection/IntersectionLine.hpp
-        include/Geometry/Intersection/IntersectionPlane.hpp
-        include/Geometry/Intersection/IntersectionSegment.hpp
-        include/Geometry/Intersection/IntersectionSphere.hpp
-        include/Geometry/Transformation/TransformVec.hpp
-        include/Geometry/Transformation/TransformSegment.hpp
-        include/Geometry/Transformation/TransformCuboid.hpp
-        include/Geometry/Transformation/TransformCone.hpp
-        include/Geometry/Transformation/TransformCylinder.hpp
-        include/Geometry/Transformation/TransformSphere.hpp
-        include/Geometry/Transformation/TransformatonAABB.hpp
+        include/Geometry/Intersect/IntersectAABB.hpp
+        include/Geometry/Intersect/IntersectInterval.hpp
+        include/Geometry/Intersect/IntersectLine.hpp
+        include/Geometry/Intersect/IntersectPlane.hpp
+        include/Geometry/Intersect/IntersectSegment.hpp
+        include/Geometry/Intersect/IntersectSphere.hpp
+        include/Geometry/Transform/TransformVec.hpp
+        include/Geometry/Transform/TransformSegment.hpp
+        include/Geometry/Transform/TransformCuboid.hpp
+        include/Geometry/Transform/TransformCone.hpp
+        include/Geometry/Transform/TransformCylinder.hpp
+        include/Geometry/Transform/TransformSphere.hpp
+        include/Geometry/Transform/TransformAABB.hpp
         include/Geometry/Utils/Assert.hpp
         include/Geometry/Utils/Compiler.hpp
         include/Geometry/Utils/Warnings.hpp

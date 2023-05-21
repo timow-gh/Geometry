@@ -3,9 +3,9 @@
 
 #include <Geometry/Line.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
-#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
@@ -28,7 +28,9 @@ GEO_NODISCARD GEO_CONSTEXPR T distance(const Line<T, D>& lhs, const Line<T, D>& 
   linal::vec<T, D> cross = linal::cross(lhs.getDirection(), rhs.getDirection());
   T crossLen = linal::norm2(cross);
   if (linal::isZero(crossLen))
+  {
     return distance(lhs.getOrigin(), rhs);
+  }
   return linal::dot(linal::vec<T, D>{lhs.getOrigin() - rhs.getOrigin()}, cross) / crossLen;
 }
 
