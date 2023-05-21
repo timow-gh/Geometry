@@ -36,6 +36,13 @@ public:
     GEO_ASSERT(is_valid());
   }
 
+  /** @brief Construct a new AABB from a center and an (positive) extend
+   *
+   * @remark The extend must be positive
+   *
+   * @param center The center of the AABB
+   * @param extend The extend of the AABB in every positive direction
+   */
   GEO_CONSTEXPR AABB(linal::vec<TFloat, D> min, TFloat extend) GEO_NOEXCEPT : m_min{min}
   {
     GEO_ASSERT(extend >= TFloat{0.0});
@@ -61,7 +68,7 @@ public:
   {
     for (std::size_t i = 0; i < D; ++i)
     {
-      if (m_min[i] > m_max[i])
+      if (linal::isGreaterEq(m_min[i], m_max[i]))
       {
         return false;
       }
@@ -78,7 +85,7 @@ public:
   {
     for (std::size_t i = 0; i < D; ++i)
     {
-      if (m_min[i] == m_max[i])
+      if (linal::isEq(m_min[i], m_max[i]))
       {
         return true;
       }
@@ -95,11 +102,11 @@ public:
   {
     for (std::size_t i = 0; i < D; ++i)
     {
-      if (vec[i] < m_min[i])
+      if (linal::isLess(vec[i], m_min[i]))
       {
         m_min[i] = vec[i];
       }
-      if (vec[i] > m_max[i])
+      if (linal::isGreater(vec[i], m_max[i]))
       {
         m_max[i] = vec[i];
       }
@@ -114,11 +121,11 @@ public:
   {
     for (std::size_t i = 0; i < D; ++i)
     {
-      if (other.m_min[i] < m_min[i])
+      if (linal::isLess(other.m_min[i], m_min[i]))
       {
         m_min[i] = other.m_min[i];
       }
-      if (other.m_max[i] > m_max[i])
+      if (linal::isGreater(other.m_max[i], m_max[i]))
       {
         m_max[i] = other.m_max[i];
       }
