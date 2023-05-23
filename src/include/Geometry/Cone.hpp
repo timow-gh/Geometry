@@ -36,7 +36,7 @@ public:
   }
   GEO_NODISCARD GEO_CONSTEXPR T get_opening_angle() const { return std::atan(m_radius / get_height()) * 2; }
 
-  GEO_CONSTEXPR bool operator==(const Cone& rhs) const { return m_segment == rhs.m_segment && m_radius == rhs.m_radius; }
+  GEO_CONSTEXPR bool operator==(const Cone& rhs) const { return m_segment == rhs.m_segment && linal::isEq(m_radius, rhs.m_radius); }
   GEO_CONSTEXPR bool operator!=(const Cone& rhs) const { return !(rhs == *this); }
 };
 

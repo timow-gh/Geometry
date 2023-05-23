@@ -1,12 +1,14 @@
 #ifndef GEOMETRY_CIRCLE_HPP
 #define GEOMETRY_CIRCLE_HPP
 
+#include <Geometry/GeomPredicates.hpp>
+#include <Geometry/Utils/Assert.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/hvec.hpp>
+#include <linal/utils/eps.hpp>
 #include <linal/vec2.hpp>
 #include <linal/vec3.hpp>
 #include <linal/vec_operations.hpp>
-#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
@@ -17,16 +19,20 @@ class Circle2 {
   T m_radius;
 
 public:
-  GEO_CONSTEXPR Circle2(const linal::vec2<T>& origin, T radius)
+  GEO_CONSTEXPR Circle2(const linal::vec2<T>& origin, T radius) GEO_NOEXCEPT
       : m_origin(origin)
       , m_radius(radius)
   {
+    GEO_ASSERT(radius >= 0);
   }
 
   GEO_NODISCARD GEO_CONSTEXPR const linal::vec2<T>& getOrigin() const { return m_origin; }
   GEO_NODISCARD GEO_CONSTEXPR T getRadius() const { return m_radius; }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool operator==(const Circle2& rhs) const { return m_origin == rhs.m_origin && m_radius == rhs.m_radius; }
+  GEO_NODISCARD GEO_CONSTEXPR bool operator==(const Circle2& rhs) const
+  {
+    return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius);
+  }
   GEO_NODISCARD GEO_CONSTEXPR bool operator!=(const Circle2& rhs) const { return !(rhs == *this); }
 };
 
@@ -53,7 +59,7 @@ public:
 
   GEO_NODISCARD GEO_CONSTEXPR bool operator==(const Circle3& rhs) const
   {
-    return m_origin == rhs.m_origin && m_radius == rhs.m_radius && m_normal == rhs.m_normal;
+    return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius) && is_equal(m_normal, rhs.m_normal);
   }
   GEO_NODISCARD GEO_CONSTEXPR bool operator!=(const Circle3& rhs) const { return !(rhs == *this); }
 };

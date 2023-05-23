@@ -1,13 +1,13 @@
 #include <Geometry/Distance/DistancePlane.hpp>
 #include <Geometry/Plane.hpp>
-#include <linal/vec.hpp>
+#include <linal/vec3.hpp>
 #include <gtest/gtest.h>
 
 using namespace Geometry;
 
 class PlaneDistanceTest : public ::testing::Test {
   protected:
-    Plane<double> m_plane{linal::vec3d{}, linal::X_VEC3D};
+    Plane<double> m_plane{linal::ZERO_VEC3D, linal::X_VEC3D};
     linal::vec3d point{2, 0, 0};
 };
 

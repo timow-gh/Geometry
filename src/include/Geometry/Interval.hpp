@@ -3,6 +3,7 @@
 
 #include <Geometry/Utils/Compiler.hpp>
 #include <cstdint>
+#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
@@ -24,7 +25,7 @@ public:
   GEO_CONSTEXPR void setStart(T start) { m_start = start; }
   GEO_CONSTEXPR void setEnd(T end) { m_end = end; }
 
-  GEO_CONSTEXPR bool operator==(const Interval& rhs) const { return m_start == rhs.m_start && m_end == rhs.m_end; }
+  GEO_CONSTEXPR bool operator==(const Interval& rhs) const { return linal::isEq(m_start, rhs.m_start) && linal::isEq(m_end, rhs.m_end); }
   GEO_CONSTEXPR bool operator!=(const Interval& rhs) const { return !(rhs == *this); }
 };
 

@@ -3,6 +3,7 @@
 
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
@@ -23,7 +24,7 @@ public:
   GEO_NODISCARD GEO_CONSTEXPR T getRadius() const { return m_radius; }
   GEO_NODISCARD GEO_CONSTEXPR T height() const { return m_segment.length(); }
 
-  GEO_CONSTEXPR bool operator==(const Cylinder& rhs) const { return m_segment == rhs.m_segment && m_radius == rhs.m_radius; }
+  GEO_CONSTEXPR bool operator==(const Cylinder& rhs) const { return m_segment == rhs.m_segment && linal::isEq(m_radius, rhs.m_radius); }
   GEO_CONSTEXPR bool operator!=(const Cylinder& rhs) const { return !(rhs == *this); }
 };
 

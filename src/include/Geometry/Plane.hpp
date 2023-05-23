@@ -1,9 +1,10 @@
 #ifndef GEOMETRY_PLANE_HPP
 #define GEOMETRY_PLANE_HPP
 
+#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/vec3.hpp>
 #include <linal/utils/eps.hpp>
+#include <linal/vec3.hpp>
 
 namespace Geometry
 {
@@ -24,7 +25,7 @@ public:
   GEO_NODISCARD GEO_CONSTEXPR const linal::vec3<T>& getOrigin() const { return m_origin; }
   GEO_NODISCARD GEO_CONSTEXPR const linal::vec3<T>& getNormal() const { return m_normal; }
 
-  GEO_CONSTEXPR bool operator==(const Plane& rhs) const { return m_origin == rhs.m_origin && m_normal == rhs.m_normal; }
+  GEO_CONSTEXPR bool operator==(const Plane& rhs) const { return is_equal(m_origin, rhs.m_origin) && is_equal(m_normal, rhs.m_normal); }
   GEO_CONSTEXPR bool operator!=(const Plane& rhs) const { return !(rhs == *this); }
 };
 

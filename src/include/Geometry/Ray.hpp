@@ -1,10 +1,11 @@
 #ifndef GEOMETRY_RAY_HPP
 #define GEOMETRY_RAY_HPP
 
+#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Utils/Compiler.hpp>
-#include <linal/vec.hpp>
 #include <linal/utils/eps.hpp>
+#include <linal/vec.hpp>
 
 namespace Geometry
 {
@@ -24,7 +25,7 @@ public:
   GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getOrigin() const { return m_origin; }
   GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getDirection() const { return m_direction; }
 
-  GEO_CONSTEXPR bool operator==(const Ray& rhs) const { return m_origin == rhs.m_origin && m_direction == rhs.m_direction; }
+  GEO_CONSTEXPR bool operator==(const Ray& rhs) const { return is_equal(m_origin, rhs.m_origin) && is_equal(m_direction, rhs.m_direction); }
   GEO_CONSTEXPR bool operator!=(const Ray& rhs) const { return !(rhs == *this); }
 };
 

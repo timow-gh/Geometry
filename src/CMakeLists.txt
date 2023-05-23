@@ -49,11 +49,11 @@ set(geometry_TARGET_HEADER
         include/Geometry/Line.hpp
         include/Geometry/Plane.hpp
         include/Geometry/ExtremePointsInDirection.hpp
+        include/Geometry/GeometryAssert.hpp
+        include/Geometry/GeomPredicates.hpp
         include/Geometry/Cylinder.hpp
         include/Geometry/Interval.hpp
         include/Geometry/Triangle.hpp
-        include/Geometry/PolyLine.hpp
-        include/Geometry/GeometryAssert.hpp
         )
 
 set(geometry_TARGET_SOURCES

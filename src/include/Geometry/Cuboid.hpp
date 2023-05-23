@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_CUBE_H
 #define GEOMETRY_CUBE_H
 
+#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/containers.hpp>
 #include <linal/vec3.hpp>
@@ -38,7 +39,11 @@ public:
   GEO_NODISCARD GEO_CONSTEXPR const linal::vec3<T>& getOrigin() const { return m_origin; }
   GEO_NODISCARD GEO_CONSTEXPR const linal::vec3Array<T, 3>& getSideVectors() const { return m_sideVectors; }
 
-  GEO_CONSTEXPR bool operator==(const Cuboid& rhs) const { return m_origin == rhs.m_origin && m_sideVectors == rhs.m_sideVectors; }
+  GEO_CONSTEXPR bool operator==(const Cuboid& rhs) const
+  {
+    return is_equal(m_origin, rhs.m_origin) && is_equal(m_sideVectors[0], rhs.m_sideVectors[0]) &&
+           is_equal(m_sideVectors[1], rhs.m_sideVectors[1]) && is_equal(m_sideVectors[2], rhs.m_sideVectors[2]);
+  }
   GEO_CONSTEXPR bool operator!=(const Cuboid& rhs) const { return !(rhs == *this); }
 
 private:

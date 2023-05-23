@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_LINE_H
 #define GEOMETRY_LINE_H
 
+#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
@@ -23,7 +24,10 @@ public:
   GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getOrigin() const { return m_origin; }
   GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getDirection() const { return m_direction; }
 
-  GEO_CONSTEXPR bool operator==(const Line& rhs) const { return m_origin == rhs.m_origin && m_direction == rhs.m_direction; }
+  GEO_CONSTEXPR bool operator==(const Line& rhs) const
+  {
+    return is_equal(m_origin, rhs.m_origin) && is_equal(m_direction, rhs.m_direction);
+  }
   GEO_CONSTEXPR bool operator!=(const Line& rhs) const { return !(rhs == *this); }
 };
 

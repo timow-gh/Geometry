@@ -23,7 +23,7 @@ GEO_NODISCARD GEO_CONSTEXPR MinMax<TFloat> extremePointsAlongDirection(linal::ve
                                                                        const linal::vecvector<TFloat, D>& points) GEO_NOEXCEPT
 {
   GEO_ASSERT(!points.empty());
-  GEO_ASSERT(linal::norm2(dir) == TFloat{1});
+  GEO_ASSERT(linal::isEq(linal::norm2(dir), TFloat{1}));
 
   TFloat minDist = std::numeric_limits<TFloat>::max();
   TFloat maxDist = std::numeric_limits<TFloat>::lowest();

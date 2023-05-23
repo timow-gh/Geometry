@@ -2,6 +2,7 @@
 #define GEOMETRY_AABB_HPP
 
 #include <Geometry/ExtremePointsInDirection.hpp>
+#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <array>
 #include <linal/containers.hpp>
@@ -132,7 +133,10 @@ public:
     }
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool operator==(const AABB<TFloat, D>& rhs) const { return m_min == rhs.m_min && m_max == rhs.m_max; }
+  GEO_NODISCARD GEO_CONSTEXPR bool operator==(const AABB<TFloat, D>& rhs) const
+  {
+    return is_equal(m_min, rhs.m_min) && is_equal(m_max, rhs.m_max);
+  }
   GEO_NODISCARD GEO_CONSTEXPR bool operator!=(const AABB<TFloat, D>& rhs) const { return !(*this == rhs); }
 };
 

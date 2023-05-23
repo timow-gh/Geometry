@@ -1,10 +1,11 @@
 #ifndef GEOMETRY_SPHERE_H
 #define GEOMETRY_SPHERE_H
 
+#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
 #include <linal/vec3.hpp>
 #include <linal/vec_operations.hpp>
-#include <linal/utils/eps.hpp>
 
 namespace Geometry
 {
@@ -31,7 +32,7 @@ public:
     return !linal::isGreater(linal::norm2(linal::vec3<T>{vec - m_origin}), m_radius);
   }
 
-  GEO_CONSTEXPR bool operator==(const Sphere& rhs) const { return m_origin == rhs.m_origin && m_radius == rhs.m_radius; }
+  GEO_CONSTEXPR bool operator==(const Sphere& rhs) const { return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius); }
   GEO_CONSTEXPR bool operator!=(const Sphere& rhs) const { return !(rhs == *this); }
 };
 
