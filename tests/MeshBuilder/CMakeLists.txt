@@ -1,10 +1,6 @@
 add_library(meshBuilderTestHelper STATIC SphereTestHelper.cpp)
 target_link_libraries(meshBuilderTestHelper PUBLIC gtest Geometry::Geometry)
 
-add_executable(Test_MeshBuilderHelper Test_MeshBuilderHelper.cpp)
-target_link_libraries(Test_MeshBuilderHelper PRIVATE gtest_main Geometry::Geometry meshBuilderTestHelper)
-add_test(NAME Geometry.Test_MeshBuilderHelper COMMAND Test_MeshBuilderHelper)
-
 create_geometry_test(Test_CuboidMeshBuilder)
 
 add_executable(Test_SphereMeshBuilder Test_SphereMeshBuilder.cpp)

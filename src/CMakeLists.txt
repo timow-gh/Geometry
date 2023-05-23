@@ -1,13 +1,13 @@
 set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/Halfedge.hpp
-        include/Geometry/HalfedgeMesh/HalfedgeIndices.hpp
+        include/Geometry/HalfedgeMesh/CalcSegmentIndicesHalfedgeIndices.hpp
         include/Geometry/HalfedgeMesh/Facet.hpp
         include/Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp
         include/Geometry/HalfedgeMesh/MeshPoints.hpp
         include/Geometry/HalfedgeMesh/HalfedgeMesh.hpp
         include/Geometry/HalfedgeMesh/Vertex.hpp
         include/Geometry/HalfedgeMesh/TriangleIndices.hpp
-        include/Geometry/HalfedgeMesh/HalfedgeMeshIndices.hpp
+        include/Geometry/HalfedgeMesh/MeshIndices.hpp
         include/Geometry/HalfedgeMesh/MeshIndexTraits.hpp
         include/Geometry/HalfedgeMesh/MeshTraits.hpp
         include/Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp
@@ -44,15 +44,16 @@ set(geometry_TARGET_HEADER
         include/Geometry/Circle.hpp
         include/Geometry/Cone.hpp
         include/Geometry/Cuboid.hpp
-        include/Geometry/Segment.hpp
-        include/Geometry/Sphere.hpp
-        include/Geometry/Line.hpp
-        include/Geometry/Plane.hpp
+        include/Geometry/Cylinder.hpp
         include/Geometry/ExtremePointsInDirection.hpp
         include/Geometry/GeometryAssert.hpp
         include/Geometry/GeomPredicates.hpp
-        include/Geometry/Cylinder.hpp
+        include/Geometry/Handle.hpp
         include/Geometry/Interval.hpp
+        include/Geometry/Segment.hpp
+        include/Geometry/Line.hpp
+        include/Geometry/Plane.hpp
+        include/Geometry/Sphere.hpp
         include/Geometry/Triangle.hpp
         )
 

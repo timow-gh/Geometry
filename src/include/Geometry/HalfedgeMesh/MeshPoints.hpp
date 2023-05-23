@@ -18,18 +18,18 @@ public:
 
   MeshPoints() = default;
 
-  // TODO: Implement a kd-tree and check for existing points for large meshes
-  // with a lot of insertions
+  GEO_NODISCARD GEO_CONSTEXPR linal::vec3vector<TFloat>& getPoints() { return m_points; }
+  GEO_NODISCARD GEO_CONSTEXPR const linal::vec3vector<TFloat>& getPoints() const { return m_points; }
+  GEO_NODISCARD GEO_CONSTEXPR linal::vec3<TFloat> getPoint(std::size_t index) const { return m_points[index]; }
+  GEO_NODISCARD GEO_CONSTEXPR std::size_t size() const { return m_points.size(); }
+
+  GEO_CONSTEXPR void setPoints(const linal::vec3vector<TFloat>& points) { m_points = points; }
+
   GEO_NODISCARD GEO_CONSTEXPR VertexIndex_t add(const linal::vec3<TFloat>& vector)
   {
     m_points.push_back(vector);
     return VertexIndex_t{m_points.size() - 1};
   }
-
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec3vector<TFloat>& getPoints() { return m_points; }
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vec3vector<TFloat>& getPoints() const { return m_points; }
-
-  GEO_CONSTEXPR void setPoints(const linal::vec3vector<TFloat>& points) { m_points = points; }
 
   GEO_NODISCARD GEO_CONSTEXPR bool contains(const linal::vec3<TFloat>& vector, VertexIndex_t& index)
   {
@@ -43,9 +43,6 @@ public:
     }
     return false;
   }
-
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec3<TFloat> getPoint(std::size_t index) const { return m_points[index]; }
-  GEO_NODISCARD GEO_CONSTEXPR std::size_t size() const { return m_points.size(); }
 
   GEO_CONSTEXPR void transform(const linal::vec3<TFloat>& translation)
   {

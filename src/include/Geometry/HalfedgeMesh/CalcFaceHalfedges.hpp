@@ -10,7 +10,7 @@ namespace Geometry
 {
 
 template <typename TFloat, typename TIndex>
-GEO_CONSTEXPR std::vector<Halfedge<TFloat, TIndex>> calcHalfedges(const Facet<TFloat, TIndex>& facet)
+GEO_NODISCARD GEO_CONSTEXPR std::vector<Halfedge<TFloat, TIndex>> calcHalfedges(const Facet<TFloat, TIndex>& facet)
 {
   std::vector<Halfedge<TFloat, TIndex>> result;
 
