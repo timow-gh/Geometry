@@ -40,7 +40,7 @@ public:
     return segVec / linal::norm2(segVec);
   }
 
-  GEO_CONSTEXPR bool operator==(const Segment& rhs) const { return is_qual(m_source, rhs.m_source) && is_equal(m_target, rhs.m_target); }
+  GEO_CONSTEXPR bool operator==(const Segment& rhs) const { return is_equal(m_source, rhs.m_source) && is_equal(m_target, rhs.m_target); }
   GEO_CONSTEXPR bool operator!=(const Segment& rhs) const { return !(rhs == *this); }
 };
 
