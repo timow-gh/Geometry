@@ -9,5 +9,5 @@ protected:
 TEST(Triangle, DefaultConstructor)
 {
     Geometry::Triangle<double, 3> triangle;
-    EXPECT_EQ(triangle.getTrianglePoints().size(), 3);
+    EXPECT_EQ(triangle.get_triangle_points().size(), 3);
 }

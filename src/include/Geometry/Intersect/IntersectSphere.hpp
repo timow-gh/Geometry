@@ -18,25 +18,29 @@ struct SphereIntersection
   std::optional<linal::vec3<T>> first;
   std::optional<linal::vec3<T>> second;
 
-  SphereIntersection() = default;
-  GEO_CONSTEXPR explicit SphereIntersection(const linal::vec3<T>& firstIntersection) GEO_NOEXCEPT : first(firstIntersection) {}
-  GEO_CONSTEXPR SphereIntersection(const linal::vec3<T>& firstIntersection, const linal::vec3<T>& secondIntersection) GEO_NOEXCEPT
+  SphereIntersection() noexcept = default;
+  constexpr explicit SphereIntersection(const linal::vec3<T>& firstIntersection) noexcept
+      : first(firstIntersection)
+  {
+  }
+  constexpr SphereIntersection(const linal::vec3<T>& firstIntersection, const linal::vec3<T>& secondIntersection) noexcept
       : first(firstIntersection)
       , second(secondIntersection)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool hasIntersection() const GEO_NOEXCEPT { return first || second; }
+  GEO_NODISCARD constexpr bool hasIntersection() const noexcept { return first || second; }
 };
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersect(const Sphere<T>& sphere, const Line3<T>& line, T eps = linal::eps<T>::value)
+GEO_NODISCARD constexpr SphereIntersection<T>
+intersect(const Sphere<T>& sphere, const Line3<T>& line, T eps = linal::eps<T>::value) noexcept
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
-  const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
-  const T radius = sphere.getRadius();
-  const linal::vec3<T>& lineOrigin = line.getOrigin();
-  const linal::vec3<T>& lineDir = line.getDirection();
+  const linal::vec3<T>& sphereOrigin = sphere.get_origin();
+  const T radius = sphere.get_radius();
+  const linal::vec3<T>& lineOrigin = line.get_origin();
+  const linal::vec3<T>& lineDir = line.get_direction();
 
   const linal::vec3<T> deltaOrigin = (lineOrigin - sphereOrigin);
   const T a = linal::dot(lineDir, lineDir);
@@ -61,13 +65,13 @@ GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersect(const Sphere<T>& sph
 }
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersect(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = linal::eps<T>::value)
+GEO_NODISCARD constexpr SphereIntersection<T> intersect(const Sphere<T>& sphere, const Ray3<T>& ray, T eps = linal::eps<T>::value) noexcept
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
-  const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
-  const T radius = sphere.getRadius();
-  const linal::vec3<T>& rayOrigin = ray.getOrigin();
-  const linal::vec3<T>& rayDir = ray.getDirection();
+  const linal::vec3<T>& sphereOrigin = sphere.get_origin();
+  const T radius = sphere.get_radius();
+  const linal::vec3<T>& rayOrigin = ray.get_origin();
+  const linal::vec3<T>& rayDir = ray.get_direction();
 
   const linal::vec3<T> deltaOrigin = (rayOrigin - sphereOrigin);
   const T a = linal::dot(rayDir, rayDir);
@@ -105,14 +109,14 @@ GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T> intersect(const Sphere<T>& sph
 }
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR SphereIntersection<T>
-intersect(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = linal::eps<T>::value)
+GEO_NODISCARD constexpr SphereIntersection<T>
+intersect(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = linal::eps<T>::value) noexcept
 {
   // See Schneider - Geometric Tools, Linear Components and Spheres
-  const linal::vec3<T>& sphereOrigin = sphere.getOrigin();
-  const T radius = sphere.getRadius();
-  const linal::vec3<T>& segSource = segment.getSource();
-  const linal::vec3<T>& segTarget = segment.getTarget();
+  const linal::vec3<T>& sphereOrigin = sphere.get_origin();
+  const T radius = sphere.get_radius();
+  const linal::vec3<T>& segSource = segment.get_source();
+  const linal::vec3<T>& segTarget = segment.get_target();
 
   const linal::vec3<T> deltaOrigin = (segSource - sphereOrigin);
   const linal::vec3<T> segDir = (segTarget - segSource);

@@ -12,11 +12,11 @@ namespace Geometry
 {
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR T distance(const Segment<T, D>& segment, linal::vec<T, D> vec)
+GEO_NODISCARD constexpr T distance(const Segment<T, D>& segment, linal::vec<T, D> vec) noexcept
 {
-  linal::vec<T, D> source = segment.getSource();
+  linal::vec<T, D> source = segment.get_source();
   linal::vec<T, D> ps = vec - source;
-  linal::vec<T, D> ts = segment.getTarget() - source;
+  linal::vec<T, D> ts = segment.get_target() - source;
   T parameter = linal::dot(ps, ts) / linal::norm2(ts);
   T projParameter = std::min(std::max(parameter, T(0.0)), T(1.0));
   linal::vec<T, D> projVec{source + projParameter * ts};
@@ -24,13 +24,13 @@ GEO_NODISCARD GEO_CONSTEXPR T distance(const Segment<T, D>& segment, linal::vec<
 }
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR T distance(linal::vec<T, D> vec, const Segment<T, D>& segment)
+GEO_NODISCARD constexpr T distance(linal::vec<T, D> vec, const Segment<T, D>& segment) noexcept
 {
   return distance(segment, vec);
 }
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR T distance(const Line<T, D>& line, const Segment<T, D>& segment)
+GEO_NODISCARD constexpr T distance(const Line<T, D>& line, const Segment<T, D>& segment) noexcept
 {
   return distance(segment, line);
 }

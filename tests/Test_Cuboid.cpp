@@ -13,5 +13,5 @@ protected:
 TEST_F(Fixture_Cuboid, transformation)
 {
   auto expectedOrigin = linal::vec3d{0, 0, 0};
-  EXPECT_EQ(expectedOrigin, m_cuboid.getOrigin());
+  EXPECT_EQ(expectedOrigin, m_cuboid.get_origin());
 }

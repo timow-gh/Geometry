@@ -14,18 +14,18 @@ class Cylinder {
   T m_radius;
 
 public:
-  GEO_CONSTEXPR Cylinder(const Segment3<T>& segment, T radius)
+  constexpr Cylinder(const Segment3<T>& segment, T radius) noexcept
       : m_segment(segment)
       , m_radius(radius)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const Segment3<T>& getSegment() const { return m_segment; }
-  GEO_NODISCARD GEO_CONSTEXPR T getRadius() const { return m_radius; }
-  GEO_NODISCARD GEO_CONSTEXPR T height() const { return m_segment.length(); }
+  GEO_NODISCARD constexpr const Segment3<T>& get_segment() const noexcept { return m_segment; }
+  GEO_NODISCARD constexpr T get_radius() const noexcept { return m_radius; }
+  GEO_NODISCARD constexpr T height() const noexcept { return m_segment.length(); }
 
-  GEO_CONSTEXPR bool operator==(const Cylinder& rhs) const { return m_segment == rhs.m_segment && linal::isEq(m_radius, rhs.m_radius); }
-  GEO_CONSTEXPR bool operator!=(const Cylinder& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Cylinder& rhs) const noexcept { return m_segment == rhs.m_segment && linal::isEq(m_radius, rhs.m_radius); }
+  constexpr bool operator!=(const Cylinder& rhs) const noexcept { return !(rhs == *this); }
 };
 
 } // namespace Geometry

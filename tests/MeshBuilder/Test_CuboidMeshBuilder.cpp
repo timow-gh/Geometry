@@ -7,6 +7,6 @@ using namespace Geometry;
 
 TEST(MeshBuilder, createACubeMesh)
 {
-  auto res = CuboidMeshBuilder<double, std::size_t>().setCuboid(Cuboid<double>{linal::ZERO_VEC3D, linal::vec3d{1, 1, 1}}).build();
+  auto res = CuboidMeshBuilder<double, std::size_t>().set_cuboid(Cuboid<double>{linal::ZERO_VEC3D, linal::vec3d{1, 1, 1}}).build();
   EXPECT_TRUE(res);
 }

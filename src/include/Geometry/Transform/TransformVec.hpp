@@ -10,7 +10,7 @@ namespace Geometry
 {
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> transform(const linal::vec<T, D>& vec, const linal::hcoord::hmat<T>& trafo)
+GEO_NODISCARD constexpr linal::vec<T, D> transform(const linal::vec<T, D>& vec, const linal::hcoord::hmat<T>& trafo) noexcept
 {
   linal::hcoord::hvec<T> result = trafo * linal::hcoord::vec_to_hvec<T, D>(vec);
   return linal::hcoord::hvec_to_vec<T, D>(result);

@@ -13,12 +13,6 @@
 #define __has_builtin(x) 0
 #endif
 
-#if __has_attribute(noreturn)
-#define GEOMETRY_NORETURN __attribute__((noreturn))
-#else
-#define GEO_NORETURN
-#endif
-
 #if __has_attribute(packed)
 #define GEO_PACKED __attribute__((packed))
 #else
@@ -62,16 +56,6 @@
 #define GEO_NOINLINE
 #endif
 
-#if __has_attribute(maybe_unused)
-#define GEO_UNUSED [[maybe_unused]]
-#define GEO_UNUSED_IN_RELEASE [[maybe_unused]]
-#elif __has_attribute(unused)
-#define GEO_UNUSED __attribute__((unused))
-#define GEO_UNUSED_IN_RELEASE __attribute__((unused))
-#else
-#define GEO_UNUSED
-#define GEO_UNUSED_IN_RELEASE
-#endif
 
 #if defined(_MSC_VER) && _MSC_VER >= 1900
 #define GEO_RESTRICT __restrict
@@ -81,26 +65,6 @@
 #define GEO_RESTRICT
 #endif
 
-#ifndef GEO_NODISCARD
 #define GEO_NODISCARD [[nodiscard]]
-#else
-#define GEO_NODISCARD
-#endif
-
-#ifndef GEO_NOEXCEPT
-#define GEO_NOEXCEPT noexcept
-#else
-#define GEO_NOEXCEPT
-#endif
-
-#if ((defined(_MSVC_LANG) && _MSVC_LANG >= 200704L) || defined(__cpp_constexpr))
-#define GEO_CONSTEXPR constexpr
-#else
-#define GEO_CONSTEXPR
-#endif
-
-#if defined(_MSC_VER) && !defined(__PRETTY_FUNCTION__)
-#define __PRETTY_FUNCTION__ __FUNCSIG__
-#endif
 
 #endif // GEOMETRY_COMPILER_HPP

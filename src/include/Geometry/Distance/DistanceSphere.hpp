@@ -10,13 +10,13 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD T signedDistance(const linal::vec3<T>& vec, const Sphere<T>& sphere)
+GEO_NODISCARD T signedDistance(const linal::vec3<T>& vec, const Sphere<T>& sphere) noexcept
 {
-  return linal::norm2(linal::vec3<T>{vec - sphere.getOrigin()}) - sphere.getRadius();
+  return linal::norm2(linal::vec3<T>{vec - sphere.get_origin()}) - sphere.get_radius();
 }
 
 template <typename T>
-GEO_NODISCARD T distance(const linal::vec3<T>& vec, const Sphere<T>& sphere)
+GEO_NODISCARD T distance(const linal::vec3<T>& vec, const Sphere<T>& sphere) noexcept
 {
   return std::abs(signedDistance(vec, sphere));
 }

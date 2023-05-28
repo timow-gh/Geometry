@@ -13,7 +13,7 @@ protected:
 TEST_F(Circle3d_xz, circleOrigin)
 {
   linal::vec3d expectedOrigin{0, 0, 0};
-  EXPECT_EQ(circle.getOrigin(), expectedOrigin);
+  EXPECT_EQ(circle.get_origin(), expectedOrigin);
 }
 
 class Circle3d_Translation : public ::testing::Test {

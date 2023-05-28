@@ -16,17 +16,23 @@ class Ray {
   linal::vec<T, D> m_direction;
 
 public:
-  GEO_CONSTEXPR Ray(linal::vec<T, D> origin, linal::vec<T, D> direction)
+  constexpr Ray(linal::vec<T, D> origin, linal::vec<T, D> direction) noexcept
       : m_origin(origin)
       , m_direction(direction)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getOrigin() const { return m_origin; }
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getDirection() const { return m_direction; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_direction() const noexcept { return m_direction; }
 
-  GEO_CONSTEXPR bool operator==(const Ray& rhs) const { return is_equal(m_origin, rhs.m_origin) && is_equal(m_direction, rhs.m_direction); }
-  GEO_CONSTEXPR bool operator!=(const Ray& rhs) const { return !(rhs == *this); }
+  constexpr void set_origin(linal::vec<T, D> origin) noexcept { m_origin = origin; }
+  constexpr void set_direction(linal::vec<T, D> direction) noexcept { m_direction = direction; }
+
+  constexpr bool operator==(const Ray& rhs) const noexcept
+  {
+    return is_equal(m_origin, rhs.m_origin) && is_equal(m_direction, rhs.m_direction);
+  }
+  constexpr bool operator!=(const Ray& rhs) const noexcept { return !(rhs == *this); }
 };
 
 template <typename T>

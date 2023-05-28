@@ -15,18 +15,21 @@ private:
   linal::vec3<T> m_normal;
 
 public:
-  GEO_CONSTEXPR Plane() = default;
-  GEO_CONSTEXPR Plane(const linal::vec3<T>& origin, const linal::vec3<T>& normal)
+  constexpr Plane() noexcept = default;
+  constexpr Plane(const linal::vec3<T>& origin, const linal::vec3<T>& normal) noexcept
       : m_origin(origin)
       , m_normal(normal)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vec3<T>& getOrigin() const { return m_origin; }
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vec3<T>& getNormal() const { return m_normal; }
+  GEO_NODISCARD constexpr const linal::vec3<T>& get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr const linal::vec3<T>& get_normal() const noexcept { return m_normal; }
 
-  GEO_CONSTEXPR bool operator==(const Plane& rhs) const { return is_equal(m_origin, rhs.m_origin) && is_equal(m_normal, rhs.m_normal); }
-  GEO_CONSTEXPR bool operator!=(const Plane& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Plane& rhs) const noexcept
+  {
+    return is_equal(m_origin, rhs.m_origin) && is_equal(m_normal, rhs.m_normal);
+  }
+  constexpr bool operator!=(const Plane& rhs) const noexcept { return !(rhs == *this); }
 };
 
 } // namespace Geometry

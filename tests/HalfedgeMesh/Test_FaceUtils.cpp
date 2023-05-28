@@ -9,7 +9,7 @@ using namespace Geometry;
 
 class FaceUtilsTest : public ::testing::Test {
   protected:
-    FaceUtilsTest() : m_heMesh(CuboidMeshBuilder<float, std::size_t>().setCuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build()) {}
+    FaceUtilsTest() : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build()) {}
 
     std::unique_ptr<HalfedgeMesh<float>> m_heMesh;
 };

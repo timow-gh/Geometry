@@ -28,7 +28,7 @@ class MeshBuilder {
   MeshBuilderConfig m_config;
 
 public:
-  GEO_CONSTEXPR explicit MeshBuilder(const MeshBuilderConfig& meshBuilderConfig);
+  constexpr explicit MeshBuilder(const MeshBuilderConfig& meshBuilderConfig);
 
   GEO_NODISCARD std::unique_ptr<HalfedgeMesh<double, std::size_t>> build(const Geometry::Sphere<double>& sphere);
   GEO_NODISCARD std::unique_ptr<HalfedgeMesh<double, std::size_t>> build(const Geometry::Cone<double>& cone);

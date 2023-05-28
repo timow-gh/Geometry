@@ -19,7 +19,7 @@ using FacetIndex_t = HalfedgeMesh_t::FacetIndex_t;
 class TestHalfedge : public ::testing::Test {
   protected:
     TestHalfedge()
-        : m_heMesh(CuboidMeshBuilder<float, std::size_t>().setCuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
+        : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
         , m_halfedge(m_heMesh->getHalfedges().front())
     {
     }
@@ -31,19 +31,19 @@ class TestHalfedge : public ::testing::Test {
 TEST_F(TestHalfedge, getFacet)
 {
     Facet_t facet = m_halfedge.getFacet();
-    EXPECT_TRUE(facet.getHalfedgeIndex().isValid());
+    EXPECT_TRUE(facet.getHalfedgeIndex().is_valid());
 }
 
 TEST_F(TestHalfedge, getFacetIndex)
 {
     FacetIndex_t facetIndex = m_halfedge.getFacetIndex();
-    EXPECT_TRUE(facetIndex.isValid());
+    EXPECT_TRUE(facetIndex.is_valid());
 }
 
 TEST_F(TestHalfedge, setFacetIndex)
 {
     FacetIndex_t facetIndex = m_halfedge.getFacetIndex();
-    m_halfedge.setFacetIndex(FacetIndex_t{facetIndex.getValue() + 1});
+    m_halfedge.setFacetIndex(FacetIndex_t{facetIndex.get_value() + 1});
     EXPECT_NE(m_halfedge.getFacetIndex(), facetIndex);
 }
 
@@ -58,7 +58,7 @@ TEST_F(TestHalfedge, getNext)
 TEST_F(TestHalfedge, setNextIndex)
 {
     HalfedgeIndex_t nextHeIndex = m_halfedge.getNextIndex();
-    HalfedgeIndex_t modifiedHeIndex = HalfedgeIndex_t{nextHeIndex.getValue() + 1};
+    HalfedgeIndex_t modifiedHeIndex = HalfedgeIndex_t{nextHeIndex.get_value() + 1};
     m_halfedge.setNextIndex(modifiedHeIndex);
     EXPECT_EQ(modifiedHeIndex, m_halfedge.getNextIndex());
 }
@@ -74,7 +74,7 @@ TEST_F(TestHalfedge, getPrevious)
 TEST_F(TestHalfedge, setPreviousIndex)
 {
     HalfedgeIndex_t prevIndex = m_halfedge.getPreviousIndex();
-    HalfedgeIndex_t modifiedHeIndex = HalfedgeIndex_t{prevIndex.getValue() + 1};
+    HalfedgeIndex_t modifiedHeIndex = HalfedgeIndex_t{prevIndex.get_value() + 1};
     m_halfedge.setPreviousIndex(modifiedHeIndex);
     EXPECT_EQ(modifiedHeIndex, m_halfedge.getPreviousIndex());
 }
@@ -90,7 +90,7 @@ TEST_F(TestHalfedge, getOpposite)
 TEST_F(TestHalfedge, setOppositeIndex)
 {
     HalfedgeIndex_t oppIdx = m_halfedge.getOppositeIndex();
-    HalfedgeIndex_t modifiedHeIndex = HalfedgeIndex_t{oppIdx.getValue() + 1};
+    HalfedgeIndex_t modifiedHeIndex = HalfedgeIndex_t{oppIdx.get_value() + 1};
     m_halfedge.setOppositeIndex(modifiedHeIndex);
     EXPECT_EQ(modifiedHeIndex, m_halfedge.getOppositeIndex());
 }
@@ -106,7 +106,7 @@ TEST_F(TestHalfedge, getVertex)
 TEST_F(TestHalfedge, setVertexIndex)
 {
     VertexIndex_t vertexIdx = m_halfedge.getVertexIndex();
-    VertexIndex_t modifiedIndex = VertexIndex_t{vertexIdx.getValue() + 1};
+    VertexIndex_t modifiedIndex = VertexIndex_t{vertexIdx.get_value() + 1};
     m_halfedge.setVertexIndex(modifiedIndex);
     EXPECT_EQ(modifiedIndex, m_halfedge.getVertexIndex());
 }

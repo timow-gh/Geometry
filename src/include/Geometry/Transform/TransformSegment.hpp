@@ -11,10 +11,10 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR Segment3<T> transform(const Segment3<T>& segment, const linal::hcoord::hmat<T>& trafo)
+GEO_NODISCARD constexpr Segment3<T> transform(const Segment3<T>& segment, const linal::hcoord::hmat<T>& trafo) noexcept
 {
-  linal::hcoord::hvec<T> source = trafo * linal::hcoord::vec_to_hvec<T, 3>(segment.getSource());
-  linal::hcoord::hvec<T> target = trafo * linal::hcoord::vec_to_hvec<T, 3>(segment.getTarget());
+  linal::hcoord::hvec<T> source = trafo * linal::hcoord::vec_to_hvec<T, 3>(segment.get_source());
+  linal::hcoord::hvec<T> target = trafo * linal::hcoord::vec_to_hvec<T, 3>(segment.get_target());
   return Segment3<T>{linal::hcoord::hvec_to_vec<T, 3>(source), linal::hcoord::hvec_to_vec<T, 3>(target)};
 }
 

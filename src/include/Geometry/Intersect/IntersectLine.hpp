@@ -20,12 +20,12 @@ namespace Geometry
 //! 2 -> Lines are the same
 //! 3 -> No intersection, skew lines
 template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t intersect(Line<T, D> lhs, Line<T, D> rhs, linal::vec<T, D>& intersectionVec, T eps = linal::eps<T>::value)
+GEO_NODISCARD uint32_t intersect(Line<T, D> lhs, Line<T, D> rhs, linal::vec<T, D>& intersectionVec, T eps = linal::eps<T>::value) noexcept
 {
-  linal::vec<T, D> rhsOrigin = rhs.getOrigin();
-  linal::vec<T, D> lhsOrigin = lhs.getOrigin();
-  linal::vec<T, D> rhsDir = rhs.getDirection();
-  linal::vec<T, D> lhsDir = lhs.getDirection();
+  linal::vec<T, D> rhsOrigin = rhs.get_origin();
+  linal::vec<T, D> lhsOrigin = lhs.get_origin();
+  linal::vec<T, D> rhsDir = rhs.get_direction();
+  linal::vec<T, D> lhsDir = lhs.get_direction();
 
   linal::vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
 

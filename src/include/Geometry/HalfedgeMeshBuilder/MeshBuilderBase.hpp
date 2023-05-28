@@ -17,7 +17,7 @@ class MeshBuilderBase {
 protected:
   linal::hcoord::hmat<TFloat> m_transformation = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 
-  std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> buildTriangleHeMesh(const linal::vec3vector<TFloat>& points,
+  std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build_triangle_halfedge_mesh(const linal::vec3vector<TFloat>& points,
                                                                     const std::vector<TIndex>& triangleIndices) const
   {
     auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
@@ -38,7 +38,7 @@ protected:
     return heMesh;
   }
 
-  Derived& setTransformation(const linal::hcoord::hmat<TFloat>& transformation)
+  Derived& set_transformation(const linal::hcoord::hmat<TFloat>& transformation)
   {
     m_transformation = transformation;
     return *static_cast<Derived*>(this);

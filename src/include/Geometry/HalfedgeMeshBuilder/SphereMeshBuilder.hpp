@@ -29,7 +29,7 @@ public:
     return *this;
   }
 
-  SphereMeshBuilder& setAzimuthCount(uint32_t azimuthCount)
+  SphereMeshBuilder& set_azimuth_count(uint32_t azimuthCount)
   {
     m_azimuthCount = azimuthCount;
     return *this;
@@ -48,7 +48,7 @@ public:
 
     auto spherePoints = calcSpherePoints(*m_sphere);
     auto triangleIndices = calcSphereTriangleIndices(spherePoints);
-    return MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>>::buildTriangleHeMesh(spherePoints, triangleIndices);
+    return MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(spherePoints, triangleIndices);
   }
 
 private:
@@ -58,7 +58,7 @@ private:
 
     TFloat polarStep = linal::PI<TFloat> / static_cast<TFloat>(m_polarCount);
     TFloat azimuthStep = TFloat{2.0} * linal::PI<TFloat> / static_cast<TFloat>(m_azimuthCount);
-    TFloat radius = sphere.getRadius();
+    TFloat radius = sphere.get_radius();
 
     for (uint32_t i{1}; i < m_polarCount; ++i)
     {
@@ -79,7 +79,7 @@ private:
     points.push_back(linal::vec3<TFloat>{0, 0, radius});
     points.push_back(linal::vec3<TFloat>{0, 0, -radius});
 
-    const auto& sphereOrigin = sphere.getOrigin();
+    const auto& sphereOrigin = sphere.get_origin();
     if (sphereOrigin != linal::ZERO_VEC3D)
       for (auto& point: points)
         point += sphereOrigin;

@@ -29,7 +29,7 @@ TEST(Interval, Touching_LHS)
     Interval<double> result{};
     uint32_t res = Geometry::intersect(a, b, result);
     EXPECT_EQ(res, 1);
-    EXPECT_EQ(result.getStart(), 0.0);
+    EXPECT_EQ(result.get_start(), 0.0);
 }
 
 TEST(Interval, Touching_RHS)
@@ -39,7 +39,7 @@ TEST(Interval, Touching_RHS)
     Interval<double> result{};
     uint32_t res = Geometry::intersect(a, b, result);
     EXPECT_EQ(res, 1);
-    EXPECT_EQ(result.getStart(), 1.0);
+    EXPECT_EQ(result.get_start(), 1.0);
 }
 
 TEST(Interval, Intersecting)

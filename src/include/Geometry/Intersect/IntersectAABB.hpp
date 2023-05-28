@@ -19,7 +19,7 @@ namespace Geometry
  * @return bool True if the AABBs are intersecting, false otherwise.
  */
 template <typename TFloat, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR bool is_intersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs) GEO_NOEXCEPT
+GEO_NODISCARD constexpr bool is_intersecting(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs) noexcept
 {
   auto lhsMax = lhs.get_max();
   auto lhsMin = lhs.get_min();
@@ -45,7 +45,7 @@ GEO_NODISCARD GEO_CONSTEXPR bool is_intersecting(AABB<TFloat, D> lhs, AABB<TFloa
  * @return AABB The intersection of the two AABBs or an invalid AABB if they do not intersect.
  */
 template <typename TFloat, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR AABB<TFloat, D> intersect(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs) GEO_NOEXCEPT
+GEO_NODISCARD constexpr AABB<TFloat, D> intersect(AABB<TFloat, D> lhs, AABB<TFloat, D> rhs) noexcept
 {
   auto lhsMax = lhs.get_max();
   auto lhsMin = lhs.get_min();

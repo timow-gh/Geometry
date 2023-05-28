@@ -19,7 +19,7 @@ TEST(AABBIsValid, default_constructor)
 TEST_F(AABBTest3d, from_cube_points)
 {
   linal::vec3dvector const points{{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 1}};
-  AABB3d const box = makeAABB(points);
+  AABB3d const box = make_aabb(points);
 
   linal::vec3d const expectedMin{0.0, 0.0, 0.0};
   EXPECT_EQ(box.get_min(), expectedMin);
@@ -30,7 +30,7 @@ TEST_F(AABBTest3d, from_cube_points)
 TEST(AABBCenterTest, get_center)
 {
   linal::vec3dvector const points{{1.0, 1.0, 1.0}, {-1.0, -1.0, -1.0}};
-  AABB3d const aabb = makeAABB(points);
+  AABB3d const aabb = make_aabb(points);
 
   linal::vec3d const expectedCenter{0.0, 0.0, 0.0};
   EXPECT_EQ(aabb.get_center(), expectedCenter);

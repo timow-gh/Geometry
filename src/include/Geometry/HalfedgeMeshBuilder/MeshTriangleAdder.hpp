@@ -22,7 +22,7 @@ public:
 
   using MeshPoints_t = MeshPoints<TFloat, TIndex>;
 
-  GEO_CONSTEXPR explicit MeshTriangleAdder(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh) GEO_NOEXCEPT : m_halfedgeMesh(&halfedgeMesh) {}
+  constexpr explicit MeshTriangleAdder(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh) noexcept : m_halfedgeMesh(&halfedgeMesh) {}
 
   void operator()(const Triangle<TFloat, 3>& triangle)
   {
@@ -34,21 +34,21 @@ public:
     HalfedgeIndex_t halfedgeIndex{halfedges.size() == 0 ? 0 : halfedges.size()};
 
     std::array<VertexIndex_t, 3> vertexIndices;
-    createOrFindVertex(triangle, meshPoints, vertices, vertexIndices);
-    createHalfedgeAndSetVertex(vertexIndices, vertices, halfedges, m_halfedgeMesh);
+    create_or_find_vertex(triangle, meshPoints, vertices, vertexIndices);
+    create_halfedge_and_set_vertex(vertexIndices, vertices, halfedges, m_halfedgeMesh);
     facets.emplace_back(halfedgeIndex, *m_halfedgeMesh);
-    fillHalfedgesOfFacet(facets, halfedgeIndex, halfedges);
-    setOppositeHalfedges(halfedgeIndex, halfedges);
+    flil_halfedges_of_facet(facets, halfedgeIndex, halfedges);
+    set_opposite_halfedges(halfedgeIndex, halfedges);
   }
 
 private:
-  void createOrFindVertex(const Triangle<TFloat, 3>& triangle,
+  void create_or_find_vertex(const Triangle<TFloat, 3>& triangle,
                           MeshPoints_t& meshPoints,
                           std::vector<Vertex_t>& vertices,
                           std::array<VertexIndex_t, 3>& vertexIndices) const
   {
     // Create or find the Vertex of the linal::vec3
-    const linal::vecArray<TFloat, 3, 3> trianglePoints = triangle.getTrianglePoints();
+    const linal::vecArray<TFloat, 3, 3> trianglePoints = triangle.get_triangle_points();
     for (std::size_t i = 0; i < 3; ++i)
     {
       VertexIndex_t vertexIndex;
@@ -61,7 +61,7 @@ private:
     }
   }
 
-  void createHalfedgeAndSetVertex(const std::array<VertexIndex_t, 3>& vertexIndices,
+  void create_halfedge_and_set_vertex(const std::array<VertexIndex_t, 3>& vertexIndices,
                                   std::vector<Vertex_t>& vertices,
                                   std::vector<Halfedge_t>& halfedges,
                                   HalfedgeMesh<TFloat, TIndex>* halfedgeMesh) const
@@ -70,30 +70,30 @@ private:
     for (const VertexIndex_t vIndex: vertexIndices)
     {
       halfedges.emplace_back(vIndex, halfedgeMesh);
-      if (!vertices[vIndex.getValue()].getHalfedgeIndex().isValid())
-        vertices[vIndex.getValue()].setHalfedgeIndex(HalfedgeIndex_t{halfedges.size() - 1});
+      if (!vertices[vIndex.get_value()].getHalfedgeIndex().is_valid())
+        vertices[vIndex.get_value()].setHalfedgeIndex(HalfedgeIndex_t{halfedges.size() - 1});
     }
   }
 
-  void fillHalfedgesOfFacet(std::vector<Facet_t>& facets, HalfedgeIndex_t halfedgeIndex, std::vector<Halfedge_t>& halfedges) const
+  void flil_halfedges_of_facet(std::vector<Facet_t>& facets, HalfedgeIndex_t halfedgeIndex, std::vector<Halfedge_t>& halfedges) const
   {
     // Fill the facet, the next and the previous pointer for each Halfedge
     // of the Facet
     const FacetIndex_t facetIdx = FacetIndex_t(facets.size() - 1);
-    for (TIndex i = halfedgeIndex.getValue(); i < halfedges.size(); ++i)
+    for (TIndex i = halfedgeIndex.get_value(); i < halfedges.size(); ++i)
     {
       halfedges[i].setFacetIndex(facetIdx);
-      TIndex nextHeIndex = i == halfedges.size() - 1 ? halfedgeIndex.getValue() : i + 1;
+      TIndex nextHeIndex = i == halfedges.size() - 1 ? halfedgeIndex.get_value() : i + 1;
       halfedges[i].setNextIndex(HalfedgeIndex_t{nextHeIndex});
-      TIndex previousHeIndex = i == halfedgeIndex.getValue() ? halfedges.size() - 1 : i - 1;
+      TIndex previousHeIndex = i == halfedgeIndex.get_value() ? halfedges.size() - 1 : i - 1;
       halfedges[i].setPreviousIndex(HalfedgeIndex_t{previousHeIndex});
     }
   }
 
-  void setOppositeHalfedges(HalfedgeIndex_t halfedgeIndex, std::vector<Halfedge_t>& halfedges) const
+  void set_opposite_halfedges(HalfedgeIndex_t halfedgeIndex, std::vector<Halfedge_t>& halfedges) const
   {
     // Find and set the opposite Halfedges for each Halfedge of the Facet
-    for (std::size_t i = halfedgeIndex.getValue(); i < halfedges.size(); ++i)
+    for (std::size_t i = halfedgeIndex.get_value(); i < halfedges.size(); ++i)
     {
       Halfedge_t& halfedge = halfedges[i];
 

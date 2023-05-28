@@ -23,13 +23,13 @@ class CylinderMeshBuilder : public MeshBuilderBase<TFloat, TIndex, CylinderMeshB
 public:
   CylinderMeshBuilder() = default;
 
-  CylinderMeshBuilder& setCylinder(const Cylinder<TFloat>& clyinder)
+  CylinderMeshBuilder& set_cylinder(const Cylinder<TFloat>& clyinder)
   {
     m_cylinder = clyinder;
     return *this;
   }
 
-  CylinderMeshBuilder& setAzimuthCount(TIndex azimuthCount)
+  CylinderMeshBuilder& set_azimuth_count(TIndex azimuthCount)
   {
     m_azimuthCount = azimuthCount;
     return *this;
@@ -40,25 +40,25 @@ public:
     if (!m_cylinder)
       return nullptr;
 
-    const auto cylinderSeg = m_cylinder->getSegment();
+    const auto cylinderSeg = m_cylinder->get_segment();
 
     linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec_to_hvec(cylinderSeg.direction()));
-    linal::hcoord::set_translation(hTrafo, cylinderSeg.getSource());
-    MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::setTransformation(hTrafo);
+    linal::hcoord::set_translation(hTrafo, cylinderSeg.get_source());
+    MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::set_transformation(hTrafo);
 
-    linal::vec3vector<TFloat> cylPoints = calcCylinderPoints();
-    const auto cylinderTriangleIndices = calcCylinderTriangleIndices(cylPoints);
-    return MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::buildTriangleHeMesh(cylPoints, cylinderTriangleIndices);
+    linal::vec3vector<TFloat> cylPoints = calc_cylinder_points();
+    const auto cylinderTriangleIndices = calc_cylinder_triangle_indices(cylPoints);
+    return MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(cylPoints, cylinderTriangleIndices);
   }
 
 private:
-  linal::vec3vector<TFloat> calcCylinderPoints() const
+  linal::vec3vector<TFloat> calc_cylinder_points() const
   {
     linal::vec3vector<TFloat> points;
     points.reserve(2 * m_azimuthCount + 2);
 
-    const Segment3<TFloat>& segment = m_cylinder->getSegment();
-    discretizeCircle(points, m_cylinder->getRadius(), m_azimuthCount);
+    const Segment3<TFloat>& segment = m_cylinder->get_segment();
+    discretize_circle(points, m_cylinder->get_radius(), m_azimuthCount);
 
     std::size_t circlePointsSize = points.size();
     double segLength = segment.length();
@@ -74,10 +74,10 @@ private:
     return points;
   }
 
-  void calcCircleBufferIndices(std::vector<TIndex>& indices,
-                               const TIndex midPointIdx,
-                               const TIndex circleStartIdx,
-                               const TIndex circleEndIdx) const
+  void calc_circle_buffer_indices(std::vector<TIndex>& indices,
+                                   const TIndex midPointIdx,
+                                   const TIndex circleStartIdx,
+                                   const TIndex circleEndIdx) const
   {
     for (TIndex i{circleStartIdx + 1}; i < circleEndIdx; i++)
     {
@@ -90,7 +90,7 @@ private:
     indices.push_back(circleEndIdx - 1);
   }
 
-  std::vector<TIndex> calcCylinderTriangleIndices(const linal::vec3vector<TFloat>& cylinderPoints) const
+  std::vector<TIndex> calc_cylinder_triangle_indices(const linal::vec3vector<TFloat>& cylinderPoints) const
   {
     // Bottom circle
     std::vector<TIndex> indices;
@@ -99,7 +99,7 @@ private:
     const TIndex bottomMidPointIdx = cylPointsSize - 2;
     const TIndex bottomCircleStartIdx = 0;
     const TIndex bottomCircleEndIdx = 0 + m_azimuthCount;
-    calcCircleBufferIndices(indices, bottomMidPointIdx, bottomCircleStartIdx, bottomCircleEndIdx);
+    calc_circle_buffer_indices(indices, bottomMidPointIdx, bottomCircleStartIdx, bottomCircleEndIdx);
 
     // Outer surface
     for (TIndex i{1}; i < m_azimuthCount; ++i)
@@ -127,7 +127,7 @@ private:
     const std::size_t topMidPointIdx = cylPointsSize - 1;
     const std::size_t topCircleStartIdx = m_azimuthCount;
     const std::size_t topCircleEndIdx = 2 * m_azimuthCount;
-    calcCircleBufferIndices(indices, topMidPointIdx, topCircleStartIdx, topCircleEndIdx);
+    calc_circle_buffer_indices(indices, topMidPointIdx, topCircleStartIdx, topCircleEndIdx);
 
     return indices;
   }

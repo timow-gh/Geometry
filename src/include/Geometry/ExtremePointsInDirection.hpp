@@ -19,8 +19,8 @@ struct MinMax
 };
 
 template <typename TFloat, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR MinMax<TFloat> extremePointsAlongDirection(linal::vec<TFloat, D> dir,
-                                                                       const linal::vecvector<TFloat, D>& points) GEO_NOEXCEPT
+GEO_NODISCARD constexpr MinMax<TFloat> extreme_points_along_direction(linal::vec<TFloat, D> dir,
+                                                                      const linal::vecvector<TFloat, D>& points) noexcept
 {
   GEO_ASSERT(!points.empty());
   GEO_ASSERT(linal::isEq(linal::norm2(dir), TFloat{1}));

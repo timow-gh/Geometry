@@ -21,7 +21,7 @@ class CuboidMeshBuilder {
 
 public:
   CuboidMeshBuilder() = default;
-  CuboidMeshBuilder& setCuboid(const Cuboid<TFloat>& cube)
+  CuboidMeshBuilder& set_cuboid(const Cuboid<TFloat>& cube)
   {
     m_cube = cube;
     return *this;
@@ -34,16 +34,16 @@ public:
     if (!m_cube)
       return nullptr;
 
-    std::array<Triangle<TFloat, 3>, 12> triangles = calcCuboidTriangles();
+    std::array<Triangle<TFloat, 3>, 12> triangles = calc_cuboid_triangles();
     auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
     std::for_each(triangles.cbegin(), triangles.cend(), MeshTriangleAdder<TFloat, TIndex>(*heMesh));
     return heMesh;
   }
 
 private:
-  std::array<Triangle<TFloat, 3>, 12> calcCuboidTriangles()
+  std::array<Triangle<TFloat, 3>, 12> calc_cuboid_triangles()
   {
-    auto sides = m_cube->getSideVectors();
+    auto sides = m_cube->get_side_vectors();
     linal::vec3d defaultOrigin{0};
 
     const linal::vec3<TFloat>& x = sides[0];
@@ -53,18 +53,18 @@ private:
     std::array<Triangle<TFloat, 3>, 12> triangles;
 
     linal::vec3d diag = y + z;
-    calcCuboidFaceTriangles(triangles, {defaultOrigin, z, diag, y}, m_cube->getOrigin(), x, 0);
+    calc_cuboid_face_triangles(triangles, {defaultOrigin, z, diag, y}, m_cube->get_origin(), x, 0);
 
     diag = x + z;
-    calcCuboidFaceTriangles(triangles, {defaultOrigin, x, diag, z}, m_cube->getOrigin(), y, 4);
+    calc_cuboid_face_triangles(triangles, {defaultOrigin, x, diag, z}, m_cube->get_origin(), y, 4);
 
     diag = x + y;
-    calcCuboidFaceTriangles(triangles, {defaultOrigin, y, diag, x}, m_cube->getOrigin(), z, 8);
+    calc_cuboid_face_triangles(triangles, {defaultOrigin, y, diag, x}, m_cube->get_origin(), z, 8);
 
     return triangles;
   }
 
-  void calcCuboidFaceTriangles(std::array<Triangle<TFloat, 3>, 12>& triangles,
+  void calc_cuboid_face_triangles(std::array<Triangle<TFloat, 3>, 12>& triangles,
                                linal::vec3Array<TFloat, 4> vectors,
                                const linal::vec3<TFloat>& origin,
                                const linal::vec3<TFloat>& translationVec,

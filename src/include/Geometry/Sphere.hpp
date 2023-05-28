@@ -15,25 +15,28 @@ class Sphere {
   T m_radius;
 
 public:
-  Sphere(const linal::vec3<T>& origin, T radius)
+  Sphere(const linal::vec3<T>& origin, T radius) noexcept
       : m_origin(origin)
       , m_radius(radius)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vec3<T>& getOrigin() const { return m_origin; }
-  GEO_NODISCARD GEO_CONSTEXPR T getRadius() const { return m_radius; }
+  GEO_NODISCARD constexpr const linal::vec3<T>& get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr T get_radius() const noexcept { return m_radius; }
 
-  GEO_CONSTEXPR void setOrigin(const linal::vec3<T>& origin) { m_origin = origin; }
-  GEO_CONSTEXPR void setRadius(T radius) { m_radius = radius; }
+  constexpr void set_origin(const linal::vec3<T>& origin) noexcept { m_origin = origin; }
+  constexpr void set_radius(T radius) noexcept { m_radius = radius; }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool contains(const linal::vec3<T>& vec) const
+  GEO_NODISCARD constexpr bool contains(const linal::vec3<T>& vec) const noexcept
   {
     return !linal::isGreater(linal::norm2(linal::vec3<T>{vec - m_origin}), m_radius);
   }
 
-  GEO_CONSTEXPR bool operator==(const Sphere& rhs) const { return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius); }
-  GEO_CONSTEXPR bool operator!=(const Sphere& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Sphere& rhs) const noexcept
+  {
+    return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius);
+  }
+  constexpr bool operator!=(const Sphere& rhs) const noexcept { return !(rhs == *this); }
 };
 
 } // namespace Geometry

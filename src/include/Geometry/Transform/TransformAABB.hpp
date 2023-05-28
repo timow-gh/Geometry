@@ -11,7 +11,7 @@ namespace Geometry
 {
 
 template <typename TFloat, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR AABB<TFloat, D> transform(const AABB<TFloat, D>& aabb, const linal::hcoord::hmat<TFloat>& trafo)
+GEO_NODISCARD constexpr AABB<TFloat, D> transform(const AABB<TFloat, D>& aabb, const linal::hcoord::hmat<TFloat>& trafo) noexcept
 {
   linal::hcoord::hvec<TFloat> min = trafo * linal::hcoord::vec_to_hvec<TFloat, D>(aabb.get_min());
   linal::hcoord::hvec<TFloat> max = trafo * linal::hcoord::vec_to_hvec<TFloat, D>(aabb.get_max());

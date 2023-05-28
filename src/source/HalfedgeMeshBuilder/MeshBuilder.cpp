@@ -11,7 +11,7 @@
 namespace Geometry
 {
 
-GEO_CONSTEXPR MeshBuilder::MeshBuilder(const MeshBuilderConfig& meshBuilderConfig)
+constexpr MeshBuilder::MeshBuilder(const MeshBuilderConfig& meshBuilderConfig)
     : m_config(meshBuilderConfig)
 {
 }
@@ -20,24 +20,24 @@ std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Sphe
 {
   return Geometry::SphereMeshBuilder<double, std::size_t>()
       .setPolarCount(m_config.polarCount)
-      .setAzimuthCount(m_config.azimuthCount)
+      .set_azimuth_count(m_config.azimuthCount)
       .setSphere(sphere)
       .build();
 }
 
 std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Cone<double>& cone)
 {
-  return Geometry::ConeMeshBuilder<double, std::size_t>().setAzimuthCount(m_config.azimuthCount).setCone(cone).build();
+  return Geometry::ConeMeshBuilder<double, std::size_t>().set_azimuth_count(m_config.azimuthCount).set_cone(cone).build();
 }
 
 std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Cylinder<double>& cylinder)
 {
-  return Geometry::CylinderMeshBuilder<double, std::size_t>().setAzimuthCount(m_config.azimuthCount).setCylinder(cylinder).build();
+  return Geometry::CylinderMeshBuilder<double, std::size_t>().set_azimuth_count(m_config.azimuthCount).set_cylinder(cylinder).build();
 }
 
 std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Cuboid<double>& cuboid)
 {
-  return Geometry::CuboidMeshBuilder<double, std::size_t>().setCuboid(cuboid).build();
+  return Geometry::CuboidMeshBuilder<double, std::size_t>().set_cuboid(cuboid).build();
 }
 
 } // namespace Geometry

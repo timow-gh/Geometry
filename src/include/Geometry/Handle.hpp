@@ -12,21 +12,21 @@ class Handle {
 public:
   using value_type = T;
 
-  static GEO_CONSTEXPR value_type invalidHanldes = std::numeric_limits<T>::max();
-  static GEO_CONSTEXPR value_type nullHandle = value_type{};
+  static constexpr value_type invalidHandles = std::numeric_limits<T>::max();
+  static constexpr value_type nullHandle = value_type{};
 
-  GEO_CONSTEXPR Handle() GEO_NOEXCEPT = default;
-  explicit GEO_CONSTEXPR Handle(T value) GEO_NOEXCEPT : m_value(value) {}
+  constexpr Handle() noexcept = default;
+  explicit constexpr Handle(T value) noexcept : m_value(value) {}
 
-  GEO_CONSTEXPR T getValue() const GEO_NOEXCEPT { return m_value; }
-  GEO_CONSTEXPR bool isValid() const GEO_NOEXCEPT { return m_value != invalidHanldes; }
+  constexpr T get_value() const noexcept { return m_value; }
+  constexpr bool is_valid() const noexcept { return m_value != invalidHandles; }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool operator==(const Handle& rhs) const GEO_NOEXCEPT { return m_value == rhs.m_value; }
-  GEO_NODISCARD GEO_CONSTEXPR bool operator!=(const Handle& rhs) const GEO_NOEXCEPT { return !(rhs == *this); }
-  GEO_NODISCARD GEO_CONSTEXPR bool operator<(const Handle& rhs) const GEO_NOEXCEPT { return m_value < rhs.m_value; }
-  GEO_NODISCARD GEO_CONSTEXPR bool operator>(const Handle& rhs) const GEO_NOEXCEPT { return rhs < *this; }
-  GEO_NODISCARD GEO_CONSTEXPR bool operator<=(const Handle& rhs) const GEO_NOEXCEPT { return !(rhs < *this); }
-  GEO_NODISCARD GEO_CONSTEXPR bool operator>=(const Handle& rhs) const GEO_NOEXCEPT { return !(*this < rhs); }
+  GEO_NODISCARD constexpr bool operator==(const Handle& rhs) const noexcept { return m_value == rhs.m_value; }
+  GEO_NODISCARD constexpr bool operator!=(const Handle& rhs) const noexcept { return !(rhs == *this); }
+  GEO_NODISCARD constexpr bool operator<(const Handle& rhs) const noexcept { return m_value < rhs.m_value; }
+  GEO_NODISCARD constexpr bool operator>(const Handle& rhs) const noexcept { return rhs < *this; }
+  GEO_NODISCARD constexpr bool operator<=(const Handle& rhs) const noexcept { return !(rhs < *this); }
+  GEO_NODISCARD constexpr bool operator>=(const Handle& rhs) const noexcept { return !(*this < rhs); }
 
 private:
   T m_value = nullHandle;

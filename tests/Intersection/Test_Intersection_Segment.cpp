@@ -11,7 +11,7 @@ TEST(Segment3dSegment3d, UniqueIntersection_Orthogonal)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(segA, segB, intersection);
   EXPECT_EQ(res, 1);
-  EXPECT_EQ((linal::vec3d{1, 1, 0}), intersection.getSource());
+  EXPECT_EQ((linal::vec3d{1, 1, 0}), intersection.get_source());
 }
 
 TEST(Segment3dSegment3d, UniqueIntersection_Collinear_Lhs)
@@ -21,7 +21,7 @@ TEST(Segment3dSegment3d, UniqueIntersection_Collinear_Lhs)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(segA, segB, intersection);
   EXPECT_EQ(res, 1);
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getSource());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_source());
 }
 
 TEST(Segment3dSegment3d, UniqueIntersection_Collinear_Rhs)
@@ -31,7 +31,7 @@ TEST(Segment3dSegment3d, UniqueIntersection_Collinear_Rhs)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(segA, segB, intersection);
   EXPECT_EQ(res, 1);
-  EXPECT_EQ(linal::X_VEC3D, intersection.getSource());
+  EXPECT_EQ(linal::X_VEC3D, intersection.get_source());
 }
 
 TEST(Segment3dSegment3d, Skew)
@@ -41,8 +41,8 @@ TEST(Segment3dSegment3d, Skew)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(segA, segB, intersection);
   EXPECT_EQ(res, 3);
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getSource());
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getTarget());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_source());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_target());
 }
 
 TEST(Segment3dSegment3d, Collinear_NoIntersection_Lhs)
@@ -52,8 +52,8 @@ TEST(Segment3dSegment3d, Collinear_NoIntersection_Lhs)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(segA, segB, intersection);
   EXPECT_EQ(res, 0);
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getSource());
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getTarget());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_source());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_target());
 }
 
 TEST(Segment3dSegment3d, Collinear_NoIntersection_Rhs)
@@ -63,8 +63,8 @@ TEST(Segment3dSegment3d, Collinear_NoIntersection_Rhs)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(segA, segB, intersection);
   EXPECT_EQ(res, 0);
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getSource());
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getTarget());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_source());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_target());
 }
 
 TEST(Segment3dSegment3d, Collinear_Overlapping_Lhs)
@@ -74,8 +74,8 @@ TEST(Segment3dSegment3d, Collinear_Overlapping_Lhs)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(segA, segB, intersection);
   EXPECT_EQ(res, 2);
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getSource());
-  EXPECT_EQ((linal::vec3d{0.5, 0, 0}), intersection.getTarget());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_source());
+  EXPECT_EQ((linal::vec3d{0.5, 0, 0}), intersection.get_target());
 }
 
 TEST(Segment3dSegment3d, Collinear_Overlapping_Rhs)
@@ -85,8 +85,8 @@ TEST(Segment3dSegment3d, Collinear_Overlapping_Rhs)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(segA, segB, intersection);
   EXPECT_EQ(res, 2);
-  EXPECT_EQ((linal::vec3d{0.5, 0, 0}), intersection.getSource());
-  EXPECT_EQ((linal::vec3d{1, 0, 0}), intersection.getTarget());
+  EXPECT_EQ((linal::vec3d{0.5, 0, 0}), intersection.get_source());
+  EXPECT_EQ((linal::vec3d{1, 0, 0}), intersection.get_target());
 }
 
 TEST(Segment3dSegment3d, Collinear_Overlapping_Exact)
@@ -116,8 +116,8 @@ TEST(Segment3dLine3d, Skew)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(seg, line, intersection);
   EXPECT_EQ(res, 3);
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getSource());
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getTarget());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_source());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_target());
 }
 
 TEST(Segment3dLine3d, Unique_Intersection_Orthogonal)
@@ -127,8 +127,8 @@ TEST(Segment3dLine3d, Unique_Intersection_Orthogonal)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(seg, line, intersection);
   EXPECT_EQ(res, 1);
-  EXPECT_EQ((linal::vec3d{1, 0, 0}), intersection.getSource());
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getTarget());
+  EXPECT_EQ((linal::vec3d{1, 0, 0}), intersection.get_source());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_target());
 }
 
 TEST(Segment3dLine3d, Unique_Intersection_SegSource)
@@ -138,8 +138,8 @@ TEST(Segment3dLine3d, Unique_Intersection_SegSource)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(seg, line, intersection);
   EXPECT_EQ(res, 1);
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getSource());
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getTarget());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_source());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_target());
 }
 
 TEST(Segment3dLine3d, Unique_Intersection_SegTarget)
@@ -149,8 +149,8 @@ TEST(Segment3dLine3d, Unique_Intersection_SegTarget)
   Segment3d intersection{};
   uint32_t res = Geometry::intersect(seg, line, intersection);
   EXPECT_EQ(res, 1);
-  EXPECT_EQ((linal::vec3d{3, 0, 0}), intersection.getSource());
-  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.getTarget());
+  EXPECT_EQ((linal::vec3d{3, 0, 0}), intersection.get_source());
+  EXPECT_EQ((linal::vec3d{0, 0, 0}), intersection.get_target());
 }
 
 TEST(Segment3dLine3d, Collinear)

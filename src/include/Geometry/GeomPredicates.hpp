@@ -11,7 +11,7 @@ namespace Geometry
 
 // compare vector components using eps
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR bool is_equal(const linal::vec<T, D> lhs, const linal::vec<T, D> rhs)
+GEO_NODISCARD constexpr bool is_equal(const linal::vec<T, D> lhs, const linal::vec<T, D> rhs) noexcept
 {
   for (std::size_t i = 0; i < D; ++i)
   {

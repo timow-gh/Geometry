@@ -15,20 +15,20 @@ class Line {
   linal::vec<T, D> m_direction;
 
 public:
-  GEO_CONSTEXPR Line(linal::vec<T, D> origin, linal::vec<T, D> direction)
+  constexpr Line(linal::vec<T, D> origin, linal::vec<T, D> direction) noexcept
       : m_origin(origin)
       , m_direction(direction)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getOrigin() const { return m_origin; }
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getDirection() const { return m_direction; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_direction() const noexcept { return m_direction; }
 
-  GEO_CONSTEXPR bool operator==(const Line& rhs) const
+  constexpr bool operator==(const Line& rhs) const noexcept
   {
     return is_equal(m_origin, rhs.m_origin) && is_equal(m_direction, rhs.m_direction);
   }
-  GEO_CONSTEXPR bool operator!=(const Line& rhs) const { return !(rhs == *this); }
+  constexpr bool operator!=(const Line& rhs) const noexcept { return !(rhs == *this); }
 };
 
 template <typename T>

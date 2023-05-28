@@ -9,7 +9,7 @@ using namespace Geometry;
 class VertexTest : public ::testing::Test {
   protected:
     VertexTest()
-        : m_heMesh(CuboidMeshBuilder<float, std::size_t>().setCuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
+        : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
         , m_vertex(m_heMesh->getVertices().front())
     {
     }
@@ -18,9 +18,9 @@ class VertexTest : public ::testing::Test {
     HalfedgeMesh<float>::Vertex_t m_vertex;
 };
 
-TEST_F(VertexTest, isValid)
+TEST_F(VertexTest, is_valid)
 {
-    EXPECT_TRUE(m_vertex.isValid());
+    EXPECT_TRUE(m_vertex.is_valid());
 }
 
 TEST_F(VertexTest, getVector)
@@ -48,5 +48,5 @@ TEST_F(VertexTest, halfedgeIndex)
 {
     [[maybe_unused]] HalfedgeMesh<float>::HalfedgeIndex_t heIndex = m_vertex.getHalfedgeIndex();
     m_vertex.setHalfedgeIndex(HalfedgeMesh<float>::HalfedgeIndex_t{0});
-    EXPECT_EQ(0, m_vertex.getHalfedgeIndex().getValue());
+    EXPECT_EQ(0, m_vertex.getHalfedgeIndex().get_value());
 }

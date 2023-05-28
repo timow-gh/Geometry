@@ -27,7 +27,7 @@ std::vector<SegmentIndices> calcMeshSegmentIndices(const HalfedgeMesh<TFloat, TI
 {
   std::vector<SegmentIndices> result;
   for (const Halfedge<TFloat, TIndex>& halfedge: mesh.halfedges)
-    result.push_back(SegmentIndices(halfedge.getVertexIndex().getValue(), halfedge.getNext().getVertexIndex().getValue()));
+    result.push_back(SegmentIndices(halfedge.getVertexIndex().get_value(), halfedge.getNext().getVertexIndex().get_value()));
   return result;
 }
 

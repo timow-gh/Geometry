@@ -8,8 +8,8 @@ TEST(Sphere, Constructor)
 {
     constexpr double RADIUS = 1;
     Sphere sphere{linal::ZERO_VEC3D, RADIUS};
-    EXPECT_EQ(sphere.getRadius(), RADIUS);
-    EXPECT_EQ(sphere.getOrigin(), linal::ZERO_VEC3D);
+    EXPECT_EQ(sphere.get_radius(), RADIUS);
+    EXPECT_EQ(sphere.get_origin(), linal::ZERO_VEC3D);
 }
 
 class Sphere_Contains_Fixture : public ::testing::Test {

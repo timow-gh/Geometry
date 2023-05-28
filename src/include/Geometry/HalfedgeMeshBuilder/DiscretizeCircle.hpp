@@ -10,7 +10,7 @@ namespace Geometry
 
 //! Points on a circle with the origin at (0,0,0)
 template <typename TFloat>
-void discretizeCircle(linal::vec3vector<TFloat>& points, TFloat circleRadius, std::size_t azimuthCount)
+void discretize_circle(linal::vec3vector<TFloat>& points, TFloat circleRadius, std::size_t azimuthCount)
 {
   TFloat azimuthStep = TFloat(2.0) * TFloat(linal::PI<TFloat>) / static_cast<double>(azimuthCount);
   for (std::size_t i{0}; i < azimuthCount; ++i)

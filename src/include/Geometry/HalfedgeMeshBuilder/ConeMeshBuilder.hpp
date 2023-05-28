@@ -23,13 +23,13 @@ class ConeMeshBuilder : public MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<T
 public:
   ConeMeshBuilder() = default;
 
-  ConeMeshBuilder& setCone(const Cone<TFloat>& cone)
+  ConeMeshBuilder& set_cone(const Cone<TFloat>& cone)
   {
     m_cone = cone;
     return *this;
   }
 
-  ConeMeshBuilder& setAzimuthCount(std::size_t azimuthCount)
+  ConeMeshBuilder& set_azimuth_count(std::size_t azimuthCount)
   {
     m_azimuthCount = azimuthCount;
     return *this;
@@ -43,26 +43,26 @@ public:
     const auto coneSeg = m_cone->get_segment();
 
     linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec_to_hvec(coneSeg.direction()));
-    linal::hcoord::set_translation(hTrafo, coneSeg.getSource());
-    MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::setTransformation(hTrafo);
+    linal::hcoord::set_translation(hTrafo, coneSeg.get_source());
+    MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::set_transformation(hTrafo);
 
-    auto conePoints = calcConePoints(*m_cone);
-    auto coneTriangleIndices = calcConeTriangleIndices(conePoints);
-    return MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::buildTriangleHeMesh(conePoints, coneTriangleIndices);
+    auto conePoints = calc_cone_points(*m_cone);
+    auto coneTriangleIndices = calc_cone_triangle_indices(conePoints);
+    return MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(conePoints, coneTriangleIndices);
   }
 
 private:
-  linal::vec3vector<TFloat> calcConePoints(const Geometry::Cone<TFloat>& cone) const
+  linal::vec3vector<TFloat> calc_cone_points(const Geometry::Cone<TFloat>& cone) const
   {
     linal::vec3vector<TFloat> points;
-    discretizeCircle(points, cone.getRadius(), m_azimuthCount);
+    discretize_circle(points, cone.get_radius(), m_azimuthCount);
 
     points.push_back(linal::vec3<TFloat>{0, 0, 0});
     points.push_back(linal::vec3<TFloat>{0, 0, cone.get_segment().length()});
 
     return points;
   }
-  std::vector<TIndex> calcConeTriangleIndices(const linal::vec3vector<TFloat>& conePoints) const
+  std::vector<TIndex> calc_cone_triangle_indices(const linal::vec3vector<TFloat>& conePoints) const
   {
     std::vector<TIndex> indices;
     TIndex size = static_cast<TIndex>(conePoints.size());

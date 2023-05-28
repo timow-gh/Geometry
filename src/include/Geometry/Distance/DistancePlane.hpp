@@ -10,14 +10,14 @@ namespace Geometry
 {
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR T distance(const Plane<T>& plane, linal::vec<T, D> vec)
+GEO_NODISCARD constexpr T distance(const Plane<T>& plane, linal::vec<T, D> vec) noexcept
 {
-  linal::vec<T, D> vecToPlane = plane.getOrigin() - vec;
-  return std::abs(linal::dot(vecToPlane, plane.getNormal()));
+  linal::vec<T, D> vecToPlane = plane.get_origin() - vec;
+  return std::abs(linal::dot(vecToPlane, plane.get_normal()));
 }
 
 template <typename T, std::size_t D>
-GEO_NODISCARD GEO_CONSTEXPR T distance(linal::vec<T, D> vec, const Plane<T>& plane)
+GEO_NODISCARD constexpr T distance(linal::vec<T, D> vec, const Plane<T>& plane) noexcept
 {
   return distance(plane, vec);
 }

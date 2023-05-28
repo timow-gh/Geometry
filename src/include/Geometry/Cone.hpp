@@ -13,31 +13,34 @@ class Cone {
   T m_radius;
 
 public:
-  GEO_CONSTEXPR
-  Cone(const linal::vec3<T>& circleMidPoint, const linal::vec3<T>& peak, const T& radius)
+  constexpr Cone(const linal::vec3<T>& circleMidPoint, const linal::vec3<T>& peak, const T& radius) noexcept
       : m_segment(Segment3<T>{circleMidPoint, peak})
       , m_radius(radius)
   {
   }
 
-  GEO_CONSTEXPR Cone(const Segment3<T>& segment, const T& radius)
+  constexpr Cone(const Segment3<T>& segment, const T& radius) noexcept
       : m_segment(segment)
       , m_radius(radius)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const Segment3<T>& get_segment() const { return m_segment; }
-  GEO_NODISCARD GEO_CONSTEXPR const T& getRadius() const { return m_radius; }
-  GEO_NODISCARD GEO_CONSTEXPR T get_height() const { return m_segment.length(); }
-  GEO_NODISCARD GEO_CONSTEXPR T get_slant_height() const
+  GEO_NODISCARD constexpr const Segment3<T>& get_segment() const noexcept { return m_segment; }
+  GEO_NODISCARD constexpr const T& get_radius() const noexcept { return m_radius; }
+
+  constexpr void set_segment(const Segment3<T>& segment) noexcept { m_segment = segment; }
+  constexpr void set_radius(const T& radius) noexcept { m_radius = radius; }
+
+  GEO_NODISCARD constexpr T get_height() const noexcept { return m_segment.length(); }
+  GEO_NODISCARD constexpr T get_slant_height() const noexcept
   {
     const T h = get_height();
     return std::sqrt(m_radius * m_radius + h * h);
   }
-  GEO_NODISCARD GEO_CONSTEXPR T get_opening_angle() const { return std::atan(m_radius / get_height()) * 2; }
+  GEO_NODISCARD constexpr T get_opening_angle() const noexcept { return std::atan(m_radius / get_height()) * 2; }
 
-  GEO_CONSTEXPR bool operator==(const Cone& rhs) const { return m_segment == rhs.m_segment && linal::isEq(m_radius, rhs.m_radius); }
-  GEO_CONSTEXPR bool operator!=(const Cone& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Cone& rhs) const noexcept { return m_segment == rhs.m_segment && linal::isEq(m_radius, rhs.m_radius); }
+  constexpr bool operator!=(const Cone& rhs) const noexcept { return !(rhs == *this); }
 };
 
 } // namespace Geometry

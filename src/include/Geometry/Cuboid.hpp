@@ -13,13 +13,13 @@ namespace Geometry
 template <typename T>
 class Cuboid {
 public:
-  GEO_CONSTEXPR Cuboid(const linal::vec3<T>& origin, const linal::vec3Array<T, 3>& sideVectors)
+  constexpr Cuboid(linal::vec3<T> origin, const linal::vec3Array<T, 3>& sideVectors) noexcept
       : m_origin(origin)
       , m_sideVectors(sideVectors)
   {
   }
 
-  GEO_CONSTEXPR Cuboid(const linal::vec3<T>& origin, const linal::vec3<T>& diagonal)
+  constexpr Cuboid(linal::vec3<T> origin, const linal::vec3<T>& diagonal) noexcept
       : m_origin(origin)
   {
     linal::vec3Array<T, 3> unitVectors = {
@@ -28,23 +28,28 @@ public:
         linal::Z_VEC3D,
     };
     for (std::size_t i = 0; i < 3; ++i)
+    {
       m_sideVectors[i] = linal::projection(diagonal, unitVectors[i]);
+    }
   }
 
-  GEO_CONSTEXPR explicit Cuboid(const linal::vec3<T>& diagonal)
+  constexpr explicit Cuboid(const linal::vec3<T>& diagonal) noexcept
       : Cuboid(linal::vec3<T>{0, 0, 0}, diagonal)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vec3<T>& getOrigin() const { return m_origin; }
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vec3Array<T, 3>& getSideVectors() const { return m_sideVectors; }
+  GEO_NODISCARD constexpr linal::vec3<T> get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr const linal::vec3Array<T, 3>& get_side_vectors() const noexcept { return m_sideVectors; }
 
-  GEO_CONSTEXPR bool operator==(const Cuboid& rhs) const
+  constexpr void set_origin(linal::vec3<T> origin) noexcept { m_origin = origin; }
+  constexpr void set_side_vectors(const linal::vec3Array<T, 3>& sideVectors) noexcept { m_sideVectors = sideVectors; }
+
+  constexpr bool operator==(const Cuboid& rhs) const noexcept
   {
     return is_equal(m_origin, rhs.m_origin) && is_equal(m_sideVectors[0], rhs.m_sideVectors[0]) &&
            is_equal(m_sideVectors[1], rhs.m_sideVectors[1]) && is_equal(m_sideVectors[2], rhs.m_sideVectors[2]);
   }
-  GEO_CONSTEXPR bool operator!=(const Cuboid& rhs) const { return !(rhs == *this); }
+  constexpr bool operator!=(const Cuboid& rhs) const noexcept { return !(rhs == *this); }
 
 private:
   linal::vec3<T> m_origin;
@@ -52,10 +57,10 @@ private:
 };
 
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR linal::vec3Array<T, 8> calcCuboidVertices(const Cuboid<T>& cuboid)
+GEO_NODISCARD constexpr linal::vec3Array<T, 8> calc_cuboid_vertices(const Cuboid<T>& cuboid) noexcept
 {
-  linal::vec3<T> origin = cuboid.getOrigin();
-  const auto& sideVecs = cuboid.getSideVectors();
+  linal::vec3<T> origin = cuboid.get_origin();
+  const auto& sideVecs = cuboid.get_side_vectors();
   linal::vec3Array<T, 8> vertices;
   const auto bottomX = sideVecs[0];
   const auto bottomY = sideVecs[1];

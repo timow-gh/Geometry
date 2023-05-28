@@ -13,12 +13,12 @@ namespace Geometry
 //! 1 -> intersection at single point (start of intersection)
 //! 2 -> intersection is an interval
 template <typename T>
-GEO_NODISCARD GEO_CONSTEXPR std::uint32_t intersect(Interval<T> lhs, Interval<T> rhs, Interval<T>& intersection)
+GEO_NODISCARD constexpr std::uint32_t intersect(Interval<T> lhs, Interval<T> rhs, Interval<T>& intersection) noexcept
 {
-  const T a = lhs.getStart();
-  const T b = lhs.getEnd();
-  const T c = rhs.getStart();
-  const T d = rhs.getEnd();
+  const T a = lhs.get_start();
+  const T b = lhs.get_end();
+  const T c = rhs.get_start();
+  const T d = rhs.get_end();
 
   if (linal::isLess(b, c) || linal::isGreater(a, d))
   {
@@ -31,33 +31,33 @@ GEO_NODISCARD GEO_CONSTEXPR std::uint32_t intersect(Interval<T> lhs, Interval<T>
     {
       if (linal::isLess(a, c))
       {
-        intersection.setStart(c);
+        intersection.set_start(c);
       }
       else
       {
-        intersection.setStart(a);
+        intersection.set_start(a);
       }
       if (linal::isGreater(b, d))
       {
-        intersection.setEnd(d);
+        intersection.set_end(d);
       }
       else
       {
-        intersection.setEnd(b);
+        intersection.set_end(b);
       }
       return 2;
     }
     else
     {
       // a == d
-      intersection.setStart(a);
+      intersection.set_start(a);
       return 1;
     }
   }
   else
   {
     // b = c
-    intersection.setStart(b);
+    intersection.set_start(b);
     return 1;
   }
 }

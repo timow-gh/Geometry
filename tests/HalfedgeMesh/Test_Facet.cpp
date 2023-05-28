@@ -11,7 +11,7 @@ using namespace Geometry;
 class FacetTest : public ::testing::Test {
 protected:
   FacetTest()
-      : m_heMesh(CuboidMeshBuilder<float, std::size_t>().setCuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
+      : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
       , m_facet(m_heMesh->getFacets().front())
   {
   }

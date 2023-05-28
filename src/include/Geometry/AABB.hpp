@@ -24,13 +24,13 @@ class AABB {
 
 public:
   /** @brief Construct a new, invalid AABB  */
-  GEO_CONSTEXPR AABB() GEO_NOEXCEPT
+  constexpr AABB() noexcept
       : m_min{TFloat{1.0}}
       , m_max{TFloat{-1.0}}
   {
   }
 
-  GEO_CONSTEXPR AABB(linal::vec<TFloat, D> min, linal::vec<TFloat, D> max) GEO_NOEXCEPT
+  constexpr AABB(linal::vec<TFloat, D> min, linal::vec<TFloat, D> max) noexcept
       : m_min{min}
       , m_max{max}
   {
@@ -44,7 +44,8 @@ public:
    * @param center The center of the AABB
    * @param extend The extend of the AABB in every positive direction
    */
-  GEO_CONSTEXPR AABB(linal::vec<TFloat, D> min, TFloat extend) GEO_NOEXCEPT : m_min{min}
+  constexpr AABB(linal::vec<TFloat, D> min, TFloat extend) noexcept
+      : m_min{min}
   {
     GEO_ASSERT(extend >= TFloat{0.0});
     for (std::size_t i = 0; i < D; ++i)
@@ -53,19 +54,19 @@ public:
     }
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<TFloat, D> get_min() const GEO_NOEXCEPT { return m_min; }
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<TFloat, D> get_max() const GEO_NOEXCEPT { return m_max; }
+  GEO_NODISCARD constexpr linal::vec<TFloat, D> get_min() const noexcept { return m_min; }
+  GEO_NODISCARD constexpr linal::vec<TFloat, D> get_max() const noexcept { return m_max; }
 
-  GEO_CONSTEXPR void set_min(linal::vec<TFloat, D> min) GEO_NOEXCEPT { m_min = min; }
-  GEO_CONSTEXPR void set_max(linal::vec<TFloat, D> max) GEO_NOEXCEPT { m_max = max; }
+  constexpr void set_min(linal::vec<TFloat, D> min) noexcept { m_min = min; }
+  constexpr void set_max(linal::vec<TFloat, D> max) noexcept { m_max = max; }
 
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<TFloat, D> get_center() const GEO_NOEXCEPT { return (m_min + (m_max - m_min) / TFloat{2}); }
+  GEO_NODISCARD constexpr linal::vec<TFloat, D> get_center() const noexcept { return (m_min + (m_max - m_min) / TFloat{2}); }
 
   /** @brief Checks if min and max are valid
    *
    * @return true, if min <= max in every direction
    */
-  GEO_NODISCARD GEO_CONSTEXPR bool is_valid() const GEO_NOEXCEPT
+  GEO_NODISCARD constexpr bool is_valid() const noexcept
   {
     for (std::size_t i = 0; i < D; ++i)
     {
@@ -82,7 +83,7 @@ public:
    *
    * @return true, if the extend of the AABB is zero in any direction
    */
-  GEO_NODISCARD GEO_CONSTEXPR bool is_empty() const GEO_NOEXCEPT
+  GEO_NODISCARD constexpr bool is_empty() const noexcept
   {
     for (std::size_t i = 0; i < D; ++i)
     {
@@ -99,7 +100,7 @@ public:
    *
    * @param vec The point to add
    */
-  void add(linal::vec<TFloat, D> vec) GEO_NOEXCEPT
+  void add(linal::vec<TFloat, D> vec) noexcept
   {
     for (std::size_t i = 0; i < D; ++i)
     {
@@ -118,7 +119,7 @@ public:
    *
    * @param other The AABB to add
    */
-  GEO_CONSTEXPR void add(const AABB& other) GEO_NOEXCEPT
+  constexpr void add(const AABB& other) noexcept
   {
     for (std::size_t i = 0; i < D; ++i)
     {
@@ -133,15 +134,15 @@ public:
     }
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool operator==(const AABB<TFloat, D>& rhs) const
+  GEO_NODISCARD constexpr bool operator==(const AABB<TFloat, D>& rhs) const noexcept
   {
     return is_equal(m_min, rhs.m_min) && is_equal(m_max, rhs.m_max);
   }
-  GEO_NODISCARD GEO_CONSTEXPR bool operator!=(const AABB<TFloat, D>& rhs) const { return !(*this == rhs); }
+  GEO_NODISCARD constexpr bool operator!=(const AABB<TFloat, D>& rhs) const noexcept { return !(*this == rhs); }
 };
 
 template <typename TFloat, std::size_t D>
-AABB<TFloat, D> makeAABB(const linal::vecvector<TFloat, D>& points)
+GEO_NODISCARD AABB<TFloat, D> make_aabb(const linal::vecvector<TFloat, D>& points) noexcept
 {
   GEO_ASSERT(!points.empty());
 
@@ -154,7 +155,7 @@ AABB<TFloat, D> makeAABB(const linal::vecvector<TFloat, D>& points)
   std::array<MinMax<TFloat>, D> minMaxes;
   for (std::size_t i = 0; i < D; ++i)
   {
-    minMaxes[i] = extremePointsAlongDirection(axis[i], points);
+    minMaxes[i] = extreme_points_along_direction(axis[i], points);
   }
 
   return AABB<TFloat, D>{linal::vec<TFloat, D>{minMaxes[0].min, minMaxes[1].min, minMaxes[2].min},

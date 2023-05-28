@@ -13,19 +13,19 @@ class Triangle {
   linal::vecArray<T, D, 3> m_trianglePoints;
 
 public:
-  GEO_CONSTEXPR Triangle() = default;
+  constexpr Triangle() noexcept = default;
 
-  GEO_CONSTEXPR explicit Triangle(const linal::vecArray<T, D, 3>& trianglePoints)
+  constexpr explicit Triangle(const linal::vecArray<T, D, 3>& trianglePoints) noexcept
       : m_trianglePoints(trianglePoints)
   {
   }
 
-  GEO_CONSTEXPR Triangle(linal::vec<T, D> first, linal::vec<T, D> second, linal::vec<T, D> third)
+  constexpr Triangle(linal::vec<T, D> first, linal::vec<T, D> second, linal::vec<T, D> third) noexcept
       : m_trianglePoints({first, second, third})
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vecArray<T, D, 3>& getTrianglePoints() const { return m_trianglePoints; }
+  GEO_NODISCARD constexpr const linal::vecArray<T, D, 3>& get_triangle_points() const noexcept { return m_trianglePoints; }
 };
 
 } // namespace Geometry

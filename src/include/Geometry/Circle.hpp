@@ -19,21 +19,28 @@ class Circle2 {
   T m_radius;
 
 public:
-  GEO_CONSTEXPR Circle2(const linal::vec2<T>& origin, T radius) GEO_NOEXCEPT
+  constexpr Circle2(const linal::vec2<T>& origin, T radius) noexcept
       : m_origin(origin)
       , m_radius(radius)
   {
     GEO_ASSERT(radius >= 0);
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vec2<T>& getOrigin() const { return m_origin; }
-  GEO_NODISCARD GEO_CONSTEXPR T getRadius() const { return m_radius; }
+  GEO_NODISCARD constexpr linal::vec2<T> get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr T get_radius() const noexcept { return m_radius; }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool operator==(const Circle2& rhs) const
+  constexpr void set_origin(linal::vec2<T> origin) noexcept { m_origin = origin; }
+  constexpr void set_radius(T radius) noexcept
+  {
+    GEO_ASSERT(radius >= 0);
+    m_radius = radius;
+  }
+
+  GEO_NODISCARD constexpr bool operator==(const Circle2& rhs) const
   {
     return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius);
   }
-  GEO_NODISCARD GEO_CONSTEXPR bool operator!=(const Circle2& rhs) const { return !(rhs == *this); }
+  GEO_NODISCARD constexpr bool operator!=(const Circle2& rhs) const { return !(rhs == *this); }
 };
 
 using Circle2f = Circle2<float>;
@@ -46,22 +53,34 @@ class Circle3 {
   linal::vec3<T> m_normal;
 
 public:
-  GEO_CONSTEXPR Circle3(const linal::vec3<T>& origin, T radius, const linal::vec3<T>& normal)
+  constexpr Circle3(const linal::vec3<T>& origin, T radius, const linal::vec3<T>& normal)
       : m_origin(origin)
       , m_radius(radius)
       , m_normal(normal)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vec3<T>& getOrigin() const { return m_origin; }
-  GEO_NODISCARD GEO_CONSTEXPR T getRadius() const { return m_radius; }
-  GEO_NODISCARD GEO_CONSTEXPR const linal::vec3<T>& getNormal() const { return m_normal; }
+  GEO_NODISCARD constexpr linal::vec3<T> get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr T get_radius() const noexcept { return m_radius; }
+  GEO_NODISCARD constexpr linal::vec3<T> get_normal() const noexcept { return m_normal; }
 
-  GEO_NODISCARD GEO_CONSTEXPR bool operator==(const Circle3& rhs) const
+  constexpr void set_origin(linal::vec3<T> origin) noexcept { m_origin = origin; }
+  constexpr void set_radius(T radius) noexcept
+  {
+    GEO_ASSERT(radius >= 0);
+    m_radius = radius;
+  }
+  constexpr void set_normal(linal::vec3<T> normal) noexcept
+  {
+    GEO_ASSERT(linal::isEq(linal::norm2(normal), 1));
+    m_normal = normal;
+  }
+
+  GEO_NODISCARD constexpr bool operator==(const Circle3& rhs) const noexcept
   {
     return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius) && is_equal(m_normal, rhs.m_normal);
   }
-  GEO_NODISCARD GEO_CONSTEXPR bool operator!=(const Circle3& rhs) const { return !(rhs == *this); }
+  GEO_NODISCARD constexpr bool operator!=(const Circle3& rhs) const noexcept { return !(rhs == *this); }
 };
 
 template <typename T>

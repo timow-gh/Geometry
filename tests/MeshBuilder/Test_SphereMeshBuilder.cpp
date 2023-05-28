@@ -24,7 +24,7 @@ protected:
 TEST_F(Test_MeshBuilder_Sphere, VertexIndices)
 {
   for (const auto& vertex: m_sphereMesh->getVertices())
-    EXPECT_TRUE(vertex.isValid());
+    EXPECT_TRUE(vertex.is_valid());
 }
 
 TEST_F(Test_MeshBuilder_Sphere, MeshPoints)

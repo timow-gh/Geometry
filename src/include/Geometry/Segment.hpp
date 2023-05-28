@@ -17,31 +17,34 @@ class Segment {
   linal::vec<T, D> m_target;
 
 public:
-  GEO_CONSTEXPR Segment() = default;
+  constexpr Segment() = default;
 
-  GEO_CONSTEXPR Segment(linal::vec<T, D> source, linal::vec<T, D> target)
+  constexpr Segment(linal::vec<T, D> source, linal::vec<T, D> target)
       : m_source(source)
       , m_target(target)
   {
   }
 
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getSource() const { return m_source; }
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> getTarget() const { return m_target; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_source() const noexcept { return m_source; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_target() const noexcept { return m_target; }
 
-  GEO_CONSTEXPR void setSource(linal::vec<T, D> source) { m_source = source; }
-  GEO_CONSTEXPR void setTarget(linal::vec<T, D> target) { m_target = target; }
+  constexpr void set_source(linal::vec<T, D> source) noexcept { m_source = source; }
+  constexpr void set_target(linal::vec<T, D> target) noexcept { m_target = target; }
 
-  GEO_NODISCARD GEO_CONSTEXPR T length() const { return linal::norm2(linal::vec<T, D>{m_target - m_source}); }
+  GEO_NODISCARD constexpr T length() const noexcept { return linal::norm2(linal::vec<T, D>{m_target - m_source}); }
 
   //! Returns vector of length one.
-  GEO_NODISCARD GEO_CONSTEXPR linal::vec<T, D> direction() const
+  GEO_NODISCARD constexpr linal::vec<T, D> direction() const noexcept
   {
     linal::vec<T, D> segVec{m_target - m_source};
     return segVec / linal::norm2(segVec);
   }
 
-  GEO_CONSTEXPR bool operator==(const Segment& rhs) const { return is_equal(m_source, rhs.m_source) && is_equal(m_target, rhs.m_target); }
-  GEO_CONSTEXPR bool operator!=(const Segment& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Segment& rhs) const noexcept
+  {
+    return is_equal(m_source, rhs.m_source) && is_equal(m_target, rhs.m_target);
+  }
+  constexpr bool operator!=(const Segment& rhs) const noexcept { return !(rhs == *this); }
 };
 
 template <typename T>
