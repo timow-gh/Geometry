@@ -23,7 +23,7 @@ class SphereMeshBuilder : public MeshBuilderBase<TFloat, TIndex, SphereMeshBuild
   std::optional<Sphere<TFloat>> m_sphere;
 
 public:
-  SphereMeshBuilder& setPolarCount(uint32_t polarCount)
+  SphereMeshBuilder& set_polar_count(uint32_t polarCount)
   {
     m_polarCount = polarCount;
     return *this;
@@ -35,7 +35,7 @@ public:
     return *this;
   }
 
-  SphereMeshBuilder& setSphere(const Sphere<TFloat>& sphere)
+  SphereMeshBuilder& set_sphere(const Sphere<TFloat>& sphere)
   {
     m_sphere = sphere;
     return *this;
@@ -46,13 +46,13 @@ public:
     if (!m_sphere)
       return nullptr;
 
-    auto spherePoints = calcSpherePoints(*m_sphere);
-    auto triangleIndices = calcSphereTriangleIndices(spherePoints);
+    auto spherePoints = calc_sphere_points(*m_sphere);
+    auto triangleIndices = calc_sphere_triangle_indices(spherePoints);
     return MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(spherePoints, triangleIndices);
   }
 
 private:
-  linal::vec3vector<TFloat> calcSpherePoints(const Sphere<TFloat>& sphere)
+  linal::vec3vector<TFloat> calc_sphere_points(const Sphere<TFloat>& sphere)
   {
     linal::vec3vector<TFloat> points;
 
@@ -87,7 +87,7 @@ private:
     return points;
   }
 
-  std::vector<TIndex> calcSphereTriangleIndices(const linal::vec3vector<TFloat>& spherePoints)
+  std::vector<TIndex> calc_sphere_triangle_indices(const linal::vec3vector<TFloat>& spherePoints)
   {
     auto toIdx = [azimuthCount = m_azimuthCount](TIndex i, TIndex j) -> TIndex { return static_cast<TIndex>(i * azimuthCount + j); };
 

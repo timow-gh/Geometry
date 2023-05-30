@@ -19,9 +19,9 @@ constexpr MeshBuilder::MeshBuilder(const MeshBuilderConfig& meshBuilderConfig)
 std::unique_ptr<HalfedgeMesh<double, std::size_t>> MeshBuilder::build(const Sphere<double>& sphere)
 {
   return Geometry::SphereMeshBuilder<double, std::size_t>()
-      .setPolarCount(m_config.polarCount)
+      .set_polar_count(m_config.polarCount)
       .set_azimuth_count(m_config.azimuthCount)
-      .setSphere(sphere)
+      .set_sphere(sphere)
       .build();
 }
 

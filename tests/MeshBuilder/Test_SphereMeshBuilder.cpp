@@ -17,7 +17,7 @@ protected:
   Test_MeshBuilder_Sphere()
       : m_sphere({linal::ZERO_VEC3D, 3.0})
   {
-    m_sphereMesh = SphereMeshBuilder<double, std::size_t>().setSphere(m_sphere).build();
+    m_sphereMesh = SphereMeshBuilder<double, std::size_t>().set_sphere(m_sphere).build();
   }
 };
 
