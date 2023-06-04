@@ -1,22 +1,26 @@
 #ifndef GEOMETRY_DISTANCESPHERE_H
 #define GEOMETRY_DISTANCESPHERE_H
 
-#include <Core/Utils/Compiler.hpp>
 #include <Geometry/Sphere.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/vec3.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
+
 template <typename T>
-CORE_NODISCARD T signedDistance(const LinAl::Vec3<T>& vec, const Sphere<T>& sphere)
+GEO_NODISCARD T signedDistance(const linal::vec3<T>& vec, const Sphere<T>& sphere) noexcept
 {
-  return LinAl::norm2(LinAl::Vec3<T>{vec - sphere.getOrigin()}) - sphere.getRadius();
+  return linal::norm2(linal::vec3<T>{vec - sphere.get_origin()}) - sphere.get_radius();
 }
+
 template <typename T>
-CORE_NODISCARD T distance(const LinAl::Vec3<T>& vec, const Sphere<T>& sphere)
+GEO_NODISCARD T distance(const linal::vec3<T>& vec, const Sphere<T>& sphere) noexcept
 {
   return std::abs(signedDistance(vec, sphere));
 }
+
 } // namespace Geometry
 
 #endif // GEOMETRY_DISTANCESPHERE_H

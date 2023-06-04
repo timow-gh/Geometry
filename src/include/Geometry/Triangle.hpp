@@ -1,29 +1,31 @@
 #ifndef GEOMETRY_TRIANGLE_HPP
 #define GEOMETRY_TRIANGLE_HPP
 
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/containers.hpp>
+#include <linal/vec.hpp>
 
 namespace Geometry
 {
 template <typename T, std::size_t D>
 class Triangle {
 
-  LinAl::VecArray<T, D, 3> m_trianglePoints;
+  linal::vecArray<T, D, 3> m_trianglePoints;
 
 public:
-  CORE_CONSTEXPR Triangle() = default;
+  constexpr Triangle() noexcept = default;
 
-  CORE_CONSTEXPR explicit Triangle(const LinAl::VecArray<T, D, 3>& trianglePoints)
+  constexpr explicit Triangle(const linal::vecArray<T, D, 3>& trianglePoints) noexcept
       : m_trianglePoints(trianglePoints)
   {
   }
 
-  CORE_CONSTEXPR Triangle(LinAl::Vec<T, D> first, LinAl::Vec<T, D> second, LinAl::Vec<T, D> third)
+  constexpr Triangle(linal::vec<T, D> first, linal::vec<T, D> second, linal::vec<T, D> third) noexcept
       : m_trianglePoints({first, second, third})
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR const LinAl::VecArray<T, D, 3>& getTrianglePoints() const { return m_trianglePoints; }
+  GEO_NODISCARD constexpr const linal::vecArray<T, D, 3>& get_triangle_points() const noexcept { return m_trianglePoints; }
 };
 
 } // namespace Geometry

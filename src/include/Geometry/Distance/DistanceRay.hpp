@@ -1,31 +1,37 @@
 #ifndef GEOMETRY_DISTANCERAY_HPP
 #define GEOMETRY_DISTANCERAY_HPP
 
-#include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
 #include <Geometry/Ray.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
+
 template <typename T, std::size_t D>
-CORE_NODISCARD CORE_CONSTEXPR T distance(const Ray<T, D>& ray, LinAl::Vec<T, D> vec)
+GEO_NODISCARD constexpr T distance(const Ray<T, D>& ray, linal::vec<T, D> vec) noexcept
 {
-  LinAl::Vec<T, D> vecO{vec - ray.getOrigin()};
-  const LinAl::Vec<T, D> rayDirection = ray.getDirection();
+  linal::vec<T, D> vecO{vec - ray.get_origin()};
+  const linal::vec<T, D> rayDirection = ray.get_direction();
 
-  const T dotProduct = LinAl::dot(vecO, rayDirection);
-  LinAl::Vec<T, D> distanceVec;
-  if (Core::isGreater(dotProduct, T(0)))
-    distanceVec = LinAl::rejection(vecO, rayDirection);
+  const T dotProduct = linal::dot(vecO, rayDirection);
+  linal::vec<T, D> distanceVec;
+  if (linal::isGreater(dotProduct, T(0)))
+  {
+    distanceVec = linal::rejection(vecO, rayDirection);
+  }
   else
-    distanceVec = ray.getOrigin() - vec;
+  {
+    distanceVec = ray.get_origin() - vec;
+  }
 
-  return LinAl::norm2(distanceVec);
+  return linal::norm2(distanceVec);
 }
 
 template <typename T, std::size_t D>
-CORE_NODISCARD CORE_CONSTEXPR T distance(LinAl::Vec<T, D> vec, const Ray<T, D>& ray)
+GEO_NODISCARD constexpr T distance(linal::vec<T, D> vec, const Ray<T, D>& ray) noexcept
 {
   return distance(ray, vec);
 }

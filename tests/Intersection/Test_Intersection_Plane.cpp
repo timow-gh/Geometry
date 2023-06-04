@@ -1,118 +1,117 @@
-#include <Geometry/Intersection/IntersectionPlane.hpp>
+#include <Geometry/Intersect/IntersectPlane.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Plane.hpp>
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
-#include <LinAl/LinearAlgebra.hpp>
 #include <gtest/gtest.h>
 #include <iostream>
+#include <linal/vec3.hpp>
 
 using namespace Geometry;
-using namespace LinAl;
 
 TEST(PlaneLine, Parallel_InLine)
 {
-    Line3d line(Vec3d{0}, Vec3d{1, 0, 0});
-    Plane<double_t> plane(Vec3d{0}, Vec3d{0, 0, 1});
-    auto intersection = Geometry::intersection(plane, line);
+    Line3d line(linal::vec3d{0}, linal::vec3d{1, 0, 0});
+    Plane<double> plane(linal::vec3d{0}, linal::vec3d{0, 0, 1});
+    auto intersection = Geometry::intersect(plane, line);
     EXPECT_EQ(intersection, std::nullopt);
 }
 
 TEST(PlaneLine, Parallel)
 {
-    Line3d line(Vec3d{1, 0, 0}, Vec3d{1, 0, 0});
-    Plane<double_t> plane(Vec3d{0}, Vec3d{0, 0, 1});
-    auto intersection = Geometry::intersection(plane, line);
+    Line3d line(linal::vec3d{1, 0, 0}, linal::vec3d{1, 0, 0});
+    Plane<double> plane(linal::vec3d{0}, linal::vec3d{0, 0, 1});
+    auto intersection = Geometry::intersect(plane, line);
     EXPECT_EQ(intersection, std::nullopt);
 }
 
 TEST(PlaneLine, Orthogonal)
 {
-    Line3d line(Vec3d{1, 1, 0}, Vec3d{0, 0, 1});
-    Plane<double_t> plane(Vec3d{0}, Vec3d{0, 0, 1});
-    auto intersection = Geometry::intersection(plane, line);
+    Line3d line(linal::vec3d{1, 1, 0}, linal::vec3d{0, 0, 1});
+    Plane<double> plane(linal::vec3d{0}, linal::vec3d{0, 0, 1});
+    auto intersection = Geometry::intersect(plane, line);
     EXPECT_TRUE(intersection);
-    constexpr Vec3d expIntersection{1, 1, 0};
+    constexpr linal::vec3d expIntersection{1, 1, 0};
     EXPECT_EQ(intersection, expIntersection);
 }
 
 TEST(PlaneLine, Intersection_Origin)
 {
-    Vec3d lineOrigin = Vec3d{2, 2, 1};
-    Vec3d originDir = Vec3d{1, 1, 0} - lineOrigin;
+    linal::vec3d lineOrigin = linal::vec3d{2, 2, 1};
+    linal::vec3d originDir = linal::vec3d{1, 1, 0} - lineOrigin;
     Line3d line(lineOrigin, originDir);
-    Plane<double_t> plane(ZERO_VEC3D, Z_VEC3D);
-    auto intersection = Geometry::intersection(plane, line);
+    Plane<double> plane(linal::ZERO_VEC3D, linal::Z_VEC3D);
+    auto intersection = Geometry::intersect(plane, line);
     EXPECT_TRUE(intersection);
-    constexpr Vec3d expIntersection{1, 1, 0};
+    constexpr linal::vec3d expIntersection{1, 1, 0};
     EXPECT_EQ(intersection, expIntersection);
 }
 
 TEST(PlaneLine, viewPlaneBug)
 {
-    Line3f line(Vec3f{0, 0, 0}, Vec3f{-0.3, 0.2, -1.9});
-    Plane<float_t> plane(Vec3f{0, 0, -0.1}, Vec3f{0, 0, 1});
-    auto intersection = Geometry::intersection(plane, line);
+    Line3f line(linal::vec3f{0, 0, 0}, linal::vec3f{-0.3, 0.2, -1.9});
+    Plane<float> plane(linal::vec3f{0, 0, -0.1}, linal::vec3f{0, 0, 1});
+    auto intersection = Geometry::intersect(plane, line);
     EXPECT_TRUE(intersection);
 }
 
 TEST(PlaneSegment3f, Orthogonal)
 {
-    Plane<float_t> plane(Vec3f{0, 0, 1}, Vec3f{0, 0, 1});
-    Segment3f seg{Vec3f{0, 0, -1}, Vec3f{0, 0, 2}};
-    auto intersection = Geometry::intersection(plane, seg);
+    Plane<float> plane(linal::vec3f{0, 0, 1}, linal::vec3f{0, 0, 1});
+    Segment3f seg{linal::vec3f{0, 0, -1}, linal::vec3f{0, 0, 2}};
+    auto intersection = Geometry::intersect(plane, seg);
     EXPECT_TRUE(intersection);
-    EXPECT_EQ(intersection.value(), (Vec3f{0, 0, 1}));
+    EXPECT_EQ(intersection.value(), (linal::vec3f{0, 0, 1}));
 }
 
 TEST(PlaneSegment3f, Parallel)
 {
-    Plane<float_t> plane(Vec3f{0, 0, 1}, Vec3f{0, 0, 1});
-    Segment3f seg{Vec3f{0, 0, -1}, Vec3f{1, 0, 0}};
-    auto intersection = Geometry::intersection(plane, seg);
+    Plane<float> plane(linal::vec3f{0, 0, 1}, linal::vec3f{0, 0, 1});
+    Segment3f seg{linal::vec3f{0, 0, -1}, linal::vec3f{1, 0, 0}};
+    auto intersection = Geometry::intersect(plane, seg);
     EXPECT_EQ(intersection, std::nullopt);
 }
 
 TEST(PlaneSegment3f, Parallel_InPlane)
 {
-    Plane<float_t> plane(Vec3f{0, 0, 1}, Vec3f{0, 0, 1});
-    Segment3f seg{Vec3f{0, 0, 1}, Vec3f{1, 0, 0}};
-    auto intersection = Geometry::intersection(plane, seg);
+    Plane<float> plane(linal::vec3f{0, 0, 1}, linal::vec3f{0, 0, 1});
+    Segment3f seg{linal::vec3f{0, 0, 1}, linal::vec3f{1, 0, 0}};
+    auto intersection = Geometry::intersect(plane, seg);
     EXPECT_EQ(intersection, std::nullopt);
 }
 
 TEST(PlaneSegment3f, Touching_Source)
 {
-    Plane<float_t> plane(Vec3f{0, 0, 0}, Vec3f{0, 0, 1});
-    Segment3f seg{Vec3f{2, 2, 1}, Vec3f{1, 1, 0}};
-    auto intersection = Geometry::intersection(plane, seg);
-    EXPECT_EQ(intersection, (Vec3f{1, 1, 0}));
+    Plane<float> plane(linal::vec3f{0, 0, 0}, linal::vec3f{0, 0, 1});
+    Segment3f seg{linal::vec3f{2, 2, 1}, linal::vec3f{1, 1, 0}};
+    auto intersection = Geometry::intersect(plane, seg);
+    EXPECT_EQ(intersection, (linal::vec3f{1, 1, 0}));
 }
 
 TEST(PlaneSegment3f, Touching_Target)
 {
-    Plane<float_t> plane(Vec3f{0, 0, 0}, Vec3f{0, 0, 1});
-    Segment3f seg{Vec3f{-2, -2, -1}, Vec3f{-1, -1, 0}};
-    auto intersection = Geometry::intersection(plane, seg);
-    EXPECT_EQ(intersection, (Vec3f{-1, -1, 0}));
+    Plane<float> plane(linal::vec3f{0, 0, 0}, linal::vec3f{0, 0, 1});
+    Segment3f seg{linal::vec3f{-2, -2, -1}, linal::vec3f{-1, -1, 0}};
+    auto intersection = Geometry::intersect(plane, seg);
+    EXPECT_EQ(intersection, (linal::vec3f{-1, -1, 0}));
 }
 
 TEST(PlaneRay3d, Touching_Target)
 {
-    Plane<double_t> plane(Vec3d{0, 0, 0}, Vec3d{0, 0, 1});
-    Vec3d raySource = Vec3d{-2, -2, -1};
-    Vec3d rayDir = Vec3d{-1, -1, 0} - raySource;
-    Ray3d ray{raySource, LinAl::normalize(rayDir)};
-    auto intersection = Geometry::intersection(plane, ray);
-    EXPECT_EQ(intersection, (Vec3f{-1, -1, 0}));
+    Plane<double> plane(linal::vec3d{0, 0, 0}, linal::vec3d{0, 0, 1});
+    linal::vec3d raySource = linal::vec3d{-2, -2, -1};
+    linal::vec3d rayDir = linal::vec3d{-1, -1, 0} - raySource;
+    Ray3d ray{raySource, linal::normalize(rayDir)};
+    auto intersection = Geometry::intersect(plane, ray);
+    EXPECT_EQ(intersection, (linal::vec3f{-1, -1, 0}));
 }
 
 TEST(PlaneRay3d, Parallel)
 {
-    Plane<double_t> plane(ZERO_VEC3D, Z_VEC3D);
-    Vec3d raySource = ZERO_VEC3D;
-    Vec3d rayDir = X_VEC3D - raySource;
-    Ray3d ray{raySource, LinAl::normalize(rayDir)};
-    auto intersection = Geometry::intersection(plane, ray);
+    Plane<double> plane(linal::ZERO_VEC3D, linal::Z_VEC3D);
+    linal::vec3d raySource = linal::ZERO_VEC3D;
+    linal::vec3d rayDir = linal::X_VEC3D - raySource;
+    Ray3d ray{raySource, linal::normalize(rayDir)};
+    auto intersection = Geometry::intersect(plane, ray);
     EXPECT_EQ(intersection, std::nullopt);
 }

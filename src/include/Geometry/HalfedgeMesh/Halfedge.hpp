@@ -1,71 +1,71 @@
-#ifndef GLFWTESTAPP_HALFEDGE_H
-#define GLFWTESTAPP_HALFEDGE_H
+#ifndef GEOMETRY_HALFEDGE_H
+#define GEOMETRY_HALFEDGE_H
 
-#include <Core/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
 #include <Geometry/HalfedgeMesh/MeshTraits.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 
 namespace Geometry
 {
 
-template <typename TFloatType, typename TIndexType>
+template <typename TFloat, typename TIndex>
 class Halfedge {
 public:
-  using VertexIndex_t = typename MeshIndexTraits<TIndexType>::VertexIndex_t;
-  using HalfedgeIndex_t = typename MeshIndexTraits<TIndexType>::HalfedgeIndex_t;
-  using FacetIndex_t = typename MeshIndexTraits<TIndexType>::FacetIndex_t;
+  using VertexIndex_t = typename MeshIndexTraits<TIndex>::VertexIndex_t;
+  using HalfedgeIndex_t = typename MeshIndexTraits<TIndex>::HalfedgeIndex_t;
+  using FacetIndex_t = typename MeshIndexTraits<TIndex>::FacetIndex_t;
 
-  using HeMeshTraits = MeshTraits<TFloatType, TIndexType>;
+  using HeMeshTraits = MeshTraits<TFloat, TIndex>;
   using Vertex_t = typename HeMeshTraits::Vertex_t;
   using Halfedge_t = typename HeMeshTraits::Halfedge_t;
   using Facet_t = typename HeMeshTraits::Facet_t;
 
-  using HalfedgeMesh_t = HalfedgeMesh<TFloatType, TIndexType>;
+  using HalfedgeMesh_t = HalfedgeMesh<TFloat, TIndex>;
 
-  CORE_CONSTEXPR Halfedge(VertexIndex_t vertexIndex, HalfedgeMesh_t* mesh) CORE_NOEXCEPT
+  constexpr Halfedge(VertexIndex_t vertexIndex, HalfedgeMesh_t* mesh) noexcept
       : m_vertexIdx(vertexIndex)
       , m_mesh(mesh)
   {
   }
 
-  CORE_NODISCARD
-  CORE_CONSTEXPR const Facet_t& getFacet() const { return m_mesh->facets[m_facetIdx.getValue()]; }
+  GEO_NODISCARD
+  constexpr const Facet_t& getFacet() const { return m_mesh->getFacets()[m_facetIdx.get_value()]; }
 
-  CORE_NODISCARD CORE_CONSTEXPR const Vertex_t& getVertex() const { return m_mesh->vertices[m_vertexIdx.getValue()]; }
-  CORE_NODISCARD CORE_CONSTEXPR const Vertex_t& getNextVertex() const { return getNext().getVertex(); }
+  GEO_NODISCARD constexpr const Vertex_t& getVertex() const { return m_mesh->getVertices()[m_vertexIdx.get_value()]; }
+  GEO_NODISCARD constexpr Vertex_t& getVertex() { return m_mesh->getVertices()[m_vertexIdx.get_value()]; }
 
-  CORE_NODISCARD CORE_CONSTEXPR Vertex_t& getNextVertex() { return getNext().getVertex(); }
-  CORE_NODISCARD CORE_CONSTEXPR Vertex_t& getVertex() { return m_mesh->vertices[m_vertexIdx.getValue()]; }
+  GEO_NODISCARD constexpr const Vertex_t& getNextVertex() const { return getNext().getVertex(); }
+  GEO_NODISCARD constexpr Vertex_t& getNextVertex() { return getNext().getVertex(); }
 
-  CORE_NODISCARD CORE_CONSTEXPR VertexIndex_t getVertexIndex() const { return m_vertexIdx; }
-  CORE_CONSTEXPR void setVertexIndex(VertexIndex_t index) { m_vertexIdx = index; }
+  GEO_NODISCARD constexpr VertexIndex_t getVertexIndex() const { return m_vertexIdx; }
+  constexpr void setVertexIndex(VertexIndex_t index) { m_vertexIdx = index; }
 
-  CORE_NODISCARD CORE_CONSTEXPR HalfedgeIndex_t getNextIndex() const { return m_nextIdx; }
-  CORE_NODISCARD CORE_CONSTEXPR HalfedgeIndex_t getPreviousIndex() const { return m_previousIdx; }
-  CORE_NODISCARD CORE_CONSTEXPR HalfedgeIndex_t getOppositeIndex() const { return m_oppositeIdx; }
-  CORE_NODISCARD CORE_CONSTEXPR FacetIndex_t getFacetIndex() const { return m_facetIdx; }
+  GEO_NODISCARD constexpr HalfedgeIndex_t getNextIndex() const { return m_nextIdx; }
+  GEO_NODISCARD constexpr HalfedgeIndex_t getPreviousIndex() const { return m_previousIdx; }
+  GEO_NODISCARD constexpr HalfedgeIndex_t getOppositeIndex() const { return m_oppositeIdx; }
+  GEO_NODISCARD constexpr FacetIndex_t getFacetIndex() const { return m_facetIdx; }
 
-  CORE_CONSTEXPR void setNextIndex(HalfedgeIndex_t index) { m_nextIdx = index; }
-  CORE_CONSTEXPR void setPreviousIndex(HalfedgeIndex_t index) { m_previousIdx = index; }
-  CORE_CONSTEXPR void setOppositeIndex(HalfedgeIndex_t index) { m_oppositeIdx = index; }
-  CORE_CONSTEXPR void setFacetIndex(FacetIndex_t facetIndex) { m_facetIdx = facetIndex; }
+  constexpr void setNextIndex(HalfedgeIndex_t index) { m_nextIdx = index; }
+  constexpr void setPreviousIndex(HalfedgeIndex_t index) { m_previousIdx = index; }
+  constexpr void setOppositeIndex(HalfedgeIndex_t index) { m_oppositeIdx = index; }
+  constexpr void setFacetIndex(FacetIndex_t facetIndex) { m_facetIdx = facetIndex; }
 
-  CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getNext() const { return m_mesh->halfedges[m_nextIdx.getValue()]; }
-  CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getPrevious() const { return m_mesh->halfedges[m_previousIdx.getValue()]; }
-  CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getOpposite() const { return m_mesh->halfedges[m_oppositeIdx.getValue()]; }
+  GEO_NODISCARD constexpr const Halfedge_t& getNext() const { return m_mesh->getHalfedges()[m_nextIdx.get_value()]; }
+  GEO_NODISCARD constexpr const Halfedge_t& getPrevious() const { return m_mesh->getHalfedges()[m_previousIdx.get_value()]; }
+  GEO_NODISCARD constexpr const Halfedge_t& getOpposite() const { return m_mesh->getHalfedges()[m_oppositeIdx.get_value()]; }
 
-  CORE_NODISCARD CORE_CONSTEXPR Halfedge_t& getNext() { return m_mesh->halfedges[m_nextIdx.getValue()]; }
-  CORE_NODISCARD CORE_CONSTEXPR Halfedge_t& getPrevious() { return m_mesh->halfedges[m_previousIdx.getValue()]; }
+  GEO_NODISCARD constexpr Halfedge_t& getNext() { return m_mesh->getHalfedges()[m_nextIdx.get_value()]; }
+  GEO_NODISCARD constexpr Halfedge_t& getPrevious() { return m_mesh->getHalfedges()[m_previousIdx.get_value()]; }
 
-  CORE_CONSTEXPR bool operator==(const Halfedge& rhs) const
+  constexpr bool operator==(const Halfedge& rhs) const
   {
     return m_facetIdx == rhs.m_facetIdx && m_vertexIdx == rhs.m_vertexIdx && m_nextIdx == rhs.m_nextIdx &&
            m_previousIdx == rhs.m_previousIdx && m_oppositeIdx == rhs.m_oppositeIdx && m_mesh == rhs.m_mesh;
   }
 
-  CORE_CONSTEXPR bool operator!=(const Halfedge& rhs) const { return !(rhs == *this); }
+  constexpr bool operator!=(const Halfedge& rhs) const { return !(rhs == *this); }
 
-  CORE_NODISCARD CORE_CONSTEXPR bool isValid() const { return m_mesh->contains(*this); }
+  GEO_NODISCARD constexpr bool is_valid() const { return m_mesh->contains(*this); }
 
 private:
   FacetIndex_t m_facetIdx{};
@@ -78,4 +78,4 @@ private:
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_HALFEDGE_H
+#endif // GEOMETRY_HALFEDGE_H

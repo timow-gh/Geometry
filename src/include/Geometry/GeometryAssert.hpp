@@ -1,25 +1,18 @@
 #ifndef GEOMETRY_GEOMETRYASSERT_HPP
 #define GEOMETRY_GEOMETRYASSERT_HPP
 
-#include <Core/Utils/Assert.hpp>
-
-#define GEOMETRY_PRECONDITION_SPHERE_ASSERT(sphere) CORE_PRECONDITION_ASSERT(!Core::isZero(sphere.getRadius()), "Sphere with radius zero.")
+#include <Geometry/Utils/Assert.hpp>
 
 #ifdef NDEBUG
-#define GEOMETRY_PRECONDITION_SPHERE_DEBUG_ASSERT(sphere)
+#define GEOMETRY_SPHERE_ASSERT(sphere)
 #else
-#define GEOMETRY_PRECONDITION_SPHERE_DEBUG_ASSERT(sphere)                                                                                  \
-  CORE_PRECONDITION_DEBUG_ASSERT(!Core::isZero(sphere.getRadius()), "Sphere with radius zero.")
+#define GEOMETRY_SPHERE_ASSERT(sphere) GEOMETRY_ASSERT(!linal::isZero(sphere.get_radius()))
 #endif
 
-#define GEOMETRY_PRECONDITION_RAY_DIRECTION_ASSERT(ray)                                                                                    \
-  CORE_PRECONDITION_ASSERT(!Core::isZero(LinAl::norm2Squared(ray.getDirection())), "Direction with zero length is not allowed.")
-
 #ifdef NDEBUG
-#define GEOMETRY_PRECONDITION_RAY_DIRECTION_DEBUG_ASSERT(ray)
+#define GEOMETRY_RAY_DIRECTION_ASSERT(ray)
 #else
-#define GEOMETRY_PRECONDITION_RAY_DIRECTION_DEBUG_ASSERT(ray)                                                                              \
-  CORE_PRECONDITION_DEBUG_ASSERT(!Core::isZero(LinAl::norm2Squared(ray.getDirection())), "Direction with zero length is not allowed.")
+#define GEOMETRY_RAY_DIRECTION_ASSERT(ray) GEOMETRY_ASSERT(!linal::isZero(linal::norm2Squared(ray.get_direction())))
 #endif
 
 #endif // GEOMETRY_GEOMETRYASSERT_HPP

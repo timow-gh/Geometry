@@ -1,36 +1,36 @@
 #ifndef MESHFACE_HEADER
 #define MESHFACE_HEADER
 
-#include <Core/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
 #include <Geometry/HalfedgeMesh/MeshTraits.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 
 namespace Geometry
 {
 
-template <typename TFloatType, typename TIndexType>
+template <typename TFloat, typename TIndex>
 class Facet {
 public:
-  using HalfedgeIndex_t = typename MeshIndexTraits<TIndexType>::HalfedgeIndex_t;
+  using HalfedgeIndex_t = typename MeshIndexTraits<TIndex>::HalfedgeIndex_t;
 
-  using Halfedge_t = typename MeshTraits<TFloatType, TIndexType>::Halfedge_t;
-  using HalfedgeMesh_t = HalfedgeMesh<TFloatType, TIndexType>;
+  using Halfedge_t = typename MeshTraits<TFloat, TIndex>::Halfedge_t;
+  using HalfedgeMesh_t = HalfedgeMesh<TFloat, TIndex>;
 
-  CORE_CONSTEXPR Facet(HalfedgeIndex_t halfedgeIndex, HalfedgeMesh_t& mesh) CORE_NOEXCEPT
+  constexpr Facet(HalfedgeIndex_t halfedgeIndex, HalfedgeMesh_t& mesh) noexcept
       : m_heIndex(halfedgeIndex)
       , m_mesh(&mesh)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR const Halfedge_t& getHalfedge() const { return m_mesh->getHalfedge(m_heIndex); }
-  CORE_CONSTEXPR Halfedge_t& getHalfedge() { return m_mesh->getHalfedge(m_heIndex); }
+  GEO_NODISCARD constexpr const Halfedge_t& getHalfedge() const { return m_mesh->getHalfedge(m_heIndex); }
+  constexpr Halfedge_t& getHalfedge() { return m_mesh->getHalfedge(m_heIndex); }
 
-  CORE_NODISCARD CORE_CONSTEXPR HalfedgeIndex_t getHalfedgeIndex() const { return m_heIndex; }
+  GEO_NODISCARD constexpr HalfedgeIndex_t getHalfedgeIndex() const { return m_heIndex; }
 
-  CORE_NODISCARD CORE_CONSTEXPR bool isValid() const { return m_heIndex.isValid() && m_mesh && m_mesh->contains(*this); }
+  GEO_NODISCARD constexpr bool is_valid() const { return m_heIndex.is_valid() && m_mesh && m_mesh->contains(*this); }
 
-  CORE_CONSTEXPR bool operator==(const Facet& rhs) const { return m_heIndex == rhs.m_heIndex && m_mesh == rhs.m_mesh; }
-  CORE_CONSTEXPR bool operator!=(const Facet& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Facet& rhs) const { return m_heIndex == rhs.m_heIndex && m_mesh == rhs.m_mesh; }
+  constexpr bool operator!=(const Facet& rhs) const { return !(rhs == *this); }
 
 private:
   HalfedgeIndex_t m_heIndex{};

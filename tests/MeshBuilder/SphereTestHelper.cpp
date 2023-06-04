@@ -1,16 +1,17 @@
 #include "SphereTestHelper.h"
 #include <Geometry/Distance/DistanceSphere.hpp>
+#include <linal/utils/eps.hpp>
 
 namespace MeshTestHelper
 {
 
-testing::AssertionResult isPointOnSphere(const Geometry::Sphere<double_t>& sphere, const LinAl::Vec3d& vec)
+testing::AssertionResult isPointOnSphere(const Geometry::Sphere<double>& sphere, const linal::vec3d& vec)
 {
-    constexpr double_t DIST_ALLOWED = Core::EPS_D;
-    double_t dist = Geometry::distance(vec, sphere);
-    if (Core::isLessEq(dist, DIST_ALLOWED))
-        return testing::AssertionSuccess();
-    else
-        return testing::AssertionFailure() << "Dist: " << dist << ", DistAllowed: " << DIST_ALLOWED;
+  constexpr double DIST_ALLOWED = linal::eps_f64;
+  double dist = Geometry::distance(vec, sphere);
+  if (linal::isLessEq(dist, DIST_ALLOWED))
+    return testing::AssertionSuccess();
+  else
+    return testing::AssertionFailure() << "Dist: " << dist << ", DistAllowed: " << DIST_ALLOWED;
 }
 } // namespace MeshTestHelper

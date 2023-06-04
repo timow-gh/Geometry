@@ -1,20 +1,20 @@
-#ifndef GLFWTESTAPP_FACETUTILS_H
-#define GLFWTESTAPP_FACETUTILS_H
+#ifndef GEOMETRY_FACETUTILS_H
+#define GEOMETRY_FACETUTILS_H
 
-#include <Core/Types/TVector.hpp>
-#include <Core/Utils/Compiler.hpp>
 #include <Geometry/HalfedgeMesh/Facet.hpp>
 #include <Geometry/HalfedgeMesh/Halfedge.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <vector>
 
 namespace Geometry
 {
 
-template <typename TFloatType, typename TIndexType>
-CORE_CONSTEXPR Core::TVector<Halfedge<TFloatType, TIndexType>> calcHalfedges(const Facet<TFloatType, TIndexType>& facet)
+template <typename TFloat, typename TIndex>
+GEO_NODISCARD constexpr std::vector<Halfedge<TFloat, TIndex>> calcHalfedges(const Facet<TFloat, TIndex>& facet)
 {
-  Core::TVector<Halfedge<TFloatType, TIndexType>> result;
+  std::vector<Halfedge<TFloat, TIndex>> result;
 
-  Halfedge<TFloatType, TIndexType> halfedge = facet.getHalfedge();
+  Halfedge<TFloat, TIndex> halfedge = facet.getHalfedge();
   result.push_back(halfedge);
   halfedge = halfedge.getNext();
   result.push_back(halfedge);
@@ -29,4 +29,4 @@ CORE_CONSTEXPR Core::TVector<Halfedge<TFloatType, TIndexType>> calcHalfedges(con
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_FACETUTILS_H
+#endif // GEOMETRY_FACETUTILS_H

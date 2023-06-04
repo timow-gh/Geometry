@@ -1,47 +1,65 @@
-#ifndef GLFWTESTAPP_SEGMENT_H
-#define GLFWTESTAPP_SEGMENT_H
+#ifndef GEOMETRY_SEGMENT_H
+#define GEOMETRY_SEGMENT_H
 
-#include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
-#include <Geometry/Fwd/FwdSegment.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/GeomPredicates.hpp>
+#include <Geometry/Segment.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
 
 template <typename T, std::size_t D>
 class Segment {
-  LinAl::Vec<T, D> m_source;
-  LinAl::Vec<T, D> m_target;
+  linal::vec<T, D> m_source;
+  linal::vec<T, D> m_target;
 
 public:
-  CORE_CONSTEXPR Segment() = default;
+  constexpr Segment() = default;
 
-  CORE_CONSTEXPR Segment(LinAl::Vec<T, D> source, LinAl::Vec<T, D> target)
+  constexpr Segment(linal::vec<T, D> source, linal::vec<T, D> target)
       : m_source(source)
       , m_target(target)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getSource() const { return m_source; }
-  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getTarget() const { return m_target; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_source() const noexcept { return m_source; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_target() const noexcept { return m_target; }
 
-  CORE_CONSTEXPR void setSource(LinAl::Vec<T, D> source) { m_source = source; }
-  CORE_CONSTEXPR void setTarget(LinAl::Vec<T, D> target) { m_target = target; }
+  constexpr void set_source(linal::vec<T, D> source) noexcept { m_source = source; }
+  constexpr void set_target(linal::vec<T, D> target) noexcept { m_target = target; }
 
-  CORE_NODISCARD CORE_CONSTEXPR T length() const { return LinAl::norm2(LinAl::Vec<T, D>{m_target - m_source}); }
+  GEO_NODISCARD constexpr T length() const noexcept { return linal::norm2(linal::vec<T, D>{m_target - m_source}); }
 
   //! Returns vector of length one.
-  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> direction() const
+  GEO_NODISCARD constexpr linal::vec<T, D> direction() const noexcept
   {
-    LinAl::Vec<T, D> segVec{m_target - m_source};
-    return segVec / LinAl::norm2(segVec);
+    linal::vec<T, D> segVec{m_target - m_source};
+    return segVec / linal::norm2(segVec);
   }
 
-  CORE_CONSTEXPR bool operator==(const Segment& rhs) const { return m_source == rhs.m_source && m_target == rhs.m_target; }
-  CORE_CONSTEXPR bool operator!=(const Segment& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Segment& rhs) const noexcept
+  {
+    return is_equal(m_source, rhs.m_source) && is_equal(m_target, rhs.m_target);
+  }
+  constexpr bool operator!=(const Segment& rhs) const noexcept { return !(rhs == *this); }
 };
+
+template <typename T>
+using Segment3 = class Segment<T, 3>;
+
+template <typename T>
+using Segment2 = Segment<T, 2>;
+using Segment2f = Segment2<float>;
+using Segment2d = Segment2<double>;
+
+template <typename T>
+using Segment3 = Segment<T, 3>;
+using Segment3f = Segment3<float>;
+using Segment3d = Segment3<double>;
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_SEGMENT_H
+#endif // GEOMETRY_SEGMENT_H

@@ -4,24 +4,24 @@
 namespace Geometry
 {
 
-template <typename TFloatType, typename TIndexType>
-struct Vertex;
+template <typename TFloat, typename TIndex>
+class Vertex;
 
-template <typename TFloatType, typename TIndexType>
+template <typename TFloat, typename TIndex>
 class Halfedge;
 
-template <typename TFloatType, typename TIndexType>
+template <typename TFloat, typename TIndex>
 class Facet;
 
-template <typename TFloatType, typename TIndexType>
-struct HalfedgeMesh;
+template <typename TFloat, typename TIndex>
+class HalfedgeMesh;
 
-template <typename TFloatType, typename TIndexType>
+template <typename TFloat, typename TIndex>
 struct MeshTraits
 {
-  using Vertex_t = Vertex<TFloatType, TIndexType>;
-  using Halfedge_t = Halfedge<TFloatType, TIndexType>;
-  using Facet_t = Facet<TFloatType, TIndexType>;
+  using Vertex_t = Vertex<TFloat, TIndex>;
+  using Halfedge_t = Halfedge<TFloat, TIndex>;
+  using Facet_t = Facet<TFloat, TIndex>;
 };
 
 } // namespace Geometry

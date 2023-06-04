@@ -1,34 +1,36 @@
 #ifndef GEOMETRY_DISTANCESEGMENT_HPP
 #define GEOMETRY_DISTANCESEGMENT_HPP
 
-#include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
 #include <Geometry/Line.hpp>
 #include <Geometry/Segment.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
+
 template <typename T, std::size_t D>
-CORE_CONSTEXPR T distance(const Segment<T, D>& segment, LinAl::Vec<T, D> vec)
+GEO_NODISCARD constexpr T distance(const Segment<T, D>& segment, linal::vec<T, D> vec) noexcept
 {
-  LinAl::Vec<T, D> source = segment.getSource();
-  LinAl::Vec<T, D> ps = vec - source;
-  LinAl::Vec<T, D> ts = segment.getTarget() - source;
-  T parameter = LinAl::dot(ps, ts) / LinAl::norm2(ts);
+  linal::vec<T, D> source = segment.get_source();
+  linal::vec<T, D> ps = vec - source;
+  linal::vec<T, D> ts = segment.get_target() - source;
+  T parameter = linal::dot(ps, ts) / linal::norm2(ts);
   T projParameter = std::min(std::max(parameter, T(0.0)), T(1.0));
-  LinAl::Vec<T, D> projVec{source + projParameter * ts};
-  return LinAl::norm2(LinAl::Vec<T, D>{projVec - vec});
+  linal::vec<T, D> projVec{source + projParameter * ts};
+  return linal::norm2(linal::vec<T, D>{projVec - vec});
 }
 
 template <typename T, std::size_t D>
-CORE_CONSTEXPR T distance(LinAl::Vec<T, D> vec, const Segment<T, D>& segment)
+GEO_NODISCARD constexpr T distance(linal::vec<T, D> vec, const Segment<T, D>& segment) noexcept
 {
   return distance(segment, vec);
 }
 
 template <typename T, std::size_t D>
-CORE_CONSTEXPR T distance(const Line<T, D>& line, const Segment<T, D>& segment)
+GEO_NODISCARD constexpr T distance(const Line<T, D>& line, const Segment<T, D>& segment) noexcept
 {
   return distance(segment, line);
 }

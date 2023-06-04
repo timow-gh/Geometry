@@ -1,68 +1,95 @@
-#ifndef FILAPP_CIRCLE_HPP
-#define FILAPP_CIRCLE_HPP
+#ifndef GEOMETRY_CIRCLE_HPP
+#define GEOMETRY_CIRCLE_HPP
 
-#include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/GeomPredicates.hpp>
+#include <Geometry/Utils/Assert.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/hvec.hpp>
+#include <linal/utils/eps.hpp>
+#include <linal/vec2.hpp>
+#include <linal/vec3.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
 
 template <typename T>
 class Circle2 {
-  LinAl::Vec2<T> m_origin;
+  linal::vec2<T> m_origin;
   T m_radius;
 
 public:
-  CORE_CONSTEXPR Circle2(const LinAl::Vec2<T>& origin, T radius)
+  constexpr Circle2(const linal::vec2<T>& origin, T radius) noexcept
       : m_origin(origin)
       , m_radius(radius)
   {
+    GEO_ASSERT(radius >= 0);
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec2<T>& getOrigin() const { return m_origin; }
-  CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
+  GEO_NODISCARD constexpr linal::vec2<T> get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr T get_radius() const noexcept { return m_radius; }
 
-  CORE_NODISCARD CORE_CONSTEXPR bool operator==(const Circle2& rhs) const { return m_origin == rhs.m_origin && m_radius == rhs.m_radius; }
-  CORE_NODISCARD CORE_CONSTEXPR bool operator!=(const Circle2& rhs) const { return !(rhs == *this); }
+  constexpr void set_origin(linal::vec2<T> origin) noexcept { m_origin = origin; }
+  constexpr void set_radius(T radius) noexcept
+  {
+    GEO_ASSERT(radius >= 0);
+    m_radius = radius;
+  }
+
+  GEO_NODISCARD constexpr bool operator==(const Circle2& rhs) const
+  {
+    return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius);
+  }
+  GEO_NODISCARD constexpr bool operator!=(const Circle2& rhs) const { return !(rhs == *this); }
 };
 
-using Circle2f = Circle2<float_t>;
-using Circle2d = Circle2<double_t>;
+using Circle2f = Circle2<float>;
+using Circle2d = Circle2<double>;
 
 template <typename T>
 class Circle3 {
-  LinAl::Vec3<T> m_origin;
+  linal::vec3<T> m_origin;
   T m_radius;
-  LinAl::Vec3<T> m_normal;
+  linal::vec3<T> m_normal;
 
 public:
-  CORE_CONSTEXPR Circle3(const LinAl::Vec3<T>& origin, T radius, const LinAl::Vec3<T>& normal)
+  constexpr Circle3(const linal::vec3<T>& origin, T radius, const linal::vec3<T>& normal)
       : m_origin(origin)
       , m_radius(radius)
       , m_normal(normal)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
-  CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
-  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getNormal() const { return m_normal; }
+  GEO_NODISCARD constexpr linal::vec3<T> get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr T get_radius() const noexcept { return m_radius; }
+  GEO_NODISCARD constexpr linal::vec3<T> get_normal() const noexcept { return m_normal; }
 
-  CORE_NODISCARD CORE_CONSTEXPR LinAl::HMatrix<T> calcTransformation() const
+  constexpr void set_origin(linal::vec3<T> origin) noexcept { m_origin = origin; }
+  constexpr void set_radius(T radius) noexcept
   {
-    LinAl::HMatrix<T> transformation =
-        LinAl::hMatRotationAlign(LinAl::HVec<T>{0, 0, 1, 1}, LinAl::HVec<T>{m_normal[0], m_normal[1], m_normal[2], 1});
-    LinAl::setTranslation(transformation, m_origin);
-    return transformation;
+    GEO_ASSERT(radius >= 0);
+    m_radius = radius;
+  }
+  constexpr void set_normal(linal::vec3<T> normal) noexcept
+  {
+    GEO_ASSERT(linal::isEq(linal::norm2(normal), 1));
+    m_normal = normal;
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR bool operator==(const Circle3& rhs) const
+  GEO_NODISCARD constexpr bool operator==(const Circle3& rhs) const noexcept
   {
-    return m_origin == rhs.m_origin && m_radius == rhs.m_radius && m_normal == rhs.m_normal;
+    return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius) && is_equal(m_normal, rhs.m_normal);
   }
-  CORE_NODISCARD CORE_CONSTEXPR bool operator!=(const Circle3& rhs) const { return !(rhs == *this); }
+  GEO_NODISCARD constexpr bool operator!=(const Circle3& rhs) const noexcept { return !(rhs == *this); }
 };
+
+template <typename T>
+class Circle3;
+using Circle3d = Circle3<double>;
+
+using Circle3f = Circle3<float>;
+using Circle3d = Circle3<double>;
 
 } // namespace Geometry
 
-#endif // FILAPP_CIRCLE_HPP
+#endif // GEOMETRY_CIRCLE_HPP

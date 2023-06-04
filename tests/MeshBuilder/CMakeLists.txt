@@ -1,10 +1,6 @@
 add_library(meshBuilderTestHelper STATIC SphereTestHelper.cpp)
 target_link_libraries(meshBuilderTestHelper PUBLIC gtest Geometry::Geometry)
 
-add_executable(Test_MeshBuilderHelper Test_MeshBuilderHelper.cpp)
-target_link_libraries(Test_MeshBuilderHelper PRIVATE gtest_main Geometry::Geometry meshBuilderTestHelper)
-add_test(NAME Geometry.Test_MeshBuilderHelper COMMAND Test_MeshBuilderHelper)
-
 create_geometry_test(Test_CuboidMeshBuilder)
 
 add_executable(Test_SphereMeshBuilder Test_SphereMeshBuilder.cpp)
@@ -12,9 +8,9 @@ target_link_libraries(Test_SphereMeshBuilder PRIVATE gtest_main Geometry::Geomet
 add_test(NAME Geometry.Test_SphereMeshBuilder COMMAND Test_SphereMeshBuilder)
 
 add_executable(Test_ConeMeshBuilder Test_ConeMeshBuilder.cpp)
-target_link_libraries(Test_ConeMeshBuilder PRIVATE gtest_main Geometry::Geometry Core::Math)
+target_link_libraries(Test_ConeMeshBuilder PRIVATE gtest_main Geometry::Geometry)
 add_test(NAME Geometry.Test_ConeMeshBuilder COMMAND Test_ConeMeshBuilder)
 
 add_executable(Test_CylinderMeshBuilder Test_CylinderMeshBuilder.cpp)
-target_link_libraries(Test_CylinderMeshBuilder PRIVATE gtest_main Geometry::Geometry Core::Math)
+target_link_libraries(Test_CylinderMeshBuilder PRIVATE gtest_main Geometry::Geometry)
 add_test(NAME Geometry.Test_CylinderMeshBuilder COMMAND Test_CylinderMeshBuilder)

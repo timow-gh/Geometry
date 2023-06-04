@@ -4,13 +4,13 @@
 namespace Geometry
 {
 
-template <typename TFloatType, typename TIndexType, typename U>
-CORE_CONSTEXPR Core::TVector<U> calcTriangleIndices(const Core::TVector<Facet<TFloatType, TIndexType>>& facets)
+template <typename TFloat, typename TIndex, typename U>
+constexpr std::vector<U> calcTriangleIndices(const std::vector<Facet<TFloat, TIndex>>& facets)
 {
-  Core::TVector<U> result;
+  std::vector<U> result;
   for (const auto& facet: facets)
-    for (const Geometry::Halfedge<TFloatType, TIndexType> halfedge: Geometry::calcHalfedges(facet))
-      result.push_back(static_cast<U>(halfedge.getVertexIndex().getValue()));
+    for (const Geometry::Halfedge<TFloat, TIndex> halfedge: Geometry::calcHalfedges(facet))
+      result.push_back(static_cast<U>(halfedge.getVertexIndex().get_value()));
   return result;
 }
 } // namespace Geometry

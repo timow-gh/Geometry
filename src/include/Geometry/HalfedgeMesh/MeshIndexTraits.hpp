@@ -1,17 +1,17 @@
 #ifndef GEOMETRY_MESHINDEXTRAITS_HPP
 #define GEOMETRY_MESHINDEXTRAITS_HPP
 
-#include <Geometry/HalfedgeMesh/HalfedgeMeshIndices.hpp>
+#include <Geometry/HalfedgeMesh/MeshIndices.hpp>
 
 namespace Geometry
 {
 
-template <typename TIndexType>
+template <typename TIndex>
 struct MeshIndexTraits
 {
-  using VertexIndex_t = VertexIndex<TIndexType>;
-  using HalfedgeIndex_t = HalfedgeIndex<TIndexType>;
-  using FacetIndex_t = FacetIndex<TIndexType>;
+  using VertexIndex_t = VertexIndex<TIndex>;
+  using HalfedgeIndex_t = HalfedgeIndex<TIndex>;
+  using FacetIndex_t = FacetIndex<TIndex>;
 };
 
 } // namespace Geometry

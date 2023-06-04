@@ -1,32 +1,49 @@
-#ifndef GLFWTESTAPP_LINE_H
-#define GLFWTESTAPP_LINE_H
+#ifndef GEOMETRY_LINE_H
+#define GEOMETRY_LINE_H
 
-#include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
-#include <Geometry/Fwd/FwdLine.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/GeomPredicates.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
+
 template <typename T, std::size_t D>
 class Line {
-  LinAl::Vec<T, D> m_origin;
-  LinAl::Vec<T, D> m_direction;
+  linal::vec<T, D> m_origin;
+  linal::vec<T, D> m_direction;
 
 public:
-  CORE_CONSTEXPR Line(LinAl::Vec<T, D> origin, LinAl::Vec<T, D> direction)
+  constexpr Line(linal::vec<T, D> origin, linal::vec<T, D> direction) noexcept
       : m_origin(origin)
-      , m_direction(LinAl::normalize(LinAl::Vec<T, D>{direction}))
+      , m_direction(direction)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getOrigin() const { return m_origin; }
-  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getDirection() const { return m_direction; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_direction() const noexcept { return m_direction; }
 
-  CORE_CONSTEXPR bool operator==(const Line& rhs) const { return m_origin == rhs.m_origin && m_direction == rhs.m_direction; }
-  CORE_CONSTEXPR bool operator!=(const Line& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Line& rhs) const noexcept
+  {
+    return is_equal(m_origin, rhs.m_origin) && is_equal(m_direction, rhs.m_direction);
+  }
+  constexpr bool operator!=(const Line& rhs) const noexcept { return !(rhs == *this); }
 };
+
+template <typename T>
+using Line3 = Line<T, 3>;
+
+template <typename T>
+using Line2 = Line<T, 2>;
+using Line2f = Line2<float>;
+using Line2d = Line2<double>;
+
+template <typename T>
+using Line3 = Line<T, 3>;
+using Line3f = Line3<float>;
+using Line3d = Line3<double>;
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_LINE_H
+#endif // GEOMETRY_LINE_H

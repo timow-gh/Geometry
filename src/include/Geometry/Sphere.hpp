@@ -1,41 +1,44 @@
-#ifndef GLFWTESTAPP_SPHERE_H
-#define GLFWTESTAPP_SPHERE_H
+#ifndef GEOMETRY_SPHERE_H
+#define GEOMETRY_SPHERE_H
 
-#include <Core/Math/Eps.hpp>
-#include <Geometry/Lcs.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/GeomPredicates.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
+#include <linal/vec3.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
 template <typename T>
 class Sphere {
-  LinAl::Vec3<T> m_origin;
+  linal::vec3<T> m_origin;
   T m_radius;
 
 public:
-  CORE_CONSTEXPR Sphere(const LinAl::Vec3<T>& origin, T radius)
+  Sphere(const linal::vec3<T>& origin, T radius) noexcept
       : m_origin(origin)
       , m_radius(radius)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
-  CORE_NODISCARD CORE_CONSTEXPR T getRadius() const { return m_radius; }
+  GEO_NODISCARD constexpr const linal::vec3<T>& get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr T get_radius() const noexcept { return m_radius; }
 
-  CORE_CONSTEXPR void setOrigin(const LinAl::Vec3<T>& origin) { m_origin = origin; }
-  CORE_CONSTEXPR void setRadius(T radius) { m_radius = radius; }
+  constexpr void set_origin(const linal::vec3<T>& origin) noexcept { m_origin = origin; }
+  constexpr void set_radius(T radius) noexcept { m_radius = radius; }
 
-  CORE_NODISCARD CORE_CONSTEXPR bool contains(const LinAl::Vec3<T>& vec) const
+  GEO_NODISCARD constexpr bool contains(const linal::vec3<T>& vec) const noexcept
   {
-    if (Core::isGreater(LinAl::norm2(LinAl::Vec3<T>{vec - m_origin}), m_radius))
-      return false;
-    return true;
+    return !linal::isGreater(linal::norm2(linal::vec3<T>{vec - m_origin}), m_radius);
   }
 
-  CORE_CONSTEXPR bool operator==(const Sphere& rhs) const { return m_origin == rhs.m_origin && m_radius == rhs.m_radius; }
-  CORE_CONSTEXPR bool operator!=(const Sphere& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Sphere& rhs) const noexcept
+  {
+    return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius);
+  }
+  constexpr bool operator!=(const Sphere& rhs) const noexcept { return !(rhs == *this); }
 };
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_SPHERE_H
+#endif // GEOMETRY_SPHERE_H

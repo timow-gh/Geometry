@@ -1,84 +1,84 @@
 #ifndef GEOMETRY_CUBOIDMESHBUILDER_HPP
 #define GEOMETRY_CUBOIDMESHBUILDER_HPP
 
-#include <Core/Types/TArray.hpp>
-#include <Core/Utils/Assert.hpp>
-#include <Core/Utils/Compiler.hpp>
 #include <Geometry/Cuboid.hpp>
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
 #include <Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp>
 #include <Geometry/Triangle.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Assert.hpp>
+#include <Geometry/Utils/Compiler.hpp>
 #include <algorithm>
+#include <array>
+#include <linal/vec3.hpp>
 #include <optional>
 
 namespace Geometry
 {
 
-template <typename TFloatType, typename TIndexType = std::size_t>
+template <typename TFloat, typename TIndex>
 class CuboidMeshBuilder {
-  std::optional<Cuboid<TFloatType>> m_cube;
+  std::optional<Cuboid<TFloat>> m_cube;
 
 public:
   CuboidMeshBuilder() = default;
-  CuboidMeshBuilder& setCuboid(const Cuboid<TFloatType>& cube)
+  CuboidMeshBuilder& set_cuboid(const Cuboid<TFloat>& cube)
   {
     m_cube = cube;
     return *this;
   }
 
-  CORE_NODISCARD std::unique_ptr<HalfedgeMesh<TFloatType, TIndexType>> build()
+  GEO_NODISCARD std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build()
   {
-    CORE_PRECONDITION_DEBUG_ASSERT(m_cube, "Missing cuboid");
+    GEO_ASSERT(m_cube);
 
     if (!m_cube)
       return nullptr;
 
-    Core::TArray<Triangle<TFloatType, 3>, 12> triangles = calcCuboidTriangles();
-    auto heMesh = std::make_unique<HalfedgeMesh<TFloatType, TIndexType>>();
-    std::for_each(triangles.cbegin(), triangles.cend(), MeshTriangleAdder<TFloatType, TIndexType>(*heMesh));
+    std::array<Triangle<TFloat, 3>, 12> triangles = calc_cuboid_triangles();
+    auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
+    std::for_each(triangles.cbegin(), triangles.cend(), MeshTriangleAdder<TFloat, TIndex>(*heMesh));
     return heMesh;
   }
 
 private:
-  Core::TArray<Triangle<TFloatType, 3>, 12> calcCuboidTriangles()
+  std::array<Triangle<TFloat, 3>, 12> calc_cuboid_triangles()
   {
-    auto sides = m_cube->getSideVectors();
-    LinAl::Vec3d defaultOrigin{0};
+    auto sides = m_cube->get_side_vectors();
+    linal::vec3d defaultOrigin{0};
 
-    const LinAl::Vec3<TFloatType>& x = sides[0];
-    const LinAl::Vec3<TFloatType>& y = sides[1];
-    const LinAl::Vec3<TFloatType>& z = sides[2];
+    const linal::vec3<TFloat>& x = sides[0];
+    const linal::vec3<TFloat>& y = sides[1];
+    const linal::vec3<TFloat>& z = sides[2];
 
-    Core::TArray<Triangle<TFloatType, 3>, 12> triangles;
+    std::array<Triangle<TFloat, 3>, 12> triangles;
 
-    LinAl::Vec3d diag = y + z;
-    calcCuboidFaceTriangles(triangles, {defaultOrigin, z, diag, y}, m_cube->getOrigin(), x, 0);
+    linal::vec3d diag = y + z;
+    calc_cuboid_face_triangles(triangles, {defaultOrigin, z, diag, y}, m_cube->get_origin(), x, 0);
 
     diag = x + z;
-    calcCuboidFaceTriangles(triangles, {defaultOrigin, x, diag, z}, m_cube->getOrigin(), y, 4);
+    calc_cuboid_face_triangles(triangles, {defaultOrigin, x, diag, z}, m_cube->get_origin(), y, 4);
 
     diag = x + y;
-    calcCuboidFaceTriangles(triangles, {defaultOrigin, y, diag, x}, m_cube->getOrigin(), z, 8);
+    calc_cuboid_face_triangles(triangles, {defaultOrigin, y, diag, x}, m_cube->get_origin(), z, 8);
 
     return triangles;
   }
 
-  void calcCuboidFaceTriangles(Core::TArray<Triangle<TFloatType, 3>, 12>& triangles,
-                               LinAl::Vec3Array<TFloatType, 4> vectors,
-                               const LinAl::Vec3<TFloatType>& origin,
-                               const LinAl::Vec3<TFloatType>& translationVec,
+  void calc_cuboid_face_triangles(std::array<Triangle<TFloat, 3>, 12>& triangles,
+                               linal::vec3Array<TFloat, 4> vectors,
+                               const linal::vec3<TFloat>& origin,
+                               const linal::vec3<TFloat>& translationVec,
                                std::size_t insertIndex)
   {
     for (auto& vec: vectors)
       vec = vec + origin;
-    triangles[insertIndex++] = Triangle<TFloatType, 3>(vectors[0], vectors[1], vectors[2]);
-    triangles[insertIndex++] = Triangle<TFloatType, 3>(vectors[2], vectors[3], vectors[0]);
+    triangles[insertIndex++] = Triangle<TFloat, 3>(vectors[0], vectors[1], vectors[2]);
+    triangles[insertIndex++] = Triangle<TFloat, 3>(vectors[2], vectors[3], vectors[0]);
 
     for (auto& vec: vectors)
       vec = vec + translationVec;
-    triangles[insertIndex++] = Triangle<TFloatType, 3>(vectors[2], vectors[1], vectors[0]);
-    triangles[insertIndex] = Triangle<TFloatType, 3>(vectors[0], vectors[3], vectors[2]);
+    triangles[insertIndex++] = Triangle<TFloat, 3>(vectors[2], vectors[1], vectors[0]);
+    triangles[insertIndex] = Triangle<TFloat, 3>(vectors[0], vectors[3], vectors[2]);
   }
 };
 

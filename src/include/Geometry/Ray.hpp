@@ -1,33 +1,53 @@
-#ifndef GLFWTESTAPP_RAY_HPP
-#define GLFWTESTAPP_RAY_HPP
+#ifndef GEOMETRY_RAY_HPP
+#define GEOMETRY_RAY_HPP
 
-#include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
-#include <Geometry/Fwd/FwdRay.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/GeomPredicates.hpp>
+#include <Geometry/Ray.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
+#include <linal/vec.hpp>
 
 namespace Geometry
 {
 
 template <typename T, std::size_t D>
 class Ray {
-  LinAl::Vec<T, D> m_origin;
-  LinAl::Vec<T, D> m_direction;
+  linal::vec<T, D> m_origin;
+  linal::vec<T, D> m_direction;
 
 public:
-  CORE_CONSTEXPR Ray(LinAl::Vec<T, D> origin, LinAl::Vec<T, D> direction)
+  constexpr Ray(linal::vec<T, D> origin, linal::vec<T, D> direction) noexcept
       : m_origin(origin)
       , m_direction(direction)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getOrigin() const { return m_origin; }
-  CORE_NODISCARD CORE_CONSTEXPR LinAl::Vec<T, D> getDirection() const { return m_direction; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr linal::vec<T, D> get_direction() const noexcept { return m_direction; }
 
-  CORE_CONSTEXPR bool operator==(const Ray& rhs) const { return m_origin == rhs.m_origin && m_direction == rhs.m_direction; }
-  CORE_CONSTEXPR bool operator!=(const Ray& rhs) const { return !(rhs == *this); }
+  constexpr void set_origin(linal::vec<T, D> origin) noexcept { m_origin = origin; }
+  constexpr void set_direction(linal::vec<T, D> direction) noexcept { m_direction = direction; }
+
+  constexpr bool operator==(const Ray& rhs) const noexcept
+  {
+    return is_equal(m_origin, rhs.m_origin) && is_equal(m_direction, rhs.m_direction);
+  }
+  constexpr bool operator!=(const Ray& rhs) const noexcept { return !(rhs == *this); }
 };
+
+template <typename T>
+using Ray3 = class Ray<T, 3>;
+
+template <typename T>
+using Ray2 = Ray<T, 2>;
+using Ray2f = Ray2<float>;
+using Ray2d = Ray2<double>;
+
+template <typename T>
+using Ray3 = Ray<T, 3>;
+using Ray3f = Ray3<float>;
+using Ray3d = Ray3<double>;
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_RAY_HPP
+#endif // GEOMETRY_RAY_HPP

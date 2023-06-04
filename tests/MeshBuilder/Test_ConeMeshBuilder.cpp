@@ -1,13 +1,12 @@
 #include <Geometry/Cone.hpp>
 #include <Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp>
-#include <LinAl/LinearAlgebra.hpp>
 #include <gtest/gtest.h>
+#include <linal/vec3.hpp>
 
 using namespace Geometry;
-using namespace LinAl;
 
 TEST(ConeMeshBuilder, createAConeMesh)
 {
-    auto coneMesh = ConeMeshBuilder<double_t>().setCone(Cone<double_t>(ZERO_VEC3D, Z_VEC3D, 10.0)).build();
-    EXPECT_TRUE(coneMesh);
+  auto coneMesh = ConeMeshBuilder<double, std::size_t>().set_cone(Cone<double>(linal::ZERO_VEC3D, linal::Z_VEC3D, 10.0)).build();
+  EXPECT_TRUE(coneMesh);
 }

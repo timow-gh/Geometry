@@ -1,33 +1,37 @@
-#ifndef GLFWTESTAPP_PLANE_HPP
-#define GLFWTESTAPP_PLANE_HPP
+#ifndef GEOMETRY_PLANE_HPP
+#define GEOMETRY_PLANE_HPP
 
-#include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/GeomPredicates.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
+#include <linal/vec3.hpp>
 
 namespace Geometry
 {
 template <typename T>
 class Plane {
 private:
-  LinAl::Vec3<T> m_origin;
-  LinAl::Vec3<T> m_normal;
+  linal::vec3<T> m_origin;
+  linal::vec3<T> m_normal;
 
 public:
-  CORE_CONSTEXPR Plane() = default;
-  CORE_CONSTEXPR Plane(const LinAl::Vec3<T>& origin, const LinAl::Vec3<T>& normal)
+  constexpr Plane() noexcept = default;
+  constexpr Plane(const linal::vec3<T>& origin, const linal::vec3<T>& normal) noexcept
       : m_origin(origin)
-      , m_normal(LinAl::normalize(normal))
+      , m_normal(normal)
   {
   }
 
-  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getOrigin() const { return m_origin; }
-  CORE_NODISCARD CORE_CONSTEXPR const LinAl::Vec3<T>& getNormal() const { return m_normal; }
+  GEO_NODISCARD constexpr const linal::vec3<T>& get_origin() const noexcept { return m_origin; }
+  GEO_NODISCARD constexpr const linal::vec3<T>& get_normal() const noexcept { return m_normal; }
 
-  CORE_CONSTEXPR bool operator==(const Plane& rhs) const { return m_origin == rhs.m_origin && m_normal == rhs.m_normal; }
-  CORE_CONSTEXPR bool operator!=(const Plane& rhs) const { return !(rhs == *this); }
+  constexpr bool operator==(const Plane& rhs) const noexcept
+  {
+    return is_equal(m_origin, rhs.m_origin) && is_equal(m_normal, rhs.m_normal);
+  }
+  constexpr bool operator!=(const Plane& rhs) const noexcept { return !(rhs == *this); }
 };
 
 } // namespace Geometry
 
-#endif // GLFWTESTAPP_PLANE_HPP
+#endif // GEOMETRY_PLANE_HPP

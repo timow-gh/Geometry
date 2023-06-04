@@ -1,34 +1,37 @@
 #ifndef GEOMETRY_DISTANCELINE_HPP
 #define GEOMETRY_DISTANCELINE_HPP
 
-#include <Core/Math/Eps.hpp>
-#include <Core/Utils/Compiler.hpp>
 #include <Geometry/Line.hpp>
-#include <LinAl/LinearAlgebra.hpp>
+#include <Geometry/Utils/Compiler.hpp>
+#include <linal/utils/eps.hpp>
+#include <linal/vec.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
 
 template <typename T, std::size_t D>
-CORE_NODISCARD CORE_CONSTEXPR T distance(LinAl::Vec<T, D> vec, const Line<T, D>& line)
+GEO_NODISCARD constexpr T distance(linal::vec<T, D> vec, const Line<T, D>& line) noexcept
 {
-  return LinAl::norm2(LinAl::rejection(LinAl::Vec<T, D>{line.getOrigin() - vec}, line.getDirection()));
+  return linal::norm2(linal::rejection(linal::vec<T, D>{line.get_origin() - vec}, line.get_direction()));
 }
 
 template <typename T, std::size_t D>
-CORE_NODISCARD CORE_CONSTEXPR T distance(const Line<T, D>& line, LinAl::Vec<T, D> vec)
+GEO_NODISCARD constexpr T distance(const Line<T, D>& line, linal::vec<T, D> vec) noexcept
 {
   return distance(vec, line);
 }
 
 template <typename T, std::size_t D>
-CORE_NODISCARD CORE_CONSTEXPR T distance(const Line<T, D>& lhs, const Line<T, D>& rhs)
+GEO_NODISCARD constexpr T distance(const Line<T, D>& lhs, const Line<T, D>& rhs) noexcept
 {
-  LinAl::Vec<T, D> cross = LinAl::cross(lhs.getDirection(), rhs.getDirection());
-  T crossLen = LinAl::norm2(cross);
-  if (Core::isZero(crossLen))
-    return distance(lhs.getOrigin(), rhs);
-  return LinAl::dot(LinAl::Vec<T, D>{lhs.getOrigin() - rhs.getOrigin()}, cross) / crossLen;
+  linal::vec<T, D> cross = linal::cross(lhs.get_direction(), rhs.get_direction());
+  T crossLen = linal::norm2(cross);
+  if (linal::isZero(crossLen))
+  {
+    return distance(lhs.get_origin(), rhs);
+  }
+  return linal::dot(linal::vec<T, D>{lhs.get_origin() - rhs.get_origin()}, cross) / crossLen;
 }
 
 } // namespace Geometry
