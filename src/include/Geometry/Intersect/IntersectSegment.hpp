@@ -20,6 +20,15 @@ namespace Geometry
 //! 1 -> Unique intersection
 //! 2 -> Segments overlap, the intersection is a segment
 //! 3 -> No intersection, skew segment lines
+
+enum class SegmentIntersectionType
+{
+  NO_INTERSECTION,
+  UNIQUE_INTERSECTION,
+  SEGMENTS_OVERLAP,
+  SKEW_SEGMENT_LINES
+};
+
 template <typename T, std::size_t D>
 GEO_NODISCARD uint32_t
 intersect(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& intersectionSeg, T eps = linal::eps<T>::value) noexcept
@@ -37,7 +46,7 @@ intersect(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& int
   if constexpr (D == 3)
   {
     Plane<T> plane{lhsSource, linal::cross(deltaSource, lhsDir)};
-    if (intersect(plane, (Line<T, D>{rhsSource, rhsDir})))
+    if (intersect(plane, Line<T, D>{rhsSource, rhsDir}))
     {
       return 3;
     }
@@ -104,7 +113,8 @@ intersect(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& int
 //! 2 -> Overlap, the intersection is the segment
 //! 3 -> No intersection, skew segment lines
 template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t intersect(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = linal::eps<T>::value) noexcept
+GEO_NODISCARD uint32_t
+intersect(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = linal::eps<T>::value) noexcept
 {
   linal::vec<T, D> segSource = seg.get_source();
   linal::vec<T, D> segTarget = seg.get_target();
