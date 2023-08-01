@@ -29,7 +29,7 @@ public:
 
   constexpr bool operator==(const Ray& rhs) const noexcept
   {
-    return is_equal(m_origin, rhs.m_origin) && is_equal(m_direction, rhs.m_direction);
+    return linal::is_equal(m_origin, rhs.m_origin) && linal::is_equal(m_direction, rhs.m_direction);
   }
   constexpr bool operator!=(const Ray& rhs) const noexcept { return !(rhs == *this); }
 };

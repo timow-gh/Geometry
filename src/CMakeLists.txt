@@ -39,6 +39,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Transform/TransformAABB.hpp
         include/Geometry/Utils/Assert.hpp
         include/Geometry/Utils/Compiler.hpp
+        include/Geometry/Utils/GeometryAssert.hpp
         include/Geometry/Utils/Warnings.hpp
         include/Geometry/AABB.hpp
         include/Geometry/Circle.hpp
@@ -46,7 +47,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/Cuboid.hpp
         include/Geometry/Cylinder.hpp
         include/Geometry/ExtremePointsInDirection.hpp
-        include/Geometry/GeometryAssert.hpp
         include/Geometry/Handle.hpp
         include/Geometry/Interval.hpp
         include/Geometry/Segment.hpp
@@ -54,11 +54,11 @@ set(geometry_TARGET_HEADER
         include/Geometry/Plane.hpp
         include/Geometry/Sphere.hpp
         include/Geometry/Triangle.hpp
-        )
+)
 
 set(geometry_TARGET_SOURCES
         source/HalfedgeMeshBuilder/MeshBuilder.cpp
-        )
+)
 
 add_library(tw_geometry ${geometry_TARGET_SOURCES} ${geometry_TARGET_HEADER})
 target_include_directories(tw_geometry

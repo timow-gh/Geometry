@@ -45,8 +45,8 @@ public:
 
   constexpr bool operator==(const Cuboid& rhs) const noexcept
   {
-    return is_equal(m_origin, rhs.m_origin) && is_equal(m_sideVectors[0], rhs.m_sideVectors[0]) &&
-           is_equal(m_sideVectors[1], rhs.m_sideVectors[1]) && is_equal(m_sideVectors[2], rhs.m_sideVectors[2]);
+    return linal::is_equal(m_origin, rhs.m_origin) && linal::is_equal(m_sideVectors[0], rhs.m_sideVectors[0]) &&
+           linal::is_equal(m_sideVectors[1], rhs.m_sideVectors[1]) && linal::is_equal(m_sideVectors[2], rhs.m_sideVectors[2]);
   }
   constexpr bool operator!=(const Cuboid& rhs) const noexcept { return !(rhs == *this); }
 

@@ -26,7 +26,7 @@ public:
 
   constexpr bool operator==(const Plane& rhs) const noexcept
   {
-    return is_equal(m_origin, rhs.m_origin) && is_equal(m_normal, rhs.m_normal);
+    return linal::is_equal(m_origin, rhs.m_origin) && linal::is_equal(m_normal, rhs.m_normal);
   }
   constexpr bool operator!=(const Plane& rhs) const noexcept { return !(rhs == *this); }
 };

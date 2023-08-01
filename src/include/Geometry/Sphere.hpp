@@ -33,7 +33,7 @@ public:
 
   constexpr bool operator==(const Sphere& rhs) const noexcept
   {
-    return is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius);
+    return linal::is_equal(m_origin, rhs.m_origin) && linal::isEq(m_radius, rhs.m_radius);
   }
   constexpr bool operator!=(const Sphere& rhs) const noexcept { return !(rhs == *this); }
 };
