@@ -2,11 +2,11 @@
 #define GEOMETRY_AABB_HPP
 
 #include <Geometry/ExtremePointsInDirection.hpp>
-#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <array>
 #include <linal/containers.hpp>
 #include <linal/vec.hpp>
+#include <linal/vec_compare.hpp>
 
 namespace Geometry
 {
@@ -136,7 +136,7 @@ public:
 
   GEO_NODISCARD constexpr bool operator==(const AABB<TFloat, D>& rhs) const noexcept
   {
-    return is_equal(m_min, rhs.m_min) && is_equal(m_max, rhs.m_max);
+    return linal::is_equal(m_min, rhs.m_min) && linal::is_equal(m_max, rhs.m_max);
   }
   GEO_NODISCARD constexpr bool operator!=(const AABB<TFloat, D>& rhs) const noexcept { return !(*this == rhs); }
 };

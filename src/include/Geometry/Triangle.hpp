@@ -28,6 +28,12 @@ public:
   GEO_NODISCARD constexpr const linal::vecArray<T, D, 3>& get_triangle_points() const noexcept { return m_trianglePoints; }
 };
 
+using Triangle2f = Triangle<float, 2>;
+using Triangle3f = Triangle<float, 3>;
+
+using Triangle2d = Triangle<double, 2>;
+using Triangle3d = Triangle<double, 3>;
+
 } // namespace Geometry
 
 #endif // GEOMETRY_TRIANGLE_HPP

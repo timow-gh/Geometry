@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_PLANE_HPP
 #define GEOMETRY_PLANE_HPP
 
-#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/utils/eps.hpp>
 #include <linal/vec3.hpp>

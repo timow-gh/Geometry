@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_CIRCLE_HPP
 #define GEOMETRY_CIRCLE_HPP
 
-#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Utils/Assert.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/hvec.hpp>
