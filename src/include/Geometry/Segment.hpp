@@ -1,11 +1,11 @@
 #ifndef GEOMETRY_SEGMENT_H
 #define GEOMETRY_SEGMENT_H
 
-#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Segment.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
+#include <linal/vec_compare.hpp>
 #include <linal/vec_operations.hpp>
 
 namespace Geometry
@@ -42,7 +42,7 @@ public:
 
   constexpr bool operator==(const Segment& rhs) const noexcept
   {
-    return is_equal(m_source, rhs.m_source) && is_equal(m_target, rhs.m_target);
+    return linal::is_equal(m_source, rhs.m_source) && linal::is_equal(m_target, rhs.m_target);
   }
   constexpr bool operator!=(const Segment& rhs) const noexcept { return !(rhs == *this); }
 };

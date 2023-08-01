@@ -13,7 +13,7 @@ protected:
 TEST_F(fixture_cylinder, cone_trafo)
 {
   auto translationVec = linal::vec3d{1, 1, 1};
-  auto trafo = linal::hcoord::create_translation(translationVec[0], translationVec[1], translationVec[2]);
+  auto trafo = linal::hcoord::hmat_translation(translationVec[0], translationVec[1], translationVec[2]);
   auto tcylinder = Geometry::transform(m_cylinder, trafo);
   auto expectedOrigin = linal::vec3d{2, 2, 2};
   EXPECT_EQ(expectedOrigin, tcylinder.get_segment().get_source());

@@ -21,14 +21,6 @@ namespace Geometry
 //! 2 -> Segments overlap, the intersection is a segment
 //! 3 -> No intersection, skew segment lines
 
-enum class SegmentIntersectionType
-{
-  NO_INTERSECTION,
-  UNIQUE_INTERSECTION,
-  SEGMENTS_OVERLAP,
-  SKEW_SEGMENT_LINES
-};
-
 template <typename T, std::size_t D>
 GEO_NODISCARD uint32_t
 intersect(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& intersectionSeg, T eps = linal::eps<T>::value) noexcept
@@ -42,7 +34,6 @@ intersect(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& int
   linal::vec<T, D> lhsDir = lhsTarget - lhsSource;
   linal::vec<T, D> rhsDir = rhsTarget - rhsSource;
 
-  // TODO extract function: is planar to plane (see line intersection)
   if constexpr (D == 3)
   {
     Plane<T> plane{lhsSource, linal::cross(deltaSource, lhsDir)};
@@ -78,8 +69,6 @@ intersect(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& int
     }
   }
 
-  // TODO extract function: is parallel in plane (see line intersection)
-  // FixMe T sqrDeltaSource = linal::norm2Squared(deltaSource);
   cross = deltaSource[0] * lhsDir[1] - deltaSource[1] * lhsDir[0];
   sqrCross = cross * cross;
   if (!linal::isZero(sqrCross, eps * sqrLenLhs * sqrLenRhs))
@@ -124,7 +113,6 @@ intersect(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& resul
   linal::vec<T, D> deltaSource = lineOrigin - segSource;
   linal::vec<T, D> segDir = segTarget - segSource;
 
-  // TODO extract function: is planar to plane (see line intersection)
   if constexpr (D == 3)
   {
     Plane<T> plane{segSource, linal::cross(deltaSource, segDir)};
@@ -147,8 +135,6 @@ intersect(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& resul
     return 1;
   }
 
-  // TODO extract function: is parallel in plane (see line intersection)
-  // FixMe T sqrDeltaSource = linal::norm2Squared(deltaSource);
   cross = deltaSource[0] * segDir[1] - deltaSource[1] * segDir[0];
   sqrCross = cross * cross;
   if (!linal::isZero(sqrCross, eps * sqrLenSeg))

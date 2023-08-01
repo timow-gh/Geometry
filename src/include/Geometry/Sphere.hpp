@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_SPHERE_H
 #define GEOMETRY_SPHERE_H
 
-#include <Geometry/GeomPredicates.hpp>
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/utils/eps.hpp>
 #include <linal/vec3.hpp>

@@ -14,7 +14,7 @@ protected:
 TEST_F(fixture_transformation_circle3, circle3_translation)
 {
   auto translationVec = linal::vec3d{1, 1, 1};
-  auto trafo = linal::hcoord::create_translation(translationVec[0], translationVec[1], translationVec[2]);
+  auto trafo = linal::hcoord::hmat_translation(translationVec[0], translationVec[1], translationVec[2]);
   auto tCircle = Geometry::transform(m_circle3, trafo);
   auto expectedOrigin = linal::vec3d{2, 2, 2};
   EXPECT_EQ(expectedOrigin, tCircle.get_origin());
