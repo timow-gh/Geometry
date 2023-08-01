@@ -3,6 +3,7 @@
 
 #include <Geometry/Utils/Compiler.hpp>
 #include <linal/vec.hpp>
+#include <linal/vec_compare.hpp>
 #include <linal/vec_operations.hpp>
 
 namespace Geometry
@@ -25,7 +26,7 @@ public:
 
   constexpr bool operator==(const Line& rhs) const noexcept
   {
-    return is_equal(m_origin, rhs.m_origin) && is_equal(m_direction, rhs.m_direction);
+    return linal::is_equal(m_origin, rhs.m_origin) && linal::is_equal(m_direction, rhs.m_direction);
   }
   constexpr bool operator!=(const Line& rhs) const noexcept { return !(rhs == *this); }
 };
