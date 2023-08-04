@@ -60,7 +60,7 @@ public:
   constexpr void set_min(linal::vec<TFloat, D> min) noexcept { m_min = min; }
   constexpr void set_max(linal::vec<TFloat, D> max) noexcept { m_max = max; }
 
-  GEO_NODISCARD constexpr linal::vec<TFloat, D> get_center() const noexcept { return (m_min + (m_max - m_min) / TFloat{2}); }
+  GEO_NODISCARD constexpr linal::vec<TFloat, D> center() const noexcept { return (m_min + (m_max - m_min) / TFloat{2}); }
 
   /** @brief Checks if min and max are valid
    *
@@ -141,6 +141,13 @@ public:
   GEO_NODISCARD constexpr bool operator!=(const AABB<TFloat, D>& rhs) const noexcept { return !(*this == rhs); }
 };
 
+/*@brief Creates an AABB from a set of points
+ *
+ * @tparam TFloat The type of the floating point numbers
+ * @tparam D The dimension of the AABB
+ * @param points The points to create the AABB from
+ * @return The created AABB
+ */
 template <typename TFloat, std::size_t D>
 GEO_NODISCARD AABB<TFloat, D> make_aabb(const linal::vecvector<TFloat, D>& points) noexcept
 {

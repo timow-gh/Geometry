@@ -7,9 +7,9 @@
 #include <Geometry/Sphere.hpp>
 #include <Geometry/Triangle.hpp>
 #include <cmath>
+#include <linal/utils/constants.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec3.hpp>
-#include <linal/utils/constants.hpp>
 #include <memory>
 #include <optional>
 

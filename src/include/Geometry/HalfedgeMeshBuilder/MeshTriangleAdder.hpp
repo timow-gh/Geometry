@@ -7,6 +7,12 @@
 namespace Geometry
 {
 
+/**
+ * @brief Adds a triangle to a halfedge mesh.
+ *
+ * @tparam TFloat
+ * @tparam TIndex
+ */
 template <typename TFloat, typename TIndex>
 class MeshTriangleAdder {
   HalfedgeMesh<TFloat, TIndex>* m_halfedgeMesh;
@@ -22,7 +28,10 @@ public:
 
   using MeshPoints_t = MeshPoints<TFloat, TIndex>;
 
-  constexpr explicit MeshTriangleAdder(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh) noexcept : m_halfedgeMesh(&halfedgeMesh) {}
+  constexpr explicit MeshTriangleAdder(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh) noexcept
+      : m_halfedgeMesh(&halfedgeMesh)
+  {
+  }
 
   void operator()(const Triangle<TFloat, 3>& triangle)
   {
@@ -37,15 +46,15 @@ public:
     create_or_find_vertex(triangle, meshPoints, vertices, vertexIndices);
     create_halfedge_and_set_vertex(vertexIndices, vertices, halfedges, m_halfedgeMesh);
     facets.emplace_back(halfedgeIndex, *m_halfedgeMesh);
-    flil_halfedges_of_facet(facets, halfedgeIndex, halfedges);
+    fill_halfedges_of_facet(facets, halfedgeIndex, halfedges);
     set_opposite_halfedges(halfedgeIndex, halfedges);
   }
 
 private:
   void create_or_find_vertex(const Triangle<TFloat, 3>& triangle,
-                          MeshPoints_t& meshPoints,
-                          std::vector<Vertex_t>& vertices,
-                          std::array<VertexIndex_t, 3>& vertexIndices) const
+                             MeshPoints_t& meshPoints,
+                             std::vector<Vertex_t>& vertices,
+                             std::array<VertexIndex_t, 3>& vertexIndices) const
   {
     // Create or find the Vertex of the linal::vec3
     const linal::vecArray<TFloat, 3, 3> trianglePoints = triangle.get_triangle_points();
@@ -62,9 +71,9 @@ private:
   }
 
   void create_halfedge_and_set_vertex(const std::array<VertexIndex_t, 3>& vertexIndices,
-                                  std::vector<Vertex_t>& vertices,
-                                  std::vector<Halfedge_t>& halfedges,
-                                  HalfedgeMesh<TFloat, TIndex>* halfedgeMesh) const
+                                      std::vector<Vertex_t>& vertices,
+                                      std::vector<Halfedge_t>& halfedges,
+                                      HalfedgeMesh<TFloat, TIndex>* halfedgeMesh) const
   {
     // Create the Halfedges and set the Halfedges for Vertices
     for (const VertexIndex_t vIndex: vertexIndices)
@@ -75,7 +84,7 @@ private:
     }
   }
 
-  void flil_halfedges_of_facet(std::vector<Facet_t>& facets, HalfedgeIndex_t halfedgeIndex, std::vector<Halfedge_t>& halfedges) const
+  void fill_halfedges_of_facet(std::vector<Facet_t>& facets, HalfedgeIndex_t halfedgeIndex, std::vector<Halfedge_t>& halfedges) const
   {
     // Fill the facet, the next and the previous pointer for each Halfedge
     // of the Facet

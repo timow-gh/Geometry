@@ -65,10 +65,10 @@ private:
   }
 
   void calc_cuboid_face_triangles(std::array<Triangle<TFloat, 3>, 12>& triangles,
-                               linal::vec3Array<TFloat, 4> vectors,
-                               const linal::vec3<TFloat>& origin,
-                               const linal::vec3<TFloat>& translationVec,
-                               std::size_t insertIndex)
+                                  linal::vec3Array<TFloat, 4> vectors,
+                                  const linal::vec3<TFloat>& origin,
+                                  const linal::vec3<TFloat>& translationVec,
+                                  std::size_t insertIndex)
   {
     for (auto& vec: vectors)
       vec = vec + origin;

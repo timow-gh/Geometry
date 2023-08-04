@@ -23,7 +23,6 @@ public:
       , m_mesh(mesh)
   {
   }
-
   constexpr Vertex(VertexIndex_t meshPointIndex, HalfedgeIndex_t halfedgeIndex, HalfedgeMesh_t* mesh) noexcept
       : m_vIndex(meshPointIndex)
       , m_heIndex(halfedgeIndex)
@@ -32,14 +31,12 @@ public:
   }
 
   GEO_NODISCARD constexpr linal::vec3<TFloat> getVector() const { return m_mesh->getVector(*this); }
-
   GEO_NODISCARD constexpr VertexIndex_t getIndex() const { return m_vIndex; }
-
   GEO_NODISCARD constexpr HalfedgeIndex_t getHalfedgeIndex() const { return m_heIndex; }
-  constexpr void setHalfedgeIndex(HalfedgeIndex_t halfedgeIndex) { m_heIndex = halfedgeIndex; }
-
   GEO_NODISCARD constexpr const Halfedge_t& getHalfedge() const { return m_mesh->getHalfedges()[m_heIndex.get_value()]; }
-  constexpr Halfedge_t& getHalfedge() { return m_mesh->getHalfedges()[m_heIndex.get_value()]; }
+  GEO_NODISCARD constexpr Halfedge_t& getHalfedge() { return m_mesh->getHalfedges()[m_heIndex.get_value()]; }
+
+  constexpr void setHalfedgeIndex(HalfedgeIndex_t halfedgeIndex) { m_heIndex = halfedgeIndex; }
 
   GEO_NODISCARD constexpr bool is_valid() const { return m_vIndex.is_valid() && m_heIndex.is_valid() && m_mesh; }
 
@@ -47,7 +44,6 @@ public:
   {
     return m_vIndex == rhs.m_vIndex && m_heIndex == rhs.m_heIndex && m_mesh == rhs.m_mesh;
   }
-
   constexpr bool operator!=(const Vertex& rhs) const { return !(rhs == *this); }
 
 private:

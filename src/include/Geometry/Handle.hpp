@@ -16,7 +16,10 @@ public:
   static constexpr value_type nullHandle = value_type{};
 
   constexpr Handle() noexcept = default;
-  explicit constexpr Handle(T value) noexcept : m_value(value) {}
+  explicit constexpr Handle(T value) noexcept
+      : m_value(value)
+  {
+  }
 
   constexpr T get_value() const noexcept { return m_value; }
   constexpr bool is_valid() const noexcept { return m_value != invalidHandles; }

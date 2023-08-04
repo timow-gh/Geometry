@@ -2,8 +2,8 @@
 #define GEOMETRY_CIRCLEPOINTS_HPP
 
 #include <linal/containers.hpp>
-#include <linal/vec3.hpp>
 #include <linal/utils/constants.hpp>
+#include <linal/vec3.hpp>
 
 namespace Geometry
 {

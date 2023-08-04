@@ -24,7 +24,10 @@ public:
   GEO_NODISCARD constexpr T get_radius() const noexcept { return m_radius; }
   GEO_NODISCARD constexpr T height() const noexcept { return m_segment.length(); }
 
-  constexpr bool operator==(const Cylinder& rhs) const noexcept { return m_segment == rhs.m_segment && linal::isEq(m_radius, rhs.m_radius); }
+  constexpr bool operator==(const Cylinder& rhs) const noexcept
+  {
+    return m_segment == rhs.m_segment && linal::isEq(m_radius, rhs.m_radius);
+  }
   constexpr bool operator!=(const Cylinder& rhs) const noexcept { return !(rhs == *this); }
 };
 

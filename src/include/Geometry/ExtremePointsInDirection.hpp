@@ -18,6 +18,12 @@ struct MinMax
   TFloat max{0.0};
 };
 
+/* @brief Returns extreme points of a set of points along a given direction.
+ *
+ * @param dir Direction along which to find extreme points.
+ * @param points Set of points.
+ * @return MinMax structure with min and max values.
+ */
 template <typename TFloat, std::size_t D>
 GEO_NODISCARD constexpr MinMax<TFloat> extreme_points_along_direction(linal::vec<TFloat, D> dir,
                                                                       const linal::vecvector<TFloat, D>& points) noexcept

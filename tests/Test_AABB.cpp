@@ -33,7 +33,7 @@ TEST(AABBCenterTest, get_center)
   AABB3d const aabb = make_aabb(points);
 
   linal::vec3d const expectedCenter{0.0, 0.0, 0.0};
-  EXPECT_EQ(aabb.get_center(), expectedCenter);
+  EXPECT_EQ(aabb.center(), expectedCenter);
 }
 
 TEST(AABBEmtpyTest, is_empty)

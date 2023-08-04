@@ -18,7 +18,7 @@ protected:
   linal::hcoord::hmat<TFloat> m_transformation = {{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}};
 
   std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build_triangle_halfedge_mesh(const linal::vec3vector<TFloat>& points,
-                                                                    const std::vector<TIndex>& triangleIndices) const
+                                                                             const std::vector<TIndex>& triangleIndices) const
   {
     auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
     MeshTriangleAdder<TFloat, TIndex> meshTriangleAdder{*heMesh};

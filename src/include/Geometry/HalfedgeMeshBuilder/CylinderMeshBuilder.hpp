@@ -48,7 +48,8 @@ public:
 
     linal::vec3vector<TFloat> cylPoints = calc_cylinder_points();
     const auto cylinderTriangleIndices = calc_cylinder_triangle_indices(cylPoints);
-    return MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(cylPoints, cylinderTriangleIndices);
+    return MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(cylPoints,
+                                                                                                              cylinderTriangleIndices);
   }
 
 private:
@@ -75,9 +76,9 @@ private:
   }
 
   void calc_circle_buffer_indices(std::vector<TIndex>& indices,
-                                   const TIndex midPointIdx,
-                                   const TIndex circleStartIdx,
-                                   const TIndex circleEndIdx) const
+                                  const TIndex midPointIdx,
+                                  const TIndex circleStartIdx,
+                                  const TIndex circleEndIdx) const
   {
     for (TIndex i{circleStartIdx + 1}; i < circleEndIdx; i++)
     {

@@ -56,7 +56,6 @@
 #define GEO_NOINLINE
 #endif
 
-
 #if defined(_MSC_VER) && _MSC_VER >= 1900
 #define GEO_RESTRICT __restrict
 #elif (defined(__clang__) || defined(__GNUC__))
