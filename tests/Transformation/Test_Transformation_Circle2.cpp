@@ -1,7 +1,7 @@
 #include <Geometry/Transform/TransformCircle.hpp>
 #include <gtest/gtest.h>
 #include <linal/hmat_translation.hpp>
-#include <linal/vec2.hpp>
+
 
 
 class fixture_transformation_circle2 : public ::testing::Test {

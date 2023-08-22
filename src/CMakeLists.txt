@@ -60,25 +60,45 @@ set(geometry_TARGET_SOURCES
         source/HalfedgeMeshBuilder/MeshBuilder.cpp
 )
 
-add_library(tw_geometry ${geometry_TARGET_SOURCES} ${geometry_TARGET_HEADER})
+set(TARGET_NAME tw_geometry)
+add_library(${TARGET_NAME} ${geometry_TARGET_SOURCES} ${geometry_TARGET_HEADER})
 target_include_directories(tw_geometry
         PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
-set(TARGET_ALIAS Geometry)
-add_library(${PROJECT_NAME}::${TARGET_ALIAS} ALIAS tw_geometry)
-set_target_properties(tw_geometry
+
+set(TARGET_EXPORT_NAME Geometry)
+set(${TARGET_NAME}_MAJOR 1)
+set(${TARGET_NAME}_MINOR 0)
+set(${TARGET_NAME}_PATCH 0)
+set_target_properties(${TARGET_NAME}
         PROPERTIES
         LANGUAGE CXX
         LINKER_LANGUAGE CXX
-        EXPORT_NAME ${TARGET_ALIAS})
-target_link_libraries(tw_geometry
+        DEBUG_POSTFIX d
+        VERSION ${${TARGET_NAME}_MAJOR}.${${TARGET_NAME}_MINOR}.${${TARGET_NAME}_PATCH}
+        SOVERSION ${PROJECT_VERSION_MAJOR}
+        OUTPUT_NAME "tw_${TARGET_EXPORT_NAME}"
+        EXPORT_NAME ${TARGET_EXPORT_NAME}
+)
+
+add_library(${PROJECT_NAME}::${TARGET_EXPORT_NAME} ALIAS ${TARGET_NAME})
+
+target_link_libraries(${TARGET_NAME}
         PUBLIC
         CrossGuid::CrossGuid
         linal::linal)
 
+if (${PROJECT_NAME}_USE_WARNINGS)
+    add_warnings_and_compile_options(${TARGET_NAME} "${${PROJECT_NAME}_WARNINGS_AS_ERRORS}")
+endif ()
+
+if (${PROJECT_NAME}_STATIC_ANALYSIS)
+    enable_static_analysis(${TARGET_NAME} "${${PROJECT_NAME}_WARNINGS_AS_ERRORS}")
+endif ()
+
 if (${PROJECT_NAME}_INSTALL)
     install(DIRECTORY "include/Geometry" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
-    install(TARGETS tw_geometry
+    install(TARGETS ${TARGET_NAME}
             EXPORT GeometryTargetsExportSet
             RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

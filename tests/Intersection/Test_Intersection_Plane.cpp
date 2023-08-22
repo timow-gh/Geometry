@@ -49,8 +49,8 @@ TEST(PlaneLine, Intersection_Origin)
 
 TEST(PlaneLine, viewPlaneBug)
 {
-    Line3f line(linal::vec3f{0, 0, 0}, linal::vec3f{-0.3, 0.2, -1.9});
-    Plane<float> plane(linal::vec3f{0, 0, -0.1}, linal::vec3f{0, 0, 1});
+    Line3f line(linal::vec3f{0, 0, 0}, linal::vec3f{-0.3F, 0.2F, -1.9F});
+    Plane<float> plane(linal::vec3f{0, 0, -0.1F}, linal::vec3f{0, 0, 1});
     auto intersection = Geometry::intersect(plane, line);
     EXPECT_TRUE(intersection);
 }
