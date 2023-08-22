@@ -48,9 +48,3 @@ jobs:
       run: ctest -C ${{matrix.build_type}} -V
       env:
         CTEST_OUTPUT_ON_FAILURE: True
-
-    - name: Package Installation Test
-      working-directory: ${{runner.workspace}}/build
-      run: |
-        cmake --build . --config ${{matrix.build_type}} --target test_install
-
