@@ -4,6 +4,7 @@
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec3.hpp>
+#include <linal/vec_compare.hpp>
 #include <linal/vec_operations.hpp>
 
 namespace Geometry
