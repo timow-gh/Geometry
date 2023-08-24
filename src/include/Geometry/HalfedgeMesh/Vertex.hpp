@@ -1,9 +1,9 @@
 #ifndef GEOMETRY_VERTEX_H
 #define GEOMETRY_VERTEX_H
 
-#include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
-#include <Geometry/HalfedgeMesh/MeshTraits.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
+#include "Geometry/HalfedgeMesh/MeshTraits.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/vec3.hpp>
 
 namespace Geometry

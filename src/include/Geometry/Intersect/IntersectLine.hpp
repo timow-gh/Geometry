@@ -1,10 +1,10 @@
 #ifndef GEOMETRY_INTERSECTLINE_HPP
 #define GEOMETRY_INTERSECTLINE_HPP
 
-#include <Geometry/Intersect/IntersectPlane.hpp>
-#include <Geometry/Line.hpp>
-#include <Geometry/Plane.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Intersect/IntersectPlane.hpp"
+#include "Geometry/Line.hpp"
+#include "Geometry/Plane.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>

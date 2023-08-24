@@ -1,8 +1,8 @@
 #ifndef MESH_HEADER
 #define MESH_HEADER
 
-#include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <cstddef>
 #include <linal/containers.hpp>
 #include <linal/vec3.hpp>

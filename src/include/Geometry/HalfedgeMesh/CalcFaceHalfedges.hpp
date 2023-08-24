@@ -1,9 +1,9 @@
 #ifndef GEOMETRY_FACETUTILS_H
 #define GEOMETRY_FACETUTILS_H
 
-#include <Geometry/HalfedgeMesh/Facet.hpp>
-#include <Geometry/HalfedgeMesh/Halfedge.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/HalfedgeMesh/Facet.hpp"
+#include "Geometry/HalfedgeMesh/Halfedge.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <vector>
 
 namespace Geometry

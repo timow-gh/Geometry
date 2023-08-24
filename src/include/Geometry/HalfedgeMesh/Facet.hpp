@@ -1,9 +1,9 @@
 #ifndef MESHFACE_HEADER
 #define MESHFACE_HEADER
 
-#include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
-#include <Geometry/HalfedgeMesh/MeshTraits.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
+#include "Geometry/HalfedgeMesh/MeshTraits.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 
 namespace Geometry
 {

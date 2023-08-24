@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_CUBE_H
 #define GEOMETRY_CUBE_H
 
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/containers.hpp>
 #include <linal/vec3.hpp>
 #include <linal/vec_operations.hpp>

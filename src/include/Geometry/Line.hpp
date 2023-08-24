@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_LINE_H
 #define GEOMETRY_LINE_H
 
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/vec.hpp>
 #include <linal/vec_compare.hpp>
 #include <linal/vec_operations.hpp>

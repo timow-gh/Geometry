@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_CIRCLE_HPP
 #define GEOMETRY_CIRCLE_HPP
 
-#include <Geometry/Utils/Assert.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Utils/Assert.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/hvec.hpp>
 #include <linal/utils/eps.hpp>
 #include <linal/vec2.hpp>
@@ -82,8 +82,6 @@ public:
   GEO_NODISCARD constexpr bool operator!=(const Circle3& rhs) const noexcept { return !(rhs == *this); }
 };
 
-template <typename T>
-class Circle3;
 using Circle3d = Circle3<double>;
 
 using Circle3f = Circle3<float>;

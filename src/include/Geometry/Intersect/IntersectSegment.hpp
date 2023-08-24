@@ -1,13 +1,13 @@
 #ifndef GEOMETRY_INTERSECTSEGMENT_HPP
 #define GEOMETRY_INTERSECTSEGMENT_HPP
 
-#include <Geometry/Intersect/IntersectInterval.hpp>
-#include <Geometry/Intersect/IntersectPlane.hpp>
-#include <Geometry/Interval.hpp>
-#include <Geometry/Line.hpp>
-#include <Geometry/Plane.hpp>
-#include <Geometry/Segment.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Intersect/IntersectInterval.hpp"
+#include "Geometry/Intersect/IntersectPlane.hpp"
+#include "Geometry/Interval.hpp"
+#include "Geometry/Line.hpp"
+#include "Geometry/Plane.hpp"
+#include "Geometry/Segment.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>

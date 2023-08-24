@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_DISTANCESPHERE_H
 #define GEOMETRY_DISTANCESPHERE_H
 
-#include <Geometry/Sphere.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Sphere.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/vec3.hpp>
 #include <linal/vec_operations.hpp>
 

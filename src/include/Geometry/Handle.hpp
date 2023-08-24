@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_HANDLE_HPP
 #define GEOMETRY_HANDLE_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Utils/Compiler.hpp"
 #include <limits>
 
 namespace Geometry

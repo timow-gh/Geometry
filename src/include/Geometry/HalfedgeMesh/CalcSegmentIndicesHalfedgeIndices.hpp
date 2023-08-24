@@ -1,9 +1,9 @@
 #ifndef GEOMETRY_CALCSEGMENTINDICESHALFEDGEINDICES_HPP
 #define GEOMETRY_CALCSEGMENTINDICESHALFEDGEINDICES_HPP
 
-#include <Geometry/HalfedgeMesh/Halfedge.hpp>
-#include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/HalfedgeMesh/Halfedge.hpp"
+#include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <cstdint>
 #include <vector>
 

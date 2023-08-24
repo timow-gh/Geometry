@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_MESHTRIANGLEADDER_HPP
 #define GEOMETRY_MESHTRIANGLEADDER_HPP
 
-#include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
-#include <Geometry/Triangle.hpp>
+#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
+#include "Geometry/Triangle.hpp"
 
 namespace Geometry
 {

@@ -61,14 +61,38 @@ set(geometry_TARGET_SOURCES
 )
 
 set(TARGET_NAME tw_geometry)
-add_library(${TARGET_NAME} ${geometry_TARGET_SOURCES} ${geometry_TARGET_HEADER})
-target_include_directories(tw_geometry
-        PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>)
-
 set(TARGET_EXPORT_NAME Geometry)
 set(${TARGET_NAME}_MAJOR 1)
 set(${TARGET_NAME}_MINOR 0)
 set(${TARGET_NAME}_PATCH 0)
+
+add_library(${TARGET_NAME} ${geometry_TARGET_SOURCES} ${geometry_TARGET_HEADER})
+
+include(GenerateExportHeader)
+generate_export_header(${TARGET_NAME}
+        BASE_NAME ${TARGET_EXPORT_NAME}
+)
+string(TOLOWER ${TARGET_EXPORT_NAME} LOWER_CASE_EXPORT_NAME)
+file(RENAME
+        ${CMAKE_CURRENT_BINARY_DIR}/${LOWER_CASE_EXPORT_NAME}_export.h
+        ${CMAKE_CURRENT_BINARY_DIR}/GeometryExport.hpp
+)
+file(COPY
+        ${CMAKE_CURRENT_BINARY_DIR}/GeometryExport.hpp
+        DESTINATION
+        # Copy into a relative directory structure that matches the install directory structure
+        ${CMAKE_CURRENT_BINARY_DIR}/export_header_includes/${TARGET_EXPORT_NAME}
+)
+file(REMOVE
+        ${CMAKE_CURRENT_BINARY_DIR}/GeometryExport.hpp
+)
+
+target_include_directories(${TARGET_NAME}
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/export_header_includes>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
+)
+
 set_target_properties(${TARGET_NAME}
         PROPERTIES
         LANGUAGE CXX
@@ -96,7 +120,7 @@ if (${PROJECT_NAME}_STATIC_ANALYSIS)
 endif ()
 
 if (${PROJECT_NAME}_INSTALL)
-    install(DIRECTORY "include/Geometry" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+    install(DIRECTORY "include/${TARGET_EXPORT_NAME}" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
     install(TARGETS ${TARGET_NAME}
             EXPORT GeometryTargetsExportSet

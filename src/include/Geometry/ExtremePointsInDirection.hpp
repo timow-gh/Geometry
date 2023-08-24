@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_EXTREMEPOINTSINDIRECTION_HPP
 #define GEOMETRY_EXTREMEPOINTSINDIRECTION_HPP
 
-#include <Geometry/Utils/Assert.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Utils/Assert.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <cstdint>
 #include <linal/containers.hpp>
 #include <linal/vec.hpp>

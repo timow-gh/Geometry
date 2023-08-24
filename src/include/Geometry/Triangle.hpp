@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_TRIANGLE_HPP
 #define GEOMETRY_TRIANGLE_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/containers.hpp>
 #include <linal/vec.hpp>
 

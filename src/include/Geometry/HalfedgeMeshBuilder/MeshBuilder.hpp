@@ -1,8 +1,9 @@
 #ifndef MESHLER_MESHBUILDER_HPP
 #define MESHLER_MESHBUILDER_HPP
 
-#include <Geometry/HalfedgeMeshBuilder/MeshBuilderConfig.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/GeometryExport.hpp"
+#include "Geometry/HalfedgeMeshBuilder/MeshBuilderConfig.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <functional>
 #include <memory>
 
@@ -24,7 +25,7 @@ class Cuboid;
 template <typename TFloat, typename TIndex>
 class HalfedgeMesh;
 
-class MeshBuilder {
+class GEOMETRY_EXPORT MeshBuilder {
   MeshBuilderConfig m_config;
 
 public:

@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_INTERSECTAABB_HPP
 #define GEOMETRY_INTERSECTAABB_HPP
 
-#include <Geometry/AABB.hpp>
+#include "Geometry/AABB.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 

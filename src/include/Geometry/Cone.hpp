@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_CONE_HPP
 #define GEOMETRY_CONE_HPP
 
-#include <Geometry/Segment.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Segment.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/vec3.hpp>
 
 namespace Geometry

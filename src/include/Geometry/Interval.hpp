@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_INTERVAL_HPP
 #define GEOMETRY_INTERVAL_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Utils/Compiler.hpp"
 #include <cstdint>
 #include <linal/utils/eps.hpp>
 

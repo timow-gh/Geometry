@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_TRANSFORMSEGMENT_HPP
 #define GEOMETRY_TRANSFORMSEGMENT_HPP
 
-#include <Geometry/Segment.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Segment.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/hmat.hpp>
 #include <linal/hvec.hpp>
 #include <linal/vec3.hpp>

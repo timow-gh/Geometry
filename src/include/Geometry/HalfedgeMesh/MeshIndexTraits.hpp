@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_MESHINDEXTRAITS_HPP
 #define GEOMETRY_MESHINDEXTRAITS_HPP
 
-#include <Geometry/HalfedgeMesh/MeshIndices.hpp>
+#include "Geometry/HalfedgeMesh/MeshIndices.hpp"
 
 namespace Geometry
 {

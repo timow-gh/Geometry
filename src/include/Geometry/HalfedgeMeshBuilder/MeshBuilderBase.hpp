@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_MESHBUILDERBASE_HPP
 #define GEOMETRY_MESHBUILDERBASE_HPP
 
-#include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
-#include <Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp>
+#include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
+#include "Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp"
 #include <linal/hmat.hpp>
 #include <linal/hvec.hpp>
 #include <linal/vec.hpp>

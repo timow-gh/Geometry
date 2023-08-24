@@ -1,14 +1,14 @@
 #ifndef GEOMETRY_HALFEDGEMESH_H
 #define GEOMETRY_HALFEDGEMESH_H
 
+#include "Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp"
+#include "Geometry/HalfedgeMesh/Facet.hpp"
+#include "Geometry/HalfedgeMesh/Halfedge.hpp"
+#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
+#include "Geometry/HalfedgeMesh/MeshPoints.hpp"
+#include "Geometry/HalfedgeMesh/Vertex.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <CrossGuid/Guid.hpp>
-#include <Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp>
-#include <Geometry/HalfedgeMesh/Facet.hpp>
-#include <Geometry/HalfedgeMesh/Halfedge.hpp>
-#include <Geometry/HalfedgeMesh/MeshIndexTraits.hpp>
-#include <Geometry/HalfedgeMesh/MeshPoints.hpp>
-#include <Geometry/HalfedgeMesh/Vertex.hpp>
-#include <Geometry/Utils/Compiler.hpp>
 #include <array>
 #include <linal/vec3.hpp>
 #include <vector>

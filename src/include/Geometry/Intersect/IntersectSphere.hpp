@@ -1,10 +1,10 @@
 #ifndef GEOMETRY_INTERSECTSPHERE_HPP
 #define GEOMETRY_INTERSECTSPHERE_HPP
 
-#include <Geometry/Line.hpp>
-#include <Geometry/Ray.hpp>
-#include <Geometry/Segment.hpp>
-#include <Geometry/Sphere.hpp>
+#include "Geometry/Line.hpp"
+#include "Geometry/Ray.hpp"
+#include "Geometry/Segment.hpp"
+#include "Geometry/Sphere.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec3.hpp>
 #include <optional>

@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_GEOMETRYASSERT_HPP
 #define GEOMETRY_GEOMETRYASSERT_HPP
 
-#include <Geometry/Utils/Assert.hpp>
+#include "Geometry/Utils/Assert.hpp"
 
 #ifdef NDEBUG
 #define GEOMETRY_SPHERE_ASSERT(sphere)

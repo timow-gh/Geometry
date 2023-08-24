@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_ASSERT_HPP
 #define GEOMETRY_ASSERT_HPP
 
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Utils/Compiler.hpp"
 #include <cstdio>
 
 // Check if we're on windows and have access to __debugbreak().

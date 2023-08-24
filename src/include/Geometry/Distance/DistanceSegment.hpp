@@ -1,9 +1,9 @@
 #ifndef GEOMETRY_DISTANCESEGMENT_HPP
 #define GEOMETRY_DISTANCESEGMENT_HPP
 
-#include <Geometry/Line.hpp>
-#include <Geometry/Segment.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Line.hpp"
+#include "Geometry/Segment.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>

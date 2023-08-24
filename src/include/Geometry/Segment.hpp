@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_SEGMENT_H
 #define GEOMETRY_SEGMENT_H
 
-#include <Geometry/Segment.hpp>
-#include <Geometry/Utils/Compiler.hpp>
+#include "Geometry/Segment.hpp"
+#include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_compare.hpp>
