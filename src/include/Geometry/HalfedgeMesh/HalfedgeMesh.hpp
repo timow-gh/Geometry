@@ -8,7 +8,6 @@
 #include "Geometry/HalfedgeMesh/MeshPoints.hpp"
 #include "Geometry/HalfedgeMesh/Vertex.hpp"
 #include "Geometry/Utils/Compiler.hpp"
-#include <CrossGuid/Guid.hpp>
 #include <array>
 #include <linal/vec3.hpp>
 #include <vector>

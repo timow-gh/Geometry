@@ -108,7 +108,6 @@ add_library(${PROJECT_NAME}::${TARGET_EXPORT_NAME} ALIAS ${TARGET_NAME})
 
 target_link_libraries(${TARGET_NAME}
         PUBLIC
-        CrossGuid::CrossGuid
         linal::linal)
 
 if (${PROJECT_NAME}_USE_WARNINGS)
