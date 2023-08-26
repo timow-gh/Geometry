@@ -119,6 +119,8 @@ if (${PROJECT_NAME}_STATIC_ANALYSIS)
 endif ()
 
 if (${PROJECT_NAME}_INSTALL)
+    include(setup_export_set_installation)
+
     install(DIRECTORY "include/${TARGET_EXPORT_NAME}" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
 
     install(TARGETS ${TARGET_NAME}
