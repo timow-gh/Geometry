@@ -1,153 +1,91 @@
 #ifndef GEOMETRY_INTERSECTSEGMENT_HPP
 #define GEOMETRY_INTERSECTSEGMENT_HPP
 
-#include "Geometry/Intersect/IntersectInterval.hpp"
-#include "Geometry/Intersect/IntersectPlane.hpp"
-#include "Geometry/Interval.hpp"
-#include "Geometry/Line.hpp"
-#include "Geometry/Plane.hpp"
+#include "Geometry/Intersect/IntersectLineUtil.hpp"
 #include "Geometry/Segment.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
-#include <linal/vec.hpp>
+#include <linal/vec2.hpp>
+#include <linal/vec3.hpp>
 #include <linal/vec_operations.hpp>
+#include <optional>
 
 namespace Geometry
 {
-//! Line-Line intersection (Schneider - Geometric Tools for Computer Graphics)
-//! return value:
-//! 0 -> No intersection
-//! 1 -> Unique intersection
-//! 2 -> Segments overlap, the intersection is a segment
-//! 3 -> No intersection, skew segment lines
 
-template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t
-intersect(const Segment<T, D>& lhs, const Segment<T, D>& rhs, Segment<T, D>& intersectionSeg, T eps = linal::eps<T>::value) noexcept
+/** @brief Calculates the single intersection point of two 2d line segments.
+ *
+ * Parallel segments don't intersect.
+ * Doesn't handle overlapping segments.
+ */
+template <typename T>
+GEO_NODISCARD constexpr std::optional<linal::vec2<T>>
+intersect(Segment2<T> first, Segment2<T> second, T eps = linal::eps<T>::value) noexcept
 {
-  linal::vec<T, D> lhsSource = lhs.get_source();
-  linal::vec<T, D> lhsTarget = lhs.get_target();
-  linal::vec<T, D> rhsSource = rhs.get_source();
-  linal::vec<T, D> rhsTarget = rhs.get_target();
+  linal::vec2<T> fSource = first.get_source();
+  linal::vec2<T> sSource = second.get_source();
+  linal::vec2<T> fDir = first.get_target() - fSource;
+  linal::vec2<T> sDir = second.get_target() - sSource;
 
-  linal::vec<T, D> deltaSource = rhsSource - lhsSource;
-  linal::vec<T, D> lhsDir = lhsTarget - lhsSource;
-  linal::vec<T, D> rhsDir = rhsTarget - rhsSource;
+  // Calculate the determinant Det(A) of the matrix A = [fDir, sDir]
+  T detA = fDir[0] * sDir[1] - sDir[0] * fDir[1];
 
-  if constexpr (D == 3)
+  // Check if segments are parallel (Det(A) = 0)
+  if (linal::isZero(detA, eps))
   {
-    Plane<T> plane{lhsSource, linal::cross(deltaSource, lhsDir)};
-    if (intersect(plane, Line<T, D>{rhsSource, rhsDir}))
-    {
-      return 3;
-    }
+    return std::nullopt; // Segments are parallel, no intersection
   }
 
-  T cross = lhsDir[0] * rhsDir[1] - lhsDir[1] * rhsDir[0];
-  T sqrCross = cross * cross;
-  T sqrLenLhs = lhsDir[0] * lhsDir[0] + lhsDir[1] * lhsDir[1];
-  T sqrLenRhs = rhsDir[0] * rhsDir[0] + rhsDir[1] * rhsDir[1];
+  linal::vec2<T> fDist = sSource - fSource;
+  T t = (fDist[0] * sDir[1] - fDist[1] * sDir[0]) / detA;
+  // Flip the sign of the fDist vector, so that the sign of s is correct
+  T s = (fDir[0] * -fDist[1] - fDir[1] * -fDist[0]) / detA;
 
-  if (!linal::isZero(sqrCross, eps * sqrLenLhs * sqrLenRhs))
+  // Check if the intersection point lies on both line segments
+  if (s < 0 || s > 1 || t < 0 || t > 1)
   {
-    // Lines are not parallel
-    T s = (deltaSource[0] * rhsDir[1] - deltaSource[1] * rhsDir[0]) / cross;
-    if (linal::isLess(s, T(0), eps) || linal::isGreater(s, T(1), eps))
-    {
-      return 0;
-    }
-
-    T t = (deltaSource[0] * lhsDir[1] - deltaSource[1] * lhsDir[0]) / cross;
-    if (linal::isLess(t, T(0), eps) || linal::isGreater(t, T(1), eps))
-    {
-      return 0;
-    }
-
-    intersectionSeg.set_source(linal::vec<T, D>(lhsSource + s * lhsDir));
-    {
-      return 1;
-    }
+    return std::nullopt;
   }
 
-  cross = deltaSource[0] * lhsDir[1] - deltaSource[1] * lhsDir[0];
-  sqrCross = cross * cross;
-  if (!linal::isZero(sqrCross, eps * sqrLenLhs * sqrLenRhs))
-  {
-    // Lines are parallel in the plane
-    // Lines are different
-    return 0;
-  }
-
-  T s0 = linal::dot(lhsDir, deltaSource) / sqrLenLhs;
-  T s1 = s0 + linal::dot(lhsDir, rhsDir) / sqrLenLhs;
-  T sMin = std::min(s0, s1);
-  T sMax = std::max(s0, s1);
-  Interval sInterval{sMin, sMax};
-  Interval<T> iInterval;
-  uint32_t res = intersect(sInterval, Interval{T(0), T(1)}, iInterval);
-  if (res == 1 || res == 2)
-  {
-    intersectionSeg.set_source(linal::vec<T, D>(lhsSource + iInterval.get_start() * lhsDir));
-  }
-  if (res == 2)
-  {
-    intersectionSeg.set_target(linal::vec<T, D>(lhsSource + iInterval.get_end() * lhsDir));
-  }
-  return res;
+  GEO_ASSERT(linal::vec2<T>{fSource + t * fDir} == linal::vec2<T>{sSource + s * sDir});
+  return fSource + fDir * t;
 }
 
-//! return value:
-//! 0 -> No intersection
-//! 1 -> Unique intersection
-//! 2 -> Overlap, the intersection is the segment
-//! 3 -> No intersection, skew segment lines
-template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t
-intersect(const Segment<T, D>& seg, const Line<T, D>& line, Segment<T, D>& result, T eps = linal::eps<T>::value) noexcept
+/** @brief Calculates the single intersection point of two 3d line segments.
+ *
+ * Parallel segments don't intersect.
+ * Doesn't handle overlapping segments.
+ */
+template <typename T>
+GEO_NODISCARD constexpr std::optional<linal::vec3<T>>
+intersect(const Segment3<T>& first, const Segment3<T>& second, T eps = linal::eps<T>::value) noexcept
 {
-  linal::vec<T, D> segSource = seg.get_source();
-  linal::vec<T, D> segTarget = seg.get_target();
-  linal::vec<T, D> lineOrigin = line.get_origin();
-  linal::vec<T, D> lineDir = line.get_direction();
+  linal::vec3<T> fSource = first.get_source();
+  linal::vec3<T> sSource = second.get_source();
+  linal::vec3<T> fDir = first.get_target() - fSource;
+  linal::vec3<T> sDir = second.get_target() - sSource;
 
-  linal::vec<T, D> deltaSource = lineOrigin - segSource;
-  linal::vec<T, D> segDir = segTarget - segSource;
+  // Calculate the cross product of the direction vectors
+  linal::vec3<T> cross = linal::cross(fDir, sDir);
 
-  if constexpr (D == 3)
+  // Check if lines are parallel
+  if (linal::isZero(linal::norm2(cross), eps))
   {
-    Plane<T> plane{segSource, linal::cross(deltaSource, segDir)};
-    if (intersect(plane, line))
-      return 3;
+    return std::nullopt;
   }
 
-  T cross = segDir[0] * lineDir[1] - segDir[1] * lineDir[0];
-  T sqrCross = cross * cross;
-  T sqrLenSeg = segDir[0] * segDir[0] + segDir[1] * segDir[1];
+  CPOLParameters<T> params = closest_point_on_line_parameters(fSource, fDir, sSource, sDir);
 
-  if (!linal::isZero(sqrCross, eps * sqrLenSeg))
+  // Check if the intersection point lies on both line segments
+  if (params.s < 0 || params.s > 1 || params.t < 0 || params.t > 1)
   {
-    // Lines are not parallel
-    T s = (deltaSource[0] * lineDir[1] - deltaSource[1] * lineDir[0]) / cross;
-    if (linal::isLess(s, T(0), eps) || linal::isGreater(s, T(1), eps))
-      return 0;
-
-    result.set_source(linal::vec<T, D>(segSource + s * segDir));
-    return 1;
+    return std::nullopt;
   }
 
-  cross = deltaSource[0] * segDir[1] - deltaSource[1] * segDir[0];
-  sqrCross = cross * cross;
-  if (!linal::isZero(sqrCross, eps * sqrLenSeg))
-  {
-    // Lines are parallel in the plane
-    // Lines are different
-    return 0;
-  }
-
-  // Line is collinear to the segment
-  result = seg;
-  return 2;
+  GEO_ASSERT(linal::vec3<T>{fSource + params.t * fDir} == linal::vec3<T>{sSource + params.s * sDir});
+  return fSource + fDir * params.t;
 }
+
 } // namespace Geometry
 
 #endif // GEOMETRY_INTERSECTSEGMENT_HPP

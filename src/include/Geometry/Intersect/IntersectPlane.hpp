@@ -13,11 +13,11 @@
 namespace Geometry
 {
 template <typename T>
-GEO_NODISCARD std::optional<T> calc_intersection_parameter(linal::vec3<T> planeOrigin,
-                                                           linal::vec3<T> planeNormal,
-                                                           linal::vec3<T> lineOrigin,
-                                                           linal::vec3<T> lineDir,
-                                                           T eps) noexcept
+GEO_NODISCARD constexpr std::optional<T> calc_intersection_parameter(linal::vec3<T> planeOrigin,
+                                                                     linal::vec3<T> planeNormal,
+                                                                     linal::vec3<T> lineOrigin,
+                                                                     linal::vec3<T> lineDir,
+                                                                     T eps) noexcept
 {
   // Check parallel
   if (linal::isZero(linal::dot(lineDir, planeNormal), eps))

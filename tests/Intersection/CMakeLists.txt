@@ -1,3 +1,4 @@
+create_geometry_test(Test_BentleyOttmann)
 create_geometry_test(Test_Intersection_AABB)
 create_geometry_test(Test_Intersection_Line)
 create_geometry_test(Test_Intersection_Plane)

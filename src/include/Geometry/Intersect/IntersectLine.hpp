@@ -1,64 +1,77 @@
 #ifndef GEOMETRY_INTERSECTLINE_HPP
 #define GEOMETRY_INTERSECTLINE_HPP
 
-#include "Geometry/Intersect/IntersectPlane.hpp"
+#include "Geometry/Intersect/IntersectLineUtil.hpp"
 #include "Geometry/Line.hpp"
-#include "Geometry/Plane.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
-#include <linal/vec.hpp>
+#include <linal/vec2.hpp>
+#include <linal/vec3.hpp>
 #include <linal/vec_operations.hpp>
 #include <optional>
 
 namespace Geometry
 {
 
-//! Line-Line intersection (Schneider - Geometric Tools for Computer Graphics)
-//! return values:
-//! 0 -> No intersection, lines parallel and different
-//! 1 -> Lines have an intersection
-//! 2 -> Lines are the same
-//! 3 -> No intersection, skew lines
-template <typename T, std::size_t D>
-GEO_NODISCARD uint32_t intersect(Line<T, D> lhs, Line<T, D> rhs, linal::vec<T, D>& intersectionVec, T eps = linal::eps<T>::value) noexcept
+/** @brief Calculates the single intersection point of two lines.
+ *
+ * Parallel lines don't intersect.
+ */
+template <typename T>
+GEO_NODISCARD constexpr std::optional<linal::vec2<T>> intersect(Line2<T> lhs, Line2<T> rhs, T eps = linal::eps<T>::value) noexcept
 {
-  linal::vec<T, D> rhsOrigin = rhs.get_origin();
-  linal::vec<T, D> lhsOrigin = lhs.get_origin();
-  linal::vec<T, D> rhsDir = rhs.get_direction();
-  linal::vec<T, D> lhsDir = lhs.get_direction();
+  linal::vec2<T> lhsSource = lhs.get_origin();
+  linal::vec2<T> rhsSource = rhs.get_origin();
+  linal::vec2<T> lhsDir = lhs.get_direction();
+  linal::vec2<T> rhsDir = rhs.get_direction();
 
-  linal::vec<T, D> deltaOrigin = rhsOrigin - lhsOrigin;
+  // Calculate the determinant Det(A) of the matrix A = [lhsDir, rhsDir]
+  T detA = lhsDir[0] * rhsDir[1] - rhsDir[0] * lhsDir[1];
 
-  if constexpr (D == 3)
+  // Check if lines are parallel (Det(A) = 0)
+  if (linal::isZero(std::abs(detA), eps))
   {
-    Plane<T> plane{lhsOrigin, linal::cross(deltaOrigin, lhsDir)};
-    if (intersect(plane, rhs))
-    {
-      return 3;
-    }
+    return std::nullopt; // Lines are parallel, no intersection
   }
 
-  T cross = lhsDir[0] * rhsDir[1] - lhsDir[1] * rhsDir[0];
-  T sqrCross = cross * cross;
-  if (!linal::isZero(sqrCross, eps))
+  linal::vec2<T> dist = rhsSource - lhsSource;
+  T t = (dist[0] * rhsDir[1] - dist[1] * rhsDir[0]) / detA;
+
+  return lhsSource + t * lhsDir;
+}
+
+/** @brief Calculates single the intersection point of two lines.
+ *
+ * Parallel lines don't intersect.
+ */
+template <typename T>
+GEO_NODISCARD constexpr std::optional<linal::vec3<T>> intersect(Line3<T> lhs, Line3<T> rhs, T eps = linal::eps<T>::value) noexcept
+{
+  linal::vec3<T> lhsDir = lhs.get_direction(); // Direction vector of the first line
+  linal::vec3<T> rhsDir = rhs.get_direction(); // Direction vector of the second line
+
+  // Calculate the cross product of the direction vectors
+  linal::vec3<T> cross = linal::cross(lhsDir, rhsDir); // Cross product of direction vectors
+
+  // Check if lines are parallel (cross product will be zero)
+  if (linal::isZero(linal::norm2(cross), eps))
   {
-    // Lines are intersecting
-    T s = (deltaOrigin[0] * rhsDir[1] - deltaOrigin[1] * rhsDir[0]) / cross;
-    intersectionVec = linal::vec<T, D>(lhsOrigin + s * lhsDir);
-    return 1;
+    return std::nullopt; // Lines are parallel
   }
 
-  // FixMe T sqrDeltaOrigin = linal::norm2Squared(deltaOrigin);
-  cross = deltaOrigin[0] * lhsDir[1] - deltaOrigin[1] * lhsDir[0];
-  sqrCross = cross * cross;
-  if (!linal::isZero(sqrCross, eps))
+  linal::vec3<T> lhsSource = lhs.get_origin();
+  linal::vec3<T> rhsSource = rhs.get_origin();
+  CPOLParameters<T> params = closest_point_on_line_parameters(lhsSource, lhsDir, rhsSource, rhsDir);
+
+  linal::vec3<T> lhsPoint = lhsSource + params.t * lhsDir;
+  linal::vec3<T> rhsPoint = rhsSource + params.s * rhsDir;
+
+  linal::vec3<T> dist = lhsPoint - rhsPoint;
+  if (linal::isZero(linal::norm2(dist), eps))
   {
-    // Lines are parallel in the plane
-    // Lines are different
-    return 0;
+    return lhsPoint; // Lines intersect
   }
-  // Lines are the same
-  return 2;
+  return std::nullopt; // Lines are skew
 }
 
 } // namespace Geometry

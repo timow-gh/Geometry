@@ -24,9 +24,11 @@ set(geometry_TARGET_HEADER
         include/Geometry/Distance/DistanceSegment.hpp
         include/Geometry/Distance/DistancePlane.hpp
         include/Geometry/Distance/DistanceSphere.hpp
+        include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectInterval.hpp
         include/Geometry/Intersect/IntersectLine.hpp
+        include/Geometry/Intersect/IntersectLineUtil.hpp
         include/Geometry/Intersect/IntersectPlane.hpp
         include/Geometry/Intersect/IntersectSegment.hpp
         include/Geometry/Intersect/IntersectSphere.hpp

@@ -3,6 +3,7 @@
 
 #include "Geometry/Line.hpp"
 #include "Geometry/Utils/Compiler.hpp"
+#include <Geometry/Utils/Assert.hpp>
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
@@ -25,9 +26,12 @@ GEO_NODISCARD constexpr T distance(const Line<T, D>& line, linal::vec<T, D> vec)
 template <typename T, std::size_t D>
 GEO_NODISCARD constexpr T distance(const Line<T, D>& lhs, const Line<T, D>& rhs) noexcept
 {
+  GEO_ASSERT(linal::norm2(lhs.get_direction()) == 1.0);
+  GEO_ASSERT(linal::norm2(rhs.get_direction()) == 1.0);
+
   linal::vec<T, D> cross = linal::cross(lhs.get_direction(), rhs.get_direction());
   T crossLen = linal::norm2(cross);
-  if (linal::isZero(crossLen))
+  if (linal::isZero(crossLen)) // If the cross product is zero, the lines are parallel.
   {
     return distance(lhs.get_origin(), rhs);
   }
