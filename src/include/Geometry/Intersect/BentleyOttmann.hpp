@@ -1,6 +1,8 @@
 #ifndef GEOMETRY_BENTLEYOTTMANN
 #define GEOMERTY_BENTLEYOTTMANN
 
+#include "Geometry/Intersect/IntersectSegment.hpp"
+#include "Geometry/Segment.hpp"
 #include <cmath>
 #include <functional>
 #include <iostream>
@@ -12,80 +14,67 @@
 namespace Geometry
 {
 
-struct Point
+template <typename T>
+struct BOSegment
 {
-  float x, y, z;
-};
-
-struct Segment
-{
-  Point a, b;
+  Segment2<T> segment;
   int id; // Unique identifier for each segment
 };
 
+enum class EventType : std::uint8_t
+{
+  Start,
+  End
+};
+
+template <typename T>
 struct Event
 {
-  Point point;
+  linal::vec2<T> point;
   int segmentId;
-  bool isStart;
+  EventType type;
 };
 
 // Function to compute y-coordinate of a segment at a given x
-float ComputeY(const Segment& seg, float x)
+template <typename T>
+T compute_y(const Segment2<T>& seg, T x)
 {
-  if (seg.a.x == seg.b.x)
-    return seg.a.y; // Vertical segment
-  return seg.a.y + (seg.b.y - seg.a.y) * (x - seg.a.x) / (seg.b.x - seg.a.x);
+  const linal::vec2<T>& a = seg.get_source();
+  const linal::vec2<T>& b = seg.get_target();
+  if (a[0] == b[0])
+    return a[1]; // Vertical segment
+  return a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0]);
 }
 
-std::optional<Point> algebraic_line_intersection(const Point& A, const Point& B, const Point& C, const Point& D)
+template <typename T>
+std::vector<linal::vec2<T>> bentley_ottmann(const std::vector<BOSegment<T>>& boSegments)
 {
-  constexpr double TOLERANCE = 1e-9;
+  using Event = Event<T>;
 
-  double dx1 = B.x - A.x, dy1 = B.y - A.y;
-  double dx2 = D.x - C.x, dy2 = D.y - C.y;
-  double deltax = C.x - A.x, deltay = C.y - A.y;
+  std::vector<linal::vec2<T>> intersections;
 
-  double denom = dx1 * dy2 - dy1 * dx2;
-
-  if (std::abs(denom) < TOLERANCE)
-  {
-    return std::nullopt;
-  }
-
-  double t = (deltax * dy2 - deltay * dx2) / denom;
-  double s = (deltax * dy1 - deltay * dx1) / denom;
-
-  if (t >= 0 && t <= 1 && s >= 0 && s <= 1)
-  {
-    return Point{static_cast<float>(A.x + t * dx1), static_cast<float>(A.y + t * dy1), 0};
-  }
-
-  return std::nullopt;
-}
-
-std::vector<Point> BentleyOttmann(const std::vector<Segment>& segments)
-{
-  std::vector<Point> intersections;
-
-  auto compEvent = [](const Event& e1, const Event& e2) { return e1.point.x > e2.point.x; };
+  auto compEvent = [](const Event& e1, const Event& e2) { return e1.point[0] > e2.point[0]; };
   std::priority_queue<Event, std::vector<Event>, decltype(compEvent)> eventQueue(compEvent);
 
-  auto compStatus = [&segments](int id1, int id2)
+  auto compStatus = [&boSegments](int id1, int id2)
   {
-    const Segment& s1 = segments[id1];
-    const Segment& s2 = segments[id2];
-    float x = std::max(std::min(s1.a.x, s1.b.x), std::min(s2.a.x, s2.b.x));
-    float y1 = ComputeY(s1, x);
-    float y2 = ComputeY(s2, x);
+    const BOSegment<T>& s1 = boSegments[id1];
+    const linal::vec2<T>& s1a = s1.segment.get_source();
+    const linal::vec2<T>& s1b = s1.segment.get_target();
+    const BOSegment<T>& s2 = boSegments[id2];
+    const linal::vec2<T>& s2a = s2.segment.get_source();
+    const linal::vec2<T>& s2b = s2.segment.get_target();
+    T x = std::max(std::min(s1a[0], s1b[0]), std::min(s2a[0], s2b[0]));
+    T y1 = compute_y(s1.segment, x);
+    T y2 = compute_y(s2.segment, x);
     return y1 < y2;
   };
   std::set<int, decltype(compStatus)> status(compStatus);
 
-  for (int i = 0; i < segments.size(); ++i)
+  for (int i = 0; i < boSegments.size(); ++i)
   {
-    eventQueue.push({segments[i].a, i, true});
-    eventQueue.push({segments[i].b, i, false});
+    eventQueue.push({boSegments[i].segment.get_source(), i, EventType::Start});
+    eventQueue.push({boSegments[i].segment.get_target(), i, EventType::End});
   }
 
   while (!eventQueue.empty())
@@ -93,18 +82,20 @@ std::vector<Point> BentleyOttmann(const std::vector<Segment>& segments)
     Event currentEvent = eventQueue.top();
     eventQueue.pop();
 
-    if (currentEvent.isStart)
+    if (currentEvent.type == EventType::Start)
     {
       auto it = status.insert(currentEvent.segmentId).first;
       if (it == status.end())
+      {
         continue;
+      }
 
       auto above = std::next(it);
       auto below = (it == status.begin()) ? status.end() : std::prev(it);
 
       if (above != status.end())
       {
-        if (auto intersection = algebraic_line_intersection(segments[*it].a, segments[*it].b, segments[*above].a, segments[*above].b))
+        if (std::optional<linal::vec2<T>> intersection = Geometry::intersect(boSegments[*it].segment, boSegments[*above].segment))
         {
           intersections.push_back(*intersection);
         }
@@ -112,7 +103,7 @@ std::vector<Point> BentleyOttmann(const std::vector<Segment>& segments)
 
       if (below != status.end())
       {
-        if (auto intersection = algebraic_line_intersection(segments[*it].a, segments[*it].b, segments[*below].a, segments[*below].b))
+        if (std::optional<linal::vec2<T>> intersection = Geometry::intersect(boSegments[*it].segment, boSegments[*below].segment))
         {
           intersections.push_back(*intersection);
         }
@@ -122,14 +113,16 @@ std::vector<Point> BentleyOttmann(const std::vector<Segment>& segments)
     {
       auto it = status.find(currentEvent.segmentId);
       if (it == status.end())
+      {
         continue;
+      }
 
       auto above = std::next(it);
       auto below = (it == status.begin()) ? status.end() : std::prev(it);
 
       if (above != status.end() && below != status.end())
       {
-        if (auto intersection = algebraic_line_intersection(segments[*above].a, segments[*above].b, segments[*below].a, segments[*below].b))
+        if (std::optional<linal::vec2<T>> intersection = Geometry::intersect(boSegments[*above].segment, boSegments[*below].segment))
         {
           intersections.push_back(*intersection);
         }
