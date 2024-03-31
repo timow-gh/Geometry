@@ -11,12 +11,14 @@ function(add_warnings_and_compile_options target warnings_are_errors)
     # Clang and gcc compile and link options based on:
     # * https://github.com/aminya/project_options/blob/main/src/CompilerWarnings.cmake
 
+    private_or_interface_inheritance_property(${target})
+
     if (MSVC)
         if (warnings_are_errors)
-            target_compile_options(${target} PUBLIC "/WX")
+            target_compile_options(${target} ${${target}_INHERITANCE_PROPERTY} "/WX")
         endif ()
 
-        target_compile_options(${target} PUBLIC
+        target_compile_options(${target} ${${target}_INHERITANCE_PROPERTY}
                 /W4 # Baseline reasonable warnings
                 /w14242 # 'identifier': conversion from 'type1' to 'type1', possible loss of data
                 /w14254 # 'operator': conversion from 'type1:field_bits' to 'type2:field_bits', possible loss of data
@@ -38,13 +40,13 @@ function(add_warnings_and_compile_options target warnings_are_errors)
                 /w14906 # string literal cast to 'LPWSTR'
                 /w14928 # illegal copy-initialization; more than one user-defined conversion has been implicitly applied
                 /permissive # standards conformance mode for MSVC compiler.
-        )
+                )
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         if (warnings_are_errors)
-            target_compile_options(${target} PUBLIC "-Werror")
+            target_compile_options(${target} ${${target}_INHERITANCE_PROPERTY} "-Werror")
         endif ()
 
-        target_compile_options(${target} PUBLIC
+        target_compile_options(${target} ${${target}_INHERITANCE_PROPERTY}
                 -Wall
                 -Wextra # reasonable and standard
                 -Wextra-semi # Warn about semicolon after in-class function definition.
@@ -62,13 +64,13 @@ function(add_warnings_and_compile_options target warnings_are_errors)
                 -Wdouble-promotion # warn if float is implicit promoted to double
                 -Wformat=2 # warn on security issues around functions that format output (ie printf)
                 -Wimplicit-fallthrough # warn on statements that fallthrough without an explicit annotation
-        )
+                )
     elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
         if (warnings_are_errors)
-            target_compile_options(${target} PUBLIC "-Werror")
+            target_compile_options(${target} ${${target}_INHERITANCE_PROPERTY} "-Werror")
         endif ()
 
-        target_compile_options(${target} PUBLIC
+        target_compile_options(${target} ${${target}_INHERITANCE_PROPERTY}
                 -Wall
                 -Wextra # reasonable and standard
                 -Wextra-semi # Warn about semicolon after in-class function definition.
@@ -91,7 +93,7 @@ function(add_warnings_and_compile_options target warnings_are_errors)
                 -Wduplicated-branches # warn if if / else branches have duplicated code
                 -Wlogical-op # warn about logical operations being used where bitwise were probably wanted
                 -Wuseless-cast # warn if you perform a cast to the same type
-        )
+                )
     else ()
         message(AUTHOR_WARNING "No compiler warnings set for CXX compiler: '${CMAKE_CXX_COMPILER_ID}'")
     endif ()
