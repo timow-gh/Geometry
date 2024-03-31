@@ -4,7 +4,7 @@
 #include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/Utils/Compiler.hpp"
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 
 namespace Geometry
 {

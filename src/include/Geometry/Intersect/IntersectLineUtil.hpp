@@ -4,7 +4,7 @@
 #include "Geometry/Line.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
 
 namespace Geometry

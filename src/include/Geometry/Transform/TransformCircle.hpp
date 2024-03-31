@@ -10,14 +10,15 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD constexpr Circle2<T> transform(const Circle2<T>& circle, const linal::hcoord::hmat<T>& hmat) noexcept
+GEO_NODISCARD constexpr Circle2<T> transform(const Circle2<T>& circle, const linal::hmat<T>& hmat) noexcept
 {
-  linal::vec2<T> vec = transform(circle.get_origin(), hmat);
-  return Circle2<T>{vec, circle.get_radius()};
+  const auto& origin = circle.get_origin();
+  linal::vec3<T> vec = transform(linal::vec3<T>{origin[0], origin[1], 0}, hmat);
+  return Circle2<T>{linal::vec2<T>{vec[0], vec[1]}, circle.get_radius()};
 }
 
 template <typename T>
-GEO_NODISCARD constexpr Circle3<T> transform(const Circle3<T>& circle, const linal::hcoord::hmat<T>& hmat) noexcept
+GEO_NODISCARD constexpr Circle3<T> transform(const Circle3<T>& circle, const linal::hmat<T>& hmat) noexcept
 {
   return Circle3<T>{transform(circle.get_origin(), hmat), circle.get_radius(), circle.get_normal()};
 }

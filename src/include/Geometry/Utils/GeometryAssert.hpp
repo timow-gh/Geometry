@@ -12,7 +12,7 @@
 #ifdef NDEBUG
 #define GEOMETRY_RAY_DIRECTION_ASSERT(ray)
 #else
-#define GEOMETRY_RAY_DIRECTION_ASSERT(ray) GEOMETRY_ASSERT(!linal::isZero(linal::norm2Squared(ray.get_direction())))
+#define GEOMETRY_RAY_DIRECTION_ASSERT(ray) GEOMETRY_ASSERT(!linal::isZero(linal::lengthSquared(ray.get_direction())))
 #endif
 
 #endif // GEOMETRY_GEOMETRYASSERT_HPP

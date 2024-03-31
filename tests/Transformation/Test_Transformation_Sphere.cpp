@@ -1,20 +1,19 @@
 #include <Geometry/Sphere.hpp>
 #include <Geometry/Transform/TransformSphere.hpp>
 #include <gtest/gtest.h>
-#include <linal/hmat_translation.hpp>
-#include <linal/vec3.hpp>
-
+#include <linal/vec.hpp>
 
 class fixture_sphere : public ::testing::Test {
 protected:
-  Geometry::Sphere<double> m_sphere{linal::vec3d{1, 1, 1}, 0.5};
+  Geometry::Sphere<double> m_sphere{linal::double3{1, 1, 1}, 0.5};
 };
 
 TEST_F(fixture_sphere, cone_trafo)
 {
-  auto translationVec = linal::vec3d{1, 1, 1};
-  auto trafo = linal::hcoord::hmat_translation(translationVec[0], translationVec[1], translationVec[2]);
+  auto translationVec = linal::double3{1, 1, 1};
+  linal::hmatd trafo = linal::hmatd::identity();
+  trafo.set_translation(translationVec);
   auto tSphere = Geometry::transform(m_sphere, trafo);
-  auto expectedOrigin = linal::vec3d{2, 2, 2};
+  auto expectedOrigin = linal::double3{2, 2, 2};
   EXPECT_EQ(expectedOrigin, tSphere.get_origin());
 }

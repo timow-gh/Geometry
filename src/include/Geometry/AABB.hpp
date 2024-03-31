@@ -4,7 +4,6 @@
 #include "Geometry/ExtremePointsInDirection.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <array>
-#include <linal/containers.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_compare.hpp>
 
@@ -13,20 +12,21 @@ namespace Geometry
 
 /**
  * @brief Axis Aligned Bounding Box
- *
- * @tparam TFloat The type of the floating point numbers
- * @tparam D The dimension of the AABB
  */
-template <typename TFloat, std::size_t D>
+template <typename TFloat, std::uint8_t D>
 class AABB {
+public:
+  using size_type = typename linal::vec<TFloat, D>::size_type;
+
+private:
   linal::vec<TFloat, D> m_min;
   linal::vec<TFloat, D> m_max;
 
 public:
   /** @brief Construct a new, invalid AABB  */
   constexpr AABB() noexcept
-      : m_min{TFloat{1.0}}
-      , m_max{TFloat{-1.0}}
+      : m_min{linal::vec<TFloat, D>{1.0}}
+      , m_max{linal::vec<TFloat, D>{-1.0}}
   {
   }
 
@@ -48,7 +48,7 @@ public:
       : m_min{min}
   {
     GEO_ASSERT(extend >= TFloat{0.0});
-    for (std::size_t i = 0; i < D; ++i)
+    for (size_type i = 0; i < static_cast<size_type>(D); ++i)
     {
       m_max[i] = min[i] + extend;
     }
@@ -68,7 +68,7 @@ public:
    */
   GEO_NODISCARD constexpr bool is_valid() const noexcept
   {
-    for (std::size_t i = 0; i < D; ++i)
+    for (size_type i = 0; i < static_cast<size_type>(D); ++i)
     {
       if (linal::isGreaterEq(m_min[i], m_max[i]))
       {
@@ -80,14 +80,12 @@ public:
 
   /**
    * @brief Check if the AABB is empty
-   *
-   * @return true, if the extend of the AABB is zero in any direction
    */
   GEO_NODISCARD constexpr bool is_empty() const noexcept
   {
-    for (std::size_t i = 0; i < D; ++i)
+    for (size_type i = 0; i < static_cast<size_type>(D); ++i)
     {
-      if (linal::isEq(m_min[i], m_max[i]))
+      if (linal::isGreater(m_min[i], m_max[i]))
       {
         return true;
       }
@@ -102,7 +100,7 @@ public:
    */
   void add(linal::vec<TFloat, D> vec) noexcept
   {
-    for (std::size_t i = 0; i < D; ++i)
+    for (size_type i = 0; i < D; ++i)
     {
       if (linal::isLess(vec[i], m_min[i]))
       {
@@ -121,7 +119,7 @@ public:
    */
   constexpr void add(const AABB& other) noexcept
   {
-    for (std::size_t i = 0; i < D; ++i)
+    for (size_type i = 0; i < D; ++i)
     {
       if (linal::isLess(other.m_min[i], m_min[i]))
       {
@@ -148,21 +146,23 @@ public:
  * @param points The points to create the AABB from
  * @return The created AABB
  */
-template <typename TFloat, std::size_t D>
-GEO_NODISCARD AABB<TFloat, D> make_aabb(const linal::vecvector<TFloat, D>& points) noexcept
+template <typename TFloat, std::uint8_t D>
+GEO_NODISCARD auto make_aabb(const std::vector<linal::vec<TFloat, D>>& points) noexcept
 {
   GEO_ASSERT(!points.empty());
 
-  linal::vecArray<TFloat, D, D> axis;
-  for (std::size_t i = 0; i < D; ++i)
+  using size_type = typename linal::vec<TFloat, D>::size_type;
+
+  std::array<linal::vec<TFloat, D>, D> axis;
+  for (size_type i = 0; i < D; ++i)
   {
-    axis[i][i] = 1;
+    axis[static_cast<std::size_t>(i)][i] = 1;
   }
 
   std::array<MinMax<TFloat>, D> minMaxes;
-  for (std::size_t i = 0; i < D; ++i)
+  for (size_type i = 0; i < D; ++i)
   {
-    minMaxes[i] = extreme_points_along_direction(axis[i], points);
+    minMaxes[static_cast<std::size_t>(i)] = extreme_points_along_direction(axis[static_cast<std::size_t>(i)], points);
   }
 
   return AABB<TFloat, D>{linal::vec<TFloat, D>{minMaxes[0].min, minMaxes[1].min, minMaxes[2].min},

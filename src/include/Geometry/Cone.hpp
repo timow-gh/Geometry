@@ -3,7 +3,7 @@
 
 #include "Geometry/Segment.hpp"
 #include "Geometry/Utils/Compiler.hpp"
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 
 namespace Geometry
 {

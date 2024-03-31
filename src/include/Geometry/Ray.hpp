@@ -10,7 +10,7 @@
 namespace Geometry
 {
 
-template <typename T, std::size_t D>
+template <typename T, std::uint8_t D>
 class Ray {
   linal::vec<T, D> m_origin;
   linal::vec<T, D> m_direction;

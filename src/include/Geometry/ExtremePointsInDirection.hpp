@@ -4,9 +4,9 @@
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <cstdint>
-#include <linal/containers.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
+#include <vector>
 
 namespace Geometry
 {
@@ -24,12 +24,12 @@ struct MinMax
  * @param points Set of points.
  * @return MinMax structure with min and max values.
  */
-template <typename TFloat, std::size_t D>
+template <typename TFloat, std::uint8_t D>
 GEO_NODISCARD constexpr MinMax<TFloat> extreme_points_along_direction(linal::vec<TFloat, D> dir,
-                                                                      const linal::vecvector<TFloat, D>& points) noexcept
+                                                                      const std::vector<linal::vec<TFloat, D>>& points) noexcept
 {
   GEO_ASSERT(!points.empty());
-  GEO_ASSERT(linal::isEq(linal::norm2(dir), TFloat{1}));
+  GEO_ASSERT(linal::isEq(linal::length(dir), TFloat{1}));
 
   TFloat minDist = std::numeric_limits<TFloat>::max();
   TFloat maxDist = std::numeric_limits<TFloat>::lowest();

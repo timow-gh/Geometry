@@ -1,14 +1,14 @@
 #include <Geometry/Distance/DistancePlane.hpp>
 #include <Geometry/Plane.hpp>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <gtest/gtest.h>
 
 using namespace Geometry;
 
 class PlaneDistanceTest : public ::testing::Test {
   protected:
-    Plane<double> m_plane{linal::ZERO_VEC3D, linal::X_VEC3D};
-    linal::vec3d point{2, 0, 0};
+    Plane<double> m_plane{linal::double3{}, linal::double3X};
+    linal::double3 point{2, 0, 0};
 };
 
 TEST_F(PlaneDistanceTest, PointDistanceA)
@@ -25,21 +25,21 @@ TEST_F(PlaneDistanceTest, PointDistanceA_ArgOrder)
 
 TEST_F(PlaneDistanceTest, PointDistanceB)
 {
-    point = linal::vec3d{-2, 0, 0};
+    point = linal::double3{-2, 0, 0};
     double dist = distance(m_plane, point);
     EXPECT_DOUBLE_EQ(dist, 2);
 }
 
 TEST_F(PlaneDistanceTest, PointDistanceC)
 {
-    point = linal::vec3d{9, 4, -2};
+    point = linal::double3{9, 4, -2};
     double dist = distance(m_plane, point);
     EXPECT_DOUBLE_EQ(dist, 9);
 }
 
 TEST_F(PlaneDistanceTest, PointInPlane)
 {
-    point = linal::vec3d{0, 4, 0};
+    point = linal::double3{0, 4, 0};
     double dist = distance(m_plane, point);
     EXPECT_DOUBLE_EQ(dist, 0);
 }

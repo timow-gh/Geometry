@@ -10,7 +10,7 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD constexpr Cone<T> transform(const Cone<T>& cone, const linal::hcoord::hmat<T>& trafo) noexcept
+GEO_NODISCARD constexpr Cone<T> transform(const Cone<T>& cone, const linal::hmat<T>& trafo) noexcept
 {
   return Cone<T>{Geometry::transform(cone.get_segment(), trafo), cone.get_radius()};
 }

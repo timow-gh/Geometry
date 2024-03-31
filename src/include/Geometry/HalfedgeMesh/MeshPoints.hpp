@@ -4,8 +4,7 @@
 #include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <cstddef>
-#include <linal/containers.hpp>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
 
 namespace Geometry
@@ -18,12 +17,12 @@ public:
 
   MeshPoints() = default;
 
-  GEO_NODISCARD constexpr linal::vec3vector<TFloat>& getPoints() { return m_points; }
-  GEO_NODISCARD constexpr const linal::vec3vector<TFloat>& getPoints() const { return m_points; }
+  GEO_NODISCARD constexpr std::vector<linal::vec3<TFloat>>& getPoints() { return m_points; }
+  GEO_NODISCARD constexpr const std::vector<linal::vec3<TFloat>>& getPoints() const { return m_points; }
   GEO_NODISCARD constexpr linal::vec3<TFloat> getPoint(std::size_t index) const { return m_points[index]; }
   GEO_NODISCARD constexpr std::size_t size() const { return m_points.size(); }
 
-  constexpr void setPoints(const linal::vec3vector<TFloat>& points) { m_points = points; }
+  constexpr void setPoints(const std::vector<linal::vec3<TFloat>>& points) { m_points = points; }
 
   GEO_NODISCARD constexpr VertexIndex_t add(const linal::vec3<TFloat>& vector)
   {
@@ -51,11 +50,11 @@ public:
   }
 
 private:
-  linal::vec3vector<TFloat> m_points;
+  std::vector<linal::vec3<TFloat>> m_points;
 };
 
 template <typename TFloat, typename U>
-constexpr std::vector<U> vectorsToComponents(const linal::vec3vector<TFloat>& vectors)
+constexpr std::vector<U> vectorsToComponents(const std::vector<linal::vec3<TFloat>>& vectors)
 {
   std::vector<U> result;
   for (const linal::vec3<TFloat>& vector: vectors)

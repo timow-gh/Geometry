@@ -1,5 +1,5 @@
 #ifndef GEOMETRY_BENTLEYOTTMANN
-#define GEOMERTY_BENTLEYOTTMANN
+#define GEOMETRY_BENTLEYOTTMANN
 
 #include "Geometry/Intersect/IntersectSegment.hpp"
 #include "Geometry/Segment.hpp"
@@ -31,7 +31,7 @@ template <typename T>
 struct Event
 {
   linal::vec2<T> point;
-  int segmentId;
+  std::size_t segmentId;
   EventType type;
 };
 
@@ -56,7 +56,7 @@ std::vector<linal::vec2<T>> bentley_ottmann(const std::vector<BOSegment<T>>& boS
   auto compEvent = [](const Event& e1, const Event& e2) { return e1.point[0] > e2.point[0]; };
   std::priority_queue<Event, std::vector<Event>, decltype(compEvent)> eventQueue(compEvent);
 
-  auto compStatus = [&boSegments](int id1, int id2)
+  auto compStatus = [&boSegments](std::size_t id1, std::size_t id2)
   {
     const BOSegment<T>& s1 = boSegments[id1];
     const linal::vec2<T>& s1a = s1.segment.get_source();
@@ -69,9 +69,9 @@ std::vector<linal::vec2<T>> bentley_ottmann(const std::vector<BOSegment<T>>& boS
     T y2 = compute_y(s2.segment, x);
     return y1 < y2;
   };
-  std::set<int, decltype(compStatus)> status(compStatus);
+  std::set<std::size_t, decltype(compStatus)> status(compStatus);
 
-  for (int i = 0; i < boSegments.size(); ++i)
+  for (std::size_t i = 0; i < boSegments.size(); ++i)
   {
     eventQueue.push({boSegments[i].segment.get_source(), i, EventType::Start});
     eventQueue.push({boSegments[i].segment.get_target(), i, EventType::End});

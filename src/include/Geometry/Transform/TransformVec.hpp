@@ -3,17 +3,17 @@
 
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/hmat.hpp>
-#include <linal/hvec.hpp>
-#include <linal/vec3.hpp>
+
+#include <linal/vec.hpp>
 
 namespace Geometry
 {
 
-template <typename T, std::size_t D>
-GEO_NODISCARD constexpr linal::vec<T, D> transform(const linal::vec<T, D>& vec, const linal::hcoord::hmat<T>& trafo) noexcept
+template <typename T, std::uint8_t D>
+GEO_NODISCARD constexpr linal::vec<T, D> transform(const linal::vec<T, D>& vec, const linal::hmat<T>& trafo) noexcept
 {
-  linal::hcoord::hvec<T> result = trafo * linal::hcoord::vec_to_hvec<T, D>(vec);
-  return linal::hcoord::hvec_to_vec<T, D>(result);
+  linal::hvec<T> result = trafo * linal::to_hvec<T, D>(vec);
+  return linal::to_vec<T, D>(result);
 }
 
 } // namespace Geometry

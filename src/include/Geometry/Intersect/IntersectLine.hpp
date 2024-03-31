@@ -5,8 +5,8 @@
 #include "Geometry/Line.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
-#include <linal/vec2.hpp>
-#include <linal/vec3.hpp>
+
+#include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
 #include <optional>
 
@@ -54,7 +54,7 @@ GEO_NODISCARD constexpr std::optional<linal::vec3<T>> intersect(Line3<T> lhs, Li
   linal::vec3<T> cross = linal::cross(lhsDir, rhsDir); // Cross product of direction vectors
 
   // Check if lines are parallel (cross product will be zero)
-  if (linal::isZero(linal::norm2(cross), eps))
+  if (linal::isZero(linal::length(cross), eps))
   {
     return std::nullopt; // Lines are parallel
   }
@@ -67,7 +67,7 @@ GEO_NODISCARD constexpr std::optional<linal::vec3<T>> intersect(Line3<T> lhs, Li
   linal::vec3<T> rhsPoint = rhsSource + params.s * rhsDir;
 
   linal::vec3<T> dist = lhsPoint - rhsPoint;
-  if (linal::isZero(linal::norm2(dist), eps))
+  if (linal::isZero(linal::length(dist), eps))
   {
     return lhsPoint; // Lines intersect
   }

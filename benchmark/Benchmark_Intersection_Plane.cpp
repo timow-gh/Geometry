@@ -3,14 +3,14 @@
 #include <Geometry/Ray.hpp>
 #include <Geometry/Segment.hpp>
 #include <benchmark/benchmark.h>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 
 using namespace Geometry;
 
 static void BM_Intersection_PlaneLine3d(benchmark::State& state)
 {
-  Plane plane{linal::ZERO_VEC3D, linal::X_VEC3D};
-  Line3d line{linal::vec3d{1, 1, 1}, linal::X_VEC3D};
+  Plane plane{linal::double3{}, linal::double3X};
+  Line3d line{linal::double3{1, 1, 1}, linal::double3X};
   for (auto _: state)
   {
     auto intersection = Geometry::intersect(plane, line);
@@ -21,8 +21,8 @@ BENCHMARK(BM_Intersection_PlaneLine3d);
 
 static void BM_Intersection_PlaneRay3d(benchmark::State& state)
 {
-  Plane plane{linal::ZERO_VEC3D, linal::X_VEC3D};
-  Ray3d ray{linal::vec3d{1, 1, 1}, -linal::X_VEC3D};
+  Plane plane{linal::double3{}, linal::double3X};
+  Ray3d ray{linal::double3{1, 1, 1}, -linal::double3X};
   for (auto _: state)
   {
     auto intersection = Geometry::intersect(plane, ray);
@@ -33,8 +33,8 @@ BENCHMARK(BM_Intersection_PlaneRay3d);
 
 static void BM_Intersection_PlaneSegment3d(benchmark::State& state)
 {
-  Plane plane{linal::ZERO_VEC3D, linal::X_VEC3D};
-  Segment3d segment{linal::vec3d{-1, 1, 1}, linal::X_VEC3D};
+  Plane plane{linal::double3{}, linal::double3X};
+  Segment3d segment{linal::double3{-1, 1, 1}, linal::double3X};
   for (auto _: state)
   {
     auto intersection = Geometry::intersect(plane, segment);

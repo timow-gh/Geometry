@@ -19,6 +19,7 @@ if (NOT CPM_SOURCE_CACHE)
         Set the CPM_SOURCE_CACHE variable in CPMSourceVariable.cmake to keep your paths private.")
 endif ()
 
+# Set common properties for cross platform builds
 include(project_preamble)
 project_preamble()
 

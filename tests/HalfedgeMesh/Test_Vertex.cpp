@@ -25,9 +25,9 @@ TEST_F(VertexTest, is_valid)
 
 TEST_F(VertexTest, getVector)
 {
-    [[maybe_unused]] linal::vec3f point = m_vertex.getVector();
+    [[maybe_unused]] linal::float3 point = m_vertex.getVector();
     const auto& constVertex = m_vertex;
-    [[maybe_unused]] const linal::vec3f& cPoint = constVertex.getVector();
+    [[maybe_unused]] const linal::float3& cPoint = constVertex.getVector();
 }
 
 TEST_F(VertexTest, vertexIndex)

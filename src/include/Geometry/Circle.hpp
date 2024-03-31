@@ -3,10 +3,10 @@
 
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
-#include <linal/hvec.hpp>
+
 #include <linal/utils/eps.hpp>
-#include <linal/vec2.hpp>
-#include <linal/vec3.hpp>
+
+#include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
 
 namespace Geometry
@@ -71,7 +71,7 @@ public:
   }
   constexpr void set_normal(linal::vec3<T> normal) noexcept
   {
-    GEO_ASSERT(linal::isEq(linal::norm2(normal), 1));
+    GEO_ASSERT(linal::isEq(linal::length(normal), 1));
     m_normal = normal;
   }
 

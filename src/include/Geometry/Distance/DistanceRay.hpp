@@ -10,7 +10,7 @@
 namespace Geometry
 {
 
-template <typename T, std::size_t D>
+template <typename T, std::uint8_t D>
 GEO_NODISCARD constexpr T distance(const Ray<T, D>& ray, linal::vec<T, D> vec) noexcept
 {
   linal::vec<T, D> vecO{vec - ray.get_origin()};
@@ -27,10 +27,10 @@ GEO_NODISCARD constexpr T distance(const Ray<T, D>& ray, linal::vec<T, D> vec) n
     distanceVec = ray.get_origin() - vec;
   }
 
-  return linal::norm2(distanceVec);
+  return linal::length(distanceVec);
 }
 
-template <typename T, std::size_t D>
+template <typename T, std::uint8_t D>
 GEO_NODISCARD constexpr T distance(linal::vec<T, D> vec, const Ray<T, D>& ray) noexcept
 {
   return distance(ray, vec);

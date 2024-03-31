@@ -1,11 +1,11 @@
 #include <Geometry/Ray.hpp>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <gtest/gtest.h>
 
 using namespace Geometry;
 
 TEST(Ray_Constructor, Default_Constructor)
 {
-    Ray ray{linal::vec3f{}, linal::X_VEC3F};
+    [[maybe_unused]] Ray ray{linal::float3{}, linal::float3X};
 }
 

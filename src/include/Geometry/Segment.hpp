@@ -11,7 +11,7 @@
 namespace Geometry
 {
 
-template <typename T, std::size_t D>
+template <typename T, std::uint8_t D>
 class Segment {
   linal::vec<T, D> m_source;
   linal::vec<T, D> m_target;
@@ -31,13 +31,13 @@ public:
   constexpr void set_source(linal::vec<T, D> source) noexcept { m_source = source; }
   constexpr void set_target(linal::vec<T, D> target) noexcept { m_target = target; }
 
-  GEO_NODISCARD constexpr T length() const noexcept { return linal::norm2(linal::vec<T, D>{m_target - m_source}); }
+  GEO_NODISCARD constexpr T length() const noexcept { return linal::length(linal::vec<T, D>{m_target - m_source}); }
 
   //! Returns vector of length one.
   GEO_NODISCARD constexpr linal::vec<T, D> direction() const noexcept
   {
     linal::vec<T, D> segVec{m_target - m_source};
-    return segVec / linal::norm2(segVec);
+    return segVec / linal::length(segVec);
   }
 
   constexpr bool operator==(const Segment& rhs) const noexcept

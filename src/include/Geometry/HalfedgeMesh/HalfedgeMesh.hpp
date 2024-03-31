@@ -9,7 +9,7 @@
 #include "Geometry/HalfedgeMesh/Vertex.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <array>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <vector>
 
 namespace Geometry
@@ -46,7 +46,7 @@ public:
   GEO_NODISCARD constexpr Halfedge_t& getHalfedge(HalfedgeIndex_t halfedgeIndex) { return halfedges[halfedgeIndex.get_value()]; }
   GEO_NODISCARD constexpr Facet_t& getFacet(FacetIndex_t facetIndex) { return facets[facetIndex.get_value()]; }
 
-  GEO_NODISCARD constexpr linal::vec3vector<TFloat>& getPoints() { return meshPoints.getPoints(); }
+  GEO_NODISCARD constexpr std::vector<linal::vec3<TFloat>>& getPoints() { return meshPoints.getPoints(); }
   // clang-format on
 
   GEO_NODISCARD const std::vector<Vertex_t>& getVertices() const { return vertices; }

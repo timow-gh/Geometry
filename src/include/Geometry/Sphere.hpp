@@ -3,7 +3,7 @@
 
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <linal/vec_compare.hpp>
 #include <linal/vec_operations.hpp>
 
@@ -29,7 +29,7 @@ public:
 
   GEO_NODISCARD constexpr bool contains(const linal::vec3<T>& vec) const noexcept
   {
-    return !linal::isGreater(linal::norm2(linal::vec3<T>{vec - m_origin}), m_radius);
+    return !linal::isGreater(linal::length(linal::vec3<T>{vec - m_origin}), m_radius);
   }
 
   constexpr bool operator==(const Sphere& rhs) const noexcept

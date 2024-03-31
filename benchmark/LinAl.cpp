@@ -1,12 +1,12 @@
 #include <benchmark/benchmark.h>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
 
 static void BM_Vector3dAdd(benchmark::State& state)
 {
-  linal::vec3d lhs(0.0);
-  linal::vec3d rhs(1.0);
-  [[maybe_unused]] linal::vec3d res;
+  linal::double3 lhs(0.0);
+  linal::double3 rhs(1.0);
+  [[maybe_unused]] linal::double3 res;
   for (auto _: state)
   {
     res = lhs + rhs;
@@ -15,9 +15,9 @@ static void BM_Vector3dAdd(benchmark::State& state)
 
 static void BM_Vector3fAdd(benchmark::State& state)
 {
-  linal::vec3f lhs(0.0f);
-  linal::vec3f rhs(1.0f);
-  [[maybe_unused]] linal::vec3f res;
+  linal::float3 lhs(0.0f);
+  linal::float3 rhs(1.0f);
+  [[maybe_unused]] linal::float3 res;
   for (auto _: state)
   {
     res = lhs + rhs;
@@ -26,8 +26,8 @@ static void BM_Vector3fAdd(benchmark::State& state)
 
 static void BM_Vector3dDot(benchmark::State& state)
 {
-  linal::vec3d lhs(0.0);
-  linal::vec3d rhs(1.0);
+  linal::double3 lhs(0.0);
+  linal::double3 rhs(1.0);
   [[maybe_unused]] double res = 0.0;
   for (auto _: state)
   {
@@ -37,8 +37,8 @@ static void BM_Vector3dDot(benchmark::State& state)
 
 static void BM_Vector3fDot(benchmark::State& state)
 {
-  linal::vec3f lhs(0.0f);
-  linal::vec3f rhs(1.0f);
+  linal::float3 lhs(0.0f);
+  linal::float3 rhs(1.0f);
   float_t res = 0.0f;
   for (auto _: state)
   {
@@ -161,8 +161,8 @@ static void BM_eigen3_vec3d_dot(benchmark::State& state)
 
 static void BM_linearalgebra_vec3d_dot(benchmark::State& state)
 {
-  linal::vec3d a{1, 2, 3};
-  linal::vec3d b{1, 2, 3};
+  linal::double3 a{1, 2, 3};
+  linal::double3 b{1, 2, 3};
   for (auto _: state)
   {
     c = linal::dot(a, b);
@@ -210,9 +210,9 @@ static void BM_eigen3_vec3d_cross(benchmark::State& state)
 
 static void BM_linearalgebra_vec3d_cross(benchmark::State& state)
 {
-  linal::vec3d a{1, 2, 3};
-  linal::vec3d b{1, 2, 3};
-  linal::vec3d d;
+  linal::double3 a{1, 2, 3};
+  linal::double3 b{1, 2, 3};
+  linal::double3 d;
   for (auto _: state)
   {
     d = linal::cross(a, b);
@@ -246,9 +246,9 @@ static void BM_eigen3_vec3d_normalize(benchmark::State& state)
 
 static void BM_linearalgebra_vec3d_projection(benchmark::State& state)
 {
-  linal::vec3d a{1, 1, 1};
-  linal::vec3d b{1, 1, 0};
-  linal::vec3d d;
+  linal::double3 a{1, 1, 1};
+  linal::double3 b{1, 1, 0};
+  linal::double3 d;
   for (auto _: state)
   {
     d = linal::projection(a, b);
@@ -258,9 +258,9 @@ static void BM_linearalgebra_vec3d_projection(benchmark::State& state)
 
 static void BM_linearalgebra_vec3d_rejection(benchmark::State& state)
 {
-  linal::vec3d a{1, 1, 1};
-  linal::vec3d b{1, 1, 0};
-  linal::vec3d d;
+  linal::double3 a{1, 1, 1};
+  linal::double3 b{1, 1, 0};
+  linal::double3 d;
   for (auto _: state)
   {
     d = linal::rejection(a, b);

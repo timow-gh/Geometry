@@ -7,9 +7,6 @@
 #include "Geometry/Segment.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/hmat.hpp>
-#include <linal/hmat_rotation.hpp>
-#include <linal/hmat_translation.hpp>
-#include <linal/hvec.hpp>
 #include <optional>
 
 namespace Geometry
@@ -42,20 +39,21 @@ public:
 
     const auto cylinderSeg = m_cylinder->get_segment();
 
-    linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec_to_hvec(cylinderSeg.direction()));
-    linal::hcoord::set_translation(hTrafo, cylinderSeg.get_source());
+    linal::hmatd hTrafo;
+    linal::rot_align(hTrafo, linal::hvecdz, linal::to_hvec(cylinderSeg.direction()));
+    hTrafo.set_translation(cylinderSeg.get_source());
     MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::set_transformation(hTrafo);
 
-    linal::vec3vector<TFloat> cylPoints = calc_cylinder_points();
+    std::vector<linal::vec3<TFloat>> cylPoints = calc_cylinder_points();
     const auto cylinderTriangleIndices = calc_cylinder_triangle_indices(cylPoints);
     return MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(cylPoints,
                                                                                                               cylinderTriangleIndices);
   }
 
 private:
-  linal::vec3vector<TFloat> calc_cylinder_points() const
+  std::vector<linal::vec3<TFloat>> calc_cylinder_points() const
   {
-    linal::vec3vector<TFloat> points;
+    std::vector<linal::vec3<TFloat>> points;
     points.reserve(2 * m_azimuthCount + 2);
 
     const Segment3<TFloat>& segment = m_cylinder->get_segment();
@@ -91,7 +89,7 @@ private:
     indices.push_back(circleEndIdx - 1);
   }
 
-  std::vector<TIndex> calc_cylinder_triangle_indices(const linal::vec3vector<TFloat>& cylinderPoints) const
+  std::vector<TIndex> calc_cylinder_triangle_indices(const std::vector<linal::vec3<TFloat>>& cylinderPoints) const
   {
     // Bottom circle
     std::vector<TIndex> indices;

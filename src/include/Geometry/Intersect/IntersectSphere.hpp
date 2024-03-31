@@ -6,7 +6,7 @@
 #include "Geometry/Segment.hpp"
 #include "Geometry/Sphere.hpp"
 #include <linal/utils/eps.hpp>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <optional>
 
 namespace Geometry

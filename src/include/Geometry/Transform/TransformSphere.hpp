@@ -10,7 +10,7 @@ namespace Geometry
 {
 
 template <typename T>
-GEO_NODISCARD constexpr Sphere<T> transform(const Sphere<T>& sphere, const linal::hcoord::hmat<T>& trafo) noexcept
+GEO_NODISCARD constexpr Sphere<T> transform(const Sphere<T>& sphere, const linal::hmat<T>& trafo) noexcept
 {
   return Sphere<T>{transform(sphere.get_origin(), trafo), sphere.get_radius()};
 }

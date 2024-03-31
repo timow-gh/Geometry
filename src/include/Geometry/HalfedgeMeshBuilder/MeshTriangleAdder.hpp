@@ -57,7 +57,7 @@ private:
                              std::array<VertexIndex_t, 3>& vertexIndices) const
   {
     // Create or find the Vertex of the linal::vec3
-    const linal::vecArray<TFloat, 3, 3> trianglePoints = triangle.get_triangle_points();
+    const auto& trianglePoints = triangle.get_triangle_points();
     for (std::size_t i = 0; i < 3; ++i)
     {
       VertexIndex_t vertexIndex;

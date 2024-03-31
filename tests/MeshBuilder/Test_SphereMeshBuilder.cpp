@@ -4,7 +4,7 @@
 #include <Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp>
 #include <Geometry/Sphere.hpp>
 #include <gtest/gtest.h>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 
 using namespace MeshTestHelper;
 using namespace Geometry;
@@ -15,7 +15,7 @@ protected:
   std::unique_ptr<HalfedgeMesh<double>> m_sphereMesh;
 
   Test_MeshBuilder_Sphere()
-      : m_sphere({linal::ZERO_VEC3D, 3.0})
+      : m_sphere({linal::double3{}, 3.0})
   {
     m_sphereMesh = SphereMeshBuilder<double, std::size_t>().set_sphere(m_sphere).build();
   }

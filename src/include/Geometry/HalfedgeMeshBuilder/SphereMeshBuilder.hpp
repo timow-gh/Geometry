@@ -9,7 +9,7 @@
 #include <cmath>
 #include <linal/utils/constants.hpp>
 #include <linal/vec.hpp>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <memory>
 #include <optional>
 
@@ -52,9 +52,9 @@ public:
   }
 
 private:
-  linal::vec3vector<TFloat> calc_sphere_points(const Sphere<TFloat>& sphere)
+  std::vector<linal::vec3<TFloat>> calc_sphere_points(const Sphere<TFloat>& sphere)
   {
-    linal::vec3vector<TFloat> points;
+    std::vector<linal::vec3<TFloat>> points;
 
     TFloat polarStep = linal::PI<TFloat> / static_cast<TFloat>(m_polarCount);
     TFloat azimuthStep = TFloat{2.0} * linal::PI<TFloat> / static_cast<TFloat>(m_azimuthCount);
@@ -80,14 +80,14 @@ private:
     points.push_back(linal::vec3<TFloat>{0, 0, -radius});
 
     const auto& sphereOrigin = sphere.get_origin();
-    if (sphereOrigin != linal::ZERO_VEC3D)
+    if (sphereOrigin != linal::double3{})
       for (auto& point: points)
         point += sphereOrigin;
 
     return points;
   }
 
-  std::vector<TIndex> calc_sphere_triangle_indices(const linal::vec3vector<TFloat>& spherePoints)
+  std::vector<TIndex> calc_sphere_triangle_indices(const std::vector<linal::vec3<TFloat>>& spherePoints)
   {
     auto toIdx = [azimuthCount = m_azimuthCount](TIndex i, TIndex j) -> TIndex { return static_cast<TIndex>(i * azimuthCount + j); };
 

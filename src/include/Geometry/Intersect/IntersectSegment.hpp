@@ -5,8 +5,8 @@
 #include "Geometry/Segment.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
-#include <linal/vec2.hpp>
-#include <linal/vec3.hpp>
+
+#include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
 #include <optional>
 
@@ -69,7 +69,7 @@ intersect(const Segment3<T>& first, const Segment3<T>& second, T eps = linal::ep
   linal::vec3<T> cross = linal::cross(fDir, sDir);
 
   // Check if lines are parallel
-  if (linal::isZero(linal::norm2(cross), eps))
+  if (linal::isZero(linal::length(cross), eps))
   {
     return std::nullopt;
   }

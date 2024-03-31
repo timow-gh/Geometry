@@ -2,10 +2,10 @@
 #define GEOMETRY_CUBE_H
 
 #include "Geometry/Utils/Compiler.hpp"
-#include <linal/containers.hpp>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 #include <linal/vec_compare.hpp>
 #include <linal/vec_operations.hpp>
+#include <array>
 
 namespace Geometry
 {
@@ -13,7 +13,7 @@ namespace Geometry
 template <typename T>
 class Cuboid {
 public:
-  constexpr Cuboid(linal::vec3<T> origin, const linal::vec3Array<T, 3>& sideVectors) noexcept
+  constexpr Cuboid(linal::vec3<T> origin, const std::array<linal::vec3<T>, 3>& sideVectors) noexcept
       : m_origin(origin)
       , m_sideVectors(sideVectors)
   {
@@ -22,11 +22,7 @@ public:
   constexpr Cuboid(linal::vec3<T> origin, const linal::vec3<T>& diagonal) noexcept
       : m_origin(origin)
   {
-    linal::vec3Array<T, 3> unitVectors = {
-        linal::X_VEC3D,
-        linal::Y_VEC3D,
-        linal::Z_VEC3D,
-    };
+    std::array<linal::vec3<T>, 3> unitVectors = {linal::vec3X<T>, linal::vec3Y<T>, linal::vec3Z<T>};
     for (std::size_t i = 0; i < 3; ++i)
     {
       m_sideVectors[i] = linal::projection(diagonal, unitVectors[i]);
@@ -39,10 +35,10 @@ public:
   }
 
   GEO_NODISCARD constexpr linal::vec3<T> get_origin() const noexcept { return m_origin; }
-  GEO_NODISCARD constexpr const linal::vec3Array<T, 3>& get_side_vectors() const noexcept { return m_sideVectors; }
+  GEO_NODISCARD constexpr const std::array<linal::vec3<T>, 3>& get_side_vectors() const noexcept { return m_sideVectors; }
 
   constexpr void set_origin(linal::vec3<T> origin) noexcept { m_origin = origin; }
-  constexpr void set_side_vectors(const linal::vec3Array<T, 3>& sideVectors) noexcept { m_sideVectors = sideVectors; }
+  constexpr void set_side_vectors(const std::array<linal::vec3<T>, 3>& sideVectors) noexcept { m_sideVectors = sideVectors; }
 
   constexpr bool operator==(const Cuboid& rhs) const noexcept
   {
@@ -53,15 +49,15 @@ public:
 
 private:
   linal::vec3<T> m_origin;
-  linal::vec3Array<T, 3> m_sideVectors;
+  std::array<linal::vec3<T>, 3> m_sideVectors;
 };
 
 template <typename T>
-GEO_NODISCARD constexpr linal::vec3Array<T, 8> calc_cuboid_vertices(const Cuboid<T>& cuboid) noexcept
+GEO_NODISCARD constexpr std::array<linal::vec3<T>, 8> calc_cuboid_vertices(const Cuboid<T>& cuboid) noexcept
 {
   linal::vec3<T> origin = cuboid.get_origin();
   const auto& sideVecs = cuboid.get_side_vectors();
-  linal::vec3Array<T, 8> vertices;
+  std::array<linal::vec3<T>, 8> vertices;
   const auto bottomX = sideVecs[0];
   const auto bottomY = sideVecs[1];
   const auto bottomZ = sideVecs[2];

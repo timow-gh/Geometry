@@ -7,8 +7,6 @@
 #include "Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/hmat.hpp>
-#include <linal/hmat_rotation.hpp>
-#include <linal/hmat_translation.hpp>
 #include <linal/utils/constants.hpp>
 #include <optional>
 
@@ -42,8 +40,10 @@ public:
 
     const auto coneSeg = m_cone->get_segment();
 
-    linal::hcoord::hmatd hTrafo = linal::hcoord::rot_align(linal::hcoord::Z_HVECD, linal::hcoord::vec_to_hvec(coneSeg.direction()));
-    linal::hcoord::set_translation(hTrafo, coneSeg.get_source());
+    const auto& dir = coneSeg.direction();
+    linal::hmatd hTrafo;
+    linal::rot_align(hTrafo, linal::hvecdz, linal::hvecd{dir[0], dir[1], dir[2], 1});
+    hTrafo.set_translation(coneSeg.get_source());
     MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::set_transformation(hTrafo);
 
     auto conePoints = calc_cone_points(*m_cone);
@@ -52,9 +52,9 @@ public:
   }
 
 private:
-  linal::vec3vector<TFloat> calc_cone_points(const Geometry::Cone<TFloat>& cone) const
+  std::vector<linal::vec3<TFloat>> calc_cone_points(const Geometry::Cone<TFloat>& cone) const
   {
-    linal::vec3vector<TFloat> points;
+    std::vector<linal::vec3<TFloat>> points;
     discretize_circle(points, cone.get_radius(), m_azimuthCount);
 
     points.push_back(linal::vec3<TFloat>{0, 0, 0});
@@ -62,7 +62,7 @@ private:
 
     return points;
   }
-  std::vector<TIndex> calc_cone_triangle_indices(const linal::vec3vector<TFloat>& conePoints) const
+  std::vector<TIndex> calc_cone_triangle_indices(const std::vector<linal::vec3<TFloat>>& conePoints) const
   {
     std::vector<TIndex> indices;
     TIndex size = static_cast<TIndex>(conePoints.size());

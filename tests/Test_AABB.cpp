@@ -1,7 +1,7 @@
 #include <Geometry/AABB.hpp>
 #include <gtest/gtest.h>
-#include <linal/containers.hpp>
-#include <linal/vec3.hpp>
+
+#include <linal/vec.hpp>
 
 using namespace Geometry;
 
@@ -18,21 +18,21 @@ TEST(AABBIsValid, default_constructor)
 
 TEST_F(AABBTest3d, from_cube_points)
 {
-  linal::vec3dvector const points{{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 1}};
+  std::vector<linal::double3> const points{{0, 0, 0}, {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 1}};
   AABB3d const box = make_aabb(points);
 
-  linal::vec3d const expectedMin{0.0, 0.0, 0.0};
+  linal::double3 const expectedMin{0.0, 0.0, 0.0};
   EXPECT_EQ(box.get_min(), expectedMin);
-  linal::vec3d const expectedMax{1.0, 1.0, 1.0};
+  linal::double3 const expectedMax{1.0, 1.0, 1.0};
   EXPECT_EQ(box.get_max(), expectedMax);
 }
 
 TEST(AABBCenterTest, get_center)
 {
-  linal::vec3dvector const points{{1.0, 1.0, 1.0}, {-1.0, -1.0, -1.0}};
+  std::vector<linal::double3> const points{{1.0, 1.0, 1.0}, {-1.0, -1.0, -1.0}};
   AABB3d const aabb = make_aabb(points);
 
-  linal::vec3d const expectedCenter{0.0, 0.0, 0.0};
+  linal::double3 const expectedCenter{0.0, 0.0, 0.0};
   EXPECT_EQ(aabb.center(), expectedCenter);
 }
 
@@ -52,7 +52,7 @@ TEST(AABBAddVec, is_inside)
 {
   AABB3d const aabb{{0, 0, 0}, 1.0};
   AABB3d modified = aabb;
-  modified.add(linal::vec3d{0.5, 0.5, 0.5});
+  modified.add(linal::double3{0.5, 0.5, 0.5});
   EXPECT_EQ(modified, aabb);
 }
 
@@ -60,7 +60,7 @@ TEST(AABBAddVec, is_outside)
 {
   AABB3d const aabb{{0, 0, 0}, 1.0};
   AABB3d modified = aabb;
-  modified.add(linal::vec3d{1.5, 1.5, 1.5});
+  modified.add(linal::double3{1.5, 1.5, 1.5});
   EXPECT_FALSE(modified == aabb);
   AABB3d expectedAABB{{0, 0, 0}, 1.5};
   EXPECT_EQ(modified, expectedAABB);
@@ -70,7 +70,7 @@ TEST(AABBAddVec, is_on_border)
 {
   AABB3d const aabb{{0, 0, 0}, 1.0};
   AABB3d modified = aabb;
-  modified.add(linal::vec3d{1.0, 1.0, 1.0});
+  modified.add(linal::double3{1.0, 1.0, 1.0});
   EXPECT_EQ(modified, aabb);
 }
 

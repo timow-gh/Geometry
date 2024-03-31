@@ -9,7 +9,8 @@
 #include "Geometry/Utils/Compiler.hpp"
 #include <algorithm>
 #include <array>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
+#include <memory>
 #include <optional>
 
 namespace Geometry
@@ -44,7 +45,7 @@ private:
   std::array<Triangle<TFloat, 3>, 12> calc_cuboid_triangles()
   {
     auto sides = m_cube->get_side_vectors();
-    linal::vec3d defaultOrigin{0};
+    linal::double3 defaultOrigin{0};
 
     const linal::vec3<TFloat>& x = sides[0];
     const linal::vec3<TFloat>& y = sides[1];
@@ -52,7 +53,7 @@ private:
 
     std::array<Triangle<TFloat, 3>, 12> triangles;
 
-    linal::vec3d diag = y + z;
+    linal::double3 diag = y + z;
     calc_cuboid_face_triangles(triangles, {defaultOrigin, z, diag, y}, m_cube->get_origin(), x, 0);
 
     diag = x + z;
@@ -65,7 +66,7 @@ private:
   }
 
   void calc_cuboid_face_triangles(std::array<Triangle<TFloat, 3>, 12>& triangles,
-                                  linal::vec3Array<TFloat, 4> vectors,
+                                  std::array<linal::vec3<TFloat>, 4> vectors,
                                   const linal::vec3<TFloat>& origin,
                                   const linal::vec3<TFloat>& translationVec,
                                   std::size_t insertIndex)

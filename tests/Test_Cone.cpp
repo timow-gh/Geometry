@@ -1,13 +1,13 @@
 #include <linal/utils/constants.hpp>
 #include <Geometry/Cone.hpp>
 #include <gtest/gtest.h>
-#include <linal/vec3.hpp>
+#include <linal/vec.hpp>
 
 using namespace Geometry;
 
 class Fixture_Cone : public ::testing::Test {
 protected:
-  Cone<double> m_cone{Segment3d{linal::ZERO_VEC3D, linal::Z_VEC3D}, 1.0};
+  Cone<double> m_cone{Segment3d{linal::double3{}, linal::double3Z}, 1.0};
 };
 
 TEST_F(Fixture_Cone, height)
