@@ -1,5 +1,7 @@
-#ifndef GEOMETRY_TRIANGLEINDICES_HPP
-#define GEOMETRY_TRIANGLEINDICES_HPP
+#ifndef GEOMETRY_CALCTRIANGLEINDICES_HPP
+#define GEOMETRY_CALCTRIANGLEINDICES_HPP
+
+#include "Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp"
 
 namespace Geometry
 {
@@ -15,4 +17,4 @@ constexpr std::vector<U> calcTriangleIndices(const std::vector<Facet<TFloat, TIn
 }
 } // namespace Geometry
 
-#endif // GEOMETRY_TRIANGLEINDICES_HPP
+#endif // GEOMETRY_CALCTRIANGLEINDICES_HPP

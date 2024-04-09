@@ -1,14 +1,13 @@
 #ifndef GEOMETRY_SPHEREMESHBUILDER_HPP
 #define GEOMETRY_SPHEREMESHBUILDER_HPP
 
+#include "Geometry/HalfedgeMesh/CalcTriangleIndices.hpp"
 #include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
-#include "Geometry/HalfedgeMesh/TriangleIndices.hpp"
 #include "Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp"
 #include "Geometry/Sphere.hpp"
 #include "Geometry/Triangle.hpp"
 #include <cmath>
 #include <linal/utils/constants.hpp>
-#include <linal/vec.hpp>
 #include <linal/vec.hpp>
 #include <memory>
 #include <optional>
