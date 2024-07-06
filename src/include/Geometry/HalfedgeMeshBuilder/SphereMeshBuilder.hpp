@@ -79,7 +79,7 @@ private:
     points.push_back(linal::vec3<TFloat>{0, 0, -radius});
 
     const auto& sphereOrigin = sphere.get_origin();
-    if (sphereOrigin != linal::double3{})
+    if (sphereOrigin != linal::vec3<TFloat>{})
       for (auto& point: points)
         point += sphereOrigin;
 

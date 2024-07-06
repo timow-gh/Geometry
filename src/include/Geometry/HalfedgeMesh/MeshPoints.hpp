@@ -27,12 +27,12 @@ public:
   GEO_NODISCARD constexpr VertexIndex_t add(const linal::vec3<TFloat>& vector)
   {
     m_points.push_back(vector);
-    return VertexIndex_t{m_points.size() - 1};
+    return VertexIndex_t{static_cast<TIndex>(m_points.size()) - 1};
   }
 
   GEO_NODISCARD constexpr bool contains(const linal::vec3<TFloat>& vector, VertexIndex_t& index)
   {
-    for (std::size_t i = 0; i < m_points.size(); ++i)
+    for (TIndex i = 0; i < m_points.size(); ++i)
     {
       if (m_points[i] == vector)
       {

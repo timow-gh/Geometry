@@ -9,7 +9,7 @@ namespace Geometry
 {
 template <typename T, std::uint8_t D>
 class Triangle {
-  std::array<linal::double3, 3> m_trianglePoints;
+  std::array<linal::vec3<T>, 3> m_trianglePoints;
 
 public:
   constexpr Triangle() noexcept = default;
@@ -22,7 +22,7 @@ public:
   {
   }
 
-  GEO_NODISCARD constexpr const std::array<linal::double3, 3>& get_triangle_points() const noexcept { return m_trianglePoints; }
+  GEO_NODISCARD constexpr const std::array<linal::vec3<T>, 3>& get_triangle_points() const noexcept { return m_trianglePoints; }
 };
 
 using Triangle2f = Triangle<float, 2>;
