@@ -61,13 +61,13 @@ private:
 
     for (uint32_t i{1}; i < m_polarCount; ++i)
     {
-      TFloat polarAngle = i * polarStep;
+      TFloat polarAngle = static_cast<TFloat>(i) * polarStep;
       TFloat z = radius * std::cos(polarAngle);
       TFloat projRadius = radius * std::sin(polarAngle);
 
       for (uint32_t j{0}; j < m_azimuthCount; ++j)
       {
-        TFloat azimuthAngle = j * azimuthStep;
+        TFloat azimuthAngle = static_cast<TFloat>(j) * azimuthStep;
         TFloat x = projRadius * std::cos(azimuthAngle);
         TFloat y = projRadius * std::sin(azimuthAngle);
         points.push_back(linal::vec3<TFloat>{x, y, z});

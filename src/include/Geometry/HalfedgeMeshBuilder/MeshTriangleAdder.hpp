@@ -41,7 +41,7 @@ public:
     std::vector<Facet_t>& facets = m_halfedgeMesh->getFacets();
 
     HalfedgeIndex_t halfedgeIndex{
-        static_cast<HalfedgeIndex_t::value_type>(halfedges.size()) == 0 ? 0 : static_cast<HalfedgeIndex_t::value_type>(halfedges.size())};
+        static_cast<typename HalfedgeIndex_t::value_type>(halfedges.size()) == 0 ? 0 : static_cast<typename HalfedgeIndex_t::value_type>(halfedges.size())};
 
     std::array<VertexIndex_t, 3> vertexIndices;
     create_or_find_vertex(triangle, meshPoints, vertices, vertexIndices);
@@ -81,7 +81,7 @@ private:
     {
       halfedges.emplace_back(vIndex, halfedgeMesh);
       if (!vertices[vIndex.get_value()].getHalfedgeIndex().is_valid())
-        vertices[vIndex.get_value()].setHalfedgeIndex(HalfedgeIndex_t{static_cast<HalfedgeIndex_t::value_type>(halfedges.size()) - 1});
+        vertices[vIndex.get_value()].setHalfedgeIndex(HalfedgeIndex_t{static_cast<typename HalfedgeIndex_t::value_type>(halfedges.size()) - 1});
     }
   }
 
@@ -89,7 +89,7 @@ private:
   {
     // Fill the facet, the next and the previous pointer for each Halfedge
     // of the Facet
-    const FacetIndex_t facetIdx = FacetIndex_t(static_cast<FacetIndex_t::value_type>(facets.size()) - 1);
+    const FacetIndex_t facetIdx = FacetIndex_t(static_cast<typename FacetIndex_t::value_type>(facets.size()) - 1);
     for (TIndex i = halfedgeIndex.get_value(); i < halfedges.size(); ++i)
     {
       halfedges[i].setFacetIndex(facetIdx);
@@ -119,7 +119,7 @@ private:
       if (heVertex == oppNextVertex && nextVertex == oppHeCandidate.getVertex())
       {
         halfedge.setOppositeIndex(oppHeCandidateIndex);
-        oppHeCandidate.setOppositeIndex(HalfedgeIndex_t{static_cast<HalfedgeIndex_t::value_type>(i)});
+        oppHeCandidate.setOppositeIndex(HalfedgeIndex_t{static_cast<typename HalfedgeIndex_t::value_type>(i)});
       }
     }
   }
