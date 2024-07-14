@@ -7,18 +7,41 @@
 namespace Geometry
 {
 
+/** @brief Calculate the indices of triangles for the given facets.
+ *
+ * @attention The triangle indices will be ccw with respect to the normal of the facet.
+ */
 template <typename TFloat, typename TIndex, typename U>
-constexpr std::vector<U> calcTriangleIndices(const std::vector<Facet<TFloat, TIndex>>& facets)
+GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<Facet<TFloat, TIndex>>& facets)
 {
   std::vector<U> result;
-  for (const auto& facet: facets)
-    for (const Geometry::Halfedge<TFloat, TIndex> halfedge: Geometry::calcHalfedges(facet))
-      result.push_back(static_cast<U>(halfedge.getVertexIndex().get_value()));
+
+  for (const auto& facet : facets)
+  {
+    std::vector<Halfedge<TFloat, TIndex>> halfedges;
+
+    Halfedge<TFloat, TIndex> halfedge = facet.getHalfedge();
+    halfedges.push_back(halfedge);
+    halfedge = halfedge.getPrevious();
+    halfedges.push_back(halfedge);
+
+    while (facet.getHalfedge() != halfedge.getPrevious())
+    {
+      halfedge = halfedge.getPrevious();
+      halfedges.push_back(halfedge);
+    }
+
+    for (const Halfedge<TFloat, TIndex>& he: halfedges)
+    {
+      result.push_back(static_cast<U>(he.getVertexIndex().get_value()));
+    }
+  }
+
   return result;
 }
 
 template <typename TFloat, typename TIndex, typename U>
-constexpr std::vector<U> calcLineIndices(const HalfedgeMesh<float, std::uint32_t>& mesh)
+GEO_NODISCARD constexpr std::vector<U> calcLineIndices(const HalfedgeMesh<float, std::uint32_t>& mesh)
 {
   struct Edge
   {
