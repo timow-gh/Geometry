@@ -101,13 +101,15 @@ private:
     const TIndex bottomIdx = pointsSize - 1;
 
     // First top triangle
-    triangleIndices.push_back(topIdx);
-    triangleIndices.push_back(toIdx(topiIdx, 0));
     triangleIndices.push_back(toIdx(topiIdx, m_azimuthCount - 1));
+    triangleIndices.push_back(toIdx(topiIdx, 0));
+    triangleIndices.push_back(topIdx);
+
     // First bottom triangle
-    triangleIndices.push_back(bottomIdx);
-    triangleIndices.push_back(toIdx(bottomiIdx, m_azimuthCount - 1));
     triangleIndices.push_back(toIdx(bottomiIdx, 0));
+    triangleIndices.push_back(toIdx(bottomiIdx, m_azimuthCount - 1));
+    triangleIndices.push_back(bottomIdx);
+
     for (TIndex j{1}; j < m_azimuthCount; ++j)
     {
       TIndex jIdx = toIdx(topiIdx, j);
