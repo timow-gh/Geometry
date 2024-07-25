@@ -41,7 +41,13 @@ GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<Fac
 }
 
 template <typename TFloat, typename TIndex, typename U>
-GEO_NODISCARD constexpr std::vector<U> calcLineIndices(const HalfedgeMesh<float, std::uint32_t>& mesh)
+GEO_NODISCARD constexpr std::vector<U> calcVertexNormals(const HalfedgeMesh<TFloat, TIndex>& mesh)
+{
+
+}
+
+template <typename TFloat, typename TIndex, typename U>
+GEO_NODISCARD constexpr std::vector<U> calcLineIndices(const HalfedgeMesh<TFloat, std::uint32_t>& mesh)
 {
   struct Edge
   {
