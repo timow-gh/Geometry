@@ -16,7 +16,7 @@ GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<Fac
 {
   std::vector<U> result;
 
-  for (const auto& facet : facets)
+  for (const auto& facet: facets)
   {
     std::vector<Halfedge<TFloat, TIndex>> halfedges;
 
@@ -38,12 +38,6 @@ GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<Fac
   }
 
   return result;
-}
-
-template <typename TFloat, typename TIndex, typename U>
-GEO_NODISCARD constexpr std::vector<U> calcVertexNormals(const HalfedgeMesh<TFloat, TIndex>& mesh)
-{
-
 }
 
 template <typename TFloat, typename TIndex, typename U>

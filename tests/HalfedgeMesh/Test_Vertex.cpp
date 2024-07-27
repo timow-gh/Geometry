@@ -39,14 +39,12 @@ TEST_F(VertexTest, vertexIndex)
 
 TEST_F(VertexTest, getHalfedge)
 {
-    [[maybe_unused]] HalfedgeMesh<float>::Halfedge_t& halfedge = m_vertex.getHalfedge();
+    [[maybe_unused]] auto halfedges = m_vertex.calcHalfedges();
     const auto& constVertex = m_vertex;
-    [[maybe_unused]] const HalfedgeMesh<float>::Halfedge_t& cHalfedge = constVertex.getHalfedge();
+    [[maybe_unused]] const auto& cHalfedges = constVertex.calcHalfedges();
 }
 
 TEST_F(VertexTest, halfedgeIndex)
 {
-    [[maybe_unused]] HalfedgeMesh<float>::HalfedgeIndex_t heIndex = m_vertex.getHalfedgeIndex();
-    m_vertex.setHalfedgeIndex(HalfedgeMesh<float>::HalfedgeIndex_t{0});
-    EXPECT_EQ(0, m_vertex.getHalfedgeIndex().get_value());
+    [[maybe_unused]] auto heIndices = m_vertex.getHalfedgeIndices();
 }

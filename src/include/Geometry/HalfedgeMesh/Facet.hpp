@@ -8,6 +8,15 @@
 namespace Geometry
 {
 
+/**
+ * @brief Facet class
+ *
+ * The Facet class represents a face in the mesh. It is defined by a single halfedge.
+ * The halfedge is the first halfedge of the face, following the face in counter-clockwise order.
+ *
+ * @tparam TFloat
+ * @tparam TIndex
+ */
 template <typename TFloat, typename TIndex>
 class Facet {
 public:

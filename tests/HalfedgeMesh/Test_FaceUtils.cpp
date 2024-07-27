@@ -14,8 +14,8 @@ class FaceUtilsTest : public ::testing::Test {
     std::unique_ptr<HalfedgeMesh<float>> m_heMesh;
 };
 
-TEST_F(FaceUtilsTest, calcHalfedges)
+TEST_F(FaceUtilsTest, calc_halfedges)
 {
-    std::vector<HalfedgeMesh<float, std::size_t>::Halfedge_t> halfedges = calcHalfedges(m_heMesh->getFacets().front());
+    std::vector<HalfedgeMesh<float, std::size_t>::Halfedge_t> halfedges = calc_halfedges(m_heMesh->getFacets().front());
     EXPECT_EQ(halfedges.size(), 3);
 }

@@ -9,7 +9,7 @@ namespace Geometry
 {
 
 template <typename TFloat, typename TIndex>
-linal::vec3<TFloat> calcFaceNormal(const Facet<TFloat, TIndex>& facet)
+linal::vec3<TFloat> calc_facet_normal(const Facet<TFloat, TIndex>& facet)
 {
   using halfedge_t = Halfedge<TFloat, TIndex>;
 
@@ -21,7 +21,7 @@ linal::vec3<TFloat> calcFaceNormal(const Facet<TFloat, TIndex>& facet)
   const vec_t v1 = next.getVertex().getVector();
   const vec_t v2 = next.getNextVertex().getVector();
 
-  linal::vec3<TFloat> normal = linal::cross(v1 - v0, v2 - v0);
+  linal::vec3<TFloat> normal = linal::cross(v1 - v0, v2 - v1);
   return linal::normalize(normal);
 }
 

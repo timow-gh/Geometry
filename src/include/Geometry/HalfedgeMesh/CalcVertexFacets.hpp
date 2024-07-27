@@ -3,25 +3,25 @@
 
 #include "Geometry/HalfedgeMesh/Facet.hpp"
 #include "Geometry/HalfedgeMesh/Vertex.hpp"
+#include "Geometry/Utils/Assert.hpp"
+#include <iostream>
 #include <vector>
 
 namespace Geometry
 {
 
 template <typename TFloat, typename TIndex>
-std::vector<Facet<TFloat, TIndex>> calcVertexFacets(const Vertex<TFloat, TIndex>& vertex)
+std::vector<Facet<TFloat, TIndex>> calc_vertex_facets(const Vertex<TFloat, TIndex>& vertex)
 {
-  std::vector<Facet<TFloat, TIndex>> facets;
-  Halfedge<TFloat, TIndex> he = vertex.getHalfedge();
-  const Halfedge<TFloat, TIndex>& start = he;
-  facets.push_back(he.getFacet());
-  he = he.getOpposite();
-  do
+  using Halfedge_t = Halfedge<TFloat, TIndex>;
+  using Facet_t = Facet<TFloat, TIndex>;
+
+  std::vector<Facet_t> facets;
+  for (const Halfedge_t& halfedge: vertex.calcHalfedges())
   {
-    facets.push_back(he.getFacet());
-    he = he.getNext().getOpposite();
+    const Facet_t facet = halfedge.getFacet();
+    facets.push_back(facet);
   }
-  while (he != start);
 
   return facets;
 }

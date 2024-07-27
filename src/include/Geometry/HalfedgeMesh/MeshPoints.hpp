@@ -30,6 +30,13 @@ public:
     return VertexIndex_t{static_cast<TIndex>(m_points.size()) - 1};
   }
 
+  /**
+   * @brief Checks if the mesh points contain a given vector.
+   *
+   * @param vector The vector to check for.
+   * @param index If the vector is found, the index of the vector is stored here. Otherwise, the index is set to invalid.
+   * @return True, if the vector is found, false otherwise.
+   */
   GEO_NODISCARD constexpr bool contains(const linal::vec3<TFloat>& vector, VertexIndex_t& index)
   {
     for (TIndex i = 0; i < m_points.size(); ++i)
@@ -40,6 +47,7 @@ public:
         return true;
       }
     }
+    index = VertexIndex_t{};
     return false;
   }
 

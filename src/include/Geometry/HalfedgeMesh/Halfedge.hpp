@@ -22,8 +22,17 @@ public:
 
   using HalfedgeMesh_t = HalfedgeMesh<TFloat, TIndex>;
 
-  constexpr Halfedge(VertexIndex_t vertexIndex, HalfedgeMesh_t* mesh) noexcept
-      : m_vertexIdx(vertexIndex)
+  /** @brief Creates a halfedge that must be completed later.
+   *
+   * Intended for use during the building of the mesh, where the complete of a halfedge is not yet known.
+   *
+   * @param halfedgeIndex
+   * @param vertexIndex
+   * @param mesh
+   */
+  constexpr Halfedge(HalfedgeIndex_t halfedgeIndex, VertexIndex_t vertexIndex, HalfedgeMesh_t* mesh) noexcept
+      : m_halfedgeIdx(halfedgeIndex)
+      , m_vertexIdx(vertexIndex)
       , m_mesh(mesh)
   {
   }
@@ -40,6 +49,7 @@ public:
   GEO_NODISCARD constexpr VertexIndex_t getVertexIndex() const { return m_vertexIdx; }
   constexpr void setVertexIndex(VertexIndex_t index) { m_vertexIdx = index; }
 
+  GEO_NODISCARD constexpr HalfedgeIndex_t getHalfedgeIndex() const { return m_halfedgeIdx; }
   GEO_NODISCARD constexpr HalfedgeIndex_t getNextIndex() const { return m_nextIdx; }
   GEO_NODISCARD constexpr HalfedgeIndex_t getPreviousIndex() const { return m_previousIdx; }
   GEO_NODISCARD constexpr HalfedgeIndex_t getOppositeIndex() const { return m_oppositeIdx; }
@@ -57,17 +67,13 @@ public:
   GEO_NODISCARD constexpr Halfedge_t& getNext() { return m_mesh->getHalfedges()[m_nextIdx.get_value()]; }
   GEO_NODISCARD constexpr Halfedge_t& getPrevious() { return m_mesh->getHalfedges()[m_previousIdx.get_value()]; }
 
-  constexpr bool operator==(const Halfedge& rhs) const
-  {
-    return m_facetIdx == rhs.m_facetIdx && m_vertexIdx == rhs.m_vertexIdx && m_nextIdx == rhs.m_nextIdx &&
-           m_previousIdx == rhs.m_previousIdx && m_oppositeIdx == rhs.m_oppositeIdx && m_mesh == rhs.m_mesh;
-  }
-
+  constexpr bool operator==(const Halfedge& rhs) const { return m_halfedgeIdx == rhs.m_halfedgeIdx; }
   constexpr bool operator!=(const Halfedge& rhs) const { return !(rhs == *this); }
 
   GEO_NODISCARD constexpr bool is_valid() const { return m_mesh->contains(*this); }
 
 private:
+  HalfedgeIndex_t m_halfedgeIdx{};
   FacetIndex_t m_facetIdx{};
   VertexIndex_t m_vertexIdx{};
   HalfedgeIndex_t m_nextIdx{};

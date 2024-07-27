@@ -14,7 +14,7 @@ namespace Geometry
  * @attention The halfedges follow the cw order with respect to the normal of the facet.
  */
 template <typename TFloat, typename TIndex>
-GEO_NODISCARD constexpr std::vector<Halfedge<TFloat, TIndex>> calcHalfedges(const Facet<TFloat, TIndex>& facet)
+GEO_NODISCARD constexpr std::vector<Halfedge<TFloat, TIndex>> calc_halfedges(const Facet<TFloat, TIndex>& facet)
 {
   std::vector<Halfedge<TFloat, TIndex>> result;
 

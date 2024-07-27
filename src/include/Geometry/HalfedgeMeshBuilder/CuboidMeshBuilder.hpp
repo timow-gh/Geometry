@@ -2,7 +2,9 @@
 #define GEOMETRY_CUBOIDMESHBUILDER_HPP
 
 #include "Geometry/Cuboid.hpp"
+#include "Geometry/HalfedgeMesh/Halfedge.hpp"
 #include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
+#include "Geometry/HalfedgeMesh/Vertex.hpp"
 #include "Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp"
 #include "Geometry/Triangle.hpp"
 #include "Geometry/Utils/Assert.hpp"
@@ -35,9 +37,12 @@ public:
     if (!m_cube)
       return nullptr;
 
-    std::array<Triangle<TFloat, 3>, 12> triangles = calc_cuboid_triangles();
+    std::array<Triangle3<TFloat>, 12> triangles = calc_cuboid_triangles();
     auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
-    std::for_each(triangles.cbegin(), triangles.cend(), MeshTriangleAdder<TFloat, TIndex>(*heMesh));
+    std::for_each(triangles.begin(), triangles.end(), MeshTriangleAdder<TFloat, TIndex>{*heMesh});
+    MeshTriangleAdder<TFloat, TIndex>::set_opposite_halfedges(*heMesh);
+    GEO_ASSERT(heMesh->getVertices().size() == 8);
+    GEO_ASSERT(heMesh->getHalfedges().size() == 36);
     return heMesh;
   }
 
@@ -51,7 +56,7 @@ private:
     const linal::vec3<TFloat>& y = sides[1];
     const linal::vec3<TFloat>& z = sides[2];
 
-    std::array<Triangle<TFloat, 3>, 12> triangles;
+    std::array<Triangle3<TFloat>, 12> triangles;
 
     linal::double3 diag = y + z;
     calc_cuboid_face_triangles(triangles, {defaultOrigin, z, diag, y}, m_cube->get_origin(), x, 0);

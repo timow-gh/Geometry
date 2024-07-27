@@ -35,6 +35,7 @@ protected:
       }
       meshTriangleAdder(Triangle<TFloat, 3>(trianglePoints));
     }
+    MeshTriangleAdder<TFloat, TIndex>::set_opposite_halfedges(*heMesh);
     return heMesh;
   }
 
