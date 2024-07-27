@@ -45,7 +45,7 @@ public:
 
     std::array<VertexIndex_t, 3> vertexIndices;
     create_or_find_vertex(triangle, meshPoints, vertices, vertexIndices);
-    GEO_ASSERT(vIndex.is_valid());
+    GEO_ASSERT(std::all_of(vertexIndices.begin(), vertexIndices.end(), [](const auto& index) { return index.is_valid(); }));
 
     FacetIndex_t facetIdx;
     for (std::size_t i = 0; i < 3; ++i)
@@ -64,11 +64,11 @@ public:
       GEO_ASSERT(vIndex.is_valid());
 
       halfedges.emplace_back(halfedgeIndex, vIndex, m_halfedgeMesh);
+      GEO_ASSERT(halfedges.back().getHalfedgeIndex().is_valid());
 
       GEO_ASSERT(vIndex.get_value() < vertices.size());
       vertices[vIndex.get_value()].addHalfedgeIndex(halfedgeIndex);
     }
-    GEO_ASSERT(he.getHalfedgeIndex().is_valid());
     GEO_ASSERT(facetIdx.is_valid());
 
     GEO_ASSERT(halfedges.size() >= 3);
