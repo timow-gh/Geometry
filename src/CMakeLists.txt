@@ -5,6 +5,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/CalcTriangleIndices.hpp
         include/Geometry/HalfedgeMesh/CalcVertexFacets.hpp
         include/Geometry/HalfedgeMesh/CalcVertexNormals.hpp
+        include/Geometry/HalfedgeMesh/ConversionHelper.hpp
         include/Geometry/HalfedgeMesh/DebugHelper.hpp
         include/Geometry/HalfedgeMesh/Facet.hpp
         include/Geometry/HalfedgeMesh/Halfedge.hpp

@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_MESHTRIANGLEADDER_HPP
 #define GEOMETRY_MESHTRIANGLEADDER_HPP
 
-
+#include "Geometry/HalfedgeMesh/ConversionHelper.hpp"
 #include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/Triangle.hpp"
 #include "Geometry/Utils/Assert.hpp"
@@ -55,7 +55,7 @@ public:
 
       if (i == 0)
       {
-        facetIdx = FacetIndex_t{facets.size()};
+        facetIdx = FacetIndex_t{to_idx<TIndex>(facets.size())};
         facets.emplace_back(halfedgeIndex, *m_halfedgeMesh);
         GEO_ASSERT(facetIdx.is_valid());
       }
@@ -72,9 +72,9 @@ public:
     GEO_ASSERT(facetIdx.is_valid());
 
     GEO_ASSERT(halfedges.size() >= 3);
-    std::size_t startIdx = halfedges.size() - 3;
-    std::size_t endIdx = halfedges.size();
-    std::size_t lastElemIdx = endIdx - 1;
+    auto startIdx = to_idx<TIndex>(halfedges.size() - 3);
+    auto endIdx = to_idx<TIndex>(halfedges.size());
+    auto lastElemIdx = to_idx<TIndex>(endIdx - 1);
 
     for (TIndex i = startIdx; i < endIdx; ++i)
     {
@@ -83,7 +83,7 @@ public:
       TIndex nextHeIndex = (i == lastElemIdx) ? startIdx : i + 1;
       halfedges[i].setNextIndex(HalfedgeIndex_t{nextHeIndex});
 
-      TIndex previousHeIndex = (i == startIdx) ? static_cast<TIndex>(lastElemIdx) : i - 1;
+      TIndex previousHeIndex = (i == startIdx) ? to_idx<TIndex>(lastElemIdx) : i - 1;
       halfedges[i].setPreviousIndex(HalfedgeIndex_t{previousHeIndex});
     }
 
@@ -128,7 +128,7 @@ private:
       if (!meshPoints.contains(trianglePoints[i], vertexIndex))
       {
         vertexIndex = meshPoints.add(trianglePoints[i]);
-        vertices.emplace_back(VertexIndex_t{vertices.size()}, m_halfedgeMesh);
+        vertices.emplace_back(VertexIndex_t{to_idx<TIndex>(vertices.size())}, m_halfedgeMesh);
       }
       GEO_ASSERT(vertexIndex.is_valid());
       vertexIndices[i] = vertexIndex;
@@ -159,8 +159,8 @@ private:
 
         if (linal::is_equal(he1Start, he2End) && linal::is_equal(he1End, he2Start))
         {
-          he1.setOppositeIndex(HalfedgeIndex_t{static_cast<typename HalfedgeIndex_t::value_type>(j)});
-          he2.setOppositeIndex(HalfedgeIndex_t{static_cast<typename HalfedgeIndex_t::value_type>(i)});
+          he1.setOppositeIndex(HalfedgeIndex_t{to_idx<TIndex>(j)});
+          he2.setOppositeIndex(HalfedgeIndex_t{to_idx<TIndex>(i)});
           break;
         }
       }
