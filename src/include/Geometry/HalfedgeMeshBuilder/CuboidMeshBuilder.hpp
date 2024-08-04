@@ -21,21 +21,38 @@ namespace Geometry
 template <typename TFloat, typename TIndex>
 class CuboidMeshBuilder {
   std::optional<Cuboid<TFloat>> m_cube;
+  linal::vec3<TFloat> m_origin;
+  linal::vec3<TFloat> m_diagonal;
 
 public:
   CuboidMeshBuilder() = default;
-  CuboidMeshBuilder& set_cuboid(const Cuboid<TFloat>& cube)
+
+  GEO_NODISCARD CuboidMeshBuilder& set_origin(const linal::vec3<TFloat>& origin)
   {
-    m_cube = cube;
+    m_origin = origin;
+    return *this;
+  }
+
+  GEO_NODISCARD CuboidMeshBuilder& set_diagonal(const linal::vec3<TFloat>& diagonal)
+  {
+    m_diagonal = diagonal;
+    return *this;
+  }
+
+  GEO_NODISCARD CuboidMeshBuilder& set_cuboid(const Cuboid<TFloat>& cuboid)
+  {
+    m_cube = cuboid;
     return *this;
   }
 
   GEO_NODISCARD std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build()
   {
-    GEO_ASSERT(m_cube);
-
     if (!m_cube)
-      return nullptr;
+    {
+      m_cube = Cuboid<TFloat>{m_origin, m_diagonal};
+    }
+
+    GEO_ASSERT(m_cube);
 
     std::array<Triangle3<TFloat>, 12> triangles = calc_cuboid_triangles();
     auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
