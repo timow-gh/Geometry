@@ -46,7 +46,7 @@ public:
       return nullptr;
 
     auto spherePoints = calc_sphere_points(*m_sphere);
-    auto triangleIndices = calc_sphere_triangle_indices(spherePoints);
+    auto triangleIndices = calc_sphere_triangle_indices(to_idx<TIndex>(spherePoints.size()));
     return MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(spherePoints, triangleIndices);
   }
 
@@ -80,35 +80,37 @@ private:
 
     const auto& sphereOrigin = sphere.get_origin();
     if (sphereOrigin != linal::vec3<TFloat>{})
+    {
       for (auto& point: points)
+      {
         point += sphereOrigin;
+      }
+    }
 
     return points;
   }
 
-  std::vector<TIndex> calc_sphere_triangle_indices(const std::vector<linal::vec3<TFloat>>& spherePoints)
+  std::vector<TIndex> calc_sphere_triangle_indices(TIndex spherePointsSize)
   {
     auto toIdx = [azimuthCount = m_azimuthCount](TIndex i, TIndex j) -> TIndex { return static_cast<TIndex>(i * azimuthCount + j); };
 
     std::vector<TIndex> triangleIndices;
 
-    const TIndex pointsSize = static_cast<TIndex>(spherePoints.size());
-
     const TIndex topiIdx = 0;
-    const TIndex topIdx = pointsSize - 2;
+    const TIndex topIdx = spherePointsSize - 2;
 
     const TIndex bottomiIdx = m_polarCount - 2;
-    const TIndex bottomIdx = pointsSize - 1;
+    const TIndex bottomIdx = spherePointsSize - 1;
 
     // First top triangle
     triangleIndices.push_back(toIdx(topiIdx, m_azimuthCount - 1));
-    triangleIndices.push_back(toIdx(topiIdx, 0));
     triangleIndices.push_back(topIdx);
+    triangleIndices.push_back(toIdx(topiIdx, 0));
 
     // First bottom triangle
     triangleIndices.push_back(toIdx(bottomiIdx, 0));
-    triangleIndices.push_back(toIdx(bottomiIdx, m_azimuthCount - 1));
     triangleIndices.push_back(bottomIdx);
+    triangleIndices.push_back(toIdx(bottomiIdx, m_azimuthCount - 1));
 
     for (TIndex j{1}; j < m_azimuthCount; ++j)
     {
@@ -116,15 +118,16 @@ private:
       TIndex jprevIdx = toIdx(topiIdx, j - 1);
 
       triangleIndices.push_back(topIdx);
-      triangleIndices.push_back(jprevIdx);
       triangleIndices.push_back(jIdx);
+      triangleIndices.push_back(jprevIdx);
+
 
       jIdx = toIdx(bottomiIdx, j);
       jprevIdx = toIdx(bottomiIdx, j - 1);
 
       triangleIndices.push_back(jIdx);
-      triangleIndices.push_back(jprevIdx);
       triangleIndices.push_back(bottomIdx);
+      triangleIndices.push_back(jprevIdx);
     }
 
     // Sphere body triangles
@@ -139,22 +142,22 @@ private:
         const TIndex ijprev = toIdx(i, jprev);
 
         triangleIndices.push_back(iprevj);
-        triangleIndices.push_back(toIdx(iprev, jprev));
         triangleIndices.push_back(ijprev);
+        triangleIndices.push_back(toIdx(iprev, jprev));
 
         triangleIndices.push_back(ijprev);
-        triangleIndices.push_back(toIdx(i, j));
         triangleIndices.push_back(iprevj);
+        triangleIndices.push_back(toIdx(i, j));
       }
 
       // Triangles from first and last points in the sphere point array
       triangleIndices.push_back(toIdx(i, m_azimuthCount - 1));
-      triangleIndices.push_back(toIdx(iprev, 0));
       triangleIndices.push_back(toIdx(iprev, m_azimuthCount - 1));
+      triangleIndices.push_back(toIdx(iprev, 0));
 
       triangleIndices.push_back(toIdx(i, 0));
-      triangleIndices.push_back(toIdx(iprev, 0));
       triangleIndices.push_back(toIdx(i, m_azimuthCount - 1));
+      triangleIndices.push_back(toIdx(iprev, 0));
     }
     return triangleIndices;
   }
