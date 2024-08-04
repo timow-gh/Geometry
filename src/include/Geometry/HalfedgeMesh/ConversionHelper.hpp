@@ -6,7 +6,7 @@
 namespace Geometry
 {
 
-template <std::integral TIndex, std::integral T>
+template <typename TIndex, typename T>
 [[nodiscard]] constexpr TIndex to_idx(T value) noexcept
 {
   return TIndex(value);
