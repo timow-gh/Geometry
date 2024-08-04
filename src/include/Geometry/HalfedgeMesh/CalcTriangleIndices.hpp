@@ -22,12 +22,12 @@ GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<Fac
 
     Halfedge<TFloat, TIndex> halfedge = facet.getHalfedge();
     halfedges.push_back(halfedge);
-    halfedge = halfedge.getPrevious();
+    halfedge = halfedge.getNext();
     halfedges.push_back(halfedge);
 
-    while (facet.getHalfedge() != halfedge.getPrevious())
+    while (facet.getHalfedge() != halfedge.getNext())
     {
-      halfedge = halfedge.getPrevious();
+      halfedge = halfedge.getNext();
       halfedges.push_back(halfedge);
     }
 

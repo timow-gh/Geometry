@@ -69,20 +69,21 @@ private:
     auto sides = m_cube->get_side_vectors();
     linal::double3 defaultOrigin{0};
 
-    const linal::vec3<TFloat>& x = sides[0];
-    const linal::vec3<TFloat>& y = sides[1];
-    const linal::vec3<TFloat>& z = sides[2];
+    const linal::vec3<TFloat>& vecX = sides[0];
+    const linal::vec3<TFloat>& vecY = sides[1];
+    const linal::vec3<TFloat>& vecZ = sides[2];
 
     std::array<Triangle3<TFloat>, 12> triangles;
 
-    linal::double3 diag = y + z;
-    calc_cuboid_face_triangles(triangles, {defaultOrigin, z, diag, y}, m_cube->get_origin(), x, 0);
+    linal::double3 cubeOrigin = m_cube->get_origin();
+    linal::double3 diagYZ = vecY + vecZ;
+    calc_cuboid_face_triangles(triangles, {defaultOrigin, vecZ, diagYZ, vecY}, cubeOrigin, vecX, 0);
 
-    diag = x + z;
-    calc_cuboid_face_triangles(triangles, {defaultOrigin, x, diag, z}, m_cube->get_origin(), y, 4);
+    linal::double3 diagXZ = vecX + vecZ;
+    calc_cuboid_face_triangles(triangles, {defaultOrigin, vecX, diagXZ, vecZ}, cubeOrigin, vecY, 4);
 
-    diag = x + y;
-    calc_cuboid_face_triangles(triangles, {defaultOrigin, y, diag, x}, m_cube->get_origin(), z, 8);
+    linal::double3 diagXY = vecX + vecY;
+    calc_cuboid_face_triangles(triangles, {defaultOrigin, vecY, diagXY, vecX}, cubeOrigin, vecZ, 8);
 
     return triangles;
   }
@@ -94,12 +95,16 @@ private:
                                   std::size_t insertIndex)
   {
     for (auto& vec: vectors)
+    {
       vec = vec + origin;
+    }
     triangles[insertIndex++] = Triangle<TFloat, 3>(vectors[0], vectors[1], vectors[2]);
     triangles[insertIndex++] = Triangle<TFloat, 3>(vectors[2], vectors[3], vectors[0]);
 
     for (auto& vec: vectors)
+    {
       vec = vec + translationVec;
+    }
     triangles[insertIndex++] = Triangle<TFloat, 3>(vectors[2], vectors[1], vectors[0]);
     triangles[insertIndex] = Triangle<TFloat, 3>(vectors[0], vectors[3], vectors[2]);
   }
