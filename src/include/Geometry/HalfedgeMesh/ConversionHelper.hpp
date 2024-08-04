@@ -1,8 +1,6 @@
 #ifndef ORIGAMI_CONVERSIONHELPER_HPP
 #define ORIGAMI_CONVERSIONHELPER_HPP
 
-#include <concepts>
-
 namespace Geometry
 {
 
