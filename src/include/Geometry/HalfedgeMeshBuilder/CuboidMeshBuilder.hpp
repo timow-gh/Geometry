@@ -56,7 +56,11 @@ public:
 
     std::array<Triangle3<TFloat>, 12> triangles = calc_cuboid_triangles();
     auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
-    std::for_each(triangles.begin(), triangles.end(), MeshTriangleAdder<TFloat, TIndex>{*heMesh});
+    MeshTriangleAdder<TFloat, TIndex> triangleAdder{*heMesh};
+    for (const auto& triangle: triangles)
+    {
+      triangleAdder(triangle);
+    }
     MeshTriangleAdder<TFloat, TIndex>::set_opposite_halfedges(*heMesh);
     GEO_ASSERT(heMesh->getVertices().size() == 8);
     GEO_ASSERT(heMesh->getHalfedges().size() == 36);

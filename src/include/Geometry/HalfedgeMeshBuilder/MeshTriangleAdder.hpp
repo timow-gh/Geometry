@@ -2,7 +2,9 @@
 #define GEOMETRY_MESHTRIANGLEADDER_HPP
 
 #include "Geometry/HalfedgeMesh/ConversionHelper.hpp"
+#include "Geometry/HalfedgeMesh/DebugHelper.hpp"
 #include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
+#include "Geometry/KdTree.hpp"
 #include "Geometry/Triangle.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include <iostream>
@@ -67,7 +69,8 @@ public:
       GEO_ASSERT(halfedges.back().getHalfedgeIndex().is_valid());
 
       GEO_ASSERT(vIndex.get_value() < vertices.size());
-      vertices[vIndex.get_value()].addHalfedgeIndex(halfedgeIndex);
+      auto& heVertex = vertices[vIndex.get_value()];
+      heVertex.addHalfedgeIndex(halfedgeIndex);
     }
     GEO_ASSERT(facetIdx.is_valid());
 
@@ -86,8 +89,6 @@ public:
       TIndex previousHeIndex = (i == startIdx) ? to_idx<TIndex>(lastElemIdx) : i - 1;
       halfedges[i].setPreviousIndex(HalfedgeIndex_t{previousHeIndex});
     }
-
-    set_vertex_halfedges(vertices, halfedges);
   }
 
   static void set_opposite_halfedges(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh)
@@ -95,14 +96,6 @@ public:
     std::vector<Halfedge_t>& halfedges = halfedgeMesh.getHalfedges();
 
     set_opposite_halfedges(halfedges);
-  }
-
-  static void set_vertex_halfedges(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh)
-  {
-    std::vector<Vertex_t>& vertices = halfedgeMesh.getVertices();
-    std::vector<Halfedge_t>& halfedges = halfedgeMesh.getHalfedges();
-
-    set_vertex_halfedges(vertices, halfedges);
   }
 
 private:
@@ -135,62 +128,46 @@ private:
     }
   }
 
-  // TODO This is O(n^2) and should be optimized
   static void set_opposite_halfedges(std::vector<Halfedge_t>& halfedges)
   {
+    KdTree<linal::vec3<TFloat>, std::vector<std::size_t>> kdTree; // Stores all halfedges with their start vertex
     for (std::size_t i = 0; i < halfedges.size(); ++i)
     {
-      for (std::size_t j = 0; j < halfedges.size(); ++j)
+      linal::vec3<TFloat> start = halfedges[i].getVertex().getVector();
+
+      bool exists = kdTree.search(start);
+      if (exists)
       {
-        auto& he1 = halfedges[i];
-        auto& he2 = halfedges[j];
+        std::pair<linal::vec3<TFloat>, std::vector<std::size_t>&> res = kdTree.nearest(start);
+        res.second.push_back(i);
+      }
+      else
+      {
+        std::vector<std::size_t> hes;
+        hes.push_back(i);
+        kdTree.insert(start, hes);
+      }
+    }
 
-        if (he1 == he2)
+    // For all halfedges, find the opposite halfedge
+    for (auto& he: halfedges)
+    {
+      linal::vec3<TFloat> start = he.getNextVertex().getVector();
+      linal::vec3<TFloat> end = he.getVertex().getVector();
+      std::pair<linal::vec3<TFloat>, std::vector<std::size_t>&> result = kdTree.nearest(end);
+      [[maybe_unused]] bool foundOpposite = false;
+      for (std::size_t oppHeIndex: result.second)
+      {
+        auto& oppositeHeCandidate = halfedges[oppHeIndex];
+        if (oppositeHeCandidate.getNextVertex().getVector() == start)
         {
-          continue;
-        }
-
-        linal::vec3<TFloat> he1Start = he1.getVertex().getVector();
-
-        linal::vec3<TFloat> he1End = he1.getNextVertex().getVector();
-
-        linal::vec3<TFloat> he2Start = he2.getVertex().getVector();
-        linal::vec3<TFloat> he2End = he2.getNextVertex().getVector();
-
-        if (linal::is_equal(he1Start, he2End) && linal::is_equal(he1End, he2Start))
-        {
-          he1.setOppositeIndex(HalfedgeIndex_t{to_idx<TIndex>(j)});
-          he2.setOppositeIndex(HalfedgeIndex_t{to_idx<TIndex>(i)});
+          he.setOppositeIndex(oppositeHeCandidate.getHalfedgeIndex());
+          oppositeHeCandidate.setOppositeIndex(he.getHalfedgeIndex());
+          foundOpposite = true;
           break;
         }
       }
-    }
-  }
-
-  static void set_vertex_halfedges(std::vector<Vertex_t>& vertices, std::vector<Halfedge_t>& halfedges)
-  {
-    for (Vertex_t& vertex: vertices)
-    {
-      for (const auto& he: halfedges)
-      {
-        if (he.getVertexIndex() == vertex.getIndex())
-        {
-          bool found = false;
-          for (const auto& vertexHeIndex: vertex.getHalfedgeIndices())
-          {
-            if (vertexHeIndex == he.getHalfedgeIndex())
-            {
-              found = true;
-              break;
-            }
-          }
-
-          if (!found)
-          {
-            vertex.addHalfedgeIndex(he.getHalfedgeIndex());
-          }
-        }
-      }
+      GEO_ASSERT(foundOpposite);
     }
   }
 };
