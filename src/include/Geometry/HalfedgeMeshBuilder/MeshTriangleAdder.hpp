@@ -130,6 +130,7 @@ private:
 
   static void set_opposite_halfedges(std::vector<Halfedge_t>& halfedges)
   {
+    // TODO Ensure that the halfedge indidces are unique
     KdTree<linal::vec3<TFloat>, std::vector<std::size_t>> kdTree; // Stores all halfedges with their start vertex
     for (std::size_t i = 0; i < halfedges.size(); ++i)
     {
