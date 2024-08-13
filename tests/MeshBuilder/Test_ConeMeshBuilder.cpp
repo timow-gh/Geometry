@@ -8,5 +8,6 @@ using namespace Geometry;
 TEST(ConeMeshBuilder, createAConeMesh)
 {
   auto coneMesh = ConeMeshBuilder<double, std::size_t>().set_cone(Cone<double>(linal::double3{}, linal::double3Z, 10.0)).build();
+  EXPECT_TRUE(coneMesh->is_valid());
   EXPECT_TRUE(coneMesh);
 }

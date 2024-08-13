@@ -61,6 +61,35 @@ public:
   GEO_NODISCARD const MeshPoints_t& getMeshPoints() const { return meshPoints; }
   GEO_NODISCARD MeshPoints_t& getMeshPoints() { return meshPoints; }
 
+  GEO_NODISCARD bool is_valid() const
+  {
+    for (const Vertex_t& vertex: vertices)
+    {
+      if (!vertex.is_valid())
+      {
+        return false;
+      }
+    }
+
+    for (const Halfedge_t& halfedge: halfedges)
+    {
+      if (!halfedge.is_valid())
+      {
+        return false;
+      }
+    }
+
+    for (const Facet_t& facet: facets)
+    {
+      if (!facet.is_valid())
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   GEO_NODISCARD constexpr bool contains(const Vertex_t& vertex) const
   {
     for (const Vertex_t& v: vertices)

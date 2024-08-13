@@ -35,8 +35,11 @@ public:
 
   GEO_NODISCARD std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build()
   {
+    GEO_ASSERT(m_cone);
     if (!m_cone)
+    {
       return nullptr;
+    }
 
     const auto coneSeg = m_cone->get_segment();
 

@@ -3,6 +3,7 @@
 
 #include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 
 namespace Geometry
@@ -70,9 +71,33 @@ public:
   constexpr bool operator==(const Halfedge& rhs) const { return m_halfedgeIdx == rhs.m_halfedgeIdx; }
   constexpr bool operator!=(const Halfedge& rhs) const { return !(rhs == *this); }
 
-  GEO_NODISCARD constexpr bool is_valid() const { return m_mesh->contains(*this); }
+  GEO_NODISCARD constexpr bool is_valid() const
+  {
+    bool isValid = is_valid_halfedge_impl();
+    GEO_ASSERT(isValid);
+    return isValid;
+  }
 
 private:
+  GEO_NODISCARD constexpr bool is_valid_halfedge_impl() const
+  {
+    if (!(m_halfedgeIdx.is_valid() && m_vertexIdx.is_valid() && m_facetIdx.is_valid() && m_nextIdx.is_valid() && m_previousIdx.is_valid() &&
+          m_oppositeIdx.is_valid() && m_mesh != nullptr))
+    {
+      return false;
+    }
+
+    const Vertex_t& vertex = getVertex();
+    const auto& heIndices = vertex.getHalfedgeIndices();
+    if (std::find(heIndices.begin(), heIndices.end(), m_halfedgeIdx) == heIndices.end())
+    {
+      return false;
+    }
+
+    Halfedge_t oppHe = getOpposite();
+    return oppHe.m_oppositeIdx == m_halfedgeIdx;
+  }
+
   HalfedgeIndex_t m_halfedgeIdx{};
   FacetIndex_t m_facetIdx{};
   VertexIndex_t m_vertexIdx{};

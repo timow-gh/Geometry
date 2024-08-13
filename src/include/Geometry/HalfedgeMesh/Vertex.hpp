@@ -4,6 +4,7 @@
 #include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
 #include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <algorithm>
 #include <linal/vec.hpp>
@@ -35,7 +36,7 @@ public:
 
   GEO_NODISCARD constexpr linal::vec3<TFloat> getVector() const { return m_mesh->getVector(*this); }
   GEO_NODISCARD constexpr VertexIndex_t getIndex() const { return m_vIndex; }
-  GEO_NODISCARD constexpr std::vector<HalfedgeIndex_t> getHalfedgeIndices() const { return m_heIndices; }
+  GEO_NODISCARD constexpr const std::vector<HalfedgeIndex_t>& getHalfedgeIndices() const { return m_heIndices; }
 
   constexpr void addHalfedgeIndex(HalfedgeIndex_t halfedgeIndex)
   {
@@ -53,13 +54,18 @@ public:
     return halfedges;
   }
 
-  GEO_NODISCARD bool is_valid() const { return is_valid_impl(); }
+  GEO_NODISCARD bool is_valid() const
+  {
+    bool isValid = is_valid_impl();
+    GEO_ASSERT(isValid);
+    return isValid;
+  }
 
   constexpr bool operator==(const Vertex& rhs) const { return is_equal_impl(rhs); }
   constexpr bool operator!=(const Vertex& rhs) const { return !(rhs == *this); }
 
 private:
-  [[nodiscard]] bool is_valid_impl() const
+  GEO_NODISCARD bool is_valid_impl() const
   {
     if (!m_mesh)
     {

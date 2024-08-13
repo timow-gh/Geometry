@@ -3,6 +3,7 @@
 
 #include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 
 namespace Geometry
@@ -36,12 +37,19 @@ public:
 
   GEO_NODISCARD constexpr HalfedgeIndex_t getHalfedgeIndex() const { return m_heIndex; }
 
-  GEO_NODISCARD constexpr bool is_valid() const { return m_heIndex.is_valid() && m_mesh && m_mesh->contains(*this); }
-
   constexpr bool operator==(const Facet& rhs) const { return m_heIndex == rhs.m_heIndex && m_mesh == rhs.m_mesh; }
   constexpr bool operator!=(const Facet& rhs) const { return !(rhs == *this); }
 
+  GEO_NODISCARD constexpr bool is_valid() const
+  {
+    bool isValid = is_valid_impl();
+    GEO_ASSERT(isValid);
+    return isValid;
+  }
+
 private:
+  GEO_NODISCARD bool is_valid_impl() const { return m_heIndex.is_valid() && m_mesh; }
+
   HalfedgeIndex_t m_heIndex{};
   HalfedgeMesh_t* m_mesh{nullptr};
 };
