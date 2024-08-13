@@ -9,59 +9,59 @@ using namespace Geometry;
 static void BM_Intersection_Seg3dSeg3d(benchmark::State& state)
 {
   Segment3d segA{linal::double3{}, linal::double3{2, 0, 0}};
-  Segment3d segB{linal::double3{1, 0, 0}, double3Y};
+  Segment3d segB{linal::double3{1, 0, 0}, linal::double3Y};
 
   for (auto _: state)
   {
     Segment3d intersection;
-    uint32_t res = Geometry::intersect(segA, segB, intersection);
+    auto res = Geometry::intersect(segA, segB);
     benchmark::DoNotOptimize(res);
-    benchmark::DoNotOptimize(intersection);
+    benchmark::ClobberMemory();
   }
 }
 BENCHMARK(BM_Intersection_Seg3dSeg3d);
 
 static void BM_Intersection_Seg3fSeg3f(benchmark::State& state)
 {
-  Segment3f segA{linal::ZERO_VEC3F, linal::float3{2, 0, 0}};
-  Segment3f segB{linal::float3{1, 0, 0}, linal::Y_VEC3F};
+  Segment3f segA{linal::float3{}, linal::float3{2, 0, 0}};
+  Segment3f segB{linal::float3{1, 0, 0}, linal::float3Y};
 
   for (auto _: state)
   {
     Segment3f intersection;
-    uint32_t res = Geometry::intersect(segA, segB, intersection);
+    auto res = Geometry::intersect(segA, segB);
     benchmark::DoNotOptimize(res);
-    benchmark::DoNotOptimize(intersection);
+    benchmark::ClobberMemory();
   }
 }
 BENCHMARK(BM_Intersection_Seg3fSeg3f);
 
 static void BM_Intersection_Seg2dSeg2d(benchmark::State& state)
 {
-  Segment2d segA{linal::ZERO_double2, linal::double2{2, 0}};
+  Segment2d segA{linal::double2{}, linal::double2{2, 0}};
   Segment2d segB{linal::double2{1, 0}, linal::double2Y};
 
   for (auto _: state)
   {
     Segment2d intersection;
-    uint32_t res = Geometry::intersect(segA, segB, intersection);
+    auto res = Geometry::intersect(segA, segB);
     benchmark::DoNotOptimize(res);
-    benchmark::DoNotOptimize(intersection);
+    benchmark::ClobberMemory();
   }
 }
 BENCHMARK(BM_Intersection_Seg2dSeg2d);
 
 static void BM_Intersection_Seg2fSeg2f(benchmark::State& state)
 {
-  Segment2f segA{linal::ZERO_VEC2F, linal::vec2f{2, 0}};
-  Segment2f segB{linal::vec2f{1, 0}, linal::Y_VEC2F};
+  Segment2f segA{linal::float2{}, linal::float2{2, 0}};
+  Segment2f segB{linal::float2{1, 0}, linal::float2Y};
 
   for (auto _: state)
   {
     Segment2f intersection;
-    uint32_t res = Geometry::intersect(segA, segB, intersection);
+    auto res = Geometry::intersect(segA, segB);
     benchmark::DoNotOptimize(res);
-    benchmark::DoNotOptimize(intersection);
+    benchmark::ClobberMemory();
   }
 }
 BENCHMARK(BM_Intersection_Seg2fSeg2f);
