@@ -2,8 +2,8 @@
 #define GEOMETRY_MESHTRIANGLEADDER_HPP
 
 #include "Geometry/HalfedgeMesh/ConversionHelper.hpp"
-#include "Geometry/HalfedgeMesh/DebugHelper.hpp"
 #include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
+#include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/KdTree.hpp"
 #include "Geometry/Triangle.hpp"
 #include "Geometry/Utils/Assert.hpp"
@@ -136,6 +136,7 @@ private:
     {
       linal::vec3<TFloat> start = halfedges[i].getVertex().getVector();
 
+      // TODO Avoid searching for the same vertex multiple times
       bool exists = kdTree.search(start);
       if (exists)
       {
