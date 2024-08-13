@@ -45,7 +45,7 @@ public:
     GEO_ASSERT(!linal::isZero(coneSeg.length()));
 
     const auto& dir = coneSeg.direction();
-    GEO_ASSERT(linal::is_equal(linal::length(dir), TFloat{1.0}));
+    GEO_ASSERT(linal::isEq(linal::length(dir), TFloat{1.0}));
 
     linal::hmat<TFloat> hTrafo;
     linal::rot_align(hTrafo, linal::hvec<TFloat>{0.0, 0.0, 1.0, 1.0}, linal::hvec<TFloat>{dir[0], dir[1], dir[2], 1.0});
