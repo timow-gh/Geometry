@@ -42,8 +42,11 @@ public:
     }
 
     const auto coneSeg = m_cone->get_segment();
+    GEO_ASSERT(!linal::is_zero(coneSeg.length()));
 
     const auto& dir = coneSeg.direction();
+    GEO_ASSERT(linal::is_equal(linal::length(dir), TFloat{1.0}));
+
     linal::hmatd hTrafo;
     linal::rot_align(hTrafo, linal::hvecdz, linal::hvecd{dir[0], dir[1], dir[2], 1});
     hTrafo.set_translation(coneSeg.get_source());

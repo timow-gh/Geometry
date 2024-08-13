@@ -20,6 +20,9 @@ protected:
   std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build_triangle_halfedge_mesh(const std::vector<linal::vec3<TFloat>>& points,
                                                                              const std::vector<TIndex>& triangleIndices) const
   {
+    GEO_ASSERT(points.size() > 0);
+    GEO_ASSERT(triangleIndices.size() % 3 == 0);
+
     auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
     MeshTriangleAdder<TFloat, TIndex> meshTriangleAdder{*heMesh};
     std::size_t size = triangleIndices.size();
