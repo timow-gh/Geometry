@@ -12,7 +12,7 @@ namespace Geometry
 template <typename TFloat>
 void discretize_circle(std::vector<linal::vec3<TFloat>>& points, TFloat circleRadius, std::size_t azimuthCount)
 {
-  TFloat azimuthStep = TFloat(2.0) * TFloat(linal::PI<TFloat>) / static_cast<double>(azimuthCount);
+  TFloat azimuthStep = TFloat(2.0) * TFloat(linal::PI<TFloat>) / static_cast<TFloat>(azimuthCount);
   for (std::size_t i{0}; i < azimuthCount; ++i)
   {
     TFloat azimuthAngle = static_cast<TFloat>(i) * azimuthStep;

@@ -47,8 +47,8 @@ public:
     const auto& dir = coneSeg.direction();
     GEO_ASSERT(linal::is_equal(linal::length(dir), TFloat{1.0}));
 
-    linal::hmatd hTrafo;
-    linal::rot_align(hTrafo, linal::hvecdz, linal::hvecd{dir[0], dir[1], dir[2], 1});
+    linal::hmat<TFloat> hTrafo;
+    linal::rot_align(hTrafo, linal::hvec<TFloat>{0.0, 0.0, 1.0, 1.0}, linal::hvec<TFloat>{dir[0], dir[1], dir[2], 1.0});
     hTrafo.set_translation(coneSeg.get_source());
     MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::set_transformation(hTrafo);
 
