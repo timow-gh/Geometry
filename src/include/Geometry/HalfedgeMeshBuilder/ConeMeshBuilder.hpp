@@ -42,7 +42,7 @@ public:
     }
 
     const auto coneSeg = m_cone->get_segment();
-    GEO_ASSERT(!linal::is_zero(coneSeg.length()));
+    GEO_ASSERT(!linal::isZero(coneSeg.length()));
 
     const auto& dir = coneSeg.direction();
     GEO_ASSERT(linal::is_equal(linal::length(dir), TFloat{1.0}));
@@ -61,38 +61,38 @@ private:
   std::vector<linal::vec3<TFloat>> calc_cone_points(const Geometry::Cone<TFloat>& cone) const
   {
     std::vector<linal::vec3<TFloat>> points;
-    discretize_circle(points, cone.get_radius(), m_azimuthCount);
 
     points.push_back(linal::vec3<TFloat>{0, 0, 0});
     points.push_back(linal::vec3<TFloat>{0, 0, cone.get_segment().length()});
 
+    discretize_circle(points, cone.get_radius(), m_azimuthCount);
+
     return points;
   }
-  std::vector<TIndex> calc_cone_triangle_indices(const std::vector<linal::vec3<TFloat>>& conePoints) const
+
+  std::vector<TIndex> calc_cone_triangle_indices([[maybe_unused]] const std::vector<linal::vec3<TFloat>>& conePoints) const
   {
+    TIndex circlePointsStartIdx{2};
+    TIndex circlePointsEndIdx = static_cast<TIndex>(conePoints.size() - 1);
+
     std::vector<TIndex> indices;
-    TIndex size = static_cast<TIndex>(conePoints.size());
-    TIndex topIdx = size - 1;
-    TIndex bottomIdx = size - 2;
-    for (TIndex i{1}; i < size; ++i)
+    TIndex midPointIdx{0};
+    // Bottom circle triangles, face normals point in negative z dir.
+    for (TIndex i{circlePointsStartIdx}; i <= circlePointsEndIdx; ++i)
     {
-      // slant surface
-      indices.push_back(topIdx);
-      indices.push_back(i - 1);
+      indices.push_back(midPointIdx);
       indices.push_back(i);
-      // base
-      indices.push_back(bottomIdx);
-      indices.push_back(i - 1);
+      indices.push_back(i == circlePointsEndIdx ? circlePointsStartIdx : i + 1);
+    }
+
+    // Mantle triangles, face normals point outwards
+    TIndex peakIdx{1};
+    for (TIndex i{circlePointsStartIdx}; i <= circlePointsEndIdx; ++i)
+    {
+      indices.push_back(peakIdx);
+      indices.push_back(i == circlePointsEndIdx ? circlePointsStartIdx : i + 1);
       indices.push_back(i);
     }
-    // slant surface, connecting triangle
-    indices.push_back(topIdx);
-    indices.push_back(size - 3);
-    indices.push_back(0);
-    // base, connecting triangle
-    indices.push_back(bottomIdx);
-    indices.push_back(size - 3);
-    indices.push_back(0);
 
     return indices;
   }
