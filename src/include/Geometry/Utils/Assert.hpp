@@ -55,7 +55,7 @@ inline void assertion(const char* fileName, int line, const char* funcName, cons
   {                                                                                                                                        \
     if (GEO_UNLIKELY(!(__VA_ARGS__)))                                                                                                      \
     {                                                                                                                                      \
-      ::linal::assertion(__FILE__, __LINE__, __func__, #__VA_ARGS__);                                                                      \
+      ::Geometry::assertion(__FILE__, __LINE__, __func__, #__VA_ARGS__);                                                                      \
       GEO_ASSERT_TRAP();                                                                                                                   \
     }                                                                                                                                      \
   }                                                                                                                                        \

@@ -103,7 +103,7 @@ public:
   KdTree(KdTree&&) noexcept = default;
   KdTree& operator=(KdTree&&) noexcept = default;
 
-  template <typename = std::enable_if_t<std::is_same_v<payload_t, NoPayloadTag>>>
+  template <typename T = payload_t, typename = std::enable_if_t<std::is_same_v<T, NoPayloadTag>>>
   bool insert(const vec_t& point)
   {
     node_t newNode;
@@ -111,7 +111,7 @@ public:
     return insertHelper(m_root, newNode, 0);
   }
 
-  template <typename = std::enable_if_t<!std::is_same_v<payload_t, NoPayloadTag>>>
+  template <typename T = payload_t, typename = std::enable_if_t<!std::is_same_v<T, NoPayloadTag>>>
   bool insert(const vec_t& point, const payload_t& payload)
   {
     node_t newNode;
@@ -122,7 +122,7 @@ public:
 
   bool search(const vec_t& point) const { return searchHelper(m_root.get(), point, 0); }
 
-  template <typename = std::enable_if_t<std::is_same_v<payload_t, NoPayloadTag>>>
+  template <typename T = payload_t, typename = std::enable_if_t<std::is_same_v<T, NoPayloadTag>>>
   vec_t nearest(const vec_t& queryPoint) const
   {
     if (!m_root)
@@ -136,7 +136,7 @@ public:
     return bestNode->nodeValue.point;
   }
 
-  template <typename = std::enable_if_t<!std::is_same_v<payload_t, NoPayloadTag>>>
+  template <typename T = payload_t, typename = std::enable_if_t<!std::is_same_v<T, NoPayloadTag>>>
   std::pair<vec_t, payload_t&> nearest(const vec_t& queryPoint) const
   {
     if (!m_root)

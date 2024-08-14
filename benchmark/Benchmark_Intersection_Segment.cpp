@@ -13,7 +13,6 @@ static void BM_Intersection_Seg3dSeg3d(benchmark::State& state)
 
   for (auto _: state)
   {
-    Segment3d intersection;
     auto res = Geometry::intersect(segA, segB);
     benchmark::DoNotOptimize(res);
     benchmark::ClobberMemory();
@@ -28,7 +27,6 @@ static void BM_Intersection_Seg3fSeg3f(benchmark::State& state)
 
   for (auto _: state)
   {
-    Segment3f intersection;
     auto res = Geometry::intersect(segA, segB);
     benchmark::DoNotOptimize(res);
     benchmark::ClobberMemory();
@@ -43,7 +41,6 @@ static void BM_Intersection_Seg2dSeg2d(benchmark::State& state)
 
   for (auto _: state)
   {
-    Segment2d intersection;
     auto res = Geometry::intersect(segA, segB);
     benchmark::DoNotOptimize(res);
     benchmark::ClobberMemory();
@@ -58,7 +55,6 @@ static void BM_Intersection_Seg2fSeg2f(benchmark::State& state)
 
   for (auto _: state)
   {
-    Segment2f intersection;
     auto res = Geometry::intersect(segA, segB);
     benchmark::DoNotOptimize(res);
     benchmark::ClobberMemory();

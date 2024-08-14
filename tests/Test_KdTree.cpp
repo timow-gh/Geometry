@@ -22,7 +22,7 @@ TEST_F(TestKdTree, empty) {
   EXPECT_FALSE(res);
 
   try
-  { linal::double3 nearest = m_kdTree.nearest(linal::double3{0.0, 0.0, 0.0}); }
+  { [[maybe_unused]] linal::double3 nearest = m_kdTree.nearest(linal::double3{0.0, 0.0, 0.0}); }
   catch (std::runtime_error& e)
   { EXPECT_STREQ(e.what(), "KdTree is empty"); }
   catch (...)
@@ -72,7 +72,7 @@ TEST_F(TestKdTree, nearest_success) {
 TEST_F(TestKdTree, nearest_failure) {
   insert_three_points();
   try
-  { auto nearest = m_kdTree.nearest(linal::double3{0.0, 0.0, 0.0}); }
+  { [[maybe_unused]] auto nearest = m_kdTree.nearest(linal::double3{0.0, 0.0, 0.0}); }
   catch (std::runtime_error& e)
   { EXPECT_STREQ(e.what(), "KdTree is empty"); }
   catch (...)

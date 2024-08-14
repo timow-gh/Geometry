@@ -5,6 +5,7 @@
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
+#include <algorithm>
 
 namespace Geometry
 {
