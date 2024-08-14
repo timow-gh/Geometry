@@ -16,7 +16,7 @@ namespace Geometry
 template <typename TFloat, typename TIndex>
 class ConeMeshBuilder : public MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>> {
   std::optional<Cone<TFloat>> m_cone;
-  std::size_t m_azimuthCount{20};
+  TIndex m_azimuthCount{20};
 
 public:
   ConeMeshBuilder() = default;
@@ -27,7 +27,7 @@ public:
     return *this;
   }
 
-  ConeMeshBuilder& set_azimuth_count(std::size_t azimuthCount)
+  ConeMeshBuilder& set_azimuth_count(TIndex azimuthCount)
   {
     m_azimuthCount = azimuthCount;
     return *this;
@@ -45,56 +45,48 @@ public:
     GEO_ASSERT(!linal::isZero(coneSeg.length()));
 
     const auto& dir = coneSeg.direction();
-    GEO_ASSERT(linal::is_equal(linal::length(dir), TFloat{1.0}));
+    GEO_ASSERT(linal::isEq(linal::length(dir), TFloat{1.0}));
 
     linal::hmat<TFloat> hTrafo;
     linal::rot_align(hTrafo, linal::hvec<TFloat>{0.0, 0.0, 1.0, 1.0}, linal::hvec<TFloat>{dir[0], dir[1], dir[2], 1.0});
     hTrafo.set_translation(coneSeg.get_source());
     MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::set_transformation(hTrafo);
 
-    auto conePoints = calc_cone_points(*m_cone);
-    auto coneTriangleIndices = calc_cone_triangle_indices(conePoints);
+    std::vector<linal::vec3<TFloat>> conePoints;
+    std::vector<TIndex> coneTriangleIndices;
+    calc_cone_triangles(conePoints, coneTriangleIndices);
+
     return MeshBuilderBase<TFloat, TIndex, ConeMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(conePoints, coneTriangleIndices);
   }
 
 private:
-  std::vector<linal::vec3<TFloat>> calc_cone_points(const Geometry::Cone<TFloat>& cone) const
+  void calc_cone_triangles(std::vector<linal::vec3<TFloat>>& conePoints, std::vector<TIndex>& coneTriangleIndices) const
   {
-    std::vector<linal::vec3<TFloat>> points;
+    GEO_ASSERT(m_cone);
+    GEO_ASSERT(conePoints.empty());
+    GEO_ASSERT(coneTriangleIndices.empty());
 
-    points.push_back(linal::vec3<TFloat>{0, 0, 0});
-    points.push_back(linal::vec3<TFloat>{0, 0, cone.get_segment().length()});
+    // Bottom circle triangles and indices.
+    calc_circle_triangles(
+        linal::vec3<TFloat>{0, 0, 0}, // The ConeMeshBuilder assumes the cone to be aligned with the z-axis and placed at the origin.
+        m_cone->get_radius(),
+        m_azimuthCount,
+        CircleDiscretizationDirection::CCW,
+        std::back_inserter(conePoints),
+        TIndex{0},
+        std::back_inserter(coneTriangleIndices));
 
-    discretize_circle(points, cone.get_radius(), m_azimuthCount);
-
-    return points;
-  }
-
-  std::vector<TIndex> calc_cone_triangle_indices([[maybe_unused]] const std::vector<linal::vec3<TFloat>>& conePoints) const
-  {
-    TIndex circlePointsStartIdx{2};
-    TIndex circlePointsEndIdx = static_cast<TIndex>(conePoints.size() - 1);
-
-    std::vector<TIndex> indices;
-    TIndex midPointIdx{0};
-    // Bottom circle triangles, face normals point in negative z dir.
+    // Mantle triangles.
+    conePoints.push_back(linal::vec3<TFloat>{0, 0, m_cone->get_segment().length()});
+    TIndex circlePointsStartIdx{1}; // The first point is the center of the bottom circle.
+    TIndex circlePointsEndIdx = static_cast<TIndex>(conePoints.size() - 2);
+    TIndex peakIdx = static_cast<TIndex>(conePoints.size() - 1);
     for (TIndex i{circlePointsStartIdx}; i <= circlePointsEndIdx; ++i)
     {
-      indices.push_back(midPointIdx);
-      indices.push_back(i);
-      indices.push_back(i == circlePointsEndIdx ? circlePointsStartIdx : i + 1);
+      coneTriangleIndices.push_back(peakIdx);
+      coneTriangleIndices.push_back(i == circlePointsEndIdx ? circlePointsStartIdx : i + 1);
+      coneTriangleIndices.push_back(i);
     }
-
-    // Mantle triangles, face normals point outwards
-    TIndex peakIdx{1};
-    for (TIndex i{circlePointsStartIdx}; i <= circlePointsEndIdx; ++i)
-    {
-      indices.push_back(peakIdx);
-      indices.push_back(i == circlePointsEndIdx ? circlePointsStartIdx : i + 1);
-      indices.push_back(i);
-    }
-
-    return indices;
   }
 };
 

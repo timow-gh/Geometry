@@ -34,13 +34,16 @@ public:
 
   GEO_NODISCARD std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build()
   {
+    GEO_ASSERT(m_cylinder);
     if (!m_cylinder)
+    {
       return nullptr;
+    }
 
     const auto cylinderSeg = m_cylinder->get_segment();
 
-    linal::hmatd hTrafo;
-    linal::rot_align(hTrafo, linal::hvecdz, linal::to_hvec(cylinderSeg.direction()));
+    linal::hmat<TFloat> hTrafo;
+    linal::rot_align(hTrafo, linal::hvec<TFloat>{0, 0, 1, 1}, linal::to_hvec(cylinderSeg.direction()));
     hTrafo.set_translation(cylinderSeg.get_source());
     MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::set_transformation(hTrafo);
 
@@ -59,12 +62,19 @@ private:
     const Segment3<TFloat>& segment = m_cylinder->get_segment();
     discretize_circle(points, m_cylinder->get_radius(), m_azimuthCount);
 
-    std::size_t circlePointsSize = points.size();
-    double segLength = segment.length();
-    for (std::size_t i{0}; i < circlePointsSize; ++i)
+    TIndex circlePointsSize = to_idx<TIndex>(points.size());
+
+//    TIndex bottomStartIdx = 0;
+//    TIndex bottomEndIdx = circlePointsSize - 1;
+    TIndex topStartIdx = circlePointsSize;
+    TIndex topEndIdx = 2 * m_azimuthCount - 1;
+
+    TFloat segLength = segment.length();
+    for (TIndex idx{topStartIdx}; idx <= topEndIdx; ++idx)
     {
-      points.push_back(points[i]);
-      points.back()[2] += segLength;
+      linal::vec3<TFloat> bottomPoint = points[idx];
+      linal::vec3<TFloat> topPoint = bottomPoint + linal::vec3<TFloat>{0, 0, segLength};
+      points[idx] = topPoint;
     }
 
     points.push_back(linal::vec3<TFloat>{0, 0, 0});
@@ -93,7 +103,7 @@ private:
   {
     // Bottom circle
     std::vector<TIndex> indices;
-    const std::size_t cylPointsSize = cylinderPoints.size();
+    const TIndex cylPointsSize = to_idx<TIndex>(cylinderPoints.size());
 
     const TIndex bottomMidPointIdx = cylPointsSize - 2;
     const TIndex bottomCircleStartIdx = 0;
@@ -123,9 +133,9 @@ private:
     indices.push_back(topIdxStart);
 
     // Top circle
-    const std::size_t topMidPointIdx = cylPointsSize - 1;
-    const std::size_t topCircleStartIdx = m_azimuthCount;
-    const std::size_t topCircleEndIdx = 2 * m_azimuthCount;
+    const TIndex topMidPointIdx = cylPointsSize - 1;
+    const TIndex topCircleStartIdx = m_azimuthCount;
+    const TIndex topCircleEndIdx = 2 * m_azimuthCount;
     calc_circle_buffer_indices(indices, topMidPointIdx, topCircleStartIdx, topCircleEndIdx);
 
     return indices;
