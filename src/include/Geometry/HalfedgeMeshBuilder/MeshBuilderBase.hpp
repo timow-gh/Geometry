@@ -29,13 +29,22 @@ protected:
     for (std::size_t i{2}; i < size; i += 3)
     {
       std::array<linal::vec3<TFloat>, 3> trianglePoints;
+
       for (std::size_t j{0}; j < 3; ++j)
       {
         const std::size_t idx = triangleIndices[i - j];
         const linal::vec3<TFloat>& point = points[idx];
-        linal::hvec<TFloat> tPoint = m_transformation * linal::hvec<TFloat>{point[0], point[1], point[2], 1.0};
-        trianglePoints[j] = linal::vec3<TFloat>{tPoint[0], tPoint[1], tPoint[2]};
+        if (m_transformation != linal::hmat<TFloat>::identity())
+        {
+          linal::hvec<TFloat> tPoint = m_transformation * linal::hvec<TFloat>{point[0], point[1], point[2], 1.0};
+          trianglePoints[j] = linal::vec3<TFloat>{tPoint[0], tPoint[1], tPoint[2]};
+        }
+        else
+        {
+          trianglePoints[j] = point;
+        }
       }
+
       meshTriangleAdder(Triangle<TFloat, 3>(trianglePoints));
     }
     MeshTriangleAdder<TFloat, TIndex>::set_opposite_halfedges(*heMesh);
