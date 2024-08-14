@@ -47,13 +47,80 @@ public:
     hTrafo.set_translation(cylinderSeg.get_source());
     MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::set_transformation(hTrafo);
 
-    std::vector<linal::vec3<TFloat>> cylPoints = calc_cylinder_points();
-    const auto cylinderTriangleIndices = calc_cylinder_triangle_indices(cylPoints);
+    std::vector<linal::vec3<TFloat>> cylPoints;
+    std::vector<TIndex> cylinderTriangleIndices;
+    calc_cylinder_triangles(cylPoints, cylinderTriangleIndices);
+
     return MeshBuilderBase<TFloat, TIndex, CylinderMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(cylPoints,
                                                                                                               cylinderTriangleIndices);
   }
 
 private:
+  void calc_cylinder_triangles(std::vector<linal::vec3<TFloat>>& points, std::vector<TIndex>& indices) const
+  {
+    calc_circle_triangles(linal::vec3<TFloat>{0, 0, 0},
+                          m_cylinder->get_radius(),
+                          m_azimuthCount,
+                          CircleDiscretizationDirection::CCW,
+                          std::back_inserter(points),
+                          TIndex{0},
+                          std::back_inserter(indices));
+
+    const Segment3<TFloat>& segment = m_cylinder->get_segment();
+    calc_circle_triangles(segment.get_target(),
+                          m_cylinder->get_radius(),
+                          m_azimuthCount,
+                          CircleDiscretizationDirection::CW,
+                          std::back_inserter(points),
+                          to_idx<TIndex>(points.size()),
+                          std::back_inserter(indices));
+
+    // Cylinder mantle triangles
+    // Points are ordered as follows:
+    // 0: bottom circle center
+    // 1, ..., m_azimuthCount: bottom circle points
+    // m_azimuthCount + 1: top circle center
+    // m_azimuthCount + 2, ..., 2 * m_azimuthCount + 1: top circle points
+    // The bottom circle and the top circle start at the same azimuth angle,
+    // but the points are ordered in opposite directions.
+    // The topIdx corresponding to the bottomIdx is thus: topIdx = bottomIdx + m_azimuthCount + 1
+
+    TIndex bottomStartIdx = 1;
+    TIndex bottomEndIdx = m_azimuthCount;
+    TIndex topStartIdx = bottomEndIdx + 2;
+    TIndex topEndIdx = 2 * m_azimuthCount + 1;
+
+    GEO_ASSERT((bottomEndIdx - bottomStartIdx) == m_azimuthCount - 1);
+    GEO_ASSERT((topEndIdx - topStartIdx) == m_azimuthCount - 1);
+    GEO_ASSERT((bottomEndIdx - bottomStartIdx) == (topEndIdx - topStartIdx));
+
+    auto tIdxMinusOne = [topStartIdx, topEndIdx](TIndex idx) -> TIndex { return (idx == topStartIdx) ? topEndIdx : idx - 1; };
+
+    TIndex bIdx{bottomStartIdx};
+    TIndex tIdx{topStartIdx};
+    while (bIdx < bottomEndIdx)
+    {
+      indices.push_back(bIdx);
+      indices.push_back(tIdx);
+      indices.push_back(bIdx + 1);
+
+      indices.push_back(tIdx);
+      indices.push_back(tIdxMinusOne(tIdx));
+      indices.push_back(bIdx + 1);
+
+      bIdx++;
+      tIdx = tIdxMinusOne(tIdx);
+    }
+
+    indices.push_back(bottomEndIdx);
+    indices.push_back(topStartIdx + 1);
+    indices.push_back(bottomStartIdx);
+
+    indices.push_back(topStartIdx + 1);
+    indices.push_back(topStartIdx);
+    indices.push_back(bottomStartIdx);
+  }
+
   std::vector<linal::vec3<TFloat>> calc_cylinder_points() const
   {
     std::vector<linal::vec3<TFloat>> points;
@@ -64,8 +131,8 @@ private:
 
     TIndex circlePointsSize = to_idx<TIndex>(points.size());
 
-//    TIndex bottomStartIdx = 0;
-//    TIndex bottomEndIdx = circlePointsSize - 1;
+    //    TIndex bottomStartIdx = 0;
+    //    TIndex bottomEndIdx = circlePointsSize - 1;
     TIndex topStartIdx = circlePointsSize;
     TIndex topEndIdx = 2 * m_azimuthCount - 1;
 

@@ -39,7 +39,7 @@ enum class CircleDiscretizationDirection
  * @attention Requires the output iterator to be able to store the number of points given by the azimuth count + 1.
  */
 template <typename TFloat, typename TIndex, typename TVecOutIter>
-void discretize_circle([[maybe_unused]] linal::vec3<TFloat> center,
+void discretize_circle(linal::vec3<TFloat> center,
                        TFloat circleRadius,
                        TIndex azimuthCount,
                        CircleDiscretizationDirection discrDir,
@@ -53,7 +53,7 @@ void discretize_circle([[maybe_unused]] linal::vec3<TFloat> center,
   for (TIndex i{0}; i < azimuthCount; ++i)
   {
     TFloat azimuthAngle = static_cast<TFloat>(i) * azimuthStep;
-    *vecOutStart = linal::vec3<TFloat>{std::cos(azimuthAngle) * circleRadius, std::sin(azimuthAngle) * circleRadius, TFloat{0.0}};
+    *vecOutStart = center + linal::vec3<TFloat>{std::cos(azimuthAngle) * circleRadius, std::sin(azimuthAngle) * circleRadius, TFloat{0.0}};
     ++vecOutStart;
   }
 }
