@@ -20,64 +20,73 @@ namespace Geometry
 
 template <typename TFloat, typename TIndex>
 class CuboidMeshBuilder {
-  std::optional<Cuboid<TFloat>> m_cube;
-  linal::vec3<TFloat> m_origin;
-  linal::vec3<TFloat> m_diagonal;
+public:
+  using MeshTraits_t = MeshTraits<TFloat, TIndex>;
+  using HalfedgeMesh_t = HalfedgeMesh<MeshTraits_t>;
+  using value_type = typename HalfedgeMesh_t::value_type;
+  using index_type = typename HalfedgeMesh_t::index_type;
+
+  using Cuboid_t = Cuboid<TFloat>;
+
+private:
+  std::optional<Cuboid_t> m_cube;
+  linal::vec3<value_type> m_origin;
+  linal::vec3<value_type> m_diagonal;
 
 public:
   CuboidMeshBuilder() = default;
 
-  GEO_NODISCARD CuboidMeshBuilder& set_origin(const linal::vec3<TFloat>& origin)
+  GEO_NODISCARD CuboidMeshBuilder& set_origin(const linal::vec3<value_type>& origin)
   {
     m_origin = origin;
     return *this;
   }
 
-  GEO_NODISCARD CuboidMeshBuilder& set_diagonal(const linal::vec3<TFloat>& diagonal)
+  GEO_NODISCARD CuboidMeshBuilder& set_diagonal(const linal::vec3<value_type>& diagonal)
   {
     m_diagonal = diagonal;
     return *this;
   }
 
-  GEO_NODISCARD CuboidMeshBuilder& set_cuboid(const Cuboid<TFloat>& cuboid)
+  GEO_NODISCARD CuboidMeshBuilder& set_cuboid(const Cuboid_t& cuboid)
   {
     m_cube = cuboid;
     return *this;
   }
 
-  GEO_NODISCARD std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build()
+  GEO_NODISCARD std::unique_ptr<HalfedgeMesh_t> build()
   {
     if (!m_cube)
     {
-      m_cube = Cuboid<TFloat>{m_origin, m_diagonal};
+      m_cube = Cuboid_t{m_origin, m_diagonal};
     }
 
     GEO_ASSERT(m_cube);
 
-    std::array<Triangle3<TFloat>, 12> triangles = calc_cuboid_triangles();
-    auto heMesh = std::make_unique<HalfedgeMesh<TFloat, TIndex>>();
-    MeshTriangleAdder<TFloat, TIndex> triangleAdder{*heMesh};
+    std::array<Triangle3<value_type>, 12> triangles = calc_cuboid_triangles();
+    auto heMesh = std::make_unique<HalfedgeMesh_t>();
+    MeshTriangleAdder<MeshTraits_t> triangleAdder{*heMesh};
     for (const auto& triangle: triangles)
     {
       triangleAdder(triangle);
     }
-    MeshTriangleAdder<TFloat, TIndex>::set_opposite_halfedges(*heMesh);
+    MeshTriangleAdder<MeshTraits_t>::set_opposite_halfedges(*heMesh);
     GEO_ASSERT(heMesh->getVertices().size() == 8);
     GEO_ASSERT(heMesh->getHalfedges().size() == 36);
     return heMesh;
   }
 
 private:
-  std::array<Triangle<TFloat, 3>, 12> calc_cuboid_triangles()
+  std::array<Triangle<value_type, 3>, 12> calc_cuboid_triangles()
   {
     auto sides = m_cube->get_side_vectors();
     linal::double3 defaultOrigin{0};
 
-    const linal::vec3<TFloat>& vecX = sides[0];
-    const linal::vec3<TFloat>& vecY = sides[1];
-    const linal::vec3<TFloat>& vecZ = sides[2];
+    const linal::vec3<value_type>& vecX = sides[0];
+    const linal::vec3<value_type>& vecY = sides[1];
+    const linal::vec3<value_type>& vecZ = sides[2];
 
-    std::array<Triangle3<TFloat>, 12> triangles;
+    std::array<Triangle3<value_type>, 12> triangles;
 
     linal::double3 cubeOrigin = m_cube->get_origin();
     linal::double3 diagYZ = vecY + vecZ;
@@ -92,25 +101,25 @@ private:
     return triangles;
   }
 
-  void calc_cuboid_face_triangles(std::array<Triangle<TFloat, 3>, 12>& triangles,
-                                  std::array<linal::vec3<TFloat>, 4> vectors,
-                                  const linal::vec3<TFloat>& origin,
-                                  const linal::vec3<TFloat>& translationVec,
-                                  std::size_t insertIndex)
+  void calc_cuboid_face_triangles(std::array<Triangle<value_type, 3>, 12>& triangles,
+                                  std::array<linal::vec3<value_type>, 4> vectors,
+                                  const linal::vec3<value_type>& origin,
+                                  const linal::vec3<value_type>& translationVec,
+                                  std::size_t inserindex_type)
   {
     for (auto& vec: vectors)
     {
       vec = vec + origin;
     }
-    triangles[insertIndex++] = Triangle<TFloat, 3>(vectors[0], vectors[1], vectors[2]);
-    triangles[insertIndex++] = Triangle<TFloat, 3>(vectors[2], vectors[3], vectors[0]);
+    triangles[inserindex_type++] = Triangle<value_type, 3>(vectors[0], vectors[1], vectors[2]);
+    triangles[inserindex_type++] = Triangle<value_type, 3>(vectors[2], vectors[3], vectors[0]);
 
     for (auto& vec: vectors)
     {
       vec = vec + translationVec;
     }
-    triangles[insertIndex++] = Triangle<TFloat, 3>(vectors[2], vectors[1], vectors[0]);
-    triangles[insertIndex] = Triangle<TFloat, 3>(vectors[0], vectors[3], vectors[2]);
+    triangles[inserindex_type++] = Triangle<value_type, 3>(vectors[2], vectors[1], vectors[0]);
+    triangles[inserindex_type] = Triangle<value_type, 3>(vectors[0], vectors[3], vectors[2]);
   }
 };
 

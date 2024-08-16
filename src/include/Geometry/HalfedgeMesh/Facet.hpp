@@ -1,10 +1,10 @@
 #ifndef MESHFACE_HEADER
 #define MESHFACE_HEADER
 
-#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
+#include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 
 namespace Geometry
 {
@@ -18,13 +18,21 @@ namespace Geometry
  * @tparam TFloat
  * @tparam TIndex
  */
-template <typename TFloat, typename TIndex>
+template <typename TMeshTraits>
 class Facet {
 public:
-  using HalfedgeIndex_t = typename MeshIndexTraits<TIndex>::HalfedgeIndex_t;
+  using value_type = typename TMeshTraits::value_type;
+  using index_type = typename TMeshTraits::index_type;
 
-  using Halfedge_t = typename MeshTraits<TFloat, TIndex>::Halfedge_t;
-  using HalfedgeMesh_t = HalfedgeMesh<TFloat, TIndex>;
+  using VertexIndex_t = typename TMeshTraits::VertexIndex_t;
+  using HalfedgeIndex_t = typename TMeshTraits::HalfedgeIndex_t;
+  using FacetIndex_t = typename TMeshTraits::FacetIndex_t;
+
+  using Vertex_t = typename TMeshTraits::Vertex_t;
+  using Halfedge_t = typename TMeshTraits::Halfedge_t;
+  using Facet_t = typename TMeshTraits::Facet_t;
+
+  using HalfedgeMesh_t = typename TMeshTraits::HalfedgeMesh_t;
 
   constexpr Facet(HalfedgeIndex_t halfedgeIndex, HalfedgeMesh_t& mesh) noexcept
       : m_heIndex(halfedgeIndex)

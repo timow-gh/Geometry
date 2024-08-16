@@ -1,28 +1,30 @@
 #ifndef GEOMETRY_HALFEDGE_H
 #define GEOMETRY_HALFEDGE_H
 
-#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
+#include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include <algorithm>
 
 namespace Geometry
 {
 
-template <typename TFloat, typename TIndex>
+template <typename TMeshTraits>
 class Halfedge {
 public:
-  using VertexIndex_t = typename MeshIndexTraits<TIndex>::VertexIndex_t;
-  using HalfedgeIndex_t = typename MeshIndexTraits<TIndex>::HalfedgeIndex_t;
-  using FacetIndex_t = typename MeshIndexTraits<TIndex>::FacetIndex_t;
+  using value_type = typename TMeshTraits::value_type;
+  using index_type = typename TMeshTraits::index_type;
 
-  using HeMeshTraits = MeshTraits<TFloat, TIndex>;
-  using Vertex_t = typename HeMeshTraits::Vertex_t;
-  using Halfedge_t = typename HeMeshTraits::Halfedge_t;
-  using Facet_t = typename HeMeshTraits::Facet_t;
+  using VertexIndex_t = typename TMeshTraits::VertexIndex_t;
+  using HalfedgeIndex_t = typename TMeshTraits::HalfedgeIndex_t;
+  using FacetIndex_t = typename TMeshTraits::FacetIndex_t;
 
-  using HalfedgeMesh_t = HalfedgeMesh<TFloat, TIndex>;
+  using Vertex_t = typename TMeshTraits::Vertex_t;
+  using Halfedge_t = typename TMeshTraits::Halfedge_t;
+  using Facet_t = typename TMeshTraits::Facet_t;
+
+  using HalfedgeMesh_t = typename TMeshTraits::HalfedgeMesh_t;
 
   /** @brief Creates a halfedge that must be completed later.
    *

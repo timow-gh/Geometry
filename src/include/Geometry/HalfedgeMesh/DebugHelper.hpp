@@ -31,8 +31,8 @@ void print(std::ostream& os, std::vector<linal::vec3<TFloat>>& vec)
   }
 }
 
-template <typename TFloat, typename TIndex>
-void print(std::ostream& os, const Vertex<TFloat, TIndex>& vertex)
+template <typename TMeshTraits>
+void print(std::ostream& os, const Vertex<TMeshTraits>& vertex)
 {
   os << "Vertex index: " << vertex.getIndex().get_value() << "; ";
   linal::vec3<TFloat> vec = vertex.getVector();
@@ -40,8 +40,8 @@ void print(std::ostream& os, const Vertex<TFloat, TIndex>& vertex)
   os << std::endl;
 }
 
-template <typename TFloat, typename TIndex>
-void print(std::ostream& os, const std::vector<Vertex<TFloat, TIndex>>& vertices)
+template <typename TMeshTraits>
+void print(std::ostream& os, const std::vector<Vertex<TMeshTraits>>& vertices)
 {
   for (const auto& vertex: vertices)
   {
@@ -49,14 +49,14 @@ void print(std::ostream& os, const std::vector<Vertex<TFloat, TIndex>>& vertices
   }
 }
 
-template <typename TFloat, typename TIndex>
-void print_inline(std::ostream& os, const Facet<TFloat, TIndex>& facet)
+template <typename TMeshTraits>
+void print_inline(std::ostream& os, const Facet_t& facet)
 {
   os << "Facet halfedge index: " << facet.getHalfedge().getFacetIndex().get_value();
 }
 
-template <typename TFloat, typename TIndex>
-void print(std::ostream& os, const Halfedge<TFloat, TIndex>& he)
+template <typename TMeshTraits>
+void print(std::ostream& os, const aasdf& he)
 {
   os << "Halfedge index: " << he.getFacet().getHalfedgeIndex().get_value();
   os << "; Halfedge vertex index: " << he.getVertex().getIndex().get_value();
@@ -69,8 +69,8 @@ void print(std::ostream& os, const Halfedge<TFloat, TIndex>& he)
   os << std::endl;
 }
 
-template <typename TFloat, typename TIndex>
-void print(std::ostream& os, const std::vector<Halfedge<TFloat, TIndex>>& halfedges)
+template <typename TMeshTraits>
+void print(std::ostream& os, const std::vector<asdf>& halfedges)
 {
   for (const auto& he: halfedges)
   {
@@ -78,15 +78,15 @@ void print(std::ostream& os, const std::vector<Halfedge<TFloat, TIndex>>& halfed
   }
 }
 
-template <typename TFloat, typename TIndex>
-void print(std::ostream& os, const Facet<TFloat, TIndex>& facet)
+template <typename TMeshTraits>
+void print(std::ostream& os, const Facet_t& facet)
 {
   print_inline(os, facet);
   os << std::endl;
 }
 
-template <typename TFloat, typename TIndex>
-void print(std::ostream& os, const std::vector<Facet<TFloat, TIndex>>& facets)
+template <typename TMeshTraits>
+void print(std::ostream& os, const std::vector<Facet_t>& facets)
 {
   for (const auto& facet: facets)
   {

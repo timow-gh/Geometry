@@ -16,10 +16,17 @@ namespace Geometry
 {
 
 template <typename TFloat, typename TIndex>
-class SphereMeshBuilder : public MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>> {
-  TIndex m_polarCount{10};
-  TIndex m_azimuthCount{20};
-  std::optional<Sphere<TFloat>> m_sphere;
+class SphereMeshBuilder : public MeshBuilderBase<MeshTraits<TFloat, TIndex>, SphereMeshBuilder<TFloat, TIndex>> {
+public:
+  using MeshTraits_t = MeshTraits<TFloat, TIndex>;
+  using value_type = typename MeshTraits_t::value_type;
+  using index_type = typename MeshTraits_t::index_type;
+
+  using HalfedgeMesh_t = typename MeshTraits_t::HalfedgeMesh_t;
+
+  index_type m_polarCount{10};
+  index_type m_azimuthCount{20};
+  std::optional<Sphere<value_type>> m_sphere;
 
 public:
   SphereMeshBuilder& set_polar_count(uint32_t polarCount)
@@ -34,52 +41,53 @@ public:
     return *this;
   }
 
-  SphereMeshBuilder& set_sphere(const Sphere<TFloat>& sphere)
+  SphereMeshBuilder& set_sphere(const Sphere<value_type>& sphere)
   {
     m_sphere = sphere;
     return *this;
   }
 
-  std::unique_ptr<HalfedgeMesh<TFloat, TIndex>> build()
+  std::unique_ptr<HalfedgeMesh_t> build()
   {
     if (!m_sphere)
       return nullptr;
 
     auto spherePoints = calc_sphere_points(*m_sphere);
-    auto triangleIndices = calc_sphere_triangle_indices(to_idx<TIndex>(spherePoints.size()));
-    return MeshBuilderBase<TFloat, TIndex, SphereMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(spherePoints, triangleIndices);
+    auto triangleIndices = calc_sphere_triangle_indices(to_idx<index_type>(spherePoints.size()));
+    return MeshBuilderBase<MeshTraits<TFloat, TIndex>, SphereMeshBuilder<TFloat, TIndex>>::build_triangle_halfedge_mesh(spherePoints,
+                                                                                                                        triangleIndices);
   }
 
 private:
-  std::vector<linal::vec3<TFloat>> calc_sphere_points(const Sphere<TFloat>& sphere)
+  std::vector<linal::vec3<value_type>> calc_sphere_points(const Sphere<value_type>& sphere)
   {
-    std::vector<linal::vec3<TFloat>> points;
+    std::vector<linal::vec3<value_type>> points;
 
-    TFloat polarStep = linal::PI<TFloat> / static_cast<TFloat>(m_polarCount);
-    TFloat azimuthStep = TFloat{2.0} * linal::PI<TFloat> / static_cast<TFloat>(m_azimuthCount);
-    TFloat radius = sphere.get_radius();
+    value_type polarStep = linal::PI<value_type> / static_cast<value_type>(m_polarCount);
+    value_type azimuthStep = value_type{2.0} * linal::PI<value_type> / static_cast<value_type>(m_azimuthCount);
+    value_type radius = sphere.get_radius();
 
     for (uint32_t i{1}; i < m_polarCount; ++i)
     {
-      TFloat polarAngle = static_cast<TFloat>(i) * polarStep;
-      TFloat z = radius * std::cos(polarAngle);
-      TFloat projRadius = radius * std::sin(polarAngle);
+      value_type polarAngle = static_cast<value_type>(i) * polarStep;
+      value_type z = radius * std::cos(polarAngle);
+      value_type projRadius = radius * std::sin(polarAngle);
 
       for (uint32_t j{0}; j < m_azimuthCount; ++j)
       {
-        TFloat azimuthAngle = static_cast<TFloat>(j) * azimuthStep;
-        TFloat x = projRadius * std::cos(azimuthAngle);
-        TFloat y = projRadius * std::sin(azimuthAngle);
-        points.push_back(linal::vec3<TFloat>{x, y, z});
+        value_type azimuthAngle = static_cast<value_type>(j) * azimuthStep;
+        value_type x = projRadius * std::cos(azimuthAngle);
+        value_type y = projRadius * std::sin(azimuthAngle);
+        points.push_back(linal::vec3<value_type>{x, y, z});
       }
     }
 
     // Poles
-    points.push_back(linal::vec3<TFloat>{0, 0, radius});
-    points.push_back(linal::vec3<TFloat>{0, 0, -radius});
+    points.push_back(linal::vec3<value_type>{0, 0, radius});
+    points.push_back(linal::vec3<value_type>{0, 0, -radius});
 
     const auto& sphereOrigin = sphere.get_origin();
-    if (sphereOrigin != linal::vec3<TFloat>{})
+    if (sphereOrigin != linal::vec3<value_type>{})
     {
       for (auto& point: points)
       {
@@ -90,17 +98,18 @@ private:
     return points;
   }
 
-  std::vector<TIndex> calc_sphere_triangle_indices(TIndex spherePointsSize)
+  std::vector<index_type> calc_sphere_triangle_indices(index_type spherePointsSize)
   {
-    auto toIdx = [azimuthCount = m_azimuthCount](TIndex i, TIndex j) -> TIndex { return static_cast<TIndex>(i * azimuthCount + j); };
+    auto toIdx = [azimuthCount = m_azimuthCount](index_type i, index_type j) -> index_type
+    { return static_cast<index_type>(i * azimuthCount + j); };
 
-    std::vector<TIndex> triangleIndices;
+    std::vector<index_type> triangleIndices;
 
-    const TIndex topiIdx = 0;
-    const TIndex topIdx = spherePointsSize - 2;
+    const index_type topiIdx = 0;
+    const index_type topIdx = spherePointsSize - 2;
 
-    const TIndex bottomiIdx = m_polarCount - 2;
-    const TIndex bottomIdx = spherePointsSize - 1;
+    const index_type bottomiIdx = m_polarCount - 2;
+    const index_type bottomIdx = spherePointsSize - 1;
 
     // First top triangle
     triangleIndices.push_back(toIdx(topiIdx, m_azimuthCount - 1));
@@ -112,15 +121,14 @@ private:
     triangleIndices.push_back(bottomIdx);
     triangleIndices.push_back(toIdx(bottomiIdx, m_azimuthCount - 1));
 
-    for (TIndex j{1}; j < m_azimuthCount; ++j)
+    for (index_type j{1}; j < m_azimuthCount; ++j)
     {
-      TIndex jIdx = toIdx(topiIdx, j);
-      TIndex jprevIdx = toIdx(topiIdx, j - 1);
+      index_type jIdx = toIdx(topiIdx, j);
+      index_type jprevIdx = toIdx(topiIdx, j - 1);
 
       triangleIndices.push_back(topIdx);
       triangleIndices.push_back(jIdx);
       triangleIndices.push_back(jprevIdx);
-
 
       jIdx = toIdx(bottomiIdx, j);
       jprevIdx = toIdx(bottomiIdx, j - 1);
@@ -131,15 +139,15 @@ private:
     }
 
     // Sphere body triangles
-    for (TIndex i{1}; i < m_polarCount - 1; ++i)
+    for (index_type i{1}; i < m_polarCount - 1; ++i)
     {
-      const TIndex iprev = i - 1;
-      for (TIndex j{1}; j < m_azimuthCount; ++j)
+      const index_type iprev = i - 1;
+      for (index_type j{1}; j < m_azimuthCount; ++j)
       {
-        const TIndex jprev = j - 1;
+        const index_type jprev = j - 1;
 
-        const TIndex iprevj = toIdx(iprev, j);
-        const TIndex ijprev = toIdx(i, jprev);
+        const index_type iprevj = toIdx(iprev, j);
+        const index_type ijprev = toIdx(i, jprev);
 
         triangleIndices.push_back(iprevj);
         triangleIndices.push_back(ijprev);

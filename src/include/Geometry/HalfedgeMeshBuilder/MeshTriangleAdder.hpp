@@ -2,7 +2,6 @@
 #define GEOMETRY_MESHTRIANGLEADDER_HPP
 
 #include "Geometry/HalfedgeMesh/ConversionHelper.hpp"
-#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/KdTree.hpp"
 #include "Geometry/Triangle.hpp"
@@ -15,30 +14,37 @@ namespace Geometry
 /**
  * @brief Adds a triangle to a halfedge mesh.
  *
- * @tparam TFloat
- * @tparam TIndex
+ * @tparam value_type
+ * @tparam index_type
  */
-template <typename TFloat, typename TIndex>
+template <typename TMeshTraits>
 class MeshTriangleAdder {
-  HalfedgeMesh<TFloat, TIndex>* m_halfedgeMesh;
+public:
+  using value_type = typename TMeshTraits::value_type;
+  using index_type = typename TMeshTraits::index_type;
+
+  using VertexIndex_t = typename TMeshTraits::VertexIndex_t;
+  using HalfedgeIndex_t = typename TMeshTraits::HalfedgeIndex_t;
+  using FacetIndex_t = typename TMeshTraits::FacetIndex_t;
+
+  using Vertex_t = typename TMeshTraits::Vertex_t;
+  using Halfedge_t = typename TMeshTraits::Halfedge_t;
+  using Facet_t = typename TMeshTraits::Facet_t;
+
+  using HalfedgeMesh_t = typename TMeshTraits::HalfedgeMesh_t;
+
+  using MeshPoints_t = typename TMeshTraits::MeshPoints_t;
+
+private:
+  HalfedgeMesh_t* m_halfedgeMesh;
 
 public:
-  using VertexIndex_t = typename MeshIndexTraits<TIndex>::VertexIndex_t;
-  using HalfedgeIndex_t = typename MeshIndexTraits<TIndex>::HalfedgeIndex_t;
-  using FacetIndex_t = typename MeshIndexTraits<TIndex>::FacetIndex_t;
-
-  using Vertex_t = Vertex<TFloat, TIndex>;
-  using Halfedge_t = Halfedge<TFloat, TIndex>;
-  using Facet_t = Facet<TFloat, TIndex>;
-
-  using MeshPoints_t = MeshPoints<TFloat, TIndex>;
-
-  constexpr explicit MeshTriangleAdder(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh) noexcept
+  constexpr explicit MeshTriangleAdder(HalfedgeMesh_t& halfedgeMesh) noexcept
       : m_halfedgeMesh(&halfedgeMesh)
   {
   }
 
-  void operator()(const Triangle3<TFloat>& triangle)
+  void operator()(const Triangle3<value_type>& triangle)
   {
     MeshPoints_t& meshPoints = m_halfedgeMesh->getMeshPoints();
     std::vector<Vertex_t>& vertices = m_halfedgeMesh->getVertices();
@@ -57,7 +63,7 @@ public:
 
       if (i == 0)
       {
-        facetIdx = FacetIndex_t{to_idx<TIndex>(facets.size())};
+        facetIdx = FacetIndex_t{to_idx<index_type>(facets.size())};
         facets.emplace_back(halfedgeIndex, *m_halfedgeMesh);
         GEO_ASSERT(facetIdx.is_valid());
       }
@@ -75,23 +81,23 @@ public:
     GEO_ASSERT(facetIdx.is_valid());
 
     GEO_ASSERT(halfedges.size() >= 3);
-    auto startIdx = to_idx<TIndex>(halfedges.size() - 3);
-    auto endIdx = to_idx<TIndex>(halfedges.size());
-    auto lastElemIdx = to_idx<TIndex>(endIdx - 1);
+    auto startIdx = to_idx<index_type>(halfedges.size() - 3);
+    auto endIdx = to_idx<index_type>(halfedges.size());
+    auto lastElemIdx = to_idx<index_type>(endIdx - 1);
 
-    for (TIndex i = startIdx; i < endIdx; ++i)
+    for (index_type i = startIdx; i < endIdx; ++i)
     {
       halfedges[i].setFacetIndex(facetIdx);
 
-      TIndex nextHeIndex = (i == lastElemIdx) ? startIdx : i + 1;
+      index_type nextHeIndex = (i == lastElemIdx) ? startIdx : i + 1;
       halfedges[i].setNextIndex(HalfedgeIndex_t{nextHeIndex});
 
-      TIndex previousHeIndex = (i == startIdx) ? to_idx<TIndex>(lastElemIdx) : i - 1;
+      index_type previousHeIndex = (i == startIdx) ? to_idx<index_type>(lastElemIdx) : i - 1;
       halfedges[i].setPreviousIndex(HalfedgeIndex_t{previousHeIndex});
     }
   }
 
-  static void set_opposite_halfedges(HalfedgeMesh<TFloat, TIndex>& halfedgeMesh)
+  static void set_opposite_halfedges(HalfedgeMesh_t& halfedgeMesh)
   {
     std::vector<Halfedge_t>& halfedges = halfedgeMesh.getHalfedges();
 
@@ -108,7 +114,7 @@ private:
    * @param vertices The already existing Vertices.
    * @param vertexIndices New or found Vertex indices for the triangle points.
    */
-  void create_or_find_vertex(const Triangle<TFloat, 3>& triangle,
+  void create_or_find_vertex(const Triangle<value_type, 3>& triangle,
                              MeshPoints_t& meshPoints,
                              std::vector<Vertex_t>& vertices,
                              std::array<VertexIndex_t, 3>& vertexIndices) const
@@ -121,7 +127,7 @@ private:
       if (!meshPoints.contains(trianglePoints[i], vertexIndex))
       {
         vertexIndex = meshPoints.add(trianglePoints[i]);
-        vertices.emplace_back(VertexIndex_t{to_idx<TIndex>(vertices.size())}, m_halfedgeMesh);
+        vertices.emplace_back(VertexIndex_t{to_idx<index_type>(vertices.size())}, m_halfedgeMesh);
       }
       GEO_ASSERT(vertexIndex.is_valid());
       vertexIndices[i] = vertexIndex;
@@ -131,16 +137,16 @@ private:
   static void set_opposite_halfedges(std::vector<Halfedge_t>& halfedges)
   {
     // TODO Ensure that the halfedge indidces are unique
-    KdTree<linal::vec3<TFloat>, std::vector<std::size_t>> kdTree; // Stores all halfedges with their start vertex
+    KdTree<linal::vec3<value_type>, std::vector<std::size_t>> kdTree; // Stores all halfedges with their start vertex
     for (std::size_t i = 0; i < halfedges.size(); ++i)
     {
-      linal::vec3<TFloat> start = halfedges[i].getVertex().getVector();
+      linal::vec3<value_type> start = halfedges[i].getVertex().getVector();
 
       // TODO Avoid searching for the same vertex multiple times
       bool exists = kdTree.search(start);
       if (exists)
       {
-        std::pair<linal::vec3<TFloat>, std::vector<std::size_t>&> res = kdTree.nearest(start);
+        std::pair<linal::vec3<value_type>, std::vector<std::size_t>&> res = kdTree.nearest(start);
         res.second.push_back(i);
       }
       else
@@ -154,9 +160,9 @@ private:
     // For all halfedges, find the opposite halfedge
     for (auto& he: halfedges)
     {
-      linal::vec3<TFloat> start = he.getNextVertex().getVector();
-      linal::vec3<TFloat> end = he.getVertex().getVector();
-      std::pair<linal::vec3<TFloat>, std::vector<std::size_t>&> result = kdTree.nearest(end);
+      linal::vec3<value_type> start = he.getNextVertex().getVector();
+      linal::vec3<value_type> end = he.getVertex().getVector();
+      std::pair<linal::vec3<value_type>, std::vector<std::size_t>&> result = kdTree.nearest(end);
       [[maybe_unused]] bool foundOpposite = false;
       for (std::size_t oppHeIndex: result.second)
       {

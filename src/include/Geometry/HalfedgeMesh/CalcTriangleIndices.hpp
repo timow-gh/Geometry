@@ -11,16 +11,18 @@ namespace Geometry
  *
  * @attention The triangle indices will be ccw with respect to the normal of the facet.
  */
-template <typename TFloat, typename TIndex, typename U>
-GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<Facet<TFloat, TIndex>>& facets)
+template <typename TFacet, typename U>
+GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<TFacet>& facets)
 {
+  using Halfedge_t = typename TFacet::Halfedge_t;
+
   std::vector<U> result;
 
   for (const auto& facet: facets)
   {
-    std::vector<Halfedge<TFloat, TIndex>> halfedges;
+    std::vector<Halfedge_t> halfedges;
 
-    Halfedge<TFloat, TIndex> halfedge = facet.getHalfedge();
+    Halfedge_t halfedge = facet.getHalfedge();
     halfedges.push_back(halfedge);
     halfedge = halfedge.getNext();
     halfedges.push_back(halfedge);
@@ -31,7 +33,7 @@ GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<Fac
       halfedges.push_back(halfedge);
     }
 
-    for (const Halfedge<TFloat, TIndex>& he: halfedges)
+    for (const Halfedge_t& he: halfedges)
     {
       result.push_back(static_cast<U>(he.getVertexIndex().get_value()));
     }
@@ -40,9 +42,11 @@ GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<Fac
   return result;
 }
 
-template <typename TFloat, typename TIndex, typename U>
-GEO_NODISCARD constexpr std::vector<U> calcLineIndices(const HalfedgeMesh<TFloat, std::uint32_t>& mesh)
+template <typename THalfedgeMesh, typename U>
+GEO_NODISCARD constexpr std::vector<U> calcLineIndices(const THalfedgeMesh& mesh)
 {
+  using Halfedge_t = typename THalfedgeMesh::Halfedge_t;
+
   struct Edge
   {
     U v0;
@@ -55,7 +59,7 @@ GEO_NODISCARD constexpr std::vector<U> calcLineIndices(const HalfedgeMesh<TFloat
   };
 
   std::vector<Edge> edges;
-  for (const Halfedge<TFloat, TIndex>& halfedge: mesh.getHalfedges())
+  for (const Halfedge_t& halfedge: mesh.getHalfedges())
   {
     const U v0 = halfedge.getVertexIndex().get_value();
     const U v1 = halfedge.getNext().getVertexIndex().get_value();

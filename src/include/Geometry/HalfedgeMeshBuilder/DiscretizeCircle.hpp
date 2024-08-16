@@ -45,15 +45,19 @@ void discretize_circle(linal::vec3<TFloat> center,
                        CircleDiscretizationDirection discrDir,
                        TVecOutIter vecOutStart)
 {
-  TFloat azimuthStep = TFloat{2.0} * TFloat(linal::PI<TFloat>) / static_cast<TFloat>(azimuthCount);
+  using value_type = TFloat;
+  using index_type = TIndex;
+
+  value_type azimuthStep = value_type{2.0} * value_type(linal::PI<value_type>) / static_cast<value_type>(azimuthCount);
   if (discrDir == CircleDiscretizationDirection::CW)
   {
     azimuthStep = -azimuthStep;
   }
-  for (TIndex i{0}; i < azimuthCount; ++i)
+  for (index_type i{0}; i < azimuthCount; ++i)
   {
-    TFloat azimuthAngle = static_cast<TFloat>(i) * azimuthStep;
-    *vecOutStart = center + linal::vec3<TFloat>{std::cos(azimuthAngle) * circleRadius, std::sin(azimuthAngle) * circleRadius, TFloat{0.0}};
+    value_type azimuthAngle = static_cast<value_type>(i) * azimuthStep;
+    *vecOutStart =
+        center + linal::vec3<value_type>{std::cos(azimuthAngle) * circleRadius, std::sin(azimuthAngle) * circleRadius, value_type{0.0}};
     ++vecOutStart;
   }
 }

@@ -6,6 +6,8 @@
 
 using namespace Geometry;
 
+using HalfedgeMesh_t = HalfedgeMesh<MeshTraits<float, std::size_t>>;
+
 class VertexTest : public ::testing::Test {
   protected:
     VertexTest()
@@ -14,8 +16,8 @@ class VertexTest : public ::testing::Test {
     {
     }
 
-    std::unique_ptr<HalfedgeMesh<float>> m_heMesh;
-    HalfedgeMesh<float>::Vertex_t m_vertex;
+    std::unique_ptr<HalfedgeMesh_t> m_heMesh;
+    HalfedgeMesh_t::Vertex_t m_vertex;
 };
 
 TEST_F(VertexTest, is_valid)
@@ -32,7 +34,7 @@ TEST_F(VertexTest, getVector)
 
 TEST_F(VertexTest, vertexIndex)
 {
-    [[maybe_unused]] HalfedgeMesh<float>::VertexIndex_t index = m_vertex.getIndex();
+    [[maybe_unused]] HalfedgeMesh_t::VertexIndex_t index = m_vertex.getIndex();
     const auto& constVertex = m_vertex;
     index = constVertex.getIndex();
 }

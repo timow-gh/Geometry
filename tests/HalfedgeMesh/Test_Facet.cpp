@@ -6,6 +6,8 @@
 
 using namespace Geometry;
 
+using HalfedgeMesh_t = HalfedgeMesh<MeshTraits<float, std::size_t>>;
+
 class FacetTest : public ::testing::Test {
 protected:
   FacetTest()
@@ -14,20 +16,20 @@ protected:
   {
   }
 
-  std::unique_ptr<HalfedgeMesh<float>> m_heMesh;
-  HalfedgeMesh<float>::Facet_t m_facet;
+  std::unique_ptr<HalfedgeMesh_t> m_heMesh;
+  HalfedgeMesh_t::Facet_t m_facet;
 };
 
 TEST_F(FacetTest, getHalfedge)
 {
-  [[maybe_unused]] HalfedgeMesh<float>::Halfedge_t& he = m_facet.getHalfedge();
+  [[maybe_unused]] HalfedgeMesh_t::Halfedge_t& he = m_facet.getHalfedge();
   const auto& constFacet = m_facet;
-  [[maybe_unused]] const HalfedgeMesh<float>::Halfedge_t& cHe = constFacet.getHalfedge();
+  [[maybe_unused]] const HalfedgeMesh_t::Halfedge_t& cHe = constFacet.getHalfedge();
 }
 
 TEST_F(FacetTest, getHeIndex)
 {
-  [[maybe_unused]] HalfedgeMesh<float>::HalfedgeIndex_t heIndex = m_facet.getHalfedgeIndex();
+  [[maybe_unused]] HalfedgeMesh_t::HalfedgeIndex_t heIndex = m_facet.getHalfedgeIndex();
   const auto& constFacet = m_facet;
-  [[maybe_unused]] HalfedgeMesh<float>::HalfedgeIndex_t cHeIndex = constFacet.getHalfedgeIndex();
+  [[maybe_unused]] HalfedgeMesh_t::HalfedgeIndex_t cHeIndex = constFacet.getHalfedgeIndex();
 }

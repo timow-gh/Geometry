@@ -1,11 +1,12 @@
 #include <Geometry/HalfedgeMesh/HalfedgeMesh.hpp>
+#include <Geometry/HalfedgeMesh/MeshTraits.hpp>
 #include <gtest/gtest.h>
-
 #include <linal/vec.hpp>
 
 using namespace Geometry;
 
-using HeMesh = HalfedgeMesh<double>;
+using MeshTraits_t = MeshTraits<double, std::size_t>;
+using HeMesh = HalfedgeMesh<MeshTraits_t>;
 
 TEST(HalfedgeMesh, IsDefaultConstructible)
 {
@@ -34,9 +35,9 @@ TEST(HalfedgeMesh, IsMoveAssignable)
 
 TEST(HalfedgeMesh, vertexPoints)
 {
-  HalfedgeMesh<float> heMesh{};
-  [[maybe_unused]] std::vector<linal::float3>& vertexPoints = heMesh.getMeshPoints().getPoints();
+  HeMesh heMesh{};
+  [[maybe_unused]] std::vector<linal::double3>& vertexPoints = heMesh.getMeshPoints().getPoints();
 
-  const HalfedgeMesh<float>& constMesh = heMesh;
-  [[maybe_unused]] const std::vector<linal::float3>& constVertexPoints = constMesh.getMeshPoints().getPoints();
+  const HeMesh& constMesh = heMesh;
+  [[maybe_unused]] const std::vector<linal::double3>& constVertexPoints = constMesh.getMeshPoints().getPoints();
 }

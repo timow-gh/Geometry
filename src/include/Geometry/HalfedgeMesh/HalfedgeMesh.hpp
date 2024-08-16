@@ -4,8 +4,8 @@
 #include "Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp"
 #include "Geometry/HalfedgeMesh/Facet.hpp"
 #include "Geometry/HalfedgeMesh/Halfedge.hpp"
-#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/HalfedgeMesh/MeshPoints.hpp"
+#include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/HalfedgeMesh/Vertex.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <array>
@@ -15,18 +15,23 @@
 namespace Geometry
 {
 
-template <typename TFloat = double, typename TIndex = std::size_t>
+template <typename TMeshTraits>
 class HalfedgeMesh {
 public:
-  using VertexIndex_t = typename MeshIndexTraits<TIndex>::VertexIndex_t;
-  using HalfedgeIndex_t = typename MeshIndexTraits<TIndex>::HalfedgeIndex_t;
-  using FacetIndex_t = typename MeshIndexTraits<TIndex>::FacetIndex_t;
+  using value_type = typename TMeshTraits::value_type;
+  using index_type = typename TMeshTraits::index_type;
 
-  using Vertex_t = Vertex<TFloat, TIndex>;
-  using Halfedge_t = Halfedge<TFloat, TIndex>;
-  using Facet_t = Facet<TFloat, TIndex>;
+  using VertexIndex_t = typename TMeshTraits::VertexIndex_t;
+  using HalfedgeIndex_t = typename TMeshTraits::HalfedgeIndex_t;
+  using FacetIndex_t = typename TMeshTraits::FacetIndex_t;
 
-  using MeshPoints_t = MeshPoints<TFloat, TIndex>;
+  using Vertex_t = typename TMeshTraits::Vertex_t;
+  using Halfedge_t = typename TMeshTraits::Halfedge_t;
+  using Facet_t = typename TMeshTraits::Facet_t;
+
+  using HalfedgeMesh_t = typename TMeshTraits::HalfedgeMesh_t;
+
+  using MeshPoints_t = typename TMeshTraits::MeshPoints_t;
 
   constexpr HalfedgeMesh() = default;
   constexpr explicit HalfedgeMesh(const HalfedgeMesh& rhs) = delete;
@@ -36,7 +41,7 @@ public:
   constexpr HalfedgeMesh& operator=(HalfedgeMesh&& rhs) noexcept = default;
 
   // clang-format off
-  GEO_NODISCARD constexpr linal::vec3<TFloat> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().get_value()); }
+  GEO_NODISCARD constexpr linal::vec3<value_type> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().get_value()); }
 
   GEO_NODISCARD constexpr Vertex_t getVertex(const VertexIndex_t vertexIndex) const { return vertices[vertexIndex.get_value()]; }
   GEO_NODISCARD constexpr Halfedge_t getHalfedge(const HalfedgeIndex_t halfedgeIndex) const { return halfedges[halfedgeIndex.get_value()]; }
@@ -46,7 +51,7 @@ public:
   GEO_NODISCARD constexpr Halfedge_t& getHalfedge(HalfedgeIndex_t halfedgeIndex) { return halfedges[halfedgeIndex.get_value()]; }
   GEO_NODISCARD constexpr Facet_t& getFacet(FacetIndex_t facetIndex) { return facets[facetIndex.get_value()]; }
 
-  GEO_NODISCARD constexpr std::vector<linal::vec3<TFloat>>& getPoints() { return meshPoints.getPoints(); }
+  GEO_NODISCARD constexpr std::vector<linal::vec3<value_type>>& getPoints() { return meshPoints.getPoints(); }
   // clang-format on
 
   GEO_NODISCARD const std::vector<Vertex_t>& getVertices() const { return vertices; }
@@ -114,7 +119,7 @@ public:
     return false;
   }
 
-  GEO_NODISCARD constexpr bool contains(const linal::vec3<TFloat>& vector) const { return meshPoints.contains(vector); }
+  GEO_NODISCARD constexpr bool contains(const linal::vec3<value_type>& vector) const { return meshPoints.contains(vector); }
 
 private:
   std::vector<Vertex_t> vertices;

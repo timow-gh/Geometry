@@ -13,7 +13,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/HalfedgeMesh.hpp
         include/Geometry/HalfedgeMesh/Vertex.hpp
         include/Geometry/HalfedgeMesh/MeshIndices.hpp
-        include/Geometry/HalfedgeMesh/MeshIndexTraits.hpp
         include/Geometry/HalfedgeMesh/MeshTraits.hpp
         include/Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp
         include/Geometry/HalfedgeMeshBuilder/DiscretizeCircle.hpp

@@ -7,6 +7,8 @@
 
 using namespace Geometry;
 
+using HalfedgeMesh_t = HalfedgeMesh<MeshTraits<float, std::size_t>>;
+
 class CalcVertexNormalsTest : public ::testing::Test {
 protected:
   CalcVertexNormalsTest()
@@ -15,8 +17,8 @@ protected:
   {
   }
 
-  std::unique_ptr<HalfedgeMesh<float>> m_heMesh;
-  HalfedgeMesh<float>::Facet_t m_facet;
+  std::unique_ptr<HalfedgeMesh_t> m_heMesh;
+  HalfedgeMesh_t::Facet_t m_facet;
 };
 
 TEST_F(CalcVertexNormalsTest, vertexNormals)

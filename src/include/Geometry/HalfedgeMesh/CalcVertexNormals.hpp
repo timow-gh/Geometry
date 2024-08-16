@@ -12,21 +12,23 @@
 namespace Geometry
 {
 
-template <typename TFloat, typename TIndex>
-std::vector<linal::vec3<TFloat>> calc_vertex_normals(const HalfedgeMesh<TFloat, TIndex>& mesh)
+template <typename THalfedgeMesh>
+std::vector<linal::vec3<typename THalfedgeMesh::value_type>> calc_vertex_normals(const THalfedgeMesh& mesh)
 {
-  using vec_t = linal::vec3<TFloat>;
+  using value_type = typename THalfedgeMesh::value_type;
+  using Facet_t = typename THalfedgeMesh::Facet_t;
+  using Vertex_t = typename THalfedgeMesh::Vertex_t;
+  using vec_t = linal::vec3<value_type>;
+
   std::vector<vec_t> normals;
   normals.reserve(mesh.getVertices().size());
 
-  using vertex_t = Vertex<TFloat, TIndex>;
-
-  for (const vertex_t& vertex: mesh.getVertices())
+  for (const Vertex_t& vertex: mesh.getVertices())
   {
-    const std::vector<Facet<TFloat, TIndex>> facets = calc_vertex_facets(vertex);
+    const std::vector<Facet_t> facets = calc_vertex_facets(vertex);
 
     std::vector<vec_t> facetNormals;
-    for (const Facet<TFloat, TIndex>& facet: facets)
+    for (const Facet_t& facet: facets)
     {
       facetNormals.push_back(linal::normalize(calc_facet_normal(facet)));
     }

@@ -10,10 +10,12 @@
 using namespace MeshTestHelper;
 using namespace Geometry;
 
+using HalfedgeMesh_t = HalfedgeMesh<MeshTraits<double, std::size_t>>;
+
 class TestMeshBuilderSphere : public ::testing::Test {
 protected:
   Sphere<double> m_sphere;
-  std::unique_ptr<HalfedgeMesh<double>> m_sphereMesh;
+  std::unique_ptr<HalfedgeMesh_t> m_sphereMesh;
 
   TestMeshBuilderSphere()
       : m_sphere({linal::double3{}, 3.0})

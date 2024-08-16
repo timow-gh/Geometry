@@ -2,10 +2,10 @@
 #define GEOMETRY_VERTEX_H
 
 #include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
-#include "Geometry/HalfedgeMesh/MeshIndexTraits.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
+#include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include <algorithm>
 #include <linal/vec.hpp>
 #include <vector>
@@ -13,14 +13,21 @@
 namespace Geometry
 {
 
-template <typename TFloat, typename TIndex>
+template <typename TMeshTraits>
 class Vertex {
 public:
-  using VertexIndex_t = typename MeshIndexTraits<TIndex>::VertexIndex_t;
-  using HalfedgeIndex_t = typename MeshIndexTraits<TIndex>::HalfedgeIndex_t;
+  using value_type = typename TMeshTraits::value_type;
+  using index_type = typename TMeshTraits::index_type;
 
-  using Halfedge_t = typename MeshTraits<TFloat, TIndex>::Halfedge_t;
-  using HalfedgeMesh_t = HalfedgeMesh<TFloat, TIndex>;
+  using VertexIndex_t = typename TMeshTraits::VertexIndex_t;
+  using HalfedgeIndex_t = typename TMeshTraits::HalfedgeIndex_t;
+  using FacetIndex_t = typename TMeshTraits::FacetIndex_t;
+
+  using Vertex_t = typename TMeshTraits::Vertex_t;
+  using Halfedge_t = typename TMeshTraits::Halfedge_t;
+  using Facet_t = typename TMeshTraits::Facet_t;
+
+  using HalfedgeMesh_t = typename TMeshTraits::HalfedgeMesh_t;
 
   constexpr Vertex(VertexIndex_t vertexIndex, HalfedgeMesh_t* mesh) noexcept
       : m_vIndex(vertexIndex)
@@ -34,7 +41,7 @@ public:
   {
   }
 
-  GEO_NODISCARD constexpr linal::vec3<TFloat> getVector() const { return m_mesh->getVector(*this); }
+  GEO_NODISCARD constexpr linal::vec3<value_type> getVector() const { return m_mesh->getVector(*this); }
   GEO_NODISCARD constexpr VertexIndex_t getIndex() const { return m_vIndex; }
   GEO_NODISCARD constexpr const std::vector<HalfedgeIndex_t>& getHalfedgeIndices() const { return m_heIndices; }
 

@@ -10,11 +10,11 @@
 namespace Geometry
 {
 
-template <typename TFloat, typename TIndex>
-std::vector<Facet<TFloat, TIndex>> calc_vertex_facets(const Vertex<TFloat, TIndex>& vertex)
+template <typename TVertex>
+std::vector<typename TVertex::Facet_t> calc_vertex_facets(const TVertex& vertex)
 {
-  using Halfedge_t = Halfedge<TFloat, TIndex>;
-  using Facet_t = Facet<TFloat, TIndex>;
+  using Halfedge_t = typename TVertex::Halfedge_t;
+  using Facet_t = typename TVertex::Facet_t;
 
   std::vector<Facet_t> facets;
   for (const Halfedge_t& halfedge: vertex.calcHalfedges())
