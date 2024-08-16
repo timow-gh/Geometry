@@ -69,6 +69,7 @@ public:
 private:
   void calc_cylinder_triangles(std::vector<linal::vec3<value_type>>& points, std::vector<index_type>& indices) const
   {
+    // The CylinderMeshBuilder expects a cylinder at the origin with the z-axis as the cylinder axis.
     calc_circle_triangles(linal::vec3<value_type>{0, 0, 0},
                           m_cylinder->get_radius(),
                           m_azimuthCount,
@@ -78,7 +79,7 @@ private:
                           std::back_inserter(indices));
 
     const Segment3<value_type>& segment = m_cylinder->get_segment();
-    calc_circle_triangles(segment.get_target(),
+    calc_circle_triangles(linal::vec3<value_type>{0, 0, segment.length()},
                           m_cylinder->get_radius(),
                           m_azimuthCount,
                           CircleDiscretizationDirection::CW,
