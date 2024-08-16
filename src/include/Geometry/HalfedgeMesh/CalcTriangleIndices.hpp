@@ -11,8 +11,8 @@ namespace Geometry
  *
  * @attention The triangle indices will be ccw with respect to the normal of the facet.
  */
-template <typename TFacet, typename U>
-GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<TFacet>& facets)
+template <typename U, typename TFacet>
+GEO_NODISCARD constexpr std::vector<U> calc_triangle_indices(const std::vector<TFacet>& facets)
 {
   using Halfedge_t = typename TFacet::Halfedge_t;
 
@@ -42,28 +42,40 @@ GEO_NODISCARD constexpr std::vector<U> calcTriangleIndices(const std::vector<TFa
   return result;
 }
 
-template <typename THalfedgeMesh, typename U>
-GEO_NODISCARD constexpr std::vector<U> calcLineIndices(const THalfedgeMesh& mesh)
+template <typename U, typename THalfedgeMesh>
+GEO_NODISCARD constexpr std::vector<U> calc_line_indices(const THalfedgeMesh& mesh)
 {
   using Halfedge_t = typename THalfedgeMesh::Halfedge_t;
+  using index_type = typename THalfedgeMesh::index_type;
 
   struct Edge
   {
     U v0;
     U v1;
 
-    static Edge create(U v0, U v1) { return v0 < v1 ? Edge{v0, v1} : Edge{v1, v0}; }
+    static Edge create(index_type idx0, index_type idx1) noexcept
+    {
+      GEO_ASSERT(idx0 <= std::numeric_limits<U>::max());
+      GEO_ASSERT(idx1 <= std::numeric_limits<U>::max());
+
+      Edge edge{static_cast<U>(idx0), static_cast<U>(idx1)};
+      if (edge.v0 > edge.v1)
+      {
+        std::swap(edge.v0, edge.v1);
+      }
+
+      return edge;
+    }
 
     constexpr bool operator<(const Edge& other) const { return v0 < other.v0 || (v0 == other.v0 && v1 < other.v1); }
     constexpr bool operator==(const Edge& other) const { return (v0 == other.v0 && v1 == other.v1) || (v0 == other.v1 && v1 == other.v0); }
+    constexpr bool operator!=(const Edge& other) const { return !(*this == other); }
   };
 
   std::vector<Edge> edges;
   for (const Halfedge_t& halfedge: mesh.getHalfedges())
   {
-    const U v0 = halfedge.getVertexIndex().get_value();
-    const U v1 = halfedge.getNext().getVertexIndex().get_value();
-    Edge edge = Edge::create(v0, v1);
+    Edge edge = Edge::create(halfedge.getVertexIndex().get_value(), halfedge.getNext().getVertexIndex().get_value());
     auto iter = std::lower_bound(edges.begin(), edges.end(), edge);
     if (iter == edges.end() || *iter != edge)
     {

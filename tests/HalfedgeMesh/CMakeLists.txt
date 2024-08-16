@@ -1,6 +1,8 @@
 create_geometry_test(Test_CalcVertexFacets)
 create_geometry_test(Test_CalcVertexNormals)
 create_geometry_test(Test_HalfedgeMesh)
+create_geometry_test(Test_TriangleIndices)
+create_geometry_test(Test_LineIndices)
 create_geometry_test(Test_Facet)
 create_geometry_test(Test_FaceUtils)
 create_geometry_test(Test_Halfedge)
