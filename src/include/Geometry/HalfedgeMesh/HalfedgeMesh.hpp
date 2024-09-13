@@ -128,6 +128,9 @@ private:
   MeshPoints_t meshPoints;
 };
 
+using HEMesh3f = HalfedgeMesh<MeshTraits<float, std::size_t>>;
+using HEMesh3d = HalfedgeMesh<MeshTraits<double, std::size_t>>;
+
 } // namespace Geometry
 
 #endif // GEOMETRY_HALFEDGEMESH_H
