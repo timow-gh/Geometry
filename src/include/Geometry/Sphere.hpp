@@ -39,6 +39,9 @@ public:
   constexpr bool operator!=(const Sphere& rhs) const noexcept { return !(rhs == *this); }
 };
 
+using SphereF = Sphere<float>;
+using SphereD = Sphere<double>;
+
 } // namespace Geometry
 
 #endif // GEOMETRY_SPHERE_H
