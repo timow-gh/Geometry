@@ -26,6 +26,8 @@ public:
 
   index_type m_polarCount{10};
   index_type m_azimuthCount{20};
+  linal::vec3<value_type> m_origin;
+  value_type m_radius{1.0};
   std::optional<Sphere<value_type>> m_sphere;
 
 public:
@@ -47,10 +49,38 @@ public:
     return *this;
   }
 
+  SphereMeshBuilder& set_origin(const linal::vec3<value_type>& origin)
+  {
+    if (m_sphere)
+    {
+      m_sphere->set_origin(origin);
+    }
+    else
+    {
+      m_origin = origin;
+    }
+    return *this;
+  }
+
+  SphereMeshBuilder& set_radius(value_type radius)
+  {
+    if (m_sphere)
+    {
+      m_sphere->set_radius(radius);
+    }
+    else
+    {
+      m_radius = radius;
+    }
+    return *this;
+  }
+
   std::unique_ptr<HalfedgeMesh_t> build()
   {
     if (!m_sphere)
-      return nullptr;
+    {
+      m_sphere = Sphere<value_type>{m_origin, m_radius};
+    }
 
     auto spherePoints = calc_sphere_points(*m_sphere);
     auto triangleIndices = calc_sphere_triangle_indices(to_idx<index_type>(spherePoints.size()));
