@@ -12,13 +12,14 @@
 namespace Geometry
 {
 
-template <typename THalfedgeMesh>
-std::vector<linal::vec3<typename THalfedgeMesh::value_type>> calc_vertex_normals(const THalfedgeMesh& mesh)
+template <typename TResFloat, typename THalfedgeMesh>
+std::vector<linal::vec3<TResFloat>> calc_vertex_normals(const THalfedgeMesh& mesh)
 {
   using value_type = typename THalfedgeMesh::value_type;
   using Facet_t = typename THalfedgeMesh::Facet_t;
   using Vertex_t = typename THalfedgeMesh::Vertex_t;
-  using vec_t = linal::vec3<value_type>;
+
+  using vec_t = linal::vec3<TResFloat>;
 
   std::vector<vec_t> normals;
   normals.reserve(mesh.getVertices().size());
