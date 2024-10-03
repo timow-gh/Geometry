@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_INTERSECTLINEUTIL_HPP
-#define GEOMETRY_INTERSECTLINEUTIL_HPP
+#ifndef GEOMETRY_CLOSETPOINTONLINE_HPP
+#define GEOMETRY_CLOSETPOINTONLINE_HPP
 
 #include "Geometry/Line.hpp"
 #include "Geometry/Utils/Assert.hpp"
@@ -49,4 +49,4 @@ closest_point_on_line_parameters(linal::vec3<T> lhsSource, linal::vec3<T> lhsDir
 
 } // namespace Geometry
 
-#endif // GEOMETRY_INTERSECTLINEUTIL_HPP
+#endif // GEOMETRY_CLOSETPOINTONLINE_HPP

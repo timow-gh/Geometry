@@ -30,9 +30,10 @@ set(geometry_TARGET_HEADER
         include/Geometry/Distance/DistanceSphere.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
+        include/Geometry/Intersect/IntersectAABBHelper.hpp
         include/Geometry/Intersect/IntersectInterval.hpp
         include/Geometry/Intersect/IntersectLine.hpp
-        include/Geometry/Intersect/IntersectLineUtil.hpp
+        include/Geometry/Intersect/ClosetPointOnLine.hpp
         include/Geometry/Intersect/IntersectPlane.hpp
         include/Geometry/Intersect/IntersectSegment.hpp
         include/Geometry/Intersect/IntersectSphere.hpp
@@ -45,6 +46,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Transform/TransformAABB.hpp
         include/Geometry/Utils/Assert.hpp
         include/Geometry/Utils/Compiler.hpp
+        include/Geometry/Utils/DefaultValues.hpp
         include/Geometry/Utils/GeometryAssert.hpp
         include/Geometry/Utils/Warnings.hpp
         include/Geometry/AABB.hpp

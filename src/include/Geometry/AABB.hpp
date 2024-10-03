@@ -37,22 +37,22 @@ public:
     GEO_ASSERT(is_valid());
   }
 
-  /** @brief Construct a new AABB from a center and an (positive) extend
-   *
-   * @remark The extend must be positive
-   *
-   * @param center The center of the AABB
-   * @param extend The extend of the AABB in every positive direction
-   */
-  constexpr AABB(linal::vec<TFloat, D> min, TFloat extend) noexcept
-      : m_min{min}
+/** @brief Construct a new AABB from a min point and an (positive) extend
+ *
+ * @remark The extend must be positive
+ *
+ * @param min The minimum point of the AABB
+ * @param extend The extend of the AABB in every positive direction
+ */
+constexpr AABB(linal::vec<TFloat, D> min, TFloat extend) noexcept
+    : m_min{min}
+{
+  GEO_ASSERT(extend >= TFloat{0.0});
+  for (size_type i = 0; i < static_cast<size_type>(D); ++i)
   {
-    GEO_ASSERT(extend >= TFloat{0.0});
-    for (size_type i = 0; i < static_cast<size_type>(D); ++i)
-    {
-      m_max[i] = min[i] + extend;
-    }
+    m_max[i] = min[i] + extend;
   }
+}
 
   GEO_NODISCARD constexpr linal::vec<TFloat, D> get_min() const noexcept { return m_min; }
   GEO_NODISCARD constexpr linal::vec<TFloat, D> get_max() const noexcept { return m_max; }
