@@ -37,22 +37,22 @@ public:
     GEO_ASSERT(is_valid());
   }
 
-/** @brief Construct a new AABB from a min point and an (positive) extend
- *
- * @remark The extend must be positive
- *
- * @param min The minimum point of the AABB
- * @param extend The extend of the AABB in every positive direction
- */
-constexpr AABB(linal::vec<TFloat, D> min, TFloat extend) noexcept
-    : m_min{min}
-{
-  GEO_ASSERT(extend >= TFloat{0.0});
-  for (size_type i = 0; i < static_cast<size_type>(D); ++i)
+  /** @brief Construct a new AABB from a min point and an (positive) extend
+   *
+   * @remark The extend must be positive
+   *
+   * @param min The minimum point of the AABB
+   * @param extend The extend of the AABB in every positive direction
+   */
+  constexpr AABB(linal::vec<TFloat, D> min, TFloat extend) noexcept
+      : m_min{min}
   {
-    m_max[i] = min[i] + extend;
+    GEO_ASSERT(extend >= TFloat{0.0});
+    for (size_type i = 0; i < static_cast<size_type>(D); ++i)
+    {
+      m_max[i] = min[i] + extend;
+    }
   }
-}
 
   GEO_NODISCARD constexpr linal::vec<TFloat, D> get_min() const noexcept { return m_min; }
   GEO_NODISCARD constexpr linal::vec<TFloat, D> get_max() const noexcept { return m_max; }
@@ -139,34 +139,35 @@ constexpr AABB(linal::vec<TFloat, D> min, TFloat extend) noexcept
   GEO_NODISCARD constexpr bool operator!=(const AABB<TFloat, D>& rhs) const noexcept { return !(*this == rhs); }
 };
 
-/*@brief Creates an AABB from a set of points
- *
- * @tparam TFloat The type of the floating point numbers
- * @tparam D The dimension of the AABB
- * @param points The points to create the AABB from
- * @return The created AABB
- */
-template <typename TFloat, std::uint8_t D>
-GEO_NODISCARD auto make_aabb(const std::vector<linal::vec<TFloat, D>>& points) noexcept
+/*@brief Creates an AABB from a set of points */
+template <typename TResultFloat, typename TVec>
+GEO_NODISCARD AABB<TResultFloat, TVec::dim> make_aabb(const std::vector<TVec>& points) noexcept
 {
   GEO_ASSERT(!points.empty());
 
-  using size_type = typename linal::vec<TFloat, D>::size_type;
+  using size_type = typename TVec::size_type;
+  constexpr size_type D = TVec::dim;
 
-  std::array<linal::vec<TFloat, D>, D> axis;
+  std::array<TVec, D> axis;
   for (size_type i = 0; i < D; ++i)
   {
     axis[static_cast<std::size_t>(i)][i] = 1;
   }
 
-  std::array<MinMax<TFloat>, D> minMaxes;
+  std::array<MinMax<TResultFloat>, D> minMaxes;
   for (size_type i = 0; i < D; ++i)
   {
     minMaxes[static_cast<std::size_t>(i)] = extreme_points_along_direction(axis[static_cast<std::size_t>(i)], points);
   }
 
-  return AABB<TFloat, D>{linal::vec<TFloat, D>{minMaxes[0].min, minMaxes[1].min, minMaxes[2].min},
-                         linal::vec<TFloat, D>{minMaxes[0].max, minMaxes[1].max, minMaxes[2].max}};
+  return AABB<TResultFloat, D>{linal::vec<TResultFloat, D>{minMaxes[0].min, minMaxes[1].min, minMaxes[2].min},
+                               linal::vec<TResultFloat, D>{minMaxes[0].max, minMaxes[1].max, minMaxes[2].max}};
+}
+
+template <typename TVec>
+GEO_NODISCARD auto make_aabb(const std::vector<TVec>& points) noexcept
+{
+  return make_aabb<typename TVec::value_type, TVec>(points);
 }
 
 template <typename TFloat>
