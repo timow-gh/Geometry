@@ -78,3 +78,11 @@ TEST(Line_Line_Distance, linesWithIntersection)
   double dist = Geometry::distance(lhs, rhs);
   EXPECT_DOUBLE_EQ(dist, 0);
 }
+
+TEST(Line_Line_Distance, negativeDistTest)
+{
+  Line3d lhs{linal::double3{0.0, 0.0, -1.0}, linal::double3{0.0, 1.0, 0.0}};
+  Line3d rhs{linal::double3{0.0, 0.0, 0.0}, linal::double3X};
+  double dist = Geometry::distance(lhs, rhs);
+  EXPECT_DOUBLE_EQ(dist, 1);
+}

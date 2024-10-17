@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_INTERSECTLINE_HPP
 #define GEOMETRY_INTERSECTLINE_HPP
 
-#include "Geometry/Intersect/ClosetPointOnLine.hpp"
+#include "Geometry/ClosetPointOnLine.hpp"
 #include "Geometry/Line.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
@@ -49,24 +49,18 @@ GEO_NODISCARD constexpr std::optional<linal::vec3<T>> intersect(Line3<T> lhs, Li
   linal::vec3<T> lhsDir = lhs.get_direction(); // Direction vector of the first line
   linal::vec3<T> rhsDir = rhs.get_direction(); // Direction vector of the second line
 
-  // Calculate the cross product of the direction vectors
-  linal::vec3<T> cross = linal::cross(lhsDir, rhsDir); // Cross product of direction vectors
-
-  // Check if lines are parallel (cross product will be zero)
-  if (linal::isZero(linal::length(cross), eps))
+  linal::vec3<T> lhsSource = lhs.get_origin();
+  linal::vec3<T> rhsSource = rhs.get_origin();
+  auto params = details::closest_point_on_line_parameters(lhsSource, lhsDir, rhsSource, rhsDir);
+  if (!params)
   {
     return std::nullopt; // Lines are parallel
   }
 
-  linal::vec3<T> lhsSource = lhs.get_origin();
-  linal::vec3<T> rhsSource = rhs.get_origin();
-  CPOLParameters<T> params = closest_point_on_line_parameters(lhsSource, lhsDir, rhsSource, rhsDir);
+  linal::vec3<T> lhsPoint = lhsSource + (params->t * lhsDir);
+  linal::vec3<T> rhsPoint = rhsSource + (params->s * rhsDir);
 
-  linal::vec3<T> lhsPoint = lhsSource + params.t * lhsDir;
-  linal::vec3<T> rhsPoint = rhsSource + params.s * rhsDir;
-
-  linal::vec3<T> dist = lhsPoint - rhsPoint;
-  if (linal::isZero(linal::length(dist), eps))
+  if (linal::isZero(linal::length(lhsPoint - rhsPoint), eps))
   {
     return lhsPoint; // Lines intersect
   }

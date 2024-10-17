@@ -6,12 +6,13 @@
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
+#include <optional>
 
-namespace Geometry
+namespace Geometry::details
 {
 
 /** @brief The parameters describe the points on two 3d lines that are closest to each other.
- * 
+ *
  * CPOL stands for Closest Point On Line.
  */
 template <typename T>
@@ -29,9 +30,12 @@ struct CPOLParameters
  * @param lhsDir The direction vector of the first line, not necessarily normalized.
  * @param rhsSource The source point of the second line.
  * @param rhsDir The direction vector of the second line, not necessarily normalized.
+ *
+ * @return The parameters that describe the points on the two lines that are closest to each other or std::nullopt if the lines are
+ * parallel.
  */
 template <typename T>
-GEO_NODISCARD constexpr CPOLParameters<T>
+GEO_NODISCARD constexpr std::optional<CPOLParameters<T>>
 closest_point_on_line_parameters(linal::vec3<T> lhsSource, linal::vec3<T> lhsDir, linal::vec3<T> rhsSource, linal::vec3<T> rhsDir) noexcept
 {
   // Calculate the parameter values that minimize the distance between the two lines
@@ -42,11 +46,20 @@ closest_point_on_line_parameters(linal::vec3<T> lhsSource, linal::vec3<T> lhsDir
   T d = linal::dot(lhsDir, w0);
   T e = linal::dot(rhsDir, w0);
   T denom = a * c - b * b;
-  T t = (b * e - c * d) / denom;
-  T s = (a * e - b * d) / denom;
-  return {t, s};
+
+  if (linal::isZero(denom))
+  {
+    // The lines are parallel
+    return {};
+  }
+  else
+  {
+    T t = (b * e - c * d) / denom;
+    T s = (a * e - b * d) / denom;
+    return CPOLParameters<T>{t, s};
+  }
 }
 
-} // namespace Geometry
+} // namespace Geometry::details
 
 #endif // GEOMETRY_CLOSETPOINTONLINE_HPP

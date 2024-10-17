@@ -33,7 +33,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/Intersect/IntersectAABBHelper.hpp
         include/Geometry/Intersect/IntersectInterval.hpp
         include/Geometry/Intersect/IntersectLine.hpp
-        include/Geometry/Intersect/ClosetPointOnLine.hpp
         include/Geometry/Intersect/IntersectPlane.hpp
         include/Geometry/Intersect/IntersectSegment.hpp
         include/Geometry/Intersect/IntersectSphere.hpp
@@ -51,6 +50,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Utils/Warnings.hpp
         include/Geometry/AABB.hpp
         include/Geometry/Circle.hpp
+        include/Geometry/ClosetPointOnLine.hpp
         include/Geometry/Cone.hpp
         include/Geometry/Cuboid.hpp
         include/Geometry/Cylinder.hpp

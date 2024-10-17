@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_INTERSECTSEGMENT_HPP
 #define GEOMETRY_INTERSECTSEGMENT_HPP
 
-#include "Geometry/Intersect/ClosetPointOnLine.hpp"
+#include "Geometry/ClosetPointOnLine.hpp"
 #include "Geometry/Segment.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
@@ -73,16 +73,19 @@ intersect(const Segment3<T>& first, const Segment3<T>& second, T eps = linal::ep
     return std::nullopt;
   }
 
-  CPOLParameters<T> params = closest_point_on_line_parameters(fSource, fDir, sSource, sDir);
+  auto params = details::closest_point_on_line_parameters(fSource, fDir, sSource, sDir);
+  if (!params)
+  {
+    return std::nullopt; // parallel
+  }
 
   // Check if the intersection point lies on both line segments
-  if (params.s < 0 || params.s > 1 || params.t < 0 || params.t > 1)
+  if (params->s < 0 || params->s > 1 || params->t < 0 || params->t > 1)
   {
     return std::nullopt;
   }
 
-  GEO_ASSERT(linal::vec3<T>{fSource + params.t * fDir} == linal::vec3<T>{sSource + params.s * sDir});
-  return fSource + fDir * params.t;
+  return fSource + fDir * params->t;
 }
 
 } // namespace Geometry

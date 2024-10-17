@@ -23,6 +23,6 @@ protected:
 
 TEST_F(CalcVertexNormalsTest, vertexNormals)
 {
-  auto normals = calc_vertex_normals(*m_heMesh);
+  std::vector<linal::vec3<float>> normals = calc_vertex_normals<float>(*m_heMesh);
   ASSERT_EQ(normals.size(), m_heMesh->getMeshPoints().size());
 }
