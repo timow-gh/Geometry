@@ -1,3 +1,4 @@
+create_geometry_test(Distance_Segment_Ray_Test)
 create_geometry_test(Test_Distance_Line)
 create_geometry_test(Test_Distance_Ray)
 create_geometry_test(Test_Distance_Ray_Line)

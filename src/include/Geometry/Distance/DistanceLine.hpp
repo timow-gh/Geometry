@@ -26,8 +26,8 @@ GEO_NODISCARD constexpr T distance(const Line<T, D>& line, linal::vec<T, D> vec)
 template <typename T, std::uint8_t D>
 GEO_NODISCARD constexpr T distance(const Line<T, D>& lhs, const Line<T, D>& rhs) noexcept
 {
-  GEO_ASSERT(linal::length(lhs.get_direction()) == 1.0);
-  GEO_ASSERT(linal::length(rhs.get_direction()) == 1.0);
+  GEO_ASSERT(linal::isEq(linal::length(lhs.get_direction()), 1.0));
+  GEO_ASSERT(linal::isEq(linal::length(rhs.get_direction()), 1.0));
 
   linal::vec<T, D> cross = linal::cross(lhs.get_direction(), rhs.get_direction());
   T crossLen = linal::length(cross);

@@ -18,7 +18,7 @@ class Ray {
 public:
   constexpr Ray(linal::vec<T, D> origin, linal::vec<T, D> direction) noexcept
       : m_origin(origin)
-      , m_direction(direction)
+      , m_direction(linal::normalize(direction))
   {
   }
 

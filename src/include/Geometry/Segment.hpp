@@ -32,13 +32,7 @@ public:
   constexpr void set_target(linal::vec<T, D> target) noexcept { m_target = target; }
 
   GEO_NODISCARD constexpr T length() const noexcept { return linal::length(linal::vec<T, D>{m_target - m_source}); }
-
-  //! Returns vector of length one.
-  GEO_NODISCARD constexpr linal::vec<T, D> direction() const noexcept
-  {
-    linal::vec<T, D> segVec{m_target - m_source};
-    return segVec / linal::length(segVec);
-  }
+  GEO_NODISCARD constexpr linal::vec<T, D> direction() const noexcept { return linal::normalize(linal::vec<T, D>{m_target - m_source}); }
 
   constexpr bool operator==(const Segment& rhs) const noexcept
   {

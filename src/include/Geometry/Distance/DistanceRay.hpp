@@ -43,18 +43,18 @@ template <typename T, std::uint8_t D>
 GEO_NODISCARD constexpr T distance(const Line<T, D>& line, const Ray<T, D>& ray) noexcept
 {
   const linal::vec<T, D> lineSource = line.get_origin();
-  const linal::vec<T, D> linaDir = line.get_direction();
+  const linal::vec<T, D> lineDir = line.get_direction();
   const linal::vec<T, D> raySource = ray.get_origin();
   const linal::vec<T, D> rayDir = ray.get_direction();
 
-  if (auto params = details::closest_point_on_line_parameters<T>(lineSource, linaDir, raySource, rayDir))
+  if (auto params = details::closest_point_on_line_parameters<T>(lineSource, lineDir, raySource, rayDir))
   {
     if (params->s < 0)
     {
       return distance(raySource, line);
     }
 
-    linal::vec<T, D> linePoint = lineSource + (params->t * linaDir);
+    linal::vec<T, D> linePoint = lineSource + (params->t * lineDir);
     linal::vec<T, D> rayPoint = raySource + (params->s * rayDir);
     return linal::length(linePoint - rayPoint);
   }

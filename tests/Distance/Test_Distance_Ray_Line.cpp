@@ -13,6 +13,21 @@ protected:
   Ray3d m_ray{m_source, linal::double3X};
 };
 
+TEST_F(Distance_Ray_Line_Test, Parallel)
+{
+  Line3d line{linal::double3{0, 0, 0}, linal::double3X};
+  double dist = Geometry::distance(line, m_ray);
+  EXPECT_DOUBLE_EQ(dist, 1.0);
+}
+
+TEST_F(Distance_Ray_Line_Test, Collinear)
+{
+  Line3d line{linal::double3{0, 0, 0}, linal::double3X};
+  Ray3d ray{linal::double3{1, 0, 0}, linal::double3X};
+  double dist = Geometry::distance(line, ray);
+  EXPECT_DOUBLE_EQ(dist, 0.0);
+}
+
 TEST_F(Distance_Ray_Line_Test, SameSourcePointWith)
 {
   Line3d line{linal::double3{1, 1, 1}, linal::double3Y};
