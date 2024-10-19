@@ -7,6 +7,7 @@
 
 namespace Geometry
 {
+
 template <typename T>
 class Interval {
   T m_start;

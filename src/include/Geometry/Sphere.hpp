@@ -9,6 +9,7 @@
 
 namespace Geometry
 {
+
 template <typename T>
 class Sphere {
   linal::vec3<T> m_origin;

@@ -8,6 +8,7 @@
 
 namespace Geometry
 {
+
 template <typename T>
 class Plane {
 private:
@@ -18,7 +19,7 @@ public:
   constexpr Plane() noexcept = default;
   constexpr Plane(const linal::vec3<T>& origin, const linal::vec3<T>& normal) noexcept
       : m_origin(origin)
-      , m_normal(normal)
+      , m_normal(linal::normalize(normal))
   {
   }
 
