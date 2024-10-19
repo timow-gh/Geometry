@@ -66,7 +66,6 @@ set(geometry_TARGET_HEADER
 )
 
 set(geometry_TARGET_SOURCES
-        source/HalfedgeMeshBuilder/MeshBuilder.cpp
 )
 
 set(TARGET_NAME tw_geometry)

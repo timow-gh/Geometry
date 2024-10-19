@@ -1,9 +1,17 @@
 #ifndef MESHLER_MESHBUILDER_HPP
 #define MESHLER_MESHBUILDER_HPP
 
+#include "Geometry/Cone.hpp"
+#include "Geometry/Cuboid.hpp"
+#include "Geometry/Cylinder.hpp"
 #include "Geometry/GeometryExport.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
+#include "Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp"
+#include "Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp"
+#include "Geometry/HalfedgeMeshBuilder/CylinderMeshBuilder.hpp"
 #include "Geometry/HalfedgeMeshBuilder/MeshBuilderConfig.hpp"
+#include "Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp"
+#include "Geometry/Sphere.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <functional>
 #include <memory>
@@ -23,26 +31,45 @@ class Cylinder;
 template <typename T>
 class Cuboid;
 
+template <typename TFloat, typename TIndex>
 class GEOMETRY_EXPORT MeshBuilder {
   MeshBuilderConfig m_config;
 
 public:
-  using value_type = double;
-  using index_type = std::size_t;
-  using MeshTraits_t = MeshTraits<value_type, index_type>;
-  using HalfedgeMesh_t = HalfedgeMesh<MeshTraits_t>;
+  using value_type = TFloat;
+  using index_type = TIndex;
 
-  using Sphere_t = Sphere<value_type>;
-  using Cone_t = Cone<value_type>;
-  using Cylinder_t = Cylinder<value_type>;
-  using Cuboid_t = Cuboid<value_type>;
+  using HalfedgeMesh_t = typename MeshTraits<TFloat, TIndex>::HalfedgeMesh_t;
 
-  constexpr explicit MeshBuilder(const MeshBuilderConfig& meshBuilderConfig);
+  constexpr MeshBuilder() noexcept = default;
+  constexpr explicit MeshBuilder(const MeshBuilderConfig& meshBuilderConfig) noexcept
+      : m_config(meshBuilderConfig)
+  {
+  }
 
-  GEO_NODISCARD std::unique_ptr<HalfedgeMesh_t> build(const Sphere_t& sphere);
-  GEO_NODISCARD std::unique_ptr<HalfedgeMesh_t> build(const Cone_t& cone);
-  GEO_NODISCARD std::unique_ptr<HalfedgeMesh_t> build(const Cylinder_t& cylinder);
-  GEO_NODISCARD std::unique_ptr<HalfedgeMesh_t> build(const Cuboid_t& cuboid);
+  GEO_NODISCARD auto build(const Sphere<TFloat>& sphere)
+  {
+    return Geometry::SphereMeshBuilder<value_type, index_type>()
+        .set_polar_count(m_config.polarCount)
+        .set_azimuth_count(m_config.azimuthCount)
+        .set_sphere(sphere)
+        .build();
+  }
+
+  GEO_NODISCARD std::unique_ptr<HalfedgeMesh_t> build(const Cone<TFloat>& cone)
+  {
+    return Geometry::ConeMeshBuilder<value_type, index_type>().set_azimuth_count(m_config.azimuthCount).set_cone(cone).build();
+  }
+
+  GEO_NODISCARD std::unique_ptr<HalfedgeMesh_t> build(const Cylinder<TFloat>& cylinder)
+  {
+    return Geometry::CylinderMeshBuilder<value_type, index_type>().set_azimuth_count(m_config.azimuthCount).set_cylinder(cylinder).build();
+  }
+
+  GEO_NODISCARD std::unique_ptr<HalfedgeMesh_t> build(const Cuboid<TFloat>& cuboid)
+  {
+    return Geometry::CuboidMeshBuilder<value_type, index_type>().set_cuboid(cuboid).build();
+  }
 };
 
 } // namespace Geometry

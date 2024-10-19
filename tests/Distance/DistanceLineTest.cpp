@@ -5,25 +5,25 @@
 
 using namespace Geometry;
 
-class Vec_Line_Distance_Test : public ::testing::Test {
+class DistanceLineTest : public ::testing::Test {
 protected:
   linal::double3 vec{2, 2, 0};
   Line3d line{linal::double3{}, linal::double3X};
 };
 
-TEST_F(Vec_Line_Distance_Test, DistTestA)
+TEST_F(DistanceLineTest, DistTestA)
 {
   double dist = Geometry::distance(vec, line);
   EXPECT_DOUBLE_EQ(dist, 2);
 }
 
-TEST_F(Vec_Line_Distance_Test, DistTestA_ArgOrder)
+TEST_F(DistanceLineTest, DistTestA_ArgOrder)
 {
   double dist = Geometry::distance(line, vec);
   EXPECT_DOUBLE_EQ(dist, 2);
 }
 
-TEST(Vec_Line_Distance, DistTestB)
+TEST(DistanceVecLine, DistTestB)
 {
   linal::double3 vec{0, 2, 2};
   Line3d line{linal::double3{}, linal::double3X};
@@ -31,7 +31,7 @@ TEST(Vec_Line_Distance, DistTestB)
   EXPECT_DOUBLE_EQ(dist, linal::length(linal::double2{2, 2}));
 }
 
-TEST(Vec_Line_Distance, DistTestC)
+TEST(DistanceVecLine, DistTestC)
 {
   linal::double3 vec{0, 0, 0};
   Line3d line{linal::double3{1, 0, 0}, linal::double3Z};
@@ -39,7 +39,7 @@ TEST(Vec_Line_Distance, DistTestC)
   EXPECT_DOUBLE_EQ(dist, 1);
 }
 
-TEST(Vec_Line_Distance, OnLineTest)
+TEST(DistanceVecLine, OnLineTest)
 {
   linal::double3 vec{0, 0, 0};
   Line3d line{linal::double3{}, linal::double3X};
@@ -47,7 +47,7 @@ TEST(Vec_Line_Distance, OnLineTest)
   EXPECT_DOUBLE_EQ(dist, 0);
 }
 
-TEST(Line_Line_Distance, distance)
+TEST(DistanceLineLine, distance)
 {
   Line3d lhs{linal::double3{}, linal::double3Y};
   Line3d rhs{linal::double3{0, 0, 2}, linal::double3X};
@@ -55,7 +55,7 @@ TEST(Line_Line_Distance, distance)
   EXPECT_DOUBLE_EQ(dist, 2);
 }
 
-TEST(Line_Line_Distance, collinear_parallel)
+TEST(DistanceLineLine, collinear_parallel)
 {
   Line3d lhs{linal::double3{}, linal::double3X};
   Line3d rhs{linal::double3{0, 0, 3}, linal::double3X};
@@ -63,7 +63,7 @@ TEST(Line_Line_Distance, collinear_parallel)
   EXPECT_DOUBLE_EQ(dist, 3);
 }
 
-TEST(Line_Line_Distance, parallel_lines)
+TEST(DistanceLineLine, parallel_lines)
 {
   Line3d lhs{linal::double3{}, linal::double3X};
   Line3d rhs{linal::double3{}, linal::double3X};
@@ -71,7 +71,7 @@ TEST(Line_Line_Distance, parallel_lines)
   EXPECT_DOUBLE_EQ(dist, 0);
 }
 
-TEST(Line_Line_Distance, linesWithIntersection)
+TEST(DistanceLineLine, linesWithIntersection)
 {
   Line3d lhs{linal::double3{}, linal::double3Y};
   Line3d rhs{linal::double3{}, linal::double3X};
@@ -79,7 +79,7 @@ TEST(Line_Line_Distance, linesWithIntersection)
   EXPECT_DOUBLE_EQ(dist, 0);
 }
 
-TEST(Line_Line_Distance, negativeDistTest)
+TEST(DistanceLineLine, negativeDistTest)
 {
   Line3d lhs{linal::double3{0.0, 0.0, -1.0}, linal::double3{0.0, 1.0, 0.0}};
   Line3d rhs{linal::double3{0.0, 0.0, 0.0}, linal::double3X};

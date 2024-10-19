@@ -34,9 +34,11 @@ void print(std::ostream& os, std::vector<linal::vec3<TFloat>>& vec)
 template <typename TMeshTraits>
 void print(std::ostream& os, const Vertex<TMeshTraits>& vertex)
 {
+  using value_type = typename TMeshTraits::value_type;
+
   os << "Vertex index: " << vertex.getIndex().get_value() << "; ";
-  linal::vec3<TFloat> vec = vertex.getVector();
-  print_inline(std::cout, vec);
+  linal::vec3<value_type> vec = vertex.getVector();
+  print_inline(os, vec);
   os << std::endl;
 }
 
@@ -50,19 +52,37 @@ void print(std::ostream& os, const std::vector<Vertex<TMeshTraits>>& vertices)
 }
 
 template <typename TMeshTraits>
-void print_inline(std::ostream& os, const Facet_t& facet)
+void print_inline(std::ostream& os, const Facet<TMeshTraits>& facet)
 {
   os << "Facet halfedge index: " << facet.getHalfedge().getFacetIndex().get_value();
 }
 
 template <typename TMeshTraits>
-void print(std::ostream& os, const aasdf& he)
+void print(std::ostream& os, const Facet<TMeshTraits>& facet)
 {
+  print_inline(os, facet);
+  os << std::endl;
+}
+
+template <typename TMeshTraits>
+void print(std::ostream& os, const std::vector<Facet<TMeshTraits>>& facets)
+{
+  for (const auto& facet: facets)
+  {
+    print(os, facet);
+  }
+}
+
+template <typename TMeshTraits>
+void print(std::ostream& os, const Halfedge<TMeshTraits>& he)
+{
+  using value_type = typename TMeshTraits::value_type;
+
   os << "Halfedge index: " << he.getFacet().getHalfedgeIndex().get_value();
   os << "; Halfedge vertex index: " << he.getVertex().getIndex().get_value();
   os << "; Opposite halfedge index: " << he.getOppositeIndex().get_value();
   os << "; Vertex vector, ";
-  linal::vec3<TFloat> vec = he.getVertex().getVector();
+  linal::vec3<value_type> vec = he.getVertex().getVector();
   print_inline(os, vec);
   os << "; ";
   os << "Facet index: " << he.getFacetIndex().get_value();
@@ -70,29 +90,12 @@ void print(std::ostream& os, const aasdf& he)
 }
 
 template <typename TMeshTraits>
-void print(std::ostream& os, const std::vector<asdf>& halfedges)
+void print(std::ostream& os, const std::vector<Halfedge<TMeshTraits>>& halfedges)
 {
   for (const auto& he: halfedges)
   {
     print(os, he);
   }
-}
-
-template <typename TMeshTraits>
-void print(std::ostream& os, const Facet_t& facet)
-{
-  print_inline(os, facet);
-  os << std::endl;
-}
-
-template <typename TMeshTraits>
-void print(std::ostream& os, const std::vector<Facet_t>& facets)
-{
-  for (const auto& facet: facets)
-  {
-    print(os, facet);
-  }
-  os << std::endl;
 }
 
 } // namespace Geometry

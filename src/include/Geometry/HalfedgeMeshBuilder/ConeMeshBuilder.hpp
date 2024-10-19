@@ -5,6 +5,7 @@
 #include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
 #include "Geometry/HalfedgeMeshBuilder/DiscretizeCircle.hpp"
 #include "Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp"
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/hmat.hpp>
 #include <linal/utils/constants.hpp>
