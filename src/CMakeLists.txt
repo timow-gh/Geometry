@@ -65,38 +65,16 @@ set(geometry_TARGET_HEADER
         include/Geometry/Triangle.hpp
 )
 
-set(geometry_TARGET_SOURCES
-)
-
 set(TARGET_NAME tw_geometry)
 set(TARGET_EXPORT_NAME Geometry)
 set(${TARGET_NAME}_MAJOR 1)
 set(${TARGET_NAME}_MINOR 0)
 set(${TARGET_NAME}_PATCH 0)
 
-add_library(${TARGET_NAME} ${geometry_TARGET_SOURCES} ${geometry_TARGET_HEADER})
-
-include(GenerateExportHeader)
-generate_export_header(${TARGET_NAME}
-        BASE_NAME ${TARGET_EXPORT_NAME}
-)
-string(TOLOWER ${TARGET_EXPORT_NAME} LOWER_CASE_EXPORT_NAME)
-file(RENAME
-        ${CMAKE_CURRENT_BINARY_DIR}/${LOWER_CASE_EXPORT_NAME}_export.h
-        ${CMAKE_CURRENT_BINARY_DIR}/GeometryExport.hpp
-)
-file(COPY
-        ${CMAKE_CURRENT_BINARY_DIR}/GeometryExport.hpp
-        DESTINATION
-        # Copy into a relative directory structure that matches the install directory structure
-        ${CMAKE_CURRENT_BINARY_DIR}/export_header_includes/${TARGET_EXPORT_NAME}
-)
-file(REMOVE
-        ${CMAKE_CURRENT_BINARY_DIR}/GeometryExport.hpp
-)
+add_library(${TARGET_NAME} INTERFACE ${geometry_TARGET_HEADER})
 
 target_include_directories(${TARGET_NAME}
-        PUBLIC
+        INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/export_header_includes>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
 )
@@ -114,9 +92,7 @@ set_target_properties(${TARGET_NAME}
 
 add_library(${PROJECT_NAME}::${TARGET_EXPORT_NAME} ALIAS ${TARGET_NAME})
 
-target_link_libraries(${TARGET_NAME}
-        PUBLIC
-        linal::linal)
+target_link_libraries(${TARGET_NAME} INTERFACE linal::linal)
 
 if (${PROJECT_NAME}_USE_WARNINGS)
     add_warnings_and_compile_options(${TARGET_NAME} "${${PROJECT_NAME}_WARNINGS_AS_ERRORS}")

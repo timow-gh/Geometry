@@ -22,7 +22,7 @@ public:
   }
 
   constexpr T get_value() const noexcept { return m_value; }
-  constexpr bool is_valid() const noexcept { return m_value != invalidHandles; }
+  [[nodiscard]] constexpr bool is_valid() const noexcept { return m_value != invalidHandles; }
 
   GEO_NODISCARD constexpr bool operator==(const Handle& rhs) const noexcept { return m_value == rhs.m_value; }
   GEO_NODISCARD constexpr bool operator!=(const Handle& rhs) const noexcept { return !(rhs == *this); }
