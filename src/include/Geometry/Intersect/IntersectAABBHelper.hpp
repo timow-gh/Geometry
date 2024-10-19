@@ -99,8 +99,8 @@ GEO_NODISCARD constexpr AABBRayIntersectionInterval<TFloat> aabb_ray_intersectio
   // Compute tEnter and tExit for the ray's intersection with the AABB
   // tEnter is the largest entry point among all axes
   // tExit is the smallest exit point among all axes
-  TFloat tEnter = std::max({tMinVec[0], tMinVec[1], tMinVec[2]});
-  TFloat tExit = std::min({tMaxVec[0], tMaxVec[1], tMaxVec[2]});
+  TFloat tEnter = std::max(tMinVec[0], std::max(tMinVec[1], tMinVec[2]));
+  TFloat tExit = std::min(tMaxVec[0], std::min(tMaxVec[1], tMaxVec[2]));
 
   return {tEnter, tExit};
 }
