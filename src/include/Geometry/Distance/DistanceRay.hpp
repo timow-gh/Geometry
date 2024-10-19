@@ -59,7 +59,8 @@ GEO_NODISCARD constexpr T distance(const Line<T, D>& line, const Ray<T, D>& ray)
     return linal::length(linePoint - rayPoint);
   }
 
-  return linal::length(lineSource - raySource);
+  // The line and ray are parallel
+  return distance(line, raySource);
 }
 
 template <typename T, std::uint8_t D>

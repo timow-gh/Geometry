@@ -9,15 +9,15 @@ using namespace Geometry;
 
 class Distance_Ray_Line_Test : public ::testing::Test {
 protected:
-  linal::double3 m_source{1, 1, 1};
-  Ray3d m_ray{m_source, linal::double3X};
+  Ray3d m_ray{linal::double3{1, 1, 1}, linal::double3X};
 };
 
 TEST_F(Distance_Ray_Line_Test, Parallel)
 {
+  Ray3d ray{linal::double3{0, 0, 2}, linal::double3X};
   Line3d line{linal::double3{0, 0, 0}, linal::double3X};
-  double dist = Geometry::distance(line, m_ray);
-  EXPECT_DOUBLE_EQ(dist, 1.0);
+  double dist = Geometry::distance(line, ray);
+  EXPECT_DOUBLE_EQ(dist, 2.0);
 }
 
 TEST_F(Distance_Ray_Line_Test, Collinear)
