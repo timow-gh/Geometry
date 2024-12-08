@@ -4,7 +4,6 @@
 #include "Geometry/Cone.hpp"
 #include "Geometry/Cuboid.hpp"
 #include "Geometry/Cylinder.hpp"
-#include "Geometry/GeometryExport.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp"
 #include "Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp"
@@ -32,7 +31,7 @@ template <typename T>
 class Cuboid;
 
 template <typename TFloat, typename TIndex>
-class GEOMETRY_EXPORT MeshBuilder {
+class MeshBuilder {
   MeshBuilderConfig m_config;
 
 public:
