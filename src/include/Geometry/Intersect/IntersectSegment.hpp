@@ -2,6 +2,7 @@
 #define GEOMETRY_INTERSECTSEGMENT_HPP
 
 #include "Geometry/ClosetPointOnLine.hpp"
+#include "Geometry/Ray.hpp"
 #include "Geometry/Segment.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
@@ -27,7 +28,7 @@ intersect(Segment2<T> first, Segment2<T> second, T eps = linal::eps<T>::value) n
   linal::vec2<T> sDir = second.get_target() - sSource;
 
   // Calculate the determinant Det(A) of the matrix A = [fDir, sDir]
-  T detA = fDir[0] * sDir[1] - sDir[0] * fDir[1];
+  T detA = (fDir[0] * sDir[1]) - (sDir[0] * fDir[1]);
 
   // Check if segments are parallel (Det(A) = 0)
   if (linal::isZero(detA, eps))
@@ -46,8 +47,8 @@ intersect(Segment2<T> first, Segment2<T> second, T eps = linal::eps<T>::value) n
     return std::nullopt;
   }
 
-  GEO_ASSERT(linal::vec2<T>{fSource + t * fDir} == linal::vec2<T>{sSource + s * sDir});
-  return fSource + fDir * t;
+  GEO_ASSERT(linal::vec2<T>{fSource + (t * fDir)} == linal::vec2<T>{sSource + (s * sDir)});
+  return fSource + (fDir * t);
 }
 
 /** @brief Calculates the single intersection point of two 3d line segments.
@@ -76,7 +77,38 @@ intersect(const Segment3<T>& first, const Segment3<T>& second, T eps = linal::ep
     return std::nullopt;
   }
 
-  return fSource + fDir * params->t;
+  return fSource + (fDir * params->t);
+}
+
+template <typename T>
+GEO_NODISCARD constexpr std::optional<linal::vec3<T>>
+intersect(const Segment3<T>& segment, const Ray3<T>& ray, T eps = linal::eps<T>::value) noexcept
+{
+  linal::vec3<T> segSource = segment.get_source();
+  linal::vec3<T> segDir = segment.get_target() - segSource;
+  linal::vec3<T> raySource = ray.get_origin();
+  linal::vec3<T> rayDir = ray.get_direction();
+
+  auto params = details::closest_point_on_line_parameters(segSource, segDir, raySource, rayDir, eps);
+  if (!params)
+  {
+    return std::nullopt; // parallel
+  }
+
+  // Check if the intersection point lies on both, line and ray
+  if (params->t < 0 || params->t > 1 || params->s < 0)
+  {
+    return std::nullopt;
+  }
+
+  return raySource + (rayDir * params->s);
+}
+
+template <typename T>
+GEO_NODISCARD constexpr std::optional<linal::vec3<T>>
+intersect(const Ray3<T>& ray, const Segment3<T>& segment, T eps = linal::eps<T>::value) noexcept
+{
+  return intersect(segment, ray, eps);
 }
 
 } // namespace Geometry

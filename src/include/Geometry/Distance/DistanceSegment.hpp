@@ -18,6 +18,12 @@ namespace Geometry
 namespace details
 {
 
+/** @brief Calculate the point on a segment.
+ *
+ * If the parameter is less than 0, the source point is returned.
+ * If the parameter is greater than 1, the target point is returned.
+ * Otherwise, the point on the segment is calculated.
+ */
 template <typename T, std::uint8_t D>
 linal::vec<T, D> calc_segment_point(const Segment<T, D>& segment, T parameter)
 {
@@ -35,6 +41,11 @@ linal::vec<T, D> calc_segment_point(const Segment<T, D>& segment, T parameter)
   }
 }
 
+/** @brief Calculate the point on a ray.
+ *
+ * If the parameter is less than 0, the origin point is returned.
+ * Otherwise, the point on the ray is calculated.
+ */
 template <typename T, std::uint8_t D>
 linal::vec<T, D> calc_ray_point(const Ray<T, D>& ray, T parameter)
 {
@@ -97,7 +108,6 @@ GEO_NODISCARD constexpr T distance(const Segment<T, D>& lhs, const Segment<T, D>
   return linal::length(lhsPoint - rhsPoint);
 }
 
-/** @brief Calculates the distance between a line and a segment. Can't handle parallel or collinear elements. */
 template <typename T, std::uint8_t D>
 GEO_NODISCARD constexpr T distance(const Segment<T, D>& segment, const Ray<T, D>& ray) noexcept
 {
