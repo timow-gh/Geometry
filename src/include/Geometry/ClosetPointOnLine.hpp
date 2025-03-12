@@ -35,8 +35,11 @@ struct CPOLParameters
  * parallel.
  */
 template <typename T>
-GEO_NODISCARD constexpr std::optional<CPOLParameters<T>>
-closest_point_on_line_parameters(linal::vec3<T> lhsSource, linal::vec3<T> lhsDir, linal::vec3<T> rhsSource, linal::vec3<T> rhsDir) noexcept
+GEO_NODISCARD constexpr std::optional<CPOLParameters<T>> closest_point_on_line_parameters(linal::vec3<T> lhsSource,
+                                                                                          linal::vec3<T> lhsDir,
+                                                                                          linal::vec3<T> rhsSource,
+                                                                                          linal::vec3<T> rhsDir,
+                                                                                          T eps = linal::eps<T>::value) noexcept
 {
   // Calculate the parameter values that minimize the distance between the two lines
   linal::vec3<T> w0 = lhsSource - rhsSource;
@@ -47,7 +50,7 @@ closest_point_on_line_parameters(linal::vec3<T> lhsSource, linal::vec3<T> lhsDir
   T e = linal::dot(rhsDir, w0);
   T denom = a * c - b * b;
 
-  if (linal::isZero(denom))
+  if (linal::isZero(denom, eps))
   {
     // The lines are parallel
     return {};

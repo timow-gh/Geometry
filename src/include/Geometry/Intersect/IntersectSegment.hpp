@@ -64,16 +64,7 @@ intersect(const Segment3<T>& first, const Segment3<T>& second, T eps = linal::ep
   linal::vec3<T> fDir = first.get_target() - fSource;
   linal::vec3<T> sDir = second.get_target() - sSource;
 
-  // Calculate the cross product of the direction vectors
-  linal::vec3<T> cross = linal::cross(fDir, sDir);
-
-  // Check if lines are parallel
-  if (linal::isZero(linal::length(cross), eps))
-  {
-    return std::nullopt;
-  }
-
-  auto params = details::closest_point_on_line_parameters(fSource, fDir, sSource, sDir);
+  auto params = details::closest_point_on_line_parameters(fSource, fDir, sSource, sDir, eps);
   if (!params)
   {
     return std::nullopt; // parallel
