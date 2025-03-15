@@ -2,6 +2,7 @@
 #define GEOMETRY_RAY_HPP
 
 #include "Geometry/Ray.hpp"
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
@@ -20,6 +21,7 @@ public:
       : m_origin(origin)
       , m_direction(linal::normalize(direction))
   {
+    GEO_ASSERT(linal::length(direction) > linal::eps<T>::value);
   }
 
   GEO_NODISCARD constexpr linal::vec<T, D> get_origin() const noexcept { return m_origin; }

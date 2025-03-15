@@ -187,3 +187,44 @@ TEST(Segment3d_Ray3d_Intersection, Intersection_Target)
   EXPECT_TRUE(res);
   EXPECT_EQ(target, *res);
 }
+
+TEST(Segment3d_Ray3d_Intersection, AtPoint22)
+{
+  Segment3d seg{linal::double3{0, 2, 1}, linal::double3{4, 2, 1}};
+  Ray3d ray{linal::double3{2, 0, 1}, linal::double3{0, 4, 0}};
+  auto res = Geometry::intersect(seg, ray);
+  EXPECT_TRUE(res);
+  EXPECT_EQ((linal::double3{2, 2, 1}), *res);
+}
+
+TEST(Segment3d_Ray3d_Intersection, RayPointsAtSegment)
+{
+  linal::double3 segTarget{6, 0, 0};
+  Segment3d seg{linal::double3{0, 0, 0}, segTarget};
+
+  linal::double3 rayOrigin = linal::double3{15, 15, 15};
+  linal::double3 rayTarget = linal::double3{0, 0, 0};
+
+  // Segment origin
+  linal::double3 rayDir = rayTarget - rayOrigin;
+  Ray3d ray{linal::double3{15, 15, 15}, rayDir};
+  auto res = Geometry::intersect(seg, ray);
+  EXPECT_TRUE(res);
+  EXPECT_EQ((linal::double3{0, 0, 0}), *res);
+
+  // Segment mid point
+  rayTarget = linal::double3{3, 0, 0};
+  rayDir = rayTarget - rayOrigin;
+  ray = Ray3d{rayOrigin, rayDir};
+  res = Geometry::intersect(seg, ray);
+  EXPECT_TRUE(res);
+  EXPECT_EQ((linal::double3{3, 0, 0}), *res);
+
+  // Segment target
+  rayTarget = segTarget;
+  rayDir = rayTarget - rayOrigin;
+  ray = Ray3d{rayOrigin, rayDir};
+  res = Geometry::intersect(seg, ray);
+  EXPECT_TRUE(res);
+  EXPECT_EQ(segTarget, *res);
+}
