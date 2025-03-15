@@ -42,8 +42,7 @@ intersect(Segment2<T> first, Segment2<T> second, T eps = linal::eps<T>::value) n
   T s = (fDir[0] * -fDist[1] - fDir[1] * -fDist[0]) / detA;
 
   // Check if the intersection point lies on both line segments
-  //  if (s < 0 || s > 1 || t < 0 || t > 1)
-  if (linal::isLess(s, 0.0, eps) || linal::isGreater(s, 1.0, eps) || linal::isLess(t, 0.0, eps) || linal::isGreater(t, 1.0, eps))
+  if (linal::isLess(s, T(0.0), eps) || linal::isGreater(s, T(1.0), eps) || linal::isLess(t, T(0.0), eps) || linal::isGreater(t, T(1.0), eps))
   {
     return std::nullopt;
   }
@@ -73,8 +72,8 @@ intersect(const Segment3<T>& first, const Segment3<T>& second, T eps = linal::ep
   }
 
   // Check if the intersection point lies on both line segments
-  if (linal::isLess(params->s, 0.0, eps) || linal::isGreater(params->s, 1.0, eps) || linal::isLess(params->t, 0.0, eps) ||
-      linal::isGreater(params->t, 1.0, eps))
+  if (linal::isLess(params->s, T(0.0), eps) || linal::isGreater(params->s, T(1.0), eps) || linal::isLess(params->t, T(0.0), eps) ||
+      linal::isGreater(params->t, T(1.0), eps))
   {
     return std::nullopt;
   }
@@ -98,7 +97,7 @@ intersect(const Segment3<T>& segment, const Ray3<T>& ray, T eps = linal::eps<T>:
   }
 
   // Check if the intersection point lies on both, line and ray
-  if (linal::isLess(params->t, 0.0, eps) || linal::isGreater(params->t, 1.0, eps) || linal::isLess(params->s, 0.0, eps))
+  if (linal::isLess(params->t, T(0.0), eps) || linal::isGreater(params->t, T(1.0), eps) || linal::isLess(params->s, T(0.0), eps))
   {
     return std::nullopt;
   }
