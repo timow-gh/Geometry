@@ -36,6 +36,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Intersect/IntersectPlane.hpp
         include/Geometry/Intersect/IntersectSegment.hpp
         include/Geometry/Intersect/IntersectSphere.hpp
+        include/Geometry/Intersect/IntersectTriangle.hpp
         include/Geometry/Transform/TransformVec.hpp
         include/Geometry/Transform/TransformSegment.hpp
         include/Geometry/Transform/TransformCuboid.hpp
@@ -61,6 +62,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Segment.hpp
         include/Geometry/Line.hpp
         include/Geometry/Plane.hpp
+        include/Geometry/PointQueries.hpp
         include/Geometry/Sphere.hpp
         include/Geometry/Triangle.hpp
 )
