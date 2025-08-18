@@ -12,6 +12,10 @@
 namespace Geometry
 {
 
+/** @brief Calculate the averaged normal for each vertex the given halfedge mesh.
+ *
+ * The normals are calculated by averaging the normals of the facets the vertex is part of.
+ */
 template <typename TResFloat, typename THalfedgeMesh>
 std::vector<linal::vec3<TResFloat>> calc_vertex_normals(const THalfedgeMesh& mesh)
 {

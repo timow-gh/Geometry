@@ -42,6 +42,10 @@ GEO_NODISCARD constexpr std::vector<U> calc_triangle_indices(const std::vector<T
   return result;
 }
 
+/** @brief Calculates the point-indices of the lines for the given halfedge mesh.
+ *
+ * Each hafledge pair will be represented by a line.
+ */
 template <typename U, typename THalfedgeMesh>
 GEO_NODISCARD constexpr std::vector<U> calc_line_indices(const THalfedgeMesh& mesh)
 {
@@ -81,7 +85,7 @@ GEO_NODISCARD constexpr std::vector<U> calc_line_indices(const THalfedgeMesh& me
     {
       edges.insert(iter, edge);
     }
-    assert(std::is_sorted(edges.begin(), edges.end()));
+    GEO_ASSERT(std::is_sorted(edges.begin(), edges.end()));
   }
 
   return {reinterpret_cast<const U*>(edges.data()), reinterpret_cast<const U*>(edges.data() + edges.size())};
