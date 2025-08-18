@@ -1,4 +1,4 @@
 ## Geometry
 
-[![linux](https://github.com/timow-gh/Geometry/actions/workflows/linux.yml/badge.svg?branch=main)](https://github.com/timow-gh/Geometry/actions/workflows/linux.yml)
-[![windows](https://github.com/timow-gh/Geometry/actions/workflows/windows.yml/badge.svg?branch=main)](https://github.com/timow-gh/Geometry/actions/workflows/windows.yml)
+[![Ubuntu Build](https://github.com/timow-gh/Geometry/actions/workflows/ubuntu-build.yml/badge.svg)](https://github.com/timow-gh/Geometry/actions/workflows/ubuntu-build.yml)
+[![Windows Build](https://github.com/timow-gh/Geometry/actions/workflows/windows-build.yml/badge.svg)](https://github.com/timow-gh/Geometry/actions/workflows/windows-build.yml)
