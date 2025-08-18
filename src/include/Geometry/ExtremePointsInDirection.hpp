@@ -4,6 +4,7 @@
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <cstdint>
+#include <span>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
 #include <vector>
