@@ -17,7 +17,11 @@ FetchContent_MakeAvailable(benchmark)
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
     target_compile_options(benchmark INTERFACE
             "-Wno-weak-vtables"
-            )
+    )
+endif ()
+
+if (BUID_SHARED_LIBS)
+    set_target_properties(benchmark PROPERTIES POSITION_INDEPENDENT_CODE ON)
 endif ()
 
 set(LIBS Geometry::Geometry benchmark::benchmark benchmark::benchmark_main)

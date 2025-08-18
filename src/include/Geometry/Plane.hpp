@@ -33,6 +33,9 @@ public:
   constexpr bool operator!=(const Plane& rhs) const noexcept { return !(rhs == *this); }
 };
 
+using Planef = Plane<float>;
+using Planed = Plane<double>;
+
 } // namespace Geometry
 
 #endif // GEOMETRY_PLANE_HPP

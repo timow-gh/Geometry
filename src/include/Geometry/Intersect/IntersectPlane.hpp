@@ -12,6 +12,10 @@
 
 namespace Geometry
 {
+
+namespace details
+{
+
 template <typename T>
 GEO_NODISCARD constexpr std::optional<T> calc_intersection_parameter(linal::vec3<T> planeOrigin,
                                                                      linal::vec3<T> planeNormal,
@@ -26,6 +30,8 @@ GEO_NODISCARD constexpr std::optional<T> calc_intersection_parameter(linal::vec3
   const linal::vec3<T> vec = planeOrigin - lineOrigin;
   return (linal::dot(vec, planeNormal)) / linal::dot(lineDir, planeNormal);
 }
+
+} // namespace details
 
 template <typename T>
 GEO_NODISCARD constexpr std::optional<linal::vec3<T>> intersect(Plane<T> plane, Line3<T> line, T eps = linal::eps<T>::value) noexcept
@@ -54,7 +60,7 @@ GEO_NODISCARD constexpr std::optional<linal::vec3<T>> intersect(Plane<T> plane, 
   linal::vec3<T> rayOrigin = ray.get_origin();
   linal::vec3<T> rayDir = ray.get_direction();
 
-  if (auto paramD = calc_intersection_parameter(planeOrigin, planeNormal, rayOrigin, rayDir, eps))
+  if (auto paramD = details::calc_intersection_parameter(planeOrigin, planeNormal, rayOrigin, rayDir, eps))
   {
     if (linal::isGreater(*paramD, T(0), eps))
     {
@@ -72,7 +78,7 @@ GEO_NODISCARD constexpr std::optional<linal::vec3<T>> intersect(Plane<T> plane, 
   linal::vec3<T> segSource = seg.get_source();
   linal::vec3<T> segDir = seg.get_target() - segSource;
 
-  if (auto paramD = calc_intersection_parameter(planeOrigin, planeNormal, segSource, segDir, eps))
+  if (auto paramD = details::calc_intersection_parameter(planeOrigin, planeNormal, segSource, segDir, eps))
   {
     if (linal::isGreater(*paramD, T(0), eps) && linal::isLessEq(*paramD, T(1), eps))
     {
