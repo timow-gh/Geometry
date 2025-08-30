@@ -61,14 +61,3 @@ if (${PROJECT_NAME}_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif ()
-
-if (${PROJECT_NAME}_BUILD_BENCHMARKS)
-    set(old_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-    # Override for Google Benchmark only
-    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
-    add_subdirectory(benchmark)
-    # Restore original setting for other targets
-    set(BUILD_SHARED_LIBS ${old_BUILD_SHARED_LIBS} CACHE BOOL "" FORCE)
-endif ()
-
-

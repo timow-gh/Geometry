@@ -2,7 +2,7 @@
   "version": 6,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 28,
+    "minor": 30,
     "patch": 0
   },
   "configurePresets": [
@@ -13,10 +13,11 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "20",
-        "BUILD_SHARED_LIBS": "OFF",
+        "CMAKE_CXX_STANDARD": "23",
+        "BUILD_SHARED_LIBS": "ON",
         "CMAKE_CXX_EXTENSIONS": "OFF"
-      }
+      },
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
     },
     {
       "name": "conf-debug",
@@ -64,6 +65,7 @@
         "strategy": "external"
       },
       "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CPACK_GENERATOR": "NSIS"
       }
     },
@@ -160,7 +162,7 @@
     {
       "name": "build-common",
       "hidden": true,
-      "jobs": 0
+      "jobs": 24
     },
     {
       "name": "build-debug",
