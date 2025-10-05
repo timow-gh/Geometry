@@ -44,7 +44,7 @@ else ()
     option(${PROJECT_NAME}_TESTS "" OFF)
     option(${PROJECT_NAME}_BUILD_BENCHMARKS "" OFF)
 endif ()
-option(${PROJECT_NAME}_INSTALL "Install project targets" ON)
+option(${PROJECT_NAME}_INSTALL "Install project targets" OFF)
 option(${PROJECT_NAME}_BUILD_DOCUMENTATION "Build documentation" OFF)
 
 if (${PROJECT_NAME}_USE_SCCACHE)
