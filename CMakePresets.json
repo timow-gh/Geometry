@@ -16,8 +16,7 @@
         "CMAKE_CXX_STANDARD": "23",
         "BUILD_SHARED_LIBS": "ON",
         "CMAKE_CXX_EXTENSIONS": "OFF"
-      },
-      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+      }
     },
     {
       "name": "conf-debug",
@@ -65,7 +64,6 @@
         "strategy": "external"
       },
       "cacheVariables": {
-        "VCPKG_TARGET_TRIPLET": "x64-windows-static",
         "CPACK_GENERATOR": "NSIS"
       }
     },
