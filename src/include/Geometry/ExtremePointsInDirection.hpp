@@ -85,7 +85,11 @@ GEO_NODISCARD constexpr MinMax<TFloat> extreme_points_along_direction(linal::vec
 
   for (std::size_t i = 0; i < points.size(); i += D)
   {
-    linal::vec<TFloat, D> point{points[0 + i], points[1 + i % D], points[2 + i % D]};
+    linal::vec<TFloat, D> point;
+    for (std::uint8_t d = 0; d < D; ++d)
+    {
+      point[d] = points[i + d];
+    }
     details::calc_min_max(result.min, result.max, dir, point);
   }
 
