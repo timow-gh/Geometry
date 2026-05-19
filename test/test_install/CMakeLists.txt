@@ -96,6 +96,5 @@ configure_file(
         "${CMAKE_CURRENT_BINARY_DIR}/TestInstall.cmake"
         @ONLY)
 
-add_test(
-        NAME TestGeometryInstall
-        COMMAND ${CMAKE_COMMAND} -DTEST_CONFIG=$<CONFIG> -P "${CMAKE_CURRENT_BINARY_DIR}/TestInstall.cmake")
+add_test(NAME TestGeometryInstall
+        COMMAND ${CMAKE_COMMAND} --build "${CMAKE_BINARY_DIR}" --target test_install --config ${CMAKE_BUILD_TYPE})

@@ -1,6 +1,13 @@
+function(enable_geometry_test_static_analysis targetName)
+    if (DEFINED ${PROJECT_NAME}_STATIC_ANALYSIS AND ${PROJECT_NAME}_STATIC_ANALYSIS)
+        enable_static_analysis(${targetName} "${${PROJECT_NAME}_WARNINGS_AS_ERRORS}")
+    endif ()
+endfunction()
+
 function(create_geometry_test testName)
     add_executable(${testName} ${testName}.cpp)
     target_link_libraries(${testName} PRIVATE gtest_main Geometry::Geometry)
+    enable_geometry_test_static_analysis(${testName})
     add_test(NAME Geometry.${testName} COMMAND ${testName})
 endfunction()
 

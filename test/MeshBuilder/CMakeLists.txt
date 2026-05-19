@@ -1,5 +1,6 @@
 add_library(meshBuilderTestHelper STATIC SphereTestHelper.cpp)
 target_link_libraries(meshBuilderTestHelper PUBLIC gtest Geometry::Geometry)
+enable_geometry_test_static_analysis(meshBuilderTestHelper)
 
 create_geometry_test(CuboidMeshBuilderTest)
 create_geometry_test(ConeMeshBuilderTest)
@@ -7,4 +8,5 @@ create_geometry_test(CylinderMeshBuilderTest)
 
 add_executable(SphereMeshBuilderTest SphereMeshBuilderTest.cpp)
 target_link_libraries(SphereMeshBuilderTest PRIVATE gtest_main Geometry::Geometry meshBuilderTestHelper)
+enable_geometry_test_static_analysis(SphereMeshBuilderTest)
 add_test(NAME Geometry.SphereMeshBuilderTest COMMAND SphereMeshBuilderTest)
