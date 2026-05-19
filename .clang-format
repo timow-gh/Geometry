@@ -1,9 +1,11 @@
-#BasedOnStyle: google
 ColumnLimit: '140'
 IndentWidth: '2'
 Language: Cpp
 AlignAfterOpenBracket: Align
-AlignTrailingComments: true
+AlignTrailingComments:
+  Kind: Always
+  OverEmptyLines: 2
+ReflowComments: true
 AllowAllArgumentsOnNextLine: false
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: 'Yes'
@@ -11,31 +13,15 @@ PackConstructorInitializers: Never
 BinPackArguments: false
 BinPackParameters: false
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortBlocksOnASingleLine: Always
+AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: true
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: false
-#AlwaysBreakAfterReturnType: All
-BreakBeforeBraces: Custom
-BraceWrapping:
-  AfterEnum: true
-  AfterStruct: true
-  AfterCaseLabel: true
-  AfterControlStatement: Always
-  AfterFunction: true
-  AfterNamespace: true
-  AfterUnion: true
-  AfterExternBlock: true
-  BeforeCatch: true
-  BeforeElse: true
-  BeforeLambdaBody: true
-  BeforeWhile: true
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
-  SplitEmptyNamespace: true
+AlwaysBreakAfterReturnType: None
+BreakBeforeBraces: Allman
 BreakBeforeBinaryOperators: None
 BreakBeforeConceptDeclarations: true
 BreakBeforeTernaryOperators: true
@@ -43,22 +29,23 @@ BreakConstructorInitializers: BeforeComma
 BreakInheritanceList: BeforeComma
 BreakStringLiterals: true
 CompactNamespaces: false
-#EmptyLineAfterAccessModifier: Always
+EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: Always
 FixNamespaceComments: true
 IncludeBlocks: Merge
-#SortIncludes: CaseInsensitive
+SortIncludes: CaseSensitive
 PointerAlignment: Left
+ReferenceAlignment: Left
+RequiresClausePosition: OwnLine
 SpaceBeforeAssignmentOperators: true
 SpaceBeforeCaseColon: false
 SpaceBeforeCtorInitializerColon: true
-#SpaceBeforeInheritanceColon:false
+SpaceBeforeInheritanceColon: true
 SpaceBeforeRangeBasedForLoopColon: false
 SpaceBeforeSquareBrackets: false
 SpacesInSquareBrackets: false
-Standard: c++17
+Standard: c++20
 UseTab: Never
 ---
 Language: Proto
-# Don't format .proto files.
 DisableFormat: true

@@ -3,8 +3,9 @@ build/
 out/
 cmake-build-*/
 conan-cache/
+
+.cache
 compile_commands.json
-.cache/
 
 # User spesific settings
 CMakeUserPresets.json
@@ -35,3 +36,6 @@ $RECYCLE.BIN/
 ehthumbs.db
 Thumbs.db
 /CPMSourceVariable.cmake
+/Doxyfile
+/cmake/Doxyfile
+/doc/
