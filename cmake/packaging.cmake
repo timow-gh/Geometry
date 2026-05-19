@@ -21,7 +21,7 @@ endif()
 set(PKG_VENDOR "${PROJECT_NAME}")
 set(PKG_CONTACT "maintainer@${PKG_LIB_NAME}.example")
 set(PKG_DESCRIPTION "A C++20 library providing core functionality")
-set(PKG_LICENSE "Unlicense")
+set(PKG_LICENSE "Apache-2.0")
 
 # Warn if packaging debug builds
 if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
@@ -34,7 +34,7 @@ set(CPACK_PACKAGE_VERSION_PATCH "${PROJECT_VERSION_PATCH}")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "${PKG_DESCRIPTION}")
 set(CPACK_PACKAGE_VENDOR "${PKG_VENDOR}")
 set(CPACK_PACKAGE_CONTACT "${PKG_CONTACT}")
-set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 
 # Component configuration
 # Only create runtime component when building shared libraries
