@@ -1,11 +1,9 @@
 #ifndef GEOMETRY_VERTEX_H
 #define GEOMETRY_VERTEX_H
 
-#include "Geometry/HalfedgeMesh/HalfedgeMesh.hpp"
 #include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
-#include "Geometry/HalfedgeMesh/MeshTraits.hpp"
 #include <algorithm>
 #include <linal/vec.hpp>
 #include <vector>

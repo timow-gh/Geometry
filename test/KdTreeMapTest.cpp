@@ -7,9 +7,9 @@ class TestKdTreeMap : public ::testing::Test {
 protected:
   void insert_three_key_value_pairs()
   {
-    m_kdTree.insert(linal::double3{0.0, 0.0, 0.0}, 0u);
-    m_kdTree.insert(linal::double3{1.0, 1.0, 1.0}, 1u);
-    m_kdTree.insert(linal::double3{2.0, 2.0, 2.0}, 2u);
+    m_kdTree.insert(linal::double3{0.0, 0.0, 0.0}, 0);
+    m_kdTree.insert(linal::double3{1.0, 1.0, 1.0}, 1);
+    m_kdTree.insert(linal::double3{2.0, 2.0, 2.0}, 2);
   }
 
   KdTree<linal::double3, int> m_kdTree;
