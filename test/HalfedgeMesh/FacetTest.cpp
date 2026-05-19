@@ -12,7 +12,7 @@ class FacetTest : public ::testing::Test {
 protected:
   FacetTest()
       : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
-      , m_facet(m_heMesh->getFacets().front())
+      , m_facet(m_heMesh->get_facets().front())
   {
   }
 
@@ -20,16 +20,16 @@ protected:
   HalfedgeMesh_t::Facet_t m_facet;
 };
 
-TEST_F(FacetTest, getHalfedge)
+TEST_F(FacetTest, get_halfedge)
 {
-  [[maybe_unused]] HalfedgeMesh_t::Halfedge_t& he = m_facet.getHalfedge();
+  [[maybe_unused]] HalfedgeMesh_t::Halfedge_t& he = m_facet.get_halfedge();
   const auto& constFacet = m_facet;
-  [[maybe_unused]] const HalfedgeMesh_t::Halfedge_t& cHe = constFacet.getHalfedge();
+  [[maybe_unused]] const HalfedgeMesh_t::Halfedge_t& cHe = constFacet.get_halfedge();
 }
 
 TEST_F(FacetTest, getHeIndex)
 {
-  [[maybe_unused]] HalfedgeMesh_t::HalfedgeIndex_t heIndex = m_facet.getHalfedgeIndex();
+  [[maybe_unused]] HalfedgeMesh_t::HalfedgeIndex_t heIndex = m_facet.get_halfedge_index();
   const auto& constFacet = m_facet;
-  [[maybe_unused]] HalfedgeMesh_t::HalfedgeIndex_t cHeIndex = constFacet.getHalfedgeIndex();
+  [[maybe_unused]] HalfedgeMesh_t::HalfedgeIndex_t cHeIndex = constFacet.get_halfedge_index();
 }

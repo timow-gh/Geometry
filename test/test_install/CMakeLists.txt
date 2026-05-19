@@ -97,4 +97,5 @@ configure_file(
         @ONLY)
 
 add_test(NAME TestGeometryInstall
-        COMMAND ${CMAKE_COMMAND} --build "${CMAKE_BINARY_DIR}" --target test_install --config ${CMAKE_BUILD_TYPE})
+        COMMAND ${CMAKE_COMMAND} -DTEST_CONFIG=$<CONFIG> -P "${CMAKE_CURRENT_BINARY_DIR}/TestInstall.cmake")
+set_tests_properties(TestGeometryInstall PROPERTIES RUN_SERIAL TRUE)

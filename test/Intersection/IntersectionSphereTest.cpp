@@ -32,7 +32,7 @@ TEST(Sphere_Line3d, No_Intersection)
   Sphere sphere{linal::double3{}, 1.0};
   Line3d line{linal::double3{0, 0, 2}, linal::double3X};
   auto sphereIntersec = Geometry::intersect(sphere, line);
-  EXPECT_FALSE(sphereIntersec.hasIntersection());
+  EXPECT_FALSE(sphereIntersec.has_intersection());
 }
 
 TEST(Sphere_Ray3d, Intersection)
@@ -71,7 +71,7 @@ TEST(Sphere_Ray3d, No_Intersection)
   Sphere sphere{linal::double3{}, 1.0};
   Ray3d ray{linal::double3{0, 3, 0}, linal::double3X};
   auto sphereIntersec = Geometry::intersect(sphere, ray);
-  EXPECT_FALSE(sphereIntersec.hasIntersection());
+  EXPECT_FALSE(sphereIntersec.has_intersection());
 }
 
 TEST(Sphere_Segment3d, Intersection)
@@ -112,7 +112,7 @@ TEST(Sphere_Segment3d, Inside_Sphere)
   Sphere sphere{linal::double3{}, 1.0};
   Segment3d seg{linal::double3{-0.5, 0, 0}, linal::double3{0.5, 0, 0}};
   auto sphereIntersec = Geometry::intersect(sphere, seg);
-  EXPECT_FALSE(sphereIntersec.hasIntersection());
+  EXPECT_FALSE(sphereIntersec.has_intersection());
 }
 
 TEST(Sphere_Segment3d, No_Intersection)
@@ -120,5 +120,5 @@ TEST(Sphere_Segment3d, No_Intersection)
   Sphere sphere{linal::double3{}, 1.0};
   Segment3d seg{linal::double3{-2, 2, 0}, linal::double3{2, 2, 0}};
   auto sphereIntersec = Geometry::intersect(sphere, seg);
-  EXPECT_FALSE(sphereIntersec.hasIntersection());
+  EXPECT_FALSE(sphereIntersec.has_intersection());
 }

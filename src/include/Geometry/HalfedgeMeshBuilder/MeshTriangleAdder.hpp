@@ -46,10 +46,10 @@ public:
 
   void operator()(const Triangle3<value_type>& triangle)
   {
-    MeshPoints_t& meshPoints = m_halfedgeMesh->getMeshPoints();
-    std::vector<Vertex_t>& vertices = m_halfedgeMesh->getVertices();
-    std::vector<Halfedge_t>& halfedges = m_halfedgeMesh->getHalfedges();
-    std::vector<Facet_t>& facets = m_halfedgeMesh->getFacets();
+    MeshPoints_t& meshPoints = m_halfedgeMesh->get_mesh_points();
+    std::vector<Vertex_t>& vertices = m_halfedgeMesh->get_vertices();
+    std::vector<Halfedge_t>& halfedges = m_halfedgeMesh->get_halfedges();
+    std::vector<Facet_t>& facets = m_halfedgeMesh->get_facets();
 
     std::array<VertexIndex_t, 3> vertexIndices;
     create_or_find_vertex(triangle, meshPoints, vertices, vertexIndices);
@@ -72,11 +72,11 @@ public:
       GEO_ASSERT(vIndex.is_valid());
 
       halfedges.emplace_back(halfedgeIndex, vIndex, m_halfedgeMesh);
-      GEO_ASSERT(halfedges.back().getHalfedgeIndex().is_valid());
+      GEO_ASSERT(halfedges.back().get_halfedge_index().is_valid());
 
       GEO_ASSERT(vIndex.get_value() < vertices.size());
       auto& heVertex = vertices[vIndex.get_value()];
-      heVertex.addHalfedgeIndex(halfedgeIndex);
+      heVertex.add_halfedge_index(halfedgeIndex);
     }
     GEO_ASSERT(facetIdx.is_valid());
 
@@ -87,19 +87,19 @@ public:
 
     for (index_type i = startIdx; i < endIdx; ++i)
     {
-      halfedges[i].setFacetIndex(facetIdx);
+      halfedges[i].set_facet_index(facetIdx);
 
       index_type nextHeIndex = (i == lastElemIdx) ? startIdx : i + 1;
-      halfedges[i].setNextIndex(HalfedgeIndex_t{nextHeIndex});
+      halfedges[i].set_next_index(HalfedgeIndex_t{nextHeIndex});
 
       index_type previousHeIndex = (i == startIdx) ? to_idx<index_type>(lastElemIdx) : i - 1;
-      halfedges[i].setPreviousIndex(HalfedgeIndex_t{previousHeIndex});
+      halfedges[i].set_previous_index(HalfedgeIndex_t{previousHeIndex});
     }
   }
 
   static void set_opposite_halfedges(HalfedgeMesh_t& halfedgeMesh)
   {
-    std::vector<Halfedge_t>& halfedges = halfedgeMesh.getHalfedges();
+    std::vector<Halfedge_t>& halfedges = halfedgeMesh.get_halfedges();
 
     set_opposite_halfedges(halfedges);
   }
@@ -140,7 +140,7 @@ private:
     KdTree<linal::vec3<value_type>, std::vector<std::size_t>> kdTree; // Stores all halfedges with their start vertex
     for (std::size_t i = 0; i < halfedges.size(); ++i)
     {
-      linal::vec3<value_type> start = halfedges[i].getVertex().getVector();
+      linal::vec3<value_type> start = halfedges[i].get_vertex().get_vector();
 
       // TODO Avoid searching for the same vertex multiple times
       bool exists = kdTree.search(start);
@@ -160,17 +160,17 @@ private:
     // For all halfedges, find the opposite halfedge
     for (auto& he: halfedges)
     {
-      linal::vec3<value_type> start = he.getNextVertex().getVector();
-      linal::vec3<value_type> end = he.getVertex().getVector();
+      linal::vec3<value_type> start = he.get_next_vertex().get_vector();
+      linal::vec3<value_type> end = he.get_vertex().get_vector();
       std::pair<linal::vec3<value_type>, std::vector<std::size_t>&> result = kdTree.nearest(end);
       [[maybe_unused]] bool foundOpposite = false;
       for (std::size_t oppHeIndex: result.second)
       {
         auto& oppositeHeCandidate = halfedges[oppHeIndex];
-        if (oppositeHeCandidate.getNextVertex().getVector() == start)
+        if (oppositeHeCandidate.get_next_vertex().get_vector() == start)
         {
-          he.setOppositeIndex(oppositeHeCandidate.getHalfedgeIndex());
-          oppositeHeCandidate.setOppositeIndex(he.getHalfedgeIndex());
+          he.set_opposite_index(oppositeHeCandidate.get_halfedge_index());
+          oppositeHeCandidate.set_opposite_index(he.get_halfedge_index());
           foundOpposite = true;
           break;
         }

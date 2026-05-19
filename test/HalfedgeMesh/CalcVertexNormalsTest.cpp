@@ -13,7 +13,7 @@ class CalcVertexNormalsTest : public ::testing::Test {
 protected:
   CalcVertexNormalsTest()
       : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
-      , m_facet(m_heMesh->getFacets().front())
+      , m_facet(m_heMesh->get_facets().front())
   {
   }
 
@@ -24,5 +24,5 @@ protected:
 TEST_F(CalcVertexNormalsTest, vertexNormals)
 {
   std::vector<linal::vec3<float>> normals = calc_vertex_normals<float>(*m_heMesh);
-  ASSERT_EQ(normals.size(), m_heMesh->getMeshPoints().size());
+  ASSERT_EQ(normals.size(), m_heMesh->get_mesh_points().size());
 }

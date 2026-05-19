@@ -36,8 +36,8 @@ TEST(HalfedgeMesh, IsMoveAssignable)
 TEST(HalfedgeMesh, vertexPoints)
 {
   HeMesh heMesh{};
-  [[maybe_unused]] std::vector<linal::double3>& vertexPoints = heMesh.getMeshPoints().getPoints();
+  [[maybe_unused]] std::vector<linal::double3>& vertexPoints = heMesh.get_mesh_points().get_points();
 
   const HeMesh& constMesh = heMesh;
-  [[maybe_unused]] const std::vector<linal::double3>& constVertexPoints = constMesh.getMeshPoints().getPoints();
+  [[maybe_unused]] const std::vector<linal::double3>& constVertexPoints = constMesh.get_mesh_points().get_points();
 }

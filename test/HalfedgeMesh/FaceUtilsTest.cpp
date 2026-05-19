@@ -21,6 +21,6 @@ protected:
 
 TEST_F(FaceUtilsTest, calc_halfedges)
 {
-  std::vector<HalfedgeMesh_t::Halfedge_t> halfedges = calc_halfedges(m_heMesh->getFacets().front());
+  std::vector<HalfedgeMesh_t::Halfedge_t> halfedges = calc_halfedges(m_heMesh->get_facets().front());
   EXPECT_EQ(halfedges.size(), 3);
 }

@@ -18,7 +18,7 @@ class TestLineIndices : public ::testing::Test {
 protected:
   TestLineIndices()
       : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
-      , m_halfedge(m_heMesh->getHalfedges().front())
+      , m_halfedge(m_heMesh->get_halfedges().front())
   {
   }
 

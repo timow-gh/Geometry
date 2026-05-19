@@ -25,9 +25,9 @@ std::vector<linal::vec3<TResFloat>> calc_vertex_normals(const THalfedgeMesh& mes
   using vec_t = linal::vec3<TResFloat>;
 
   std::vector<vec_t> normals;
-  normals.reserve(mesh.getVertices().size());
+  normals.reserve(mesh.get_vertices().size());
 
-  for (const Vertex_t& vertex: mesh.getVertices())
+  for (const Vertex_t& vertex: mesh.get_vertices())
   {
     const std::vector<Facet_t> facets = calc_vertex_facets(vertex);
 

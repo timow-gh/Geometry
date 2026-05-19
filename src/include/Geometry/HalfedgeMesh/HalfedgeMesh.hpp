@@ -41,30 +41,30 @@ public:
   constexpr HalfedgeMesh& operator=(HalfedgeMesh&& rhs) noexcept = default;
 
   // clang-format off
-  GEO_NODISCARD constexpr linal::vec3<value_type> getVector(Vertex_t vertex) const { return meshPoints.getPoint(vertex.getIndex().get_value()); }
+  GEO_NODISCARD constexpr linal::vec3<value_type> get_vector(Vertex_t vertex) const { return meshPoints.get_point(vertex.get_index().get_value()); }
 
-  GEO_NODISCARD constexpr Vertex_t getVertex(const VertexIndex_t vertexIndex) const { return vertices[vertexIndex.get_value()]; }
-  GEO_NODISCARD constexpr Halfedge_t getHalfedge(const HalfedgeIndex_t halfedgeIndex) const { return halfedges[halfedgeIndex.get_value()]; }
-  GEO_NODISCARD constexpr Facet_t getFacet(const FacetIndex_t facetIndex) const { return facets[facetIndex.get_value()]; }
+  GEO_NODISCARD constexpr Vertex_t get_vertex(const VertexIndex_t vertexIndex) const { return vertices[vertexIndex.get_value()]; }
+  GEO_NODISCARD constexpr Halfedge_t get_halfedge(const HalfedgeIndex_t halfedgeIndex) const { return halfedges[halfedgeIndex.get_value()]; }
+  GEO_NODISCARD constexpr Facet_t get_facet(const FacetIndex_t facetIndex) const { return facets[facetIndex.get_value()]; }
 
-  GEO_NODISCARD constexpr Vertex_t& getVertex(VertexIndex_t vertexIndex) { return vertices[vertexIndex.get_value()]; }
-  GEO_NODISCARD constexpr Halfedge_t& getHalfedge(HalfedgeIndex_t halfedgeIndex) { return halfedges[halfedgeIndex.get_value()]; }
-  GEO_NODISCARD constexpr Facet_t& getFacet(FacetIndex_t facetIndex) { return facets[facetIndex.get_value()]; }
+  GEO_NODISCARD constexpr Vertex_t& get_vertex(VertexIndex_t vertexIndex) { return vertices[vertexIndex.get_value()]; }
+  GEO_NODISCARD constexpr Halfedge_t& get_halfedge(HalfedgeIndex_t halfedgeIndex) { return halfedges[halfedgeIndex.get_value()]; }
+  GEO_NODISCARD constexpr Facet_t& get_facet(FacetIndex_t facetIndex) { return facets[facetIndex.get_value()]; }
 
-  GEO_NODISCARD constexpr std::vector<linal::vec3<value_type>>& getPoints() { return meshPoints.getPoints(); }
+  GEO_NODISCARD constexpr std::vector<linal::vec3<value_type>>& get_points() { return meshPoints.get_points(); }
   // clang-format on
 
-  GEO_NODISCARD const std::vector<Vertex_t>& getVertices() const { return vertices; }
-  GEO_NODISCARD std::vector<Vertex_t>& getVertices() { return vertices; }
+  GEO_NODISCARD const std::vector<Vertex_t>& get_vertices() const { return vertices; }
+  GEO_NODISCARD std::vector<Vertex_t>& get_vertices() { return vertices; }
 
-  GEO_NODISCARD const std::vector<Halfedge_t>& getHalfedges() const { return halfedges; }
-  GEO_NODISCARD std::vector<Halfedge_t>& getHalfedges() { return halfedges; }
+  GEO_NODISCARD const std::vector<Halfedge_t>& get_halfedges() const { return halfedges; }
+  GEO_NODISCARD std::vector<Halfedge_t>& get_halfedges() { return halfedges; }
 
-  GEO_NODISCARD const std::vector<Facet_t>& getFacets() const { return facets; }
-  GEO_NODISCARD std::vector<Facet_t>& getFacets() { return facets; }
+  GEO_NODISCARD const std::vector<Facet_t>& get_facets() const { return facets; }
+  GEO_NODISCARD std::vector<Facet_t>& get_facets() { return facets; }
 
-  GEO_NODISCARD const MeshPoints_t& getMeshPoints() const { return meshPoints; }
-  GEO_NODISCARD MeshPoints_t& getMeshPoints() { return meshPoints; }
+  GEO_NODISCARD const MeshPoints_t& get_mesh_points() const { return meshPoints; }
+  GEO_NODISCARD MeshPoints_t& get_mesh_points() { return meshPoints; }
 
   GEO_NODISCARD bool is_valid() const
   {

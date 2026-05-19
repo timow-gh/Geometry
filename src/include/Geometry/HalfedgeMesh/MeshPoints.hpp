@@ -28,12 +28,12 @@ public:
 
   MeshPoints() = default;
 
-  GEO_NODISCARD constexpr std::vector<linal::vec3<value_type>>& getPoints() { return m_points; }
-  GEO_NODISCARD constexpr const std::vector<linal::vec3<value_type>>& getPoints() const { return m_points; }
-  GEO_NODISCARD constexpr linal::vec3<value_type> getPoint(std::size_t index) const { return m_points[index]; }
+  GEO_NODISCARD constexpr std::vector<linal::vec3<value_type>>& get_points() { return m_points; }
+  GEO_NODISCARD constexpr const std::vector<linal::vec3<value_type>>& get_points() const { return m_points; }
+  GEO_NODISCARD constexpr linal::vec3<value_type> get_point(std::size_t index) const { return m_points[index]; }
   GEO_NODISCARD constexpr std::size_t size() const { return m_points.size(); }
 
-  constexpr void setPoints(const std::vector<linal::vec3<value_type>>& points) { m_points = points; }
+  constexpr void set_points(const std::vector<linal::vec3<value_type>>& points) { m_points = points; }
 
   GEO_NODISCARD constexpr VertexIndex_t add(const linal::vec3<value_type>& vector)
   {
@@ -73,7 +73,7 @@ private:
 };
 
 template <typename value_type, typename U>
-constexpr std::vector<U> vectorsToComponents(const std::vector<linal::vec3<value_type>>& vectors)
+constexpr std::vector<U> vectors_to_components(const std::vector<linal::vec3<value_type>>& vectors)
 {
   std::vector<U> result;
   for (const linal::vec3<value_type>& vector: vectors)

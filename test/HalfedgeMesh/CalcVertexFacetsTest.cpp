@@ -13,7 +13,7 @@ class CalcVertexFacetsTest : public ::testing::Test {
 protected:
   CalcVertexFacetsTest()
       : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
-      , m_facet(m_heMesh->getFacets().front())
+      , m_facet(m_heMesh->get_facets().front())
   {
   }
 
@@ -23,19 +23,19 @@ protected:
 
 TEST_F(CalcVertexFacetsTest, CubeFacets)
 {
-  const auto& vertices = m_heMesh->getVertices();
+  const auto& vertices = m_heMesh->get_vertices();
   EXPECT_EQ(vertices.size(), 8);
 
-  const auto& halfedges = m_heMesh->getHalfedges();
+  const auto& halfedges = m_heMesh->get_halfedges();
   EXPECT_EQ(halfedges.size(), 36);
 
-  const auto& facets = m_heMesh->getFacets();
+  const auto& facets = m_heMesh->get_facets();
   EXPECT_EQ(facets.size(), 12);
 }
 
 TEST_F(CalcVertexFacetsTest, CubeVertexFacets)
 {
-  const auto& vertex = m_heMesh->getVertices().front();
+  const auto& vertex = m_heMesh->get_vertices().front();
   const auto& facets = calc_vertex_facets(vertex);
   EXPECT_EQ(facets.size(), 6);
 }

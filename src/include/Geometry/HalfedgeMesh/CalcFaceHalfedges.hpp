@@ -20,14 +20,14 @@ GEO_NODISCARD constexpr std::vector<typename TFacet::Halfedge_t> calc_halfedges(
 
   std::vector<Halfedge_t> result;
 
-  Halfedge_t halfedge = facet.getHalfedge();
+  Halfedge_t halfedge = facet.get_halfedge();
   result.push_back(halfedge);
-  halfedge = halfedge.getNext();
+  halfedge = halfedge.get_next();
   result.push_back(halfedge);
 
-  while (facet.getHalfedge() != halfedge.getNext())
+  while (facet.get_halfedge() != halfedge.get_next())
   {
-    halfedge = halfedge.getNext();
+    halfedge = halfedge.get_next();
     result.push_back(halfedge);
   }
 

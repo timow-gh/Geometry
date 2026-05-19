@@ -35,20 +35,20 @@ TEST_F(Vec_Sphere_Distance_Test, OutsideOfSphere)
 TEST_F(Vec_Sphere_Distance_Test, Signed_InsideSphere)
 {
     linal::double3 vec = {2, 0, 0};
-    double dist = signedDistance(vec, m_sphere);
+    double dist = signed_distance(vec, m_sphere);
     EXPECT_DOUBLE_EQ(dist, -1.0);
 }
 
 TEST_F(Vec_Sphere_Distance_Test, Signed_SphereBoundary)
 {
     linal::double3 vec = {3, 0, 0};
-    double dist = signedDistance(vec, m_sphere);
+    double dist = signed_distance(vec, m_sphere);
     EXPECT_DOUBLE_EQ(dist, 0.0);
 }
 
 TEST_F(Vec_Sphere_Distance_Test, Signed_OutsideOfSphere)
 {
     linal::double3 vec = {4, 0, 0};
-    double dist = signedDistance(vec, m_sphere);
+    double dist = signed_distance(vec, m_sphere);
     EXPECT_DOUBLE_EQ(dist, 1.0);
 }

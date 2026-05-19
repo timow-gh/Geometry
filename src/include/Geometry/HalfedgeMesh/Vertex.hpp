@@ -41,22 +41,22 @@ public:
   {
   }
 
-  GEO_NODISCARD constexpr linal::vec3<value_type> getVector() const { return m_mesh->getVector(*this); }
-  GEO_NODISCARD constexpr VertexIndex_t getIndex() const { return m_vIndex; }
-  GEO_NODISCARD constexpr const std::vector<HalfedgeIndex_t>& getHalfedgeIndices() const { return m_heIndices; }
+  GEO_NODISCARD constexpr linal::vec3<value_type> get_vector() const { return m_mesh->get_vector(*this); }
+  GEO_NODISCARD constexpr VertexIndex_t get_index() const { return m_vIndex; }
+  GEO_NODISCARD constexpr const std::vector<HalfedgeIndex_t>& get_halfedge_indices() const { return m_heIndices; }
 
-  constexpr void addHalfedgeIndex(HalfedgeIndex_t halfedgeIndex)
+  constexpr void add_halfedge_index(HalfedgeIndex_t halfedgeIndex)
   {
     m_heIndices.push_back(halfedgeIndex);
     std::sort(m_heIndices.begin(), m_heIndices.end());
   }
 
-  GEO_NODISCARD std::vector<Halfedge_t> calcHalfedges() const
+  GEO_NODISCARD std::vector<Halfedge_t> calc_halfedges() const
   {
     std::vector<Halfedge_t> halfedges;
     for (const auto& heIndex: m_heIndices)
     {
-      halfedges.push_back(m_mesh->getHalfedge(heIndex));
+      halfedges.push_back(m_mesh->get_halfedge(heIndex));
     }
     return halfedges;
   }

@@ -12,7 +12,7 @@ class VertexTest : public ::testing::Test {
   protected:
     VertexTest()
         : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
-        , m_vertex(m_heMesh->getVertices().front())
+        , m_vertex(m_heMesh->get_vertices().front())
     {
     }
 
@@ -25,28 +25,28 @@ TEST_F(VertexTest, is_valid)
     EXPECT_TRUE(m_vertex.is_valid());
 }
 
-TEST_F(VertexTest, getVector)
+TEST_F(VertexTest, get_vector)
 {
-    [[maybe_unused]] linal::float3 point = m_vertex.getVector();
+    [[maybe_unused]] linal::float3 point = m_vertex.get_vector();
     const auto& constVertex = m_vertex;
-    [[maybe_unused]] const linal::float3& cPoint = constVertex.getVector();
+    [[maybe_unused]] const linal::float3& cPoint = constVertex.get_vector();
 }
 
 TEST_F(VertexTest, vertexIndex)
 {
-    [[maybe_unused]] HalfedgeMesh_t::VertexIndex_t index = m_vertex.getIndex();
+    [[maybe_unused]] HalfedgeMesh_t::VertexIndex_t index = m_vertex.get_index();
     const auto& constVertex = m_vertex;
-    index = constVertex.getIndex();
+    index = constVertex.get_index();
 }
 
-TEST_F(VertexTest, getHalfedge)
+TEST_F(VertexTest, get_halfedge)
 {
-    [[maybe_unused]] auto halfedges = m_vertex.calcHalfedges();
+    [[maybe_unused]] auto halfedges = m_vertex.calc_halfedges();
     const auto& constVertex = m_vertex;
-    [[maybe_unused]] const auto& cHalfedges = constVertex.calcHalfedges();
+    [[maybe_unused]] const auto& cHalfedges = constVertex.calc_halfedges();
 }
 
 TEST_F(VertexTest, halfedgeIndex)
 {
-    [[maybe_unused]] auto heIndices = m_vertex.getHalfedgeIndices();
+    [[maybe_unused]] auto heIndices = m_vertex.get_halfedge_indices();
 }

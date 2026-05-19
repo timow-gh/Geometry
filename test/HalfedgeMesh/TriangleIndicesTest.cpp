@@ -18,7 +18,7 @@ class TestTriangleIndices : public ::testing::Test {
 protected:
   TestTriangleIndices()
       : m_heMesh(CuboidMeshBuilder<float, std::size_t>().set_cuboid(Cuboid<float>({0, 0, 0}, {1, 1, 1})).build())
-      , m_halfedge(m_heMesh->getHalfedges().front())
+      , m_halfedge(m_heMesh->get_halfedges().front())
   {
   }
 
@@ -30,6 +30,6 @@ TEST_F(TestTriangleIndices, calc_triangle_indices)
 {
   Geometry::CuboidMeshBuilder<float, std::size_t> cuboidMeshBuilder;
   std::unique_ptr<HalfedgeMesh_t> cuboidMesh = cuboidMeshBuilder.set_origin({1.0F, -1.0F, 0.0F}).set_diagonal({1.0F, 1.0F, 1.0F}).build();
-  std::vector<std::uint32_t> indices = Geometry::calc_triangle_indices<std::uint32_t>(cuboidMesh->getFacets());
+  std::vector<std::uint32_t> indices = Geometry::calc_triangle_indices<std::uint32_t>(cuboidMesh->get_facets());
   EXPECT_EQ(indices.size(), 36);
 }

@@ -42,7 +42,7 @@ protected:
 
 TEST_F(TestMeshBuilderSphere, VertexIndices)
 {
-  for (const auto& vertex: m_sphereMesh->getVertices())
+  for (const auto& vertex: m_sphereMesh->get_vertices())
   {
     EXPECT_TRUE(vertex.is_valid());
   }
@@ -50,8 +50,8 @@ TEST_F(TestMeshBuilderSphere, VertexIndices)
 
 TEST_F(TestMeshBuilderSphere, MeshPoints)
 {
-  for (const auto& vertexPoint: m_sphereMesh->getMeshPoints().getPoints())
+  for (const auto& vertexPoint: m_sphereMesh->get_mesh_points().get_points())
   {
-    EXPECT_TRUE(isPointOnSphere(m_sphere, vertexPoint));
+    EXPECT_TRUE(is_point_on_sphere(m_sphere, vertexPoint));
   }
 }

@@ -6,7 +6,7 @@
 
 namespace MeshTestHelper
 {
-testing::AssertionResult isPointOnSphere(const Geometry::Sphere<double>& sphere, const linal::double3& vec);
+testing::AssertionResult is_point_on_sphere(const Geometry::Sphere<double>& sphere, const linal::double3& vec);
 } // namespace MeshTestHelper
 
 #endif // GEOMETRY_SPHERETESTHELPER_H
