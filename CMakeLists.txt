@@ -8,7 +8,7 @@ if (NOT CPM_SOURCE_CACHE AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/CPMSourceVariab
 endif ()
 
 project("Geometry"
-    VERSION 1.0.0
+    VERSION 2.0.0
     LANGUAGES CXX)
 
 
