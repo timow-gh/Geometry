@@ -72,12 +72,4 @@ clang-analyzer-*,
 # cppcoreguidelines-pro-bounds-pointer-arithmetic
 # cppcoreguidelines-pro-bounds-constant-array-index # Removed, too many false positives
 
-CheckOptions:
-  - key: readability-identifier-naming.FunctionCase
-    value: lower_case
-  - key: readability-identifier-naming.IgnoreMainLikeFunctions
-    value: 1
-  - key: readability-redundant-member-init.IgnoreBaseInCopyConstructors
-    value: 1
-  - key: modernize-use-default-member-init.UseAssignment
-    value: 1
+
