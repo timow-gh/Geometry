@@ -22,20 +22,20 @@ GEO_NODISCARD constexpr std::vector<U> calc_triangle_indices(const std::vector<T
   {
     std::vector<Halfedge_t> halfedges;
 
-    Halfedge_t halfedge = facet.getHalfedge();
+    Halfedge_t halfedge = facet.get_halfedge();
     halfedges.push_back(halfedge);
-    halfedge = halfedge.getNext();
+    halfedge = halfedge.get_next();
     halfedges.push_back(halfedge);
 
-    while (facet.getHalfedge() != halfedge.getNext())
+    while (facet.get_halfedge() != halfedge.get_next())
     {
-      halfedge = halfedge.getNext();
+      halfedge = halfedge.get_next();
       halfedges.push_back(halfedge);
     }
 
     for (const Halfedge_t& he: halfedges)
     {
-      result.push_back(static_cast<U>(he.getVertexIndex().get_value()));
+      result.push_back(static_cast<U>(he.get_vertex_index().get_value()));
     }
   }
 
@@ -77,9 +77,9 @@ GEO_NODISCARD constexpr std::vector<U> calc_line_indices(const THalfedgeMesh& me
   };
 
   std::vector<Edge> edges;
-  for (const Halfedge_t& halfedge: mesh.getHalfedges())
+  for (const Halfedge_t& halfedge: mesh.get_halfedges())
   {
-    Edge edge = Edge::create(halfedge.getVertexIndex().get_value(), halfedge.getNext().getVertexIndex().get_value());
+    Edge edge = Edge::create(halfedge.get_vertex_index().get_value(), halfedge.get_next().get_vertex_index().get_value());
     auto iter = std::lower_bound(edges.begin(), edges.end(), edge);
     if (iter == edges.end() || *iter != edge)
     {

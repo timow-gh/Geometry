@@ -42,31 +42,31 @@ public:
   }
 
   GEO_NODISCARD
-  constexpr const Facet_t& getFacet() const { return m_mesh->getFacets()[m_facetIdx.get_value()]; }
+  constexpr const Facet_t& get_facet() const { return m_mesh->get_facets()[m_facetIdx.get_value()]; }
 
-  GEO_NODISCARD constexpr const Vertex_t& getVertex() const { return m_mesh->getVertices()[m_vertexIdx.get_value()]; }
-  GEO_NODISCARD constexpr Vertex_t& getVertex() { return m_mesh->getVertices()[m_vertexIdx.get_value()]; }
-  GEO_NODISCARD constexpr VertexIndex_t getVertexIndex() const { return m_vertexIdx; }
-  GEO_NODISCARD constexpr const Vertex_t& getNextVertex() const { return getNext().getVertex(); }
-  GEO_NODISCARD constexpr Vertex_t& getNextVertex() { return getNext().getVertex(); }
+  GEO_NODISCARD constexpr const Vertex_t& get_vertex() const { return m_mesh->get_vertices()[m_vertexIdx.get_value()]; }
+  GEO_NODISCARD constexpr Vertex_t& get_vertex() { return m_mesh->get_vertices()[m_vertexIdx.get_value()]; }
+  GEO_NODISCARD constexpr VertexIndex_t get_vertex_index() const { return m_vertexIdx; }
+  GEO_NODISCARD constexpr const Vertex_t& get_next_vertex() const { return get_next().get_vertex(); }
+  GEO_NODISCARD constexpr Vertex_t& get_next_vertex() { return get_next().get_vertex(); }
 
-  GEO_NODISCARD constexpr HalfedgeIndex_t getHalfedgeIndex() const { return m_halfedgeIdx; }
-  GEO_NODISCARD constexpr HalfedgeIndex_t getNextIndex() const { return m_nextIdx; }
-  GEO_NODISCARD constexpr HalfedgeIndex_t getPreviousIndex() const { return m_previousIdx; }
-  GEO_NODISCARD constexpr HalfedgeIndex_t getOppositeIndex() const { return m_oppositeIdx; }
-  GEO_NODISCARD constexpr FacetIndex_t getFacetIndex() const { return m_facetIdx; }
+  GEO_NODISCARD constexpr HalfedgeIndex_t get_halfedge_index() const { return m_halfedgeIdx; }
+  GEO_NODISCARD constexpr HalfedgeIndex_t get_next_index() const { return m_nextIdx; }
+  GEO_NODISCARD constexpr HalfedgeIndex_t get_previous_index() const { return m_previousIdx; }
+  GEO_NODISCARD constexpr HalfedgeIndex_t get_opposite_index() const { return m_oppositeIdx; }
+  GEO_NODISCARD constexpr FacetIndex_t get_facet_index() const { return m_facetIdx; }
 
-  GEO_NODISCARD constexpr const Halfedge_t& getNext() const { return m_mesh->getHalfedges()[m_nextIdx.get_value()]; }
-  GEO_NODISCARD constexpr Halfedge_t& getNext() { return m_mesh->getHalfedges()[m_nextIdx.get_value()]; }
-  GEO_NODISCARD constexpr const Halfedge_t& getPrevious() const { return m_mesh->getHalfedges()[m_previousIdx.get_value()]; }
-  GEO_NODISCARD constexpr Halfedge_t& getPrevious() { return m_mesh->getHalfedges()[m_previousIdx.get_value()]; }
-  GEO_NODISCARD constexpr const Halfedge_t& getOpposite() const { return m_mesh->getHalfedges()[m_oppositeIdx.get_value()]; }
+  GEO_NODISCARD constexpr const Halfedge_t& get_next() const { return m_mesh->get_halfedges()[m_nextIdx.get_value()]; }
+  GEO_NODISCARD constexpr Halfedge_t& get_next() { return m_mesh->get_halfedges()[m_nextIdx.get_value()]; }
+  GEO_NODISCARD constexpr const Halfedge_t& get_previous() const { return m_mesh->get_halfedges()[m_previousIdx.get_value()]; }
+  GEO_NODISCARD constexpr Halfedge_t& get_previous() { return m_mesh->get_halfedges()[m_previousIdx.get_value()]; }
+  GEO_NODISCARD constexpr const Halfedge_t& get_opposite() const { return m_mesh->get_halfedges()[m_oppositeIdx.get_value()]; }
 
-  constexpr void setNextIndex(HalfedgeIndex_t index) { m_nextIdx = index; }
-  constexpr void setPreviousIndex(HalfedgeIndex_t index) { m_previousIdx = index; }
-  constexpr void setOppositeIndex(HalfedgeIndex_t index) { m_oppositeIdx = index; }
-  constexpr void setFacetIndex(FacetIndex_t facetIndex) { m_facetIdx = facetIndex; }
-  constexpr void setVertexIndex(VertexIndex_t index) { m_vertexIdx = index; }
+  constexpr void set_next_index(HalfedgeIndex_t index) { m_nextIdx = index; }
+  constexpr void set_previous_index(HalfedgeIndex_t index) { m_previousIdx = index; }
+  constexpr void set_opposite_index(HalfedgeIndex_t index) { m_oppositeIdx = index; }
+  constexpr void set_facet_index(FacetIndex_t facetIndex) { m_facetIdx = facetIndex; }
+  constexpr void set_vertex_index(VertexIndex_t index) { m_vertexIdx = index; }
 
   constexpr bool operator==(const Halfedge& rhs) const { return m_halfedgeIdx == rhs.m_halfedgeIdx; }
   constexpr bool operator!=(const Halfedge& rhs) const { return !(rhs == *this); }
@@ -87,26 +87,26 @@ private:
       return false;
     }
 
-    const Vertex_t& vertex = getVertex();
-    const auto& heIndices = vertex.getHalfedgeIndices();
+    const Vertex_t& vertex = get_vertex();
+    const auto& heIndices = vertex.get_halfedge_indices();
     if (std::find(heIndices.begin(), heIndices.end(), m_halfedgeIdx) == heIndices.end())
     {
       return false;
     }
 
-    Halfedge_t oppHe = getOpposite();
+    Halfedge_t oppHe = get_opposite();
     if (oppHe.m_oppositeIdx != m_halfedgeIdx)
     {
       return false;
     }
 
-    Halfedge_t nextHe = getNext();
+    Halfedge_t nextHe = get_next();
     if (nextHe.m_previousIdx != m_halfedgeIdx)
     {
       return false;
     }
 
-    Halfedge_t prevHe = getPrevious();
+    Halfedge_t prevHe = get_previous();
     return static_cast<bool>(prevHe.m_nextIdx == m_halfedgeIdx);
   }
 

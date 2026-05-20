@@ -71,8 +71,8 @@ public:
       triangleAdder(triangle);
     }
     MeshTriangleAdder<MeshTraits_t>::set_opposite_halfedges(*heMesh);
-    GEO_ASSERT(heMesh->getVertices().size() == 8);
-    GEO_ASSERT(heMesh->getHalfedges().size() == 36);
+    GEO_ASSERT(heMesh->get_vertices().size() == 8);
+    GEO_ASSERT(heMesh->get_halfedges().size() == 36);
     return heMesh;
   }
 

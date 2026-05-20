@@ -87,7 +87,7 @@ namespace Geometry
    * @return true if triangles intersect, false otherwise
    */
   template <typename T>
-  GEO_NODISCARD constexpr bool TriangleTriangleSAT(
+  GEO_NODISCARD constexpr bool triangle_triangle_sat(
       const linal::vec3<T>& P1, 
       const linal::vec3<T>& P2, 
       const linal::vec3<T>& P3,
@@ -182,7 +182,7 @@ namespace Geometry
       GEO_ASSERT(!t1.is_degenerate());
       GEO_ASSERT(!t2.is_degenerate());
 
-      return details::TriangleTriangleSAT(t1[0], t1[1], t1[2], t2[0], t2[1], t2[2]);
+      return details::triangle_triangle_sat(t1[0], t1[1], t1[2], t2[0], t2[1], t2[2]);
   }
 
 } // namespace Geometry

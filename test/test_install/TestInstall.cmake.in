@@ -1,0 +1,68 @@
+set(TEST_TARGET "@test_target@")
+set(TEST_INSTALL_DIR "@CMAKE_CURRENT_BINARY_DIR@/@test_target@_install_dir")
+set(TEST_SOURCE_DIR "@CMAKE_CURRENT_BINARY_DIR@/@test_target@_use_install_test")
+set(TEMPLATE_SOURCE_DIR "@CMAKE_CURRENT_LIST_DIR@/@test_template_project_dir@")
+set(PROJECT_BINARY_DIR "@PROJECT_BINARY_DIR@")
+set(PROJECT_SOURCE_DIR "@PROJECT_SOURCE_DIR@")
+set(PRESET "@PRESET@")
+
+if (NOT DEFINED TEST_CONFIG OR TEST_CONFIG STREQUAL "")
+    set(TEST_CONFIG "@CMAKE_BUILD_TYPE@")
+endif ()
+
+if (TEST_CONFIG STREQUAL "Debug")
+    set(EXE_POSTFIX "d")
+else ()
+    set(EXE_POSTFIX "")
+endif ()
+
+function(run_command)
+    execute_process(
+            COMMAND ${ARGV}
+            RESULT_VARIABLE command_result)
+
+    if (NOT command_result EQUAL 0)
+        message(FATAL_ERROR "Command failed with exit code ${command_result}: ${ARGV}")
+    endif ()
+endfunction()
+
+run_command(
+        "${CMAKE_COMMAND}"
+        --install "${PROJECT_BINARY_DIR}"
+        --config "${TEST_CONFIG}"
+        --prefix "${TEST_INSTALL_DIR}")
+
+run_command(
+        "${CMAKE_COMMAND}"
+        -E copy_directory
+        "${TEMPLATE_SOURCE_DIR}"
+        "${TEST_SOURCE_DIR}")
+
+run_command(
+        "${CMAKE_COMMAND}"
+        -E copy
+        "${PROJECT_SOURCE_DIR}/CMakePresets.json"
+        "${TEST_SOURCE_DIR}/CMakePresets.json")
+
+run_command(
+        "${CMAKE_COMMAND}"
+        -B "${TEST_SOURCE_DIR}/build"
+        -S "${TEST_SOURCE_DIR}"
+        --preset "${PRESET}"
+        "-DCMAKE_PREFIX_PATH=${TEST_INSTALL_DIR}")
+
+run_command(
+        "${CMAKE_COMMAND}"
+        --build "${TEST_SOURCE_DIR}/build"
+        --config "${TEST_CONFIG}"
+        --parallel)
+
+run_command(
+        "${CMAKE_COMMAND}"
+        --install "${TEST_SOURCE_DIR}/build"
+        --config "${TEST_CONFIG}"
+        --prefix "${TEST_SOURCE_DIR}/install")
+
+run_command("${TEST_SOURCE_DIR}/install/bin/use_installdir${EXE_POSTFIX}")
+
+message(STATUS "Installation test PASSED: Executable ran successfully")

@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 set(geometry_TARGET_HEADER
         include/Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp
         include/Geometry/HalfedgeMesh/CalcFacetNormal.hpp
@@ -69,59 +71,70 @@ set(geometry_TARGET_HEADER
 
 set(TARGET_NAME tw_geometry)
 set(TARGET_EXPORT_NAME Geometry)
-set(${TARGET_NAME}_MAJOR 1)
-set(${TARGET_NAME}_MINOR 0)
-set(${TARGET_NAME}_PATCH 0)
 
-add_library(${TARGET_NAME} INTERFACE ${geometry_TARGET_HEADER})
+add_library(${TARGET_NAME} INTERFACE)
+
+target_sources(${TARGET_NAME}
+        INTERFACE
+        FILE_SET HEADERS
+        BASE_DIRS include
+        FILES ${geometry_TARGET_HEADER}
+)
 
 target_include_directories(${TARGET_NAME}
         INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/export_header_includes>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
-)
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 set_target_properties(${TARGET_NAME}
         PROPERTIES
-        LANGUAGE CXX
-        LINKER_LANGUAGE CXX
-        DEBUG_POSTFIX d
-        VERSION ${${TARGET_NAME}_MAJOR}.${${TARGET_NAME}_MINOR}.${${TARGET_NAME}_PATCH}
-        SOVERSION ${PROJECT_VERSION_MAJOR}
-        OUTPUT_NAME "tw_${TARGET_EXPORT_NAME}"
-        EXPORT_NAME ${TARGET_EXPORT_NAME}
-)
+        EXPORT_NAME ${TARGET_EXPORT_NAME})
 
 add_library(${PROJECT_NAME}::${TARGET_EXPORT_NAME} ALIAS ${TARGET_NAME})
 
+target_compile_features(${TARGET_NAME} INTERFACE cxx_std_20)
+
 target_link_libraries(${TARGET_NAME} INTERFACE linal::linal)
 
-if (${PROJECT_NAME}_USE_WARNINGS)
+if (DEFINED ${PROJECT_NAME}_USE_WARNINGS AND ${PROJECT_NAME}_USE_WARNINGS)
     add_warnings_and_compile_options(${TARGET_NAME} "${${PROJECT_NAME}_WARNINGS_AS_ERRORS}")
 endif ()
 
-if (${PROJECT_NAME}_STATIC_ANALYSIS)
-    enable_static_analysis(${TARGET_NAME} "${${PROJECT_NAME}_WARNINGS_AS_ERRORS}")
-endif ()
-
 if (${PROJECT_NAME}_INSTALL)
-    include(setup_export_set_installation)
+    include(CMakePackageConfigHelpers)
 
-    install(DIRECTORY "include/${TARGET_EXPORT_NAME}" DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}")
+    set(project_export_set_name "${PROJECT_NAME}TargetsExportSet")
+    set(config_install_dir "${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}")
 
     install(TARGETS ${TARGET_NAME}
-            EXPORT GeometryTargetsExportSet
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            INCLUDES DESTINATION
-            ${CMAKE_INSTALL_INCLUDEDIR}
-            ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+            EXPORT ${project_export_set_name}
+            FILE_SET HEADERS
+            DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+            COMPONENT dev)
 
-    setup_export_set_installation(
-            ${PROJECT_NAME}
-            "GeometryTargetsExportSet"
-            "Config.cmake.in"
-            ${PROJECT_VERSION_MAJOR} ${PROJECT_VERSION_MINOR} ${PROJECT_VERSION_PATCH}
-    )
+    write_basic_package_version_file(
+            "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+            VERSION ${PROJECT_VERSION}
+            COMPATIBILITY SameMajorVersion)
+
+    configure_package_config_file(
+            "${PROJECT_SOURCE_DIR}/cmake/Config.cmake.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+            INSTALL_DESTINATION "${config_install_dir}")
+
+    install(EXPORT ${project_export_set_name}
+            NAMESPACE ${PROJECT_NAME}::
+            FILE ${PROJECT_NAME}Targets.cmake
+            DESTINATION "${config_install_dir}"
+            COMPONENT dev)
+
+    export(EXPORT ${project_export_set_name}
+            FILE "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake"
+            NAMESPACE ${PROJECT_NAME}::)
+
+    install(FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+            "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+            DESTINATION "${config_install_dir}"
+            COMPONENT dev)
 endif ()

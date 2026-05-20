@@ -14,13 +14,13 @@ linal::vec3<typename TFacet::value_type> calc_facet_normal(const TFacet& facet)
   using value_type = typename TFacet::value_type;
   using Halfedge_t = typename TFacet::Halfedge_t;
 
-  const Halfedge_t& he = facet.getHalfedge();
-  const Halfedge_t& next = he.getNext();
+  const Halfedge_t& he = facet.get_halfedge();
+  const Halfedge_t& next = he.get_next();
 
   using vec_t = linal::vec3<value_type>;
-  const vec_t v0 = he.getVertex().getVector();
-  const vec_t v1 = next.getVertex().getVector();
-  const vec_t v2 = next.getNextVertex().getVector();
+  const vec_t v0 = he.get_vertex().get_vector();
+  const vec_t v1 = next.get_vertex().get_vector();
+  const vec_t v2 = next.get_next_vertex().get_vector();
 
   linal::vec3<value_type> normal = linal::cross(v1 - v0, v2 - v1);
   return linal::normalize(normal);

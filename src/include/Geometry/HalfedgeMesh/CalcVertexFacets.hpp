@@ -17,9 +17,9 @@ std::vector<typename TVertex::Facet_t> calc_vertex_facets(const TVertex& vertex)
   using Facet_t = typename TVertex::Facet_t;
 
   std::vector<Facet_t> facets;
-  for (const Halfedge_t& halfedge: vertex.calcHalfedges())
+  for (const Halfedge_t& halfedge: vertex.calc_halfedges())
   {
-    const Facet_t facet = halfedge.getFacet();
+    const Facet_t facet = halfedge.get_facet();
     facets.push_back(facet);
   }
 

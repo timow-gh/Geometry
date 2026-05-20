@@ -23,11 +23,11 @@ struct SegmentIndices
 };
 
 template <typename TMeshTraits>
-std::vector<SegmentIndices> calcMeshSegmentIndices(const HalfedgeMesh<TMeshTraits>& mesh)
+std::vector<SegmentIndices> calc_mesh_segment_indices(const HalfedgeMesh<TMeshTraits>& mesh)
 {
   std::vector<SegmentIndices> result;
   for (const Halfedge_t& halfedge: mesh.halfedges)
-    result.push_back(SegmentIndices(halfedge.getVertexIndex().get_value(), halfedge.getNext().getVertexIndex().get_value()));
+    result.push_back(SegmentIndices(halfedge.get_vertex_index().get_value(), halfedge.get_next().get_vertex_index().get_value()));
   return result;
 }
 

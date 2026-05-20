@@ -108,7 +108,7 @@ public:
   {
     node_t newNode;
     newNode.nodeValue.point = point;
-    return insertHelper(m_root, newNode, 0);
+    return insert_helper(m_root, newNode, 0);
   }
 
   template <typename T = payload_t, typename = std::enable_if_t<!std::is_same_v<T, NoPayloadTag>>>
@@ -117,10 +117,10 @@ public:
     node_t newNode;
     newNode.nodeValue.point = point;
     newNode.nodeValue.payload = payload;
-    return insertHelper(m_root, newNode, 0);
+    return insert_helper(m_root, newNode, 0);
   }
 
-  bool search(const vec_t& point) const { return searchHelper(m_root.get(), point, 0); }
+  bool search(const vec_t& point) const { return search_helper(m_root.get(), point, 0); }
 
   template <typename T = payload_t, typename = std::enable_if_t<std::is_same_v<T, NoPayloadTag>>>
   vec_t nearest(const vec_t& queryPoint) const
@@ -132,7 +132,7 @@ public:
 
     node_t* bestNode = m_root.get();
     value_type bestDist = distance(queryPoint, bestNode->nodeValue.point);
-    nearestHelper(m_root.get(), queryPoint, &bestNode, bestDist, 0);
+    nearest_helper(m_root.get(), queryPoint, &bestNode, bestDist, 0);
     return bestNode->nodeValue.point;
   }
 
@@ -146,7 +146,7 @@ public:
 
     node_t* bestNode = m_root.get();
     value_type bestDist = distance(queryPoint, bestNode->nodeValue.point);
-    nearestHelper(m_root.get(), queryPoint, &bestNode, bestDist, 0);
+    nearest_helper(m_root.get(), queryPoint, &bestNode, bestDist, 0);
     return {bestNode->nodeValue.point, bestNode->nodeValue.payload};
   }
 
@@ -158,7 +158,7 @@ private:
   std::unique_ptr<node_t> m_root;
   size_type m_size;
 
-  [[nodiscard]] bool insertHelper(std::unique_ptr<node_t>& node, const node_t& newNode, size_type depth)
+  [[nodiscard]] bool insert_helper(std::unique_ptr<node_t>& node, const node_t& newNode, size_type depth)
   {
     if (!node)
     {
@@ -175,15 +175,15 @@ private:
     auto axis = static_cast<size_type>(depth) % D;
     if (newNode.nodeValue.point[axis] < node->nodeValue.point[axis])
     {
-      return insertHelper(node->left, newNode, depth + 1);
+      return insert_helper(node->left, newNode, depth + 1);
     }
     else
     {
-      return insertHelper(node->right, newNode, depth + 1);
+      return insert_helper(node->right, newNode, depth + 1);
     }
   }
 
-  [[nodiscard]] bool searchHelper(const node_t* node, const vec_t& point, size_type depth) const
+  [[nodiscard]] bool search_helper(const node_t* node, const vec_t& point, size_type depth) const
   {
     if (!node)
     {
@@ -198,15 +198,15 @@ private:
     size_type axis = depth % D;
     if (point[axis] < node->nodeValue.point[axis])
     {
-      return searchHelper(node->left.get(), point, depth + 1);
+      return search_helper(node->left.get(), point, depth + 1);
     }
     else
     {
-      return searchHelper(node->right.get(), point, depth + 1);
+      return search_helper(node->right.get(), point, depth + 1);
     }
   }
 
-  void nearestHelper(node_t* node, const vec_t& query, node_t** bestNode, value_type& bestDist, size_type depth) const
+  void nearest_helper(node_t* node, const vec_t& query, node_t** bestNode, value_type& bestDist, size_type depth) const
   {
     if (!node)
     {
@@ -223,11 +223,11 @@ private:
     size_type axis = depth % D;
     value_type diff = query[axis] - node->nodeValue.point[axis];
 
-    nearestHelper((diff < 0) ? node->left.get() : node->right.get(), query, bestNode, bestDist, depth + 1);
+    nearest_helper((diff < 0) ? node->left.get() : node->right.get(), query, bestNode, bestDist, depth + 1);
 
     if (std::abs(diff) < bestDist)
     {
-      nearestHelper((diff < 0) ? node->right.get() : node->left.get(), query, bestNode, bestDist, depth + 1);
+      nearest_helper((diff < 0) ? node->right.get() : node->left.get(), query, bestNode, bestDist, depth + 1);
     }
   }
 

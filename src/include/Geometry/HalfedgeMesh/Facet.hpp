@@ -40,10 +40,10 @@ public:
   {
   }
 
-  GEO_NODISCARD constexpr const Halfedge_t& getHalfedge() const { return m_mesh->getHalfedge(m_heIndex); }
-  constexpr Halfedge_t& getHalfedge() { return m_mesh->getHalfedge(m_heIndex); }
+  GEO_NODISCARD constexpr const Halfedge_t& get_halfedge() const { return m_mesh->get_halfedge(m_heIndex); }
+  constexpr Halfedge_t& get_halfedge() { return m_mesh->get_halfedge(m_heIndex); }
 
-  GEO_NODISCARD constexpr HalfedgeIndex_t getHalfedgeIndex() const { return m_heIndex; }
+  GEO_NODISCARD constexpr HalfedgeIndex_t get_halfedge_index() const { return m_heIndex; }
 
   constexpr bool operator==(const Facet& rhs) const { return m_heIndex == rhs.m_heIndex && m_mesh == rhs.m_mesh; }
   constexpr bool operator!=(const Facet& rhs) const { return !(rhs == *this); }

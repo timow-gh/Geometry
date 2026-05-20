@@ -4,6 +4,14 @@ inputs:
   cmake_workflow:
     description: 'The cmake workflow to use.'
     required: true
+  install_tools:
+    description: 'Additional tools to install (space-separated list: lcov, clang-tidy, cppcheck)'
+    required: false
+    default: ''
+  build_shared_libs:
+    description: 'Whether to build shared libraries (ON/OFF)'
+    required: false
+    default: 'ON'
 
 runs:
   using: "composite"
@@ -12,7 +20,35 @@ runs:
       with:
         submodules: 'recursive'
     
-    - name: Run CMake workflow
+    - name: Install build tools
       run: |
-        cmake --workflow --preset ${{ inputs.cmake_workflow }}
+        sudo apt-get update
+        sudo apt-get install -y ninja-build ${{ inputs.install_tools }}
+      shell: bash
+    
+    - name: Extract preset names
+      id: preset
+      run: |
+        WORKFLOW_NAME="${{ inputs.cmake_workflow }}"
+        # Extract compiler and build type from workflow name
+        # workflow-test-gcc-release -> conf-gcc-release
+        BASE_NAME="${WORKFLOW_NAME#workflow-test-}"
+        echo "configure=conf-${BASE_NAME}" >> $GITHUB_OUTPUT
+        echo "build=build-${BASE_NAME}" >> $GITHUB_OUTPUT
+        echo "test=test-${BASE_NAME}" >> $GITHUB_OUTPUT
+      shell: bash
+    
+    - name: Configure
+      run: |
+        cmake --preset ${{ steps.preset.outputs.configure }} -DBUILD_SHARED_LIBS=${{ inputs.build_shared_libs }}
+      shell: bash
+    
+    - name: Build
+      run: |
+        cmake --build --preset ${{ steps.preset.outputs.build }}
+      shell: bash
+    
+    - name: Test
+      run: |
+        ctest --preset ${{ steps.preset.outputs.test }}
       shell: bash
