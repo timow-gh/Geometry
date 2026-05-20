@@ -1,7 +1,6 @@
 #ifndef GEOMETRY_SEGMENT_H
 #define GEOMETRY_SEGMENT_H
 
-#include "Geometry/Segment.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
@@ -40,9 +39,6 @@ public:
   }
   constexpr bool operator!=(const Segment& rhs) const noexcept { return !(rhs == *this); }
 };
-
-template <typename T>
-using Segment3 = class Segment<T, 3>;
 
 template <typename T>
 using Segment2 = Segment<T, 2>;

@@ -2,6 +2,7 @@
 #define GEOMETRY_CYLINDER_HPP
 
 #include "Geometry/Segment.hpp"
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 
@@ -18,6 +19,7 @@ public:
       : m_segment(segment)
       , m_radius(radius)
   {
+    GEO_ASSERT(radius >= T{0});
   }
 
   GEO_NODISCARD constexpr const Segment3<T>& get_segment() const noexcept { return m_segment; }

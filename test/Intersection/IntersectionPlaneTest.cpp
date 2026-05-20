@@ -72,15 +72,23 @@ TEST(PlaneSegment3f, Parallel)
     EXPECT_EQ(intersection, std::nullopt);
 }
 
-TEST(PlaneSegment3f, Parallel_InPlane)
+TEST(PlaneSegment3f, Touching_Source_OnPlane)
 {
     Plane<float> plane(linal::float3{0, 0, 1}, linal::float3{0, 0, 1});
     Segment3f seg{linal::float3{0, 0, 1}, linal::float3{1, 0, 0}};
     auto intersection = Geometry::intersect(plane, seg);
+    EXPECT_EQ(intersection, (linal::float3{0, 0, 1}));
+}
+
+TEST(PlaneSegment3f, Parallel_InPlane)
+{
+    Plane<float> plane(linal::float3{0, 0, 1}, linal::float3{0, 0, 1});
+    Segment3f seg{linal::float3{0, 0, 1}, linal::float3{1, 0, 1}};
+    auto intersection = Geometry::intersect(plane, seg);
     EXPECT_EQ(intersection, std::nullopt);
 }
 
-TEST(PlaneSegment3f, Touching_Source)
+TEST(PlaneSegment3f, Touching_Target_PositiveSide)
 {
     Plane<float> plane(linal::float3{0, 0, 0}, linal::float3{0, 0, 1});
     Segment3f seg{linal::float3{2, 2, 1}, linal::float3{1, 1, 0}};
@@ -88,10 +96,18 @@ TEST(PlaneSegment3f, Touching_Source)
     EXPECT_EQ(intersection, (linal::float3{1, 1, 0}));
 }
 
-TEST(PlaneSegment3f, Touching_Target)
+TEST(PlaneSegment3f, Touching_Target_NegativeSide)
 {
     Plane<float> plane(linal::float3{0, 0, 0}, linal::float3{0, 0, 1});
     Segment3f seg{linal::float3{-2, -2, -1}, linal::float3{-1, -1, 0}};
+    auto intersection = Geometry::intersect(plane, seg);
+    EXPECT_EQ(intersection, (linal::float3{-1, -1, 0}));
+}
+
+TEST(PlaneSegment3f, Touching_Source)
+{
+    Plane<float> plane(linal::float3{0, 0, 0}, linal::float3{0, 0, 1});
+    Segment3f seg{linal::float3{-1, -1, 0}, linal::float3{-2, -2, -1}};
     auto intersection = Geometry::intersect(plane, seg);
     EXPECT_EQ(intersection, (linal::float3{-1, -1, 0}));
 }
@@ -114,4 +130,12 @@ TEST(PlaneRay3d, Parallel)
     Ray3d ray{raySource, linal::normalize(rayDir)};
     auto intersection = Geometry::intersect(plane, ray);
     EXPECT_EQ(intersection, std::nullopt);
+}
+
+TEST(PlaneRay3d, StartsOnPlane)
+{
+    Plane<double> plane(linal::double3{}, linal::double3Z);
+    Ray3d ray{linal::double3{1, 1, 0}, linal::double3Z};
+    auto intersection = Geometry::intersect(plane, ray);
+    EXPECT_EQ(intersection, (linal::double3{1, 1, 0}));
 }

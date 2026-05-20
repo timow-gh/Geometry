@@ -1,10 +1,12 @@
 #ifndef GEOMETRY_PLANE_HPP
 #define GEOMETRY_PLANE_HPP
 
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_compare.hpp>
+#include <linal/vec_operations.hpp>
 
 namespace Geometry
 {
@@ -19,8 +21,10 @@ public:
   constexpr Plane() noexcept = default;
   constexpr Plane(const linal::vec3<T>& origin, const linal::vec3<T>& normal) noexcept
       : m_origin(origin)
-      , m_normal(linal::normalize(normal))
+      , m_normal(normal)
   {
+    GEO_ASSERT(linal::length(normal) > linal::eps<T>::value);
+    m_normal = linal::normalize(normal);
   }
 
   GEO_NODISCARD constexpr const linal::vec3<T>& get_origin() const noexcept { return m_origin; }

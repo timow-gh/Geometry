@@ -2,6 +2,7 @@
 #define GEOMETRY_CONE_HPP
 
 #include "Geometry/Segment.hpp"
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/vec.hpp>
 
@@ -17,19 +18,25 @@ public:
       : m_segment(Segment3<T>{circleMidPoint, peak})
       , m_radius(radius)
   {
+    GEO_ASSERT(radius >= T{0});
   }
 
   constexpr Cone(const Segment3<T>& segment, const T& radius) noexcept
       : m_segment(segment)
       , m_radius(radius)
   {
+    GEO_ASSERT(radius >= T{0});
   }
 
   GEO_NODISCARD constexpr const Segment3<T>& get_segment() const noexcept { return m_segment; }
   GEO_NODISCARD constexpr const T& get_radius() const noexcept { return m_radius; }
 
   constexpr void set_segment(const Segment3<T>& segment) noexcept { m_segment = segment; }
-  constexpr void set_radius(const T& radius) noexcept { m_radius = radius; }
+  constexpr void set_radius(const T& radius) noexcept
+  {
+    GEO_ASSERT(radius >= T{0});
+    m_radius = radius;
+  }
 
   GEO_NODISCARD constexpr T get_height() const noexcept { return m_segment.length(); }
   GEO_NODISCARD constexpr T get_slant_height() const noexcept

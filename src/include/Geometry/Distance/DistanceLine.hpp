@@ -35,7 +35,8 @@ GEO_NODISCARD constexpr T distance(const Line<T, D>& lhs, const Line<T, D>& rhs)
   {
     return distance(lhs.get_origin(), rhs);
   }
-  return linal::dot(linal::vec<T, D>{lhs.get_origin() - rhs.get_origin()}, cross) / crossLen;
+  const T signedDistance = linal::dot(linal::vec<T, D>{lhs.get_origin() - rhs.get_origin()}, cross) / crossLen;
+  return signedDistance < T{0} ? -signedDistance : signedDistance;
 }
 
 } // namespace Geometry

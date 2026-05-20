@@ -62,7 +62,7 @@ GEO_NODISCARD constexpr std::optional<linal::vec3<T>> intersect(Plane<T> plane, 
 
   if (auto paramD = details::calc_intersection_parameter(planeOrigin, planeNormal, rayOrigin, rayDir, eps))
   {
-    if (linal::isGreater(*paramD, T(0), eps))
+    if (linal::isGreaterEq(*paramD, T(0), eps))
     {
       return rayOrigin + paramD.value() * rayDir;
     }
@@ -80,7 +80,7 @@ GEO_NODISCARD constexpr std::optional<linal::vec3<T>> intersect(Plane<T> plane, 
 
   if (auto paramD = details::calc_intersection_parameter(planeOrigin, planeNormal, segSource, segDir, eps))
   {
-    if (linal::isGreater(*paramD, T(0), eps) && linal::isLessEq(*paramD, T(1), eps))
+    if (linal::isGreaterEq(*paramD, T(0), eps) && linal::isLessEq(*paramD, T(1), eps))
     {
       return segSource + paramD.value() * segDir;
     }

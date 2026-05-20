@@ -86,3 +86,11 @@ TEST(DistanceLineLine, negativeDistTest)
   double dist = Geometry::distance(lhs, rhs);
   EXPECT_DOUBLE_EQ(dist, 1);
 }
+
+TEST(DistanceLineLine, flippedDirectionStillPositive)
+{
+  Line3d lhs{linal::double3{0.0, 0.0, -1.0}, linal::double3{0.0, -1.0, 0.0}};
+  Line3d rhs{linal::double3{0.0, 0.0, 0.0}, linal::double3X};
+  double dist = Geometry::distance(lhs, rhs);
+  EXPECT_DOUBLE_EQ(dist, 1);
+}

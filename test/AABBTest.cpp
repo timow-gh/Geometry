@@ -27,6 +27,15 @@ TEST_F(AABBTest3d, from_cube_points)
   EXPECT_EQ(box.get_max(), expectedMax);
 }
 
+TEST(AABBTest2d, from_square_points)
+{
+  std::vector<linal::double2> const points{{0, 0}, {1, 0}, {0, 1}, {1, 1}};
+  AABB2d const box = make_aabb(points);
+
+  EXPECT_EQ(box.get_min(), (linal::double2{0.0, 0.0}));
+  EXPECT_EQ(box.get_max(), (linal::double2{1.0, 1.0}));
+}
+
 TEST(AABBCenterTest, get_center)
 {
   std::vector<linal::double3> const points{{1.0, 1.0, 1.0}, {-1.0, -1.0, -1.0}};

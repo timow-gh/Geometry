@@ -28,4 +28,5 @@ TEST_F(fixture_transformation_circle3, circle3_rotY)
   auto tCircle = Geometry::transform(m_circle3, rotY);
   auto expectedOrigin = linal::double3{1, 1, -1};
   EXPECT_EQ(expectedOrigin, tCircle.get_origin());
+  EXPECT_EQ(linal::double3X, tCircle.get_normal());
 }

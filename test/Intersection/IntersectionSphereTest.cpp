@@ -122,3 +122,13 @@ TEST(Sphere_Segment3d, No_Intersection)
   auto sphereIntersec = Geometry::intersect(sphere, seg);
   EXPECT_FALSE(sphereIntersec.has_intersection());
 }
+
+TEST(Sphere_Segment3d, Touching)
+{
+  Sphere sphere{linal::double3{}, 1.0};
+  Segment3d seg{linal::double3{-2, 1, 0}, linal::double3{2, 1, 0}};
+  auto sphereIntersec = Geometry::intersect(sphere, seg);
+  EXPECT_TRUE(sphereIntersec.first);
+  EXPECT_FALSE(sphereIntersec.second);
+  EXPECT_EQ(sphereIntersec.first.value(), (linal::double3{0, 1, 0}));
+}
