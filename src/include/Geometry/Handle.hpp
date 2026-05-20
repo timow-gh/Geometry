@@ -7,10 +7,11 @@
 namespace Geometry
 {
 
-template <typename T>
+template <typename T, typename TTag = void>
 class Handle {
 public:
   using value_type = T;
+  using tag_type = TTag;
 
   static constexpr value_type invalidHandles = std::numeric_limits<T>::max();
   static constexpr value_type nullHandle = value_type{};

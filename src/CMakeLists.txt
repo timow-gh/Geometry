@@ -43,6 +43,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/PointQueries.hpp
         include/Geometry/Sphere.hpp
         include/Geometry/Triangle.hpp
+        include/Geometry/TriangleHalfedgeMesh.hpp
 )
 
 set(TARGET_NAME tw_geometry)
