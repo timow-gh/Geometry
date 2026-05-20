@@ -22,7 +22,7 @@ protected:
 
 TEST_F(FacetTest, get_halfedge)
 {
-  [[maybe_unused]] HalfedgeMesh_t::Halfedge_t& he = m_facet.get_halfedge();
+  [[maybe_unused]] HalfedgeMesh_t::Halfedge_t& halfedge = m_facet.get_halfedge();
   const auto& constFacet = m_facet;
   [[maybe_unused]] const HalfedgeMesh_t::Halfedge_t& cHe = constFacet.get_halfedge();
 }
