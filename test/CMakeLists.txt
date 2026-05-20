@@ -18,9 +18,7 @@ if(NOT CMAKE_CXX_FLAGS MATCHES "--coverage")
 endif()
 
 add_subdirectory(Distance)
-add_subdirectory(HalfedgeMesh)
 add_subdirectory(Intersection)
-add_subdirectory(MeshBuilder)
 add_subdirectory(Transformation)
 
 create_geometry_test(AABBTest)

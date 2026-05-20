@@ -1,30 +1,6 @@
 include(GNUInstallDirs)
 
 set(geometry_TARGET_HEADER
-        include/Geometry/HalfedgeMesh/CalcFaceHalfedges.hpp
-        include/Geometry/HalfedgeMesh/CalcFacetNormal.hpp
-        include/Geometry/HalfedgeMesh/CalcSegmentIndicesHalfedgeIndices.hpp
-        include/Geometry/HalfedgeMesh/CalcTriangleIndices.hpp
-        include/Geometry/HalfedgeMesh/CalcVertexFacets.hpp
-        include/Geometry/HalfedgeMesh/CalcVertexNormals.hpp
-        include/Geometry/HalfedgeMesh/ConversionHelper.hpp
-        include/Geometry/HalfedgeMesh/DebugHelper.hpp
-        include/Geometry/HalfedgeMesh/Facet.hpp
-        include/Geometry/HalfedgeMesh/Halfedge.hpp
-        include/Geometry/HalfedgeMesh/MeshPoints.hpp
-        include/Geometry/HalfedgeMesh/HalfedgeMesh.hpp
-        include/Geometry/HalfedgeMesh/Vertex.hpp
-        include/Geometry/HalfedgeMesh/MeshIndices.hpp
-        include/Geometry/HalfedgeMesh/MeshTraits.hpp
-        include/Geometry/HalfedgeMeshBuilder/MeshTriangleAdder.hpp
-        include/Geometry/HalfedgeMeshBuilder/DiscretizeCircle.hpp
-        include/Geometry/HalfedgeMeshBuilder/ConeMeshBuilder.hpp
-        include/Geometry/HalfedgeMeshBuilder/CuboidMeshBuilder.hpp
-        include/Geometry/HalfedgeMeshBuilder/CylinderMeshBuilder.hpp
-        include/Geometry/HalfedgeMeshBuilder/MeshBuilderBase.hpp
-        include/Geometry/HalfedgeMeshBuilder/SphereMeshBuilder.hpp
-        include/Geometry/HalfedgeMeshBuilder/MeshBuilder.hpp
-        include/Geometry/HalfedgeMeshBuilder/MeshBuilderConfig.hpp
         include/Geometry/Distance/DistanceLine.hpp
         include/Geometry/Distance/DistanceRay.hpp
         include/Geometry/Distance/DistanceSegment.hpp
