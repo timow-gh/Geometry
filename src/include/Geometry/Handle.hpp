@@ -32,7 +32,7 @@ public:
   GEO_NODISCARD constexpr bool operator>=(const Handle& rhs) const noexcept { return !(*this < rhs); }
 
 private:
-  T m_value = nullHandle;
+  T m_value = invalidHandles;
 };
 
 } // namespace Geometry
