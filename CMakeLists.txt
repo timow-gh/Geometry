@@ -41,6 +41,7 @@ else ()
     set(${PROJECT_NAME}_INSTALL_DEFAULT OFF)
 endif ()
 option(${PROJECT_NAME}_INSTALL "Install project targets" ${${PROJECT_NAME}_INSTALL_DEFAULT})
+set(${PROJECT_NAME}_TARGET_NAME "tw_geometry" CACHE STRING "CMake target name for the geometry library.")
 
 if (${PROJECT_NAME}_USE_CPPCHECK)
     include(cppcheck)

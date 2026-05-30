@@ -46,7 +46,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/TriangleHalfedgeMesh.hpp
 )
 
-set(TARGET_NAME tw_geometry)
+set(TARGET_NAME ${${PROJECT_NAME}_TARGET_NAME})
 set(TARGET_EXPORT_NAME Geometry)
 
 add_library(${TARGET_NAME} INTERFACE)
