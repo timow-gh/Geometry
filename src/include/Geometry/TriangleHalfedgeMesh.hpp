@@ -4,11 +4,13 @@
 #include "Geometry/Handle.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <limits>
 #include <linal/vec.hpp>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace Geometry
@@ -62,7 +64,10 @@ public:
   GEO_NODISCARD VertexHandle add_vertex(const vec_t& position)
   {
     VertexHandle const handle = make_handle<VertexHandle>(m_vertices.size());
+    m_vertices.reserve(m_vertices.size() + 1);
+    m_vertexHalfedges.reserve(m_vertexHalfedges.size() + 1);
     m_vertices.push_back(Vertex{position, HalfedgeHandle{}});
+    m_vertexHalfedges.emplace_back();
     return handle;
   }
 
@@ -78,64 +83,134 @@ public:
       return FaceHandle{};
     }
 
+    FaceKey const faceKey = make_face_key(triangleVertices);
     FaceHandle const face = make_handle<FaceHandle>(m_faces.size());
     std::array<HalfedgeHandle, 3> triangleHalfedges{};
+    std::array<HalfedgeHandle, 3> previousVertexHalfedges{};
+    std::array<size_type, 3> previousVertexHalfedgeCounts{};
+    std::array<HalfedgeHandle, 3> oppositeHalfedges{};
+    std::array<DirectedEdgeKey, 3> directedEdgeKeys{};
+    size_type newEdgeCount = 0;
 
-    m_faces.push_back(Face{});
-
-    for (size_type i = 0; i < triangleHalfedges.size(); ++i)
-    {
-      triangleHalfedges[i] = make_handle<HalfedgeHandle>(m_halfedges.size());
-      m_halfedges.push_back(Halfedge{});
-    }
-
-    for (size_type i = 0; i < triangleHalfedges.size(); ++i)
-    {
-      size_type const nextIndex = (i + 1) % triangleHalfedges.size();
-      size_type const prevIndex = (i + triangleHalfedges.size() - 1) % triangleHalfedges.size();
-
-      Halfedge& halfedge = get_halfedge(triangleHalfedges[i]);
-      halfedge.vertex = triangleVertices[nextIndex];
-      halfedge.next = triangleHalfedges[nextIndex];
-      halfedge.prev = triangleHalfedges[prevIndex];
-      halfedge.face = face;
-
-      if (!get_vertex(triangleVertices[i]).halfedge.is_valid())
-      {
-        get_vertex(triangleVertices[i]).halfedge = triangleHalfedges[i];
-      }
-    }
-
-    for (size_type i = 0; i < triangleHalfedges.size(); ++i)
+    for (size_type i = 0; i < triangleVertices.size(); ++i)
     {
       VertexHandle const from = triangleVertices[i];
       VertexHandle const to = triangleVertices[(i + 1) % triangleVertices.size()];
-      DirectedEdgeKey const key{from.get_value(), to.get_value()};
+      directedEdgeKeys[i] = DirectedEdgeKey{from.get_value(), to.get_value()};
       DirectedEdgeKey const oppositeKey{to.get_value(), from.get_value()};
 
-      auto const oppositeIt = m_directedEdges.find(oppositeKey);
-      Halfedge& halfedge = get_halfedge(triangleHalfedges[i]);
+      previousVertexHalfedges[i] = get_vertex(from).halfedge;
+      previousVertexHalfedgeCounts[i] = m_vertexHalfedges[handle_index(from)].size();
+      m_vertexHalfedges[handle_index(from)].reserve(m_vertexHalfedges[handle_index(from)].size() + 1);
 
+      auto const oppositeIt = m_directedEdges.find(oppositeKey);
       if (oppositeIt != m_directedEdges.end())
       {
-        HalfedgeHandle const opposite = oppositeIt->second;
-        Halfedge& oppositeHalfedge = get_halfedge(opposite);
-
-        halfedge.twin = opposite;
-        oppositeHalfedge.twin = triangleHalfedges[i];
-        halfedge.edge = oppositeHalfedge.edge;
+        oppositeHalfedges[i] = oppositeIt->second;
       }
       else
       {
-        EdgeHandle const edge = make_handle<EdgeHandle>(m_edges.size());
-        m_edges.push_back(Edge{triangleHalfedges[i]});
-        halfedge.edge = edge;
+        ++newEdgeCount;
       }
-
-      m_directedEdges.emplace(key, triangleHalfedges[i]);
     }
 
-    get_face(face).halfedge = triangleHalfedges.front();
+    m_faces.reserve(m_faces.size() + 1);
+    m_halfedges.reserve(m_halfedges.size() + triangleHalfedges.size());
+    m_edges.reserve(m_edges.size() + newEdgeCount);
+    m_directedEdges.reserve(m_directedEdges.size() + directedEdgeKeys.size());
+    m_faceKeys.reserve(m_faceKeys.size() + 1);
+
+    size_type const faceCount = m_faces.size();
+    size_type const halfedgeCount = m_halfedges.size();
+    size_type const edgeCount = m_edges.size();
+
+    auto rollback = [&]() noexcept {
+      for (DirectedEdgeKey const key : directedEdgeKeys)
+      {
+        m_directedEdges.erase(key);
+      }
+      m_faceKeys.erase(faceKey);
+
+      for (size_type i = 0; i < triangleVertices.size(); ++i)
+      {
+        size_type const vertexIndex = handle_index(triangleVertices[i]);
+        m_vertices[vertexIndex].halfedge = previousVertexHalfedges[i];
+        m_vertexHalfedges[vertexIndex].resize(previousVertexHalfedgeCounts[i]);
+
+        if (oppositeHalfedges[i].is_valid() && contains(oppositeHalfedges[i]))
+        {
+          Halfedge& oppositeHalfedge = m_halfedges[handle_index(oppositeHalfedges[i])];
+          if (oppositeHalfedge.twin == triangleHalfedges[i])
+          {
+            oppositeHalfedge.twin = HalfedgeHandle{};
+          }
+        }
+      }
+
+      m_edges.resize(edgeCount);
+      m_halfedges.resize(halfedgeCount);
+      m_faces.resize(faceCount);
+    };
+
+    try
+    {
+      m_faces.push_back(Face{});
+
+      for (size_type i = 0; i < triangleHalfedges.size(); ++i)
+      {
+        triangleHalfedges[i] = make_handle<HalfedgeHandle>(m_halfedges.size());
+        m_halfedges.push_back(Halfedge{});
+      }
+
+      for (size_type i = 0; i < triangleHalfedges.size(); ++i)
+      {
+        size_type const nextIndex = (i + 1) % triangleHalfedges.size();
+        size_type const prevIndex = (i + triangleHalfedges.size() - 1) % triangleHalfedges.size();
+
+        Halfedge& halfedge = get_halfedge(triangleHalfedges[i]);
+        halfedge.vertex = triangleVertices[nextIndex];
+        halfedge.next = triangleHalfedges[nextIndex];
+        halfedge.prev = triangleHalfedges[prevIndex];
+        halfedge.face = face;
+
+        if (!get_vertex(triangleVertices[i]).halfedge.is_valid())
+        {
+          get_vertex(triangleVertices[i]).halfedge = triangleHalfedges[i];
+        }
+        m_vertexHalfedges[handle_index(triangleVertices[i])].push_back(triangleHalfedges[i]);
+      }
+
+      for (size_type i = 0; i < triangleHalfedges.size(); ++i)
+      {
+        Halfedge& halfedge = get_halfedge(triangleHalfedges[i]);
+
+        if (oppositeHalfedges[i].is_valid())
+        {
+          Halfedge& oppositeHalfedge = get_halfedge(oppositeHalfedges[i]);
+
+          halfedge.twin = oppositeHalfedges[i];
+          oppositeHalfedge.twin = triangleHalfedges[i];
+          halfedge.edge = oppositeHalfedge.edge;
+        }
+        else
+        {
+          EdgeHandle const edge = make_handle<EdgeHandle>(m_edges.size());
+          m_edges.push_back(Edge{triangleHalfedges[i]});
+          halfedge.edge = edge;
+        }
+
+        m_directedEdges.emplace(directedEdgeKeys[i], triangleHalfedges[i]);
+      }
+
+      m_faceKeys.insert(faceKey);
+      get_face(face).halfedge = triangleHalfedges.front();
+    }
+    catch (...)
+    {
+      rollback();
+      throw;
+    }
+
     return face;
   }
 
@@ -225,14 +300,14 @@ public:
     GEO_ASSERT(contains(vertex));
 
     std::vector<HalfedgeHandle> result;
-    for (size_type i = 0; i < m_halfedges.size(); ++i)
+    std::vector<unsigned char> visited(m_halfedges.size(), 0U);
+    append_halfedges_around_vertex_fan(vertex, get_vertex(vertex).halfedge, result, visited);
+
+    for (HalfedgeHandle const halfedge : m_vertexHalfedges[handle_index(vertex)])
     {
-      HalfedgeHandle const halfedge = make_handle<HalfedgeHandle>(i);
-      if (source_vertex(halfedge) == vertex)
-      {
-        result.push_back(halfedge);
-      }
+      append_halfedges_around_vertex_fan(vertex, halfedge, result, visited);
     }
+
     return result;
   }
 
@@ -278,21 +353,63 @@ public:
 
   GEO_NODISCARD bool is_valid() const noexcept
   {
+    if (m_vertexHalfedges.size() != m_vertices.size())
+    {
+      return false;
+    }
+
+    for (size_type i = 0; i < m_halfedges.size(); ++i)
+    {
+      const Halfedge& halfedge = m_halfedges[i];
+
+      if (!contains(halfedge.vertex) || !contains(halfedge.next) || !contains(halfedge.prev) || !contains(halfedge.face)
+          || !contains(halfedge.edge))
+      {
+        return false;
+      }
+    }
+
     for (size_type i = 0; i < m_vertices.size(); ++i)
     {
       VertexHandle const vertex = make_handle<VertexHandle>(i);
-      HalfedgeHandle const halfedge = get_vertex(vertex).halfedge;
-      if (halfedge.is_valid() && (!contains(halfedge) || source_vertex(halfedge) != vertex))
+      HalfedgeHandle const halfedge = m_vertices[i].halfedge;
+      if (halfedge.is_valid() && (!contains(halfedge) || unchecked_source_vertex(halfedge) != vertex))
       {
         return false;
+      }
+
+      for (HalfedgeHandle const outgoingHalfedge : m_vertexHalfedges[i])
+      {
+        if (!contains(outgoingHalfedge) || unchecked_source_vertex(outgoingHalfedge) != vertex)
+        {
+          return false;
+        }
       }
     }
 
     for (size_type i = 0; i < m_faces.size(); ++i)
     {
       FaceHandle const face = make_handle<FaceHandle>(i);
-      HalfedgeHandle const halfedge = get_face(face).halfedge;
-      if (!contains(halfedge) || get_halfedge(halfedge).face != face)
+      HalfedgeHandle const firstHalfedge = m_faces[i].halfedge;
+      if (!contains(firstHalfedge))
+      {
+        return false;
+      }
+
+      HalfedgeHandle const secondHalfedge = m_halfedges[handle_index(firstHalfedge)].next;
+      HalfedgeHandle const thirdHalfedge = m_halfedges[handle_index(secondHalfedge)].next;
+      if (firstHalfedge == secondHalfedge || secondHalfedge == thirdHalfedge || thirdHalfedge == firstHalfedge)
+      {
+        return false;
+      }
+
+      if (m_halfedges[handle_index(thirdHalfedge)].next != firstHalfedge)
+      {
+        return false;
+      }
+
+      if (m_halfedges[handle_index(firstHalfedge)].face != face || m_halfedges[handle_index(secondHalfedge)].face != face
+          || m_halfedges[handle_index(thirdHalfedge)].face != face)
       {
         return false;
       }
@@ -301,25 +418,25 @@ public:
     for (size_type i = 0; i < m_edges.size(); ++i)
     {
       EdgeHandle const edge = make_handle<EdgeHandle>(i);
-      HalfedgeHandle const halfedge = get_edge(edge).halfedge;
-      if (!contains(halfedge) || get_halfedge(halfedge).edge != edge)
+      HalfedgeHandle const halfedge = m_edges[i].halfedge;
+      if (!contains(halfedge) || m_halfedges[handle_index(halfedge)].edge != edge)
       {
         return false;
       }
     }
 
+    if (m_directedEdges.size() != m_halfedges.size() || m_faceKeys.size() != m_faces.size())
+    {
+      return false;
+    }
+
     for (size_type i = 0; i < m_halfedges.size(); ++i)
     {
       HalfedgeHandle const halfedgeHandle = make_handle<HalfedgeHandle>(i);
-      const Halfedge& halfedge = get_halfedge(halfedgeHandle);
+      const Halfedge& halfedge = m_halfedges[i];
 
-      if (!contains(halfedge.vertex) || !contains(halfedge.next) || !contains(halfedge.prev) || !contains(halfedge.face)
-          || !contains(halfedge.edge))
-      {
-        return false;
-      }
-
-      if (get_halfedge(halfedge.next).prev != halfedgeHandle || get_halfedge(halfedge.prev).next != halfedgeHandle)
+      if (m_halfedges[handle_index(halfedge.next)].prev != halfedgeHandle
+          || m_halfedges[handle_index(halfedge.prev)].next != halfedgeHandle)
       {
         return false;
       }
@@ -331,12 +448,45 @@ public:
           return false;
         }
 
-        const Halfedge& twin = get_halfedge(halfedge.twin);
-        if (twin.twin != halfedgeHandle || twin.edge != halfedge.edge || source_vertex(halfedgeHandle) != target_vertex(halfedge.twin)
-            || target_vertex(halfedgeHandle) != source_vertex(halfedge.twin))
+        const Halfedge& twin = m_halfedges[handle_index(halfedge.twin)];
+        if (twin.twin != halfedgeHandle || twin.edge != halfedge.edge
+            || unchecked_source_vertex(halfedgeHandle) != unchecked_target_vertex(halfedge.twin)
+            || unchecked_target_vertex(halfedgeHandle) != unchecked_source_vertex(halfedge.twin))
         {
           return false;
         }
+      }
+
+      DirectedEdgeKey const key{unchecked_source_vertex(halfedgeHandle).get_value(), unchecked_target_vertex(halfedgeHandle).get_value()};
+      auto const directedEdgeIt = m_directedEdges.find(key);
+      if (directedEdgeIt == m_directedEdges.end() || directedEdgeIt->second != halfedgeHandle)
+      {
+        return false;
+      }
+
+      VertexHandle const source = unchecked_source_vertex(halfedgeHandle);
+      bool foundInVertexHalfedges = false;
+      for (HalfedgeHandle const outgoingHalfedge : m_vertexHalfedges[handle_index(source)])
+      {
+        if (outgoingHalfedge == halfedgeHandle)
+        {
+          foundInVertexHalfedges = true;
+          break;
+        }
+      }
+
+      if (!foundInVertexHalfedges)
+      {
+        return false;
+      }
+    }
+
+    for (size_type i = 0; i < m_faces.size(); ++i)
+    {
+      FaceHandle const face = make_handle<FaceHandle>(i);
+      if (m_faceKeys.find(make_face_key(vertices_around_face(face))) == m_faceKeys.end())
+      {
+        return false;
       }
     }
 
@@ -365,6 +515,27 @@ private:
     }
   };
 
+  struct FaceKey
+  {
+    std::array<handle_value_type, 3> vertices{};
+
+    GEO_NODISCARD constexpr bool operator==(const FaceKey& other) const noexcept { return vertices == other.vertices; }
+  };
+
+  struct FaceKeyHash
+  {
+    GEO_NODISCARD size_type operator()(const FaceKey& key) const noexcept
+    {
+      size_type seed = 0;
+      for (handle_value_type vertex : key.vertices)
+      {
+        size_type const value = static_cast<size_type>(vertex);
+        seed ^= value + 0x9e3779b9U + (seed << 6U) + (seed >> 2U);
+      }
+      return seed;
+    }
+  };
+
   GEO_NODISCARD bool can_add_triangle(const std::array<VertexHandle, 3>& vertices) const
   {
     if (!contains(vertices[0]) || !contains(vertices[1]) || !contains(vertices[2]))
@@ -373,6 +544,11 @@ private:
     }
 
     if (vertices[0] == vertices[1] || vertices[1] == vertices[2] || vertices[2] == vertices[0])
+    {
+      return false;
+    }
+
+    if (m_faceKeys.find(make_face_key(vertices)) != m_faceKeys.end())
     {
       return false;
     }
@@ -399,6 +575,63 @@ private:
     return true;
   }
 
+  GEO_NODISCARD static FaceKey make_face_key(const std::array<VertexHandle, 3>& vertices) noexcept
+  {
+    FaceKey key{{vertices[0].get_value(), vertices[1].get_value(), vertices[2].get_value()}};
+    std::sort(key.vertices.begin(), key.vertices.end());
+    return key;
+  }
+
+  void append_halfedges_around_vertex_fan(VertexHandle vertex,
+                                          HalfedgeHandle start,
+                                          std::vector<HalfedgeHandle>& result,
+                                          std::vector<unsigned char>& visited) const
+  {
+    if (!contains(start) || visited[handle_index(start)] != 0U || source_vertex(start) != vertex)
+    {
+      return;
+    }
+
+    HalfedgeHandle first = start;
+    while (true)
+    {
+      HalfedgeHandle const previous = get_halfedge(first).prev;
+      HalfedgeHandle const opposite = get_halfedge(previous).twin;
+      if (!opposite.is_valid() || !contains(opposite) || source_vertex(opposite) != vertex || opposite == start
+          || visited[handle_index(opposite)] != 0U)
+      {
+        break;
+      }
+
+      first = opposite;
+    }
+
+    HalfedgeHandle current = first;
+    while (contains(current) && visited[handle_index(current)] == 0U && source_vertex(current) == vertex)
+    {
+      result.push_back(current);
+      visited[handle_index(current)] = 1U;
+
+      HalfedgeHandle const twin = get_halfedge(current).twin;
+      if (!twin.is_valid() || !contains(twin))
+      {
+        break;
+      }
+
+      current = get_halfedge(twin).next;
+    }
+  }
+
+  GEO_NODISCARD VertexHandle unchecked_source_vertex(HalfedgeHandle halfedge) const noexcept
+  {
+    return m_halfedges[handle_index(m_halfedges[handle_index(halfedge)].prev)].vertex;
+  }
+
+  GEO_NODISCARD VertexHandle unchecked_target_vertex(HalfedgeHandle halfedge) const noexcept
+  {
+    return m_halfedges[handle_index(halfedge)].vertex;
+  }
+
   template <typename THandle>
   GEO_NODISCARD static THandle make_handle(size_type index) noexcept
   {
@@ -419,10 +652,12 @@ private:
   }
 
   std::vector<Vertex> m_vertices;
+  std::vector<std::vector<HalfedgeHandle>> m_vertexHalfedges;
   std::vector<Halfedge> m_halfedges;
   std::vector<Face> m_faces;
   std::vector<Edge> m_edges;
   std::unordered_map<DirectedEdgeKey, HalfedgeHandle, DirectedEdgeKeyHash> m_directedEdges;
+  std::unordered_set<FaceKey, FaceKeyHash> m_faceKeys;
 };
 
 template <typename T>
