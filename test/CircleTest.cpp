@@ -16,6 +16,12 @@ TEST_F(Circle3d_xz, circleOrigin)
   EXPECT_EQ(circle.get_origin(), expectedOrigin);
 }
 
+TEST(Circle3d, constructorNormalizesNormal)
+{
+  Circle3d circle{linal::double3{}, 1.0, linal::double3Z * 2};
+  EXPECT_EQ(circle.get_normal(), linal::double3Z);
+}
+
 class Circle3d_Translation : public ::testing::Test {
 protected:
   // Circle lies in the xy plane

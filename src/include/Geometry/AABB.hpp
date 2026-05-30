@@ -4,6 +4,7 @@
 #include "Geometry/ExtremePointsInDirection.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <array>
+#include <vector>
 #include <linal/vec.hpp>
 #include <linal/vec_compare.hpp>
 
@@ -148,7 +149,7 @@ GEO_NODISCARD AABB<TResultFloat, TVec::dim> make_aabb(const std::vector<TVec>& p
   using size_type = typename TVec::size_type;
   constexpr size_type D = TVec::dim;
 
-  std::array<TVec, D> axis;
+  std::array<TVec, D> axis{};
   for (size_type i = 0; i < D; ++i)
   {
     axis[static_cast<std::size_t>(i)][i] = 1;
@@ -160,8 +161,15 @@ GEO_NODISCARD AABB<TResultFloat, TVec::dim> make_aabb(const std::vector<TVec>& p
     minMaxes[static_cast<std::size_t>(i)] = extreme_points_along_direction(axis[static_cast<std::size_t>(i)], points);
   }
 
-  return AABB<TResultFloat, D>{linal::vec<TResultFloat, D>{minMaxes[0].min, minMaxes[1].min, minMaxes[2].min},
-                               linal::vec<TResultFloat, D>{minMaxes[0].max, minMaxes[1].max, minMaxes[2].max}};
+  linal::vec<TResultFloat, D> min;
+  linal::vec<TResultFloat, D> max;
+  for (size_type i = 0; i < D; ++i)
+  {
+    min[i] = minMaxes[static_cast<std::size_t>(i)].min;
+    max[i] = minMaxes[static_cast<std::size_t>(i)].max;
+  }
+
+  return AABB<TResultFloat, D>{min, max};
 }
 
 template <typename TVec>

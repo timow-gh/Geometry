@@ -1,7 +1,9 @@
 #ifndef GEOMETRY_LINE_H
 #define GEOMETRY_LINE_H
 
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
+#include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
 #include <linal/vec_compare.hpp>
 #include <linal/vec_operations.hpp>
@@ -17,8 +19,10 @@ class Line {
 public:
   constexpr Line(linal::vec<T, D> origin, linal::vec<T, D> direction) noexcept
       : m_origin(origin)
-      , m_direction(linal::normalize(direction))
+      , m_direction(direction)
   {
+    GEO_ASSERT(linal::length(direction) > linal::eps<T>::value);
+    m_direction = linal::normalize(direction);
   }
 
   GEO_NODISCARD constexpr linal::vec<T, D> get_origin() const noexcept { return m_origin; }
@@ -30,9 +34,6 @@ public:
   }
   constexpr bool operator!=(const Line& rhs) const noexcept { return !(rhs == *this); }
 };
-
-template <typename T>
-using Line3 = Line<T, 3>;
 
 template <typename T>
 using Line2 = Line<T, 2>;

@@ -58,7 +58,7 @@ intersect(const Sphere<T>& sphere, const Line3<T>& line, T eps = linal::eps<T>::
   }
   else if (linal::isZero(discriminant, eps))
   {
-    T t = -b / 2 * a;
+    T t = -b / (2 * a);
     return SphereIntersection<T>(lineOrigin + t * lineDir);
   }
   return {};
@@ -99,7 +99,7 @@ GEO_NODISCARD constexpr SphereIntersection<T> intersect(const Sphere<T>& sphere,
   }
   else if (linal::isZero(discriminant, eps))
   {
-    T t = -b / 2 * a;
+    T t = -b / (2 * a);
     if (linal::isGreaterEq(t, T(0), eps))
     {
       return SphereIntersection<T>(rayOrigin + t * rayDir);
@@ -150,7 +150,7 @@ intersect(const Sphere<T>& sphere, const Segment3<T>& segment, T eps = linal::ep
   }
   else if (linal::isZero(discriminant, eps))
   {
-    T t = -b / 2 * a;
+    T t = -b / (2 * a);
     if (linal::isGreaterEq(t, T(0), eps) && linal::isLessEq(t, T(1), eps))
     {
       return SphereIntersection<T>(segSource + t * segDir);

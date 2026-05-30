@@ -7,6 +7,7 @@
 #include <linal/utils/eps.hpp>
 
 #include <linal/vec.hpp>
+#include <linal/vec_compare.hpp>
 #include <linal/vec_operations.hpp>
 
 namespace Geometry
@@ -57,6 +58,9 @@ public:
       , m_radius(radius)
       , m_normal(normal)
   {
+    GEO_ASSERT(radius >= T{0});
+    GEO_ASSERT(linal::length(normal) > linal::eps<T>::value);
+    m_normal = linal::normalize(normal);
   }
 
   GEO_NODISCARD constexpr linal::vec3<T> get_origin() const noexcept { return m_origin; }
@@ -71,8 +75,8 @@ public:
   }
   constexpr void set_normal(linal::vec3<T> normal) noexcept
   {
-    GEO_ASSERT(linal::isEq(linal::length(normal), 1));
-    m_normal = normal;
+    GEO_ASSERT(linal::length(normal) > linal::eps<T>::value);
+    m_normal = linal::normalize(normal);
   }
 
   GEO_NODISCARD constexpr bool operator==(const Circle3& rhs) const noexcept
@@ -81,8 +85,6 @@ public:
   }
   GEO_NODISCARD constexpr bool operator!=(const Circle3& rhs) const noexcept { return !(rhs == *this); }
 };
-
-using Circle3d = Circle3<double>;
 
 using Circle3f = Circle3<float>;
 using Circle3d = Circle3<double>;

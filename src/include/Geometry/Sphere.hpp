@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_SPHERE_H
 #define GEOMETRY_SPHERE_H
 
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/utils/eps.hpp>
 #include <linal/vec.hpp>
@@ -20,13 +21,18 @@ public:
       : m_origin(origin)
       , m_radius(radius)
   {
+    GEO_ASSERT(radius >= T{0});
   }
 
   GEO_NODISCARD constexpr const linal::vec3<T>& get_origin() const noexcept { return m_origin; }
   GEO_NODISCARD constexpr T get_radius() const noexcept { return m_radius; }
 
   constexpr void set_origin(const linal::vec3<T>& origin) noexcept { m_origin = origin; }
-  constexpr void set_radius(T radius) noexcept { m_radius = radius; }
+  constexpr void set_radius(T radius) noexcept
+  {
+    GEO_ASSERT(radius >= T{0});
+    m_radius = radius;
+  }
 
   GEO_NODISCARD constexpr bool contains(const linal::vec3<T>& vec) const noexcept
   {

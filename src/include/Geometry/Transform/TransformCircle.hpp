@@ -20,7 +20,10 @@ GEO_NODISCARD constexpr Circle2<T> transform(const Circle2<T>& circle, const lin
 template <typename T>
 GEO_NODISCARD constexpr Circle3<T> transform(const Circle3<T>& circle, const linal::hmat<T>& hmat) noexcept
 {
-  return Circle3<T>{transform(circle.get_origin(), hmat), circle.get_radius(), circle.get_normal()};
+  const linal::hvec<T> transformedNormal = hmat * linal::to_hvec<T, 3>(circle.get_normal(), T{0});
+  return Circle3<T>{transform(circle.get_origin(), hmat),
+                    circle.get_radius(),
+                    linal::vec3<T>{transformedNormal[0], transformedNormal[1], transformedNormal[2]}};
 }
 
 } // namespace Geometry
