@@ -47,7 +47,6 @@ intersect(Segment2<T> first, Segment2<T> second, T eps = linal::eps<T>::value) n
     return std::nullopt;
   }
 
-  GEO_ASSERT(linal::vec2<T>{fSource + (t * fDir)} == linal::vec2<T>{sSource + (s * sDir)});
   return fSource + (fDir * t);
 }
 

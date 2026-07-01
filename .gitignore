@@ -3,9 +3,10 @@ build/
 out/
 cmake-build-*/
 conan-cache/
-
+plans/
 .cache
 compile_commands.json
+**/imgui.ini
 
 # User spesific settings
 CMakeUserPresets.json

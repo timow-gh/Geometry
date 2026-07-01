@@ -59,6 +59,23 @@ TEST(Segment2d_Intersection, Intersection_TargetSource)
   EXPECT_EQ(target, *res);
 }
 
+TEST(Segment2d_Intersection, Intersection_NearlyBitInexactPoint)
+{
+  // Regression test: segA/segB use large-magnitude, irregularly-directioned coordinates so the
+  // intersection parameters t and s are not nice round numbers. This causes the two
+  // independently-computed intersection points (fSource + t*fDir and sSource + s*sDir) to be
+  // mathematically equal but not equal within linal::vec2's default tolerance, due to normal
+  // floating-point rounding amplified by the larger coordinate magnitudes. This used to trip a
+  // spurious GEO_ASSERT that compared the two points with exact `==` instead of trusting the
+  // already-validated parameterization (as the 3D overload does).
+  Segment2d segA{linal::double2{10000.0, 70000.0}, linal::double2{370000.0, 290000.0}};
+  Segment2d segB{linal::double2{10000.0, 350000.0}, linal::double2{340000.0, 20000.0}};
+  auto res = Geometry::intersect(segA, segB);
+  EXPECT_TRUE(res);
+  EXPECT_NEAR(183793.10344827588, (*res)[0], 1e-6);
+  EXPECT_NEAR(176206.89655172414, (*res)[1], 1e-6);
+}
+
 TEST(Segment2d_Intersection, Collinear)
 {
   Segment2d segA{linal::double2{0, 0}, linal::double2{1, 0}};

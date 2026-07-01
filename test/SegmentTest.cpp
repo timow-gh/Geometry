@@ -20,3 +20,11 @@ TEST_F(LineTest, get_direction)
   linal::double3 direction = m_seg.direction();
   EXPECT_EQ(direction, linal::double3X);
 }
+
+TEST(SegmentZeroLengthTest, direction_ZeroLengthSegment_ReturnsZeroVector)
+{
+  linal::double3 point{1, 2, 3};
+  Segment3d seg{point, point};
+  linal::double3 direction = seg.direction();
+  EXPECT_EQ(direction, (linal::double3{0, 0, 0}));
+}

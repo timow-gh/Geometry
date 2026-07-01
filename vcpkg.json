@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "geometry",
+  "version": "2.0.0",
+  "features": {
+    "geoqik-examples": {
+      "description": "Dependencies required to build the GeoQik-based examples.",
+      "dependencies": [
+        "glad",
+        "glfw3",
+        "glm",
+        {
+          "name": "imgui",
+          "features": [ "glfw-binding", "opengl3-binding" ]
+        },
+        {
+          "name": "stduuid",
+          "features": [ "system-gen" ]
+        },
+        "boost-asio",
+        "boost-process"
+      ]
+    }
+  }
+}

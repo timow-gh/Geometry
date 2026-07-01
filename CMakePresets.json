@@ -13,9 +13,21 @@
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_STANDARD": "23",
         "CMAKE_CXX_EXTENSIONS": "OFF",
-        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "Geometry_EXAMPLES": "OFF"
+      }
+    },
+    {
+      "name": "conf-geoqik-examples",
+      "description": "Enable GeoQik examples and their vcpkg manifest dependencies.",
+      "hidden": true,
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
+      "cacheVariables": {
+        "Geometry_EXAMPLES": "ON",
+        "VCPKG_MANIFEST_FEATURES": "geoqik-examples",
+        "VCPKG_TARGET_TRIPLET": "x64-windows-static"
       }
     },
     {
@@ -145,12 +157,30 @@
       ]
     },
     {
+      "name": "conf-msvc-debug-examples",
+      "displayName": "msvc Debug + Examples",
+      "description": "Target Windows with the msvc compiler, debug build type, and GeoQik examples",
+      "inherits": [
+        "conf-msvc-debug",
+        "conf-geoqik-examples"
+      ]
+    },
+    {
       "name": "conf-msvc-release",
       "displayName": "msvc Release (User Mode)",
       "description": "Target Windows with the msvc compiler, release build type",
       "inherits": [
         "conf-msvc-common",
         "conf-release"
+      ]
+    },
+    {
+      "name": "conf-msvc-release-examples",
+      "displayName": "msvc Release + Examples",
+      "description": "Target Windows with the msvc compiler, release build type, and GeoQik examples",
+      "inherits": [
+        "conf-msvc-release",
+        "conf-geoqik-examples"
       ]
     },
     {
@@ -531,10 +561,22 @@
       "displayName": "msvc Debug Build"
     },
     {
+      "name": "build-msvc-debug-examples",
+      "inherits": "build-debug",
+      "configurePreset": "conf-msvc-debug-examples",
+      "displayName": "msvc Debug + Examples Build"
+    },
+    {
       "name": "build-msvc-release",
       "inherits": "build-release",
       "configurePreset": "conf-msvc-release",
       "displayName": "msvc Release Build"
+    },
+    {
+      "name": "build-msvc-release-examples",
+      "inherits": "build-release",
+      "configurePreset": "conf-msvc-release-examples",
+      "displayName": "msvc Release + Examples Build"
     },
     {
       "name": "build-msvc-relwithdebinfo",
@@ -800,6 +842,16 @@
       "configurePreset": "conf-msvc-debug"
     },
     {
+      "name": "test-msvc-debug-examples",
+      "displayName": "msvc Debug + Examples Tests",
+      "description": "Enable output and stop on failure",
+      "inherits": [
+        "test-msvc-common",
+        "test-debug"
+      ],
+      "configurePreset": "conf-msvc-debug-examples"
+    },
+    {
       "name": "test-msvc-release",
       "displayName": "msvc Release Tests",
       "description": "Enable output and stop on failure",
@@ -808,6 +860,16 @@
         "test-release"
       ],
       "configurePreset": "conf-msvc-release"
+    },
+    {
+      "name": "test-msvc-release-examples",
+      "displayName": "msvc Release + Examples Tests",
+      "description": "Enable output and stop on failure",
+      "inherits": [
+        "test-msvc-common",
+        "test-release"
+      ],
+      "configurePreset": "conf-msvc-release-examples"
     },
     {
       "name": "test-msvc-relwithdebinfo",
@@ -1395,6 +1457,25 @@
       ]
     },
     {
+      "name": "workflow-test-msvc-debug-examples",
+      "displayName": "Windows Debug + Examples Workflow",
+      "description": "Configure, build and test on Windows with GeoQik examples in one step",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "conf-msvc-debug-examples"
+        },
+        {
+          "type": "build",
+          "name": "build-msvc-debug-examples"
+        },
+        {
+          "type": "test",
+          "name": "test-msvc-debug-examples"
+        }
+      ]
+    },
+    {
       "name": "workflow-test-msvc-release",
       "displayName": "Windows Release Workflow",
       "description": "Configure, build and test on Windows in one step",
@@ -1410,6 +1491,25 @@
         {
           "type": "test",
           "name": "test-msvc-release"
+        }
+      ]
+    },
+    {
+      "name": "workflow-test-msvc-release-examples",
+      "displayName": "Windows Release + Examples Workflow",
+      "description": "Configure, build and test on Windows with GeoQik examples in one step",
+      "steps": [
+        {
+          "type": "configure",
+          "name": "conf-msvc-release-examples"
+        },
+        {
+          "type": "build",
+          "name": "build-msvc-release-examples"
+        },
+        {
+          "type": "test",
+          "name": "test-msvc-release-examples"
         }
       ]
     },

@@ -31,7 +31,15 @@ public:
   constexpr void set_target(linal::vec<T, D> target) noexcept { m_target = target; }
 
   GEO_NODISCARD constexpr T length() const noexcept { return linal::length(linal::vec<T, D>{m_target - m_source}); }
-  GEO_NODISCARD constexpr linal::vec<T, D> direction() const noexcept { return linal::normalize(linal::vec<T, D>{m_target - m_source}); }
+  GEO_NODISCARD constexpr linal::vec<T, D> direction() const noexcept
+  {
+    linal::vec<T, D> diff{m_target - m_source};
+    if (linal::isZero(linal::length(diff), linal::eps<T>::value))
+    {
+      return diff; // zero vector: degenerate segment has no direction
+    }
+    return linal::normalize(diff);
+  }
 
   constexpr bool operator==(const Segment& rhs) const noexcept
   {

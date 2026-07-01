@@ -25,7 +25,7 @@ set(PKG_LICENSE "Apache-2.0")
 
 # Warn if packaging debug builds
 if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
-    message(WARNING "Creating packages from ${CMAKE_BUILD_TYPE} build. ")
+    message(STATUS "CPack: Creating packages from ${CMAKE_BUILD_TYPE} build")
 endif()
 
 set(CPACK_PACKAGE_VERSION_MAJOR "${PROJECT_VERSION_MAJOR}")
