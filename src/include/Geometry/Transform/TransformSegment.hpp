@@ -2,6 +2,7 @@
 #define GEOMETRY_TRANSFORMSEGMENT_HPP
 
 #include "Geometry/Segment.hpp"
+#include "Geometry/Transform/TransformVec.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <linal/hmat.hpp>
 
@@ -15,7 +16,7 @@ GEO_NODISCARD constexpr Segment3<T> transform(const Segment3<T>& segment, const 
 {
   linal::hvec<T> source = trafo * linal::to_hvec<T, 3>(segment.get_source());
   linal::hvec<T> target = trafo * linal::to_hvec<T, 3>(segment.get_target());
-  return Segment3<T>{linal::to_vec<T, 3>(source), linal::to_vec<T, 3>(target)};
+  return Segment3<T>{detail::hvec_to_vec<T, 3>(source), detail::hvec_to_vec<T, 3>(target)};
 }
 
 } // namespace Geometry
