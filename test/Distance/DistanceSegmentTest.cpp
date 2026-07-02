@@ -81,26 +81,26 @@ TEST_F(Segment_VecDistance_Test, PointOffsetAtSegmentMidPoint)
 
 TEST(Segment_SegmentDistance_Test, SkewSegments)
 {
-    Segment3d a{linal::double3{0, 0, 0}, linal::double3{1, 0, 0}};
-    Segment3d b{linal::double3{0, 1, 1}, linal::double3{1, 1, 1}};
-    double dist = distance(a, b);
+    Segment3d firstSegment{linal::double3{0, 0, 0}, linal::double3{1, 0, 0}};
+    Segment3d secondSegment{linal::double3{0, 1, 1}, linal::double3{1, 1, 1}};
+    double dist = distance(firstSegment, secondSegment);
     EXPECT_DOUBLE_EQ(dist, std::sqrt(2.0));
 }
 
 TEST(Segment_SegmentDistance_Test, ParallelNonCollinear_DirectlyAcross)
 {
-    Segment3d a{linal::double3{0, 0, 0}, linal::double3{1, 0, 0}};
-    Segment3d b{linal::double3{0, 2, 0}, linal::double3{1, 2, 0}};
-    double dist = distance(a, b);
+    Segment3d firstSegment{linal::double3{0, 0, 0}, linal::double3{1, 0, 0}};
+    Segment3d secondSegment{linal::double3{0, 2, 0}, linal::double3{1, 2, 0}};
+    double dist = distance(firstSegment, secondSegment);
     EXPECT_DOUBLE_EQ(dist, 2.0);
     EXPECT_GE(dist, 0.0);
 }
 
 TEST(Segment_SegmentDistance_Test, ParallelNonCollinear_Offset)
 {
-    Segment3d a{linal::double3{0, 0, 0}, linal::double3{1, 0, 0}};
-    Segment3d b{linal::double3{2, 2, 0}, linal::double3{3, 2, 0}};
-    double dist = distance(a, b);
+    Segment3d firstSegment{linal::double3{0, 0, 0}, linal::double3{1, 0, 0}};
+    Segment3d secondSegment{linal::double3{2, 2, 0}, linal::double3{3, 2, 0}};
+    double dist = distance(firstSegment, secondSegment);
     // Nearest points are a's target (1,0,0) and b's source (2,2,0).
     double expected = linal::length(linal::double3{1, 0, 0} - linal::double3{2, 2, 0});
     EXPECT_DOUBLE_EQ(dist, expected);
@@ -109,29 +109,29 @@ TEST(Segment_SegmentDistance_Test, ParallelNonCollinear_Offset)
 
 TEST(Segment_SegmentDistance_Test, Collinear_NonOverlapping)
 {
-    Segment3d a{linal::double3{0, 0, 0}, linal::double3{1, 0, 0}};
-    Segment3d b{linal::double3{3, 0, 0}, linal::double3{4, 0, 0}};
-    double dist = distance(a, b);
+    Segment3d firstSegment{linal::double3{0, 0, 0}, linal::double3{1, 0, 0}};
+    Segment3d secondSegment{linal::double3{3, 0, 0}, linal::double3{4, 0, 0}};
+    double dist = distance(firstSegment, secondSegment);
     EXPECT_DOUBLE_EQ(dist, 2.0);
     EXPECT_GE(dist, 0.0);
 }
 
 TEST(Segment_SegmentDistance_Test, Collinear_Overlapping)
 {
-    Segment3d a{linal::double3{0, 0, 0}, linal::double3{2, 0, 0}};
-    Segment3d b{linal::double3{1, 0, 0}, linal::double3{3, 0, 0}};
-    double dist = distance(a, b);
+    Segment3d firstSegment{linal::double3{0, 0, 0}, linal::double3{2, 0, 0}};
+    Segment3d secondSegment{linal::double3{1, 0, 0}, linal::double3{3, 0, 0}};
+    double dist = distance(firstSegment, secondSegment);
     EXPECT_DOUBLE_EQ(dist, 0.0);
     EXPECT_GE(dist, 0.0);
 }
 TEST(Segment_VecDistance_ZeroLengthTest, ZeroLengthSegment_ReturnsPointToPointDistance)
 {
-    linal::double3 p{1, 1, 1};
-    Segment3d degenerateSegment{p, p};
+    linal::double3 segmentPoint{1, 1, 1};
+    Segment3d degenerateSegment{segmentPoint, segmentPoint};
     linal::double3 point{4, 5, 1};
 
     double dist = distance(degenerateSegment, point);
-    double expected = linal::length(point - p);
+    double expected = linal::length(point - segmentPoint);
 
     EXPECT_DOUBLE_EQ(dist, expected);
     EXPECT_FALSE(std::isnan(dist));
@@ -178,9 +178,9 @@ class SegmentVecDistance_LengthSweep : public ::testing::TestWithParam<SegmentVe
 
 TEST_P(SegmentVecDistance_LengthSweep, MatchesExpectedDistance)
 {
-  const auto& c = GetParam();
-  Segment3d segment{linal::double3{0, 0, 0}, linal::double3{c.segmentLength, 0, 0}};
-  EXPECT_DOUBLE_EQ(distance(segment, c.point), c.expectedDistance);
+  const auto& testCase = GetParam();
+  Segment3d segment{linal::double3{0, 0, 0}, linal::double3{testCase.segmentLength, 0, 0}};
+  EXPECT_DOUBLE_EQ(distance(segment, testCase.point), testCase.expectedDistance);
 }
 
 INSTANTIATE_TEST_SUITE_P(
