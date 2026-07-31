@@ -161,8 +161,8 @@
       "displayName": "msvc Debug + Examples",
       "description": "Target Windows with the msvc compiler, debug build type, and GeoQik examples",
       "inherits": [
-        "conf-msvc-debug",
-        "conf-geoqik-examples"
+        "conf-geoqik-examples",
+        "conf-msvc-debug"
       ]
     },
     {
@@ -179,8 +179,8 @@
       "displayName": "msvc Release + Examples",
       "description": "Target Windows with the msvc compiler, release build type, and GeoQik examples",
       "inherits": [
-        "conf-msvc-release",
-        "conf-geoqik-examples"
+        "conf-geoqik-examples",
+        "conf-msvc-release"
       ]
     },
     {

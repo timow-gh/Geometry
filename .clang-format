@@ -1,27 +1,60 @@
-ColumnLimit: '140'
-IndentWidth: '2'
+IncludeCategories:
+  - Regex: '^".*"'
+    Priority: 1
+  - Regex: '^<Geometry/.*>'
+    Priority: 2
+  - Regex: '^<geoqik/.*>'
+    Priority: 3
+  - Regex: '^<linal/.*>'
+    Priority: 4
+  - Regex: '^<.*>'
+    Priority: 5
+
+IncludeBlocks: Regroup
+SortIncludes: CaseSensitive
+
+ColumnLimit: '120'
+IndentWidth: '4'
 Language: Cpp
 AlignAfterOpenBracket: Align
-AlignTrailingComments:
-  Kind: Always
-  OverEmptyLines: 2
+AlignTrailingComments: true
 ReflowComments: true
 AllowAllArgumentsOnNextLine: false
 AlwaysBreakBeforeMultilineStrings: true
 AlwaysBreakTemplateDeclarations: 'Yes'
+BreakAfterAttributes: Never
 PackConstructorInitializers: Never
+PenaltyBreakBeforeFirstCallParameter: 0
 BinPackArguments: false
 BinPackParameters: false
 AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: Empty
 AllowShortCaseLabelsOnASingleLine: true
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+  AlignCaseColons: false
 AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: false
-AlwaysBreakAfterReturnType: None
-BreakBeforeBraces: Allman
+BreakAfterReturnType: None
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: false
+  AfterClass: false
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: false
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  BeforeCatch: false
+  BeforeElse: false
+  IndentBraces: false
+  SplitEmptyRecord: false
 BreakBeforeBinaryOperators: None
 BreakBeforeConceptDeclarations: true
 BreakBeforeTernaryOperators: true
@@ -32,8 +65,6 @@ CompactNamespaces: false
 EmptyLineAfterAccessModifier: Never
 EmptyLineBeforeAccessModifier: Always
 FixNamespaceComments: true
-IncludeBlocks: Merge
-SortIncludes: CaseSensitive
 PointerAlignment: Left
 ReferenceAlignment: Left
 RequiresClausePosition: OwnLine
