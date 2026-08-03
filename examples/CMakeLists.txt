@@ -44,7 +44,8 @@ function(add_geoqik_example_run_target target)
 endfunction()
 
 set(geometry_examples
-    example_line_intersections)
+    example_line_intersections
+    example_minkowski_sum)
 
 foreach(example IN LISTS geometry_examples)
     add_geoqik_example(${example} LIBRARIES geoqik::geoqik Geometry::Geometry)
