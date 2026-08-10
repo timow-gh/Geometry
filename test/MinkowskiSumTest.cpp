@@ -1,4 +1,5 @@
-#include <Geometry/MinkowskiSum.hpp>
+#include <Geometry/MinkowskiSum2D.hpp>
+#include <Geometry/MinkowskiSum3D.hpp>
 #include <gtest/gtest.h>
 #include <linal/vec.hpp>
 #include <linal/vec_compare.hpp>
@@ -12,66 +13,68 @@ using namespace Geometry;
 namespace
 {
 
-// Thin, non-templated wrappers so call sites never carry a `<T, D>` comma inside a gtest macro.
+// Thin wrappers so call sites never carry a `<...>` comma inside a gtest macro. The wrapped
+// Geometry functions are overloaded on vec2<T>/vec3<T>, so a single argument type selects the
+// 2d or 3d variant.
 
 template <typename T, std::uint8_t D>
 bool normalized(const std::vector<linal::vec<T, D>>& v, T eps)
 {
-  return is_normalized_convex_polygon<T, D>(std::span<const linal::vec<T, D>>{v}, eps);
+  return is_normalized_convex_polygon<T>(std::span<const linal::vec<T, D>>{v}, eps);
 }
 
 template <typename T, std::uint8_t D>
 bool convex(const std::vector<linal::vec<T, D>>& v, T eps)
 {
-  return is_convex<T, D>(std::span<const linal::vec<T, D>>{v}, eps);
+  return is_convex<T>(std::span<const linal::vec<T, D>>{v}, eps);
 }
 
 template <typename T, std::uint8_t D>
 bool ccw(const std::vector<linal::vec<T, D>>& v, T eps)
 {
-  return is_counter_clockwise<T, D>(std::span<const linal::vec<T, D>>{v}, eps);
+  return is_counter_clockwise<T>(std::span<const linal::vec<T, D>>{v}, eps);
 }
 
 template <typename T, std::uint8_t D>
 bool no_repeated(const std::vector<linal::vec<T, D>>& v, T eps)
 {
-  return has_no_repeated_vertices<T, D>(std::span<const linal::vec<T, D>>{v}, eps);
+  return has_no_repeated_vertices<T>(std::span<const linal::vec<T, D>>{v}, eps);
 }
 
 template <typename T, std::uint8_t D>
 bool no_collinear(const std::vector<linal::vec<T, D>>& v, T eps)
 {
-  return has_no_collinear_vertices<T, D>(std::span<const linal::vec<T, D>>{v}, eps);
+  return has_no_collinear_vertices<T>(std::span<const linal::vec<T, D>>{v}, eps);
 }
 
 template <typename T, std::uint8_t D>
 bool lowest_leftmost_first(const std::vector<linal::vec<T, D>>& v, T eps)
 {
-  return starts_at_lowest_leftmost<T, D>(std::span<const linal::vec<T, D>>{v}, eps);
+  return starts_at_lowest_leftmost<T>(std::span<const linal::vec<T, D>>{v}, eps);
 }
 
 template <typename T, std::uint8_t D>
 std::vector<linal::vec<T, D>> normalize(const std::vector<linal::vec<T, D>>& v, T eps)
 {
-  return normalize_convex_polygon<T, D>(std::span<const linal::vec<T, D>>{v}, eps);
+  return normalize_convex_polygon<T>(std::span<const linal::vec<T, D>>{v}, eps);
 }
 
 template <typename T, std::uint8_t D>
 std::vector<linal::vec<T, D>> negate(const std::vector<linal::vec<T, D>>& v)
 {
-  return negate_polygon<T, D>(std::span<const linal::vec<T, D>>{v});
+  return negate_polygon<T>(std::span<const linal::vec<T, D>>{v});
 }
 
 template <typename T, std::uint8_t D>
 std::vector<linal::vec<T, D>> sum(const std::vector<linal::vec<T, D>>& a, const std::vector<linal::vec<T, D>>& b, T eps)
 {
-  return minkowski_sum<T, D>(std::span<const linal::vec<T, D>>{a}, std::span<const linal::vec<T, D>>{b}, eps);
+  return minkowski_sum<T>(std::span<const linal::vec<T, D>>{a}, std::span<const linal::vec<T, D>>{b}, eps);
 }
 
 template <typename T, std::uint8_t D>
 std::vector<linal::vec<T, D>> diff(const std::vector<linal::vec<T, D>>& a, const std::vector<linal::vec<T, D>>& b, T eps)
 {
-  return minkowski_diff<T, D>(std::span<const linal::vec<T, D>>{a}, std::span<const linal::vec<T, D>>{b}, eps);
+  return minkowski_diff<T>(std::span<const linal::vec<T, D>>{a}, std::span<const linal::vec<T, D>>{b}, eps);
 }
 
 // Checks that two polygons describe the same vertex set, independent of the starting index.
@@ -232,7 +235,7 @@ TEST(MinkowskiNegate, CopyAndInPlaceAgree)
   const std::vector<linal::double2> copyNegated = negate(square);
 
   std::vector<linal::double2> inPlace = square;
-  negate_polygon<double, 2>(std::span<linal::double2>{inPlace});
+  negate_polygon<double>(std::span<linal::double2>{inPlace});
 
   ASSERT_EQ(copyNegated.size(), inPlace.size());
   for (std::size_t i = 0; i < inPlace.size(); ++i)
