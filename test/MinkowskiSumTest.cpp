@@ -18,63 +18,63 @@ namespace
 // 2d or 3d variant.
 
 template <typename T, std::uint8_t D>
-bool normalized(const std::vector<linal::vec<T, D>>& v, T eps)
+bool normalized(const std::vector<linal::vec<T, D>>& poly, T eps)
 {
-  return is_normalized_convex_polygon<T>(std::span<const linal::vec<T, D>>{v}, eps);
+  return is_normalized_convex_polygon<T>(std::span<const linal::vec<T, D>>{poly}, eps);
 }
 
 template <typename T, std::uint8_t D>
-bool convex(const std::vector<linal::vec<T, D>>& v, T eps)
+bool convex(const std::vector<linal::vec<T, D>>& poly, T eps)
 {
-  return is_convex<T>(std::span<const linal::vec<T, D>>{v}, eps);
+  return is_convex<T>(std::span<const linal::vec<T, D>>{poly}, eps);
 }
 
 template <typename T, std::uint8_t D>
-bool ccw(const std::vector<linal::vec<T, D>>& v, T eps)
+bool ccw(const std::vector<linal::vec<T, D>>& poly, T eps)
 {
-  return is_counter_clockwise<T>(std::span<const linal::vec<T, D>>{v}, eps);
+  return is_counter_clockwise<T>(std::span<const linal::vec<T, D>>{poly}, eps);
 }
 
 template <typename T, std::uint8_t D>
-bool no_repeated(const std::vector<linal::vec<T, D>>& v, T eps)
+bool no_repeated(const std::vector<linal::vec<T, D>>& poly, T eps)
 {
-  return has_no_repeated_vertices<T>(std::span<const linal::vec<T, D>>{v}, eps);
+  return has_no_repeated_vertices<T>(std::span<const linal::vec<T, D>>{poly}, eps);
 }
 
 template <typename T, std::uint8_t D>
-bool no_collinear(const std::vector<linal::vec<T, D>>& v, T eps)
+bool no_collinear(const std::vector<linal::vec<T, D>>& poly, T eps)
 {
-  return has_no_collinear_vertices<T>(std::span<const linal::vec<T, D>>{v}, eps);
+  return has_no_collinear_vertices<T>(std::span<const linal::vec<T, D>>{poly}, eps);
 }
 
 template <typename T, std::uint8_t D>
-bool lowest_leftmost_first(const std::vector<linal::vec<T, D>>& v, T eps)
+bool lowest_leftmost_first(const std::vector<linal::vec<T, D>>& poly, T eps)
 {
-  return starts_at_lowest_leftmost<T>(std::span<const linal::vec<T, D>>{v}, eps);
+  return starts_at_lowest_leftmost<T>(std::span<const linal::vec<T, D>>{poly}, eps);
 }
 
 template <typename T, std::uint8_t D>
-std::vector<linal::vec<T, D>> normalize(const std::vector<linal::vec<T, D>>& v, T eps)
+std::vector<linal::vec<T, D>> normalize(const std::vector<linal::vec<T, D>>& poly, T eps)
 {
-  return normalize_convex_polygon<T>(std::span<const linal::vec<T, D>>{v}, eps);
+  return normalize_convex_polygon<T>(std::span<const linal::vec<T, D>>{poly}, eps);
 }
 
 template <typename T, std::uint8_t D>
-std::vector<linal::vec<T, D>> negate(const std::vector<linal::vec<T, D>>& v)
+std::vector<linal::vec<T, D>> negate(const std::vector<linal::vec<T, D>>& poly)
 {
-  return negate_polygon<T>(std::span<const linal::vec<T, D>>{v});
+  return negate_polygon<T>(std::span<const linal::vec<T, D>>{poly});
 }
 
 template <typename T, std::uint8_t D>
-std::vector<linal::vec<T, D>> sum(const std::vector<linal::vec<T, D>>& a, const std::vector<linal::vec<T, D>>& b, T eps)
+std::vector<linal::vec<T, D>> sum(const std::vector<linal::vec<T, D>>& lhs, const std::vector<linal::vec<T, D>>& rhs, T eps)
 {
-  return minkowski_sum<T>(std::span<const linal::vec<T, D>>{a}, std::span<const linal::vec<T, D>>{b}, eps);
+  return minkowski_sum<T>(std::span<const linal::vec<T, D>>{lhs}, std::span<const linal::vec<T, D>>{rhs}, eps);
 }
 
 template <typename T, std::uint8_t D>
-std::vector<linal::vec<T, D>> diff(const std::vector<linal::vec<T, D>>& a, const std::vector<linal::vec<T, D>>& b, T eps)
+std::vector<linal::vec<T, D>> diff(const std::vector<linal::vec<T, D>>& lhs, const std::vector<linal::vec<T, D>>& rhs, T eps)
 {
-  return minkowski_diff<T>(std::span<const linal::vec<T, D>>{a}, std::span<const linal::vec<T, D>>{b}, eps);
+  return minkowski_diff<T>(std::span<const linal::vec<T, D>>{lhs}, std::span<const linal::vec<T, D>>{rhs}, eps);
 }
 
 // Checks that two polygons describe the same vertex set, independent of the starting index.
@@ -151,9 +151,9 @@ TEST(MinkowskiPredicates, NormalizedSquareIsRecognized)
 
 TEST(MinkowskiPredicates, ClockwiseSquareIsNotCounterClockwise)
 {
-  const std::vector<linal::double2> cw = {{0.0, 0.0}, {0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}};
-  EXPECT_FALSE(ccw(cw, kEps));
-  EXPECT_FALSE(normalized(cw, kEps));
+  const std::vector<linal::double2> cwise = {{0.0, 0.0}, {0.0, 1.0}, {1.0, 1.0}, {1.0, 0.0}};
+  EXPECT_FALSE(ccw(cwise, kEps));
+  EXPECT_FALSE(normalized(cwise, kEps));
 }
 
 TEST(MinkowskiPredicates, RepeatedVerticesAreDetected)
@@ -252,9 +252,9 @@ TEST(MinkowskiNegate, CopyAndInPlaceAgree)
 
 TEST(MinkowskiSum2d, SquarePlusSquareIsLargerSquare)
 {
-  const std::vector<linal::double2> a = unit_square();
-  const std::vector<linal::double2> b = unit_square();
-  const std::vector<linal::double2> result = sum(a, b, kEps);
+  const std::vector<linal::double2> poly_a = unit_square();
+  const std::vector<linal::double2> poly_b = unit_square();
+  const std::vector<linal::double2> result = sum(poly_a, poly_b, kEps);
 
   const std::vector<linal::double2> expected = {{0.0, 0.0}, {2.0, 0.0}, {2.0, 2.0}, {0.0, 2.0}};
   EXPECT_TRUE(normalized(result, kEps));
@@ -274,12 +274,12 @@ TEST(MinkowskiSum2d, TrianglePlusSquare)
   double maxX = result[0][0];
   double minY = result[0][1];
   double maxY = result[0][1];
-  for (const auto& p: result)
+  for (const auto& point: result)
   {
-    minX = std::min(minX, p[0]);
-    maxX = std::max(maxX, p[0]);
-    minY = std::min(minY, p[1]);
-    maxY = std::max(maxY, p[1]);
+    minX = std::min(minX, point[0]);
+    maxX = std::max(maxX, point[0]);
+    minY = std::min(minY, point[1]);
+    maxY = std::max(maxY, point[1]);
   }
   EXPECT_DOUBLE_EQ(minX, 0.0);
   EXPECT_DOUBLE_EQ(minY, 0.0);
@@ -289,10 +289,10 @@ TEST(MinkowskiSum2d, TrianglePlusSquare)
 
 TEST(MinkowskiSum2f, FloatSquarePlusSquare)
 {
-  const std::vector<linal::float2> a = {{0.0f, 0.0f}, {1.0f, 0.0f}, {1.0f, 1.0f}, {0.0f, 1.0f}};
-  const std::vector<linal::float2> result = sum(a, a, kEpsF);
+  const std::vector<linal::float2> sqr = {{0.0F, 0.0F}, {1.0F, 0.0F}, {1.0F, 1.0F}, {0.0F, 1.0F}};
+  const std::vector<linal::float2> result = sum(sqr, sqr, kEpsF);
 
-  const std::vector<linal::float2> expected = {{0.0f, 0.0f}, {2.0f, 0.0f}, {2.0f, 2.0f}, {0.0f, 2.0f}};
+  const std::vector<linal::float2> expected = {{0.0F, 0.0F}, {2.0F, 0.0F}, {2.0F, 2.0F}, {0.0F, 2.0F}};
   EXPECT_TRUE(normalized(result, kEpsF));
   EXPECT_TRUE(same_polygon(result, expected, kEpsF));
 }
@@ -304,9 +304,9 @@ TEST(MinkowskiSum2f, FloatSquarePlusSquare)
 TEST(MinkowskiDiff2d, OverlappingSquaresContainOrigin)
 {
   // Two overlapping unit squares: the Minkowski difference contains the origin iff they overlap.
-  const std::vector<linal::double2> a = {{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}};
-  const std::vector<linal::double2> b = {{0.5, 0.5}, {1.5, 0.5}, {1.5, 1.5}, {0.5, 1.5}};
-  const std::vector<linal::double2> result = diff(a, b, kEps);
+  const std::vector<linal::double2> poly_a = {{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}};
+  const std::vector<linal::double2> poly_b = {{0.5, 0.5}, {1.5, 0.5}, {1.5, 1.5}, {0.5, 1.5}};
+  const std::vector<linal::double2> result = diff(poly_a, poly_b, kEps);
 
   EXPECT_TRUE(normalized(result, kEps));
   EXPECT_TRUE(contains_origin(result, kEps));
@@ -314,9 +314,9 @@ TEST(MinkowskiDiff2d, OverlappingSquaresContainOrigin)
 
 TEST(MinkowskiDiff2d, DisjointSquaresExcludeOrigin)
 {
-  const std::vector<linal::double2> a = {{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}};
-  const std::vector<linal::double2> b = {{5.0, 5.0}, {6.0, 5.0}, {6.0, 6.0}, {5.0, 6.0}};
-  const std::vector<linal::double2> result = diff(a, b, kEps);
+  const std::vector<linal::double2> poly_a = {{0.0, 0.0}, {1.0, 0.0}, {1.0, 1.0}, {0.0, 1.0}};
+  const std::vector<linal::double2> poly_b = {{5.0, 5.0}, {6.0, 5.0}, {6.0, 6.0}, {5.0, 6.0}};
+  const std::vector<linal::double2> result = diff(poly_a, poly_b, kEps);
 
   EXPECT_FALSE(contains_origin(result, kEps));
 }
@@ -328,36 +328,36 @@ TEST(MinkowskiDiff2d, DisjointSquaresExcludeOrigin)
 TEST(MinkowskiSum3d, SquaresInZPlane)
 {
   // Two unit squares in the plane z = 2.
-  const std::vector<linal::double3> a = {{0.0, 0.0, 2.0}, {1.0, 0.0, 2.0}, {1.0, 1.0, 2.0}, {0.0, 1.0, 2.0}};
-  const std::vector<linal::double3> b = a;
-  const std::vector<linal::double3> result = sum(a, b, kEps);
+  const std::vector<linal::double3> poly_a = {{0.0, 0.0, 2.0}, {1.0, 0.0, 2.0}, {1.0, 1.0, 2.0}, {0.0, 1.0, 2.0}};
+  const auto& poly_b = poly_a;
+  const std::vector<linal::double3> result = sum(poly_a, poly_b, kEps);
 
   EXPECT_TRUE(normalized(result, kEps));
-  ASSERT_EQ(result.size(), 4u);
+  ASSERT_EQ(result.size(), 4U);
   // Every result vertex must stay in the plane z = 2.
-  for (const auto& p: result)
+  for (const auto& point: result)
   {
-    EXPECT_NEAR(p[2], 2.0, 1e-9);
+    EXPECT_NEAR(point[2], 2.0, 1e-9);
   }
 }
 
 TEST(MinkowskiSum3d, SquaresInTiltedPlaneStayCoplanar)
 {
   // A unit square living in a plane tilted out of the xy-plane.
-  const double s = 1.0;
-  const std::vector<linal::double3> a = {{0.0, 0.0, 0.0}, {s, 0.0, 0.0}, {s, s, s}, {0.0, s, s}};
-  const std::vector<linal::double3> b = a;
+  const double side = 1.0;
+  const std::vector<linal::double3> poly_a = {{0.0, 0.0, 0.0}, {side, 0.0, 0.0}, {side, side, side}, {0.0, side, side}};
+  const auto& poly_b = poly_a;
 
-  const std::vector<linal::double3> result = sum(a, b, kEps);
+  const std::vector<linal::double3> result = sum(poly_a, poly_b, kEps);
   EXPECT_TRUE(normalized(result, kEps));
-  ASSERT_EQ(result.size(), 4u);
+  ASSERT_EQ(result.size(), 4U);
 
-  // All result vertices must be coplanar with a: the plane through a[0] with normal
-  // n = (a[1]-a[0]) x (a[3]-a[0]).
-  const linal::double3 n = linal::cross(linal::double3{a[1] - a[0]}, linal::double3{a[3] - a[0]});
-  for (const auto& p: result)
+  // All result vertices must be coplanar with poly_a: the plane through poly_a[0] with normal
+  // n = (poly_a[1]-poly_a[0]) x (poly_a[3]-poly_a[0]).
+  const linal::double3 normal = linal::cross(linal::double3{poly_a[1] - poly_a[0]}, linal::double3{poly_a[3] - poly_a[0]});
+  for (const auto& point: result)
   {
-    const double planeEq = linal::dot(linal::double3{p - a[0]}, n);
+    const double planeEq = linal::dot(linal::double3{point - poly_a[0]}, normal);
     EXPECT_NEAR(planeEq, 0.0, 1e-9);
   }
 }
