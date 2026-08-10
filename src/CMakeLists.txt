@@ -37,6 +37,8 @@ set(geometry_TARGET_HEADER
         include/Geometry/Handle.hpp
         include/Geometry/Interval.hpp
         include/Geometry/KdTree.hpp
+        include/Geometry/MinkowskiSum2D.hpp
+        include/Geometry/MinkowskiSum3D.hpp
         include/Geometry/Segment.hpp
         include/Geometry/Line.hpp
         include/Geometry/Plane.hpp
