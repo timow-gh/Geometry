@@ -51,6 +51,35 @@ public:
     EdgeHandle edge{};
   };
 
+  class ConstHalfEdgeIterator
+  {
+      HalfedgeHandle m_heHandle;
+      TriangleHalfedgeMesh* m_mesh{nullptr};
+
+    public:
+      ConstHalfEdgeIterator() noexcept = default;
+      explicit ConstHalfEdgeIterator(HalfedgeHandle heHandle, TriangleHalfedgeMesh* mesh) noexcept
+          : m_heHandle(heHandle)
+          , m_mesh(mesh) {}
+
+      const Halfedge* operator->() const noexcept { return &m_mesh->get_halfedge(m_heHandle); }
+      const Halfedge& operator*() const noexcept { return m_mesh->get_halfedge(m_heHandle); }
+
+      ConstHalfEdgeIterator& operator++() {
+        auto nextHe = m_mesh->get_halfedge(m_heHandle).next;
+        assert(nextHe.is_valid());
+        m_heHandle = nextHe;
+        return *this;
+      }
+
+      ConstHalfEdgeIterator operator++(int) {
+        ConstHalfEdgeIterator old = *this;
+        operator++();
+        return old;
+      }
+
+      const HalfedgeHandle& get_halfedgehandle() const { return m_heHandle; }
+  };
   struct Face
   {
     HalfedgeHandle halfedge{};

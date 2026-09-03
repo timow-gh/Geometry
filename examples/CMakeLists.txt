@@ -45,6 +45,7 @@ endfunction()
 
 set(geometry_examples
     example_line_intersections
+    example_mesh
     example_minkowski_sum)
 
 foreach(example IN LISTS geometry_examples)
