@@ -1,4 +1,5 @@
-#include <Geometry/TriangleHalfedgeMesh.hpp>
+#include <Geometry/Mesh/AddTriangle.hpp>
+#include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 
 #include <linal/vec.hpp>
 
@@ -27,8 +28,8 @@ class TriangleHMeshFaceItertorTest : public ::testing::Test {
         m_vertexHandles.push_back(m_mesh.add_vertex(linal::double3{0.0, 1.0, 0.0}));
         m_vertexHandles.push_back(m_mesh.add_vertex(linal::double3{1.0, 1.0, 0.0}));
 
-        m_faceHandles.push_back(m_mesh.add_triangle(m_vertexHandles[0], m_vertexHandles[1], m_vertexHandles[2]));
-        m_faceHandles.push_back(m_mesh.add_triangle(m_vertexHandles[2], m_vertexHandles[1], m_vertexHandles[3]));
+        m_faceHandles.push_back(add_triangle(m_mesh,m_vertexHandles[0], m_vertexHandles[1], m_vertexHandles[2]));
+        m_faceHandles.push_back(add_triangle(m_mesh,m_vertexHandles[2], m_vertexHandles[1], m_vertexHandles[3]));
     }
 
     Mesh m_mesh;
@@ -144,7 +145,7 @@ TEST(TriangleHMeshFaceFaceCirculator, IsolatedTriangleHasNoNeighbors) {
     VertexHandle const v0 = mesh.add_vertex(linal::double3{0.0, 0.0, 0.0});
     VertexHandle const v1 = mesh.add_vertex(linal::double3{1.0, 0.0, 0.0});
     VertexHandle const v2 = mesh.add_vertex(linal::double3{0.0, 1.0, 0.0});
-    FaceHandle const f0 = mesh.add_triangle(v0, v1, v2);
+    FaceHandle const f0 = add_triangle(mesh, v0, v1, v2);
     ASSERT_TRUE(f0.is_valid());
 
     // All three edges are boundary -> the circulator is invalid immediately and yields nothing.

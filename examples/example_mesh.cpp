@@ -3,7 +3,8 @@
 #include "origin.hpp"
 #include "grid.hpp"
 
-#include <Geometry/TriangleHalfedgeMesh.hpp>
+#include <Geometry/Mesh/AddTriangle.hpp>
+#include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 
 #include <geoqik/GeoQik.hpp>
 
@@ -21,7 +22,7 @@ int main() {
     auto vertexB = mesh.add_vertex(linal::double3{0.0 , 1.0, 0.0});
     auto vertexC = mesh.add_vertex(linal::double3{1.0 , 0.0, 0.0});
 
-    auto faceA = mesh.add_triangle(vertexA, vertexB, vertexC);
+    auto faceA = Geometry::add_triangle(mesh, vertexA, vertexB, vertexC);
 
     std::vector<float> vertices;
     std::vector<std::uint32_t> lineIndices;

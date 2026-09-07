@@ -1,7 +1,8 @@
-#ifndef GEOMETRY_TRIANGLEHALFEDGEMESH_HPP
-#define GEOMETRY_TRIANGLEHALFEDGEMESH_HPP
+#ifndef GEOMETRY_MESH_TRIANGLEHALFEDGEMESH_HPP
+#define GEOMETRY_MESH_TRIANGLEHALFEDGEMESH_HPP
 
 #include "Geometry/Handle.hpp"
+#include "Geometry/Mesh/MeshConnectivity.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <algorithm>
@@ -89,6 +90,17 @@ public:
   {
     HalfedgeHandle halfedge{};
   };
+
+  template <typename Mesh, bool Const>
+  friend class MeshConnectivityView;
+
+  using ConnectivityView = MeshConnectivityView<TriangleHalfedgeMesh, false>;
+  using ConstConnectivityView = MeshConnectivityView<TriangleHalfedgeMesh, true>;
+
+  // Explicit, opt-in accessor for the low-level connectivity kernel. Write algorithms
+  // obtain the unchecked mutation primitives through this handle
+  GEO_NODISCARD ConnectivityView connectivity() noexcept { return ConnectivityView{this}; }
+  GEO_NODISCARD ConstConnectivityView connectivity() const noexcept { return ConstConnectivityView{this}; }
 
   template <bool Const>
   using MeshPtrT = std::conditional_t<Const, const TriangleHalfedgeMesh*, TriangleHalfedgeMesh*>;
@@ -808,149 +820,6 @@ public:
     return handle;
   }
 
-  GEO_NODISCARD FaceHandle add_triangle(VertexHandle first, VertexHandle second, VertexHandle third)
-  {
-    return add_triangle({first, second, third});
-  }
-
-  GEO_NODISCARD FaceHandle add_triangle(const std::array<VertexHandle, 3>& triangleVertices)
-  {
-    if (!can_add_triangle(triangleVertices))
-    {
-      return FaceHandle{};
-    }
-
-    FaceKey const faceKey = make_face_key(triangleVertices);
-    FaceHandle const face = make_handle<FaceHandle>(m_faces.size());
-    std::array<HalfedgeHandle, 3> triangleHalfedges{};
-    std::array<HalfedgeHandle, 3> previousVertexHalfedges{};
-    std::array<size_type, 3> previousVertexHalfedgeCounts{};
-    std::array<HalfedgeHandle, 3> oppositeHalfedges{};
-    std::array<DirectedEdgeKey, 3> directedEdgeKeys{};
-    size_type newEdgeCount = 0;
-
-    for (size_type i = 0; i < triangleVertices.size(); ++i)
-    {
-      VertexHandle const from = triangleVertices[i];
-      VertexHandle const to = triangleVertices[(i + 1) % triangleVertices.size()];
-      directedEdgeKeys[i] = DirectedEdgeKey{from.get_value(), to.get_value()};
-      DirectedEdgeKey const oppositeKey{to.get_value(), from.get_value()};
-
-      previousVertexHalfedges[i] = get_vertex(from).halfedge;
-      previousVertexHalfedgeCounts[i] = m_vertexHalfedges[handle_index(from)].size();
-      m_vertexHalfedges[handle_index(from)].reserve(m_vertexHalfedges[handle_index(from)].size() + 1);
-
-      auto const oppositeIt = m_directedEdges.find(oppositeKey);
-      if (oppositeIt != m_directedEdges.end())
-      {
-        oppositeHalfedges[i] = oppositeIt->second;
-      }
-      else
-      {
-        ++newEdgeCount;
-      }
-    }
-
-    m_faces.reserve(m_faces.size() + 1);
-    m_halfedges.reserve(m_halfedges.size() + triangleHalfedges.size());
-    m_edges.reserve(m_edges.size() + newEdgeCount);
-    m_directedEdges.reserve(m_directedEdges.size() + directedEdgeKeys.size());
-    m_faceKeys.reserve(m_faceKeys.size() + 1);
-
-    size_type const faceCount = m_faces.size();
-    size_type const halfedgeCount = m_halfedges.size();
-    size_type const edgeCount = m_edges.size();
-
-    auto rollback = [&]() noexcept {
-      for (DirectedEdgeKey const key : directedEdgeKeys)
-      {
-        m_directedEdges.erase(key);
-      }
-      m_faceKeys.erase(faceKey);
-
-      for (size_type i = 0; i < triangleVertices.size(); ++i)
-      {
-        size_type const vertexIndex = handle_index(triangleVertices[i]);
-        m_vertices[vertexIndex].halfedge = previousVertexHalfedges[i];
-        m_vertexHalfedges[vertexIndex].resize(previousVertexHalfedgeCounts[i]);
-
-        if (oppositeHalfedges[i].is_valid() && contains(oppositeHalfedges[i]))
-        {
-          Halfedge& oppositeHalfedge = m_halfedges[handle_index(oppositeHalfedges[i])];
-          if (oppositeHalfedge.twin == triangleHalfedges[i])
-          {
-            oppositeHalfedge.twin = HalfedgeHandle{};
-          }
-        }
-      }
-
-      m_edges.resize(edgeCount);
-      m_halfedges.resize(halfedgeCount);
-      m_faces.resize(faceCount);
-    };
-
-    try
-    {
-      m_faces.push_back(Face{});
-
-      for (size_type i = 0; i < triangleHalfedges.size(); ++i)
-      {
-        triangleHalfedges[i] = make_handle<HalfedgeHandle>(m_halfedges.size());
-        m_halfedges.push_back(Halfedge{});
-      }
-
-      for (size_type i = 0; i < triangleHalfedges.size(); ++i)
-      {
-        size_type const nextIndex = (i + 1) % triangleHalfedges.size();
-        size_type const prevIndex = (i + triangleHalfedges.size() - 1) % triangleHalfedges.size();
-
-        Halfedge& halfedge = get_halfedge(triangleHalfedges[i]);
-        halfedge.vertex = triangleVertices[nextIndex];
-        halfedge.next = triangleHalfedges[nextIndex];
-        halfedge.prev = triangleHalfedges[prevIndex];
-        halfedge.face = face;
-
-        if (!get_vertex(triangleVertices[i]).halfedge.is_valid())
-        {
-          get_vertex(triangleVertices[i]).halfedge = triangleHalfedges[i];
-        }
-        m_vertexHalfedges[handle_index(triangleVertices[i])].push_back(triangleHalfedges[i]);
-      }
-
-      for (size_type i = 0; i < triangleHalfedges.size(); ++i)
-      {
-        Halfedge& halfedge = get_halfedge(triangleHalfedges[i]);
-
-        if (oppositeHalfedges[i].is_valid())
-        {
-          Halfedge& oppositeHalfedge = get_halfedge(oppositeHalfedges[i]);
-
-          halfedge.twin = oppositeHalfedges[i];
-          oppositeHalfedge.twin = triangleHalfedges[i];
-          halfedge.edge = oppositeHalfedge.edge;
-        }
-        else
-        {
-          EdgeHandle const edge = make_handle<EdgeHandle>(m_edges.size());
-          m_edges.push_back(Edge{triangleHalfedges[i]});
-          halfedge.edge = edge;
-        }
-
-        m_directedEdges.emplace(directedEdgeKeys[i], triangleHalfedges[i]);
-      }
-
-      m_faceKeys.insert(faceKey);
-      get_face(face).set_halfedgehandle(triangleHalfedges.front());
-    }
-    catch (...)
-    {
-      rollback();
-      throw;
-    }
-
-    return face;
-  }
-
   GEO_NODISCARD constexpr size_type vertex_count() const noexcept { return m_vertices.size(); }
   GEO_NODISCARD constexpr size_type halfedge_count() const noexcept { return m_halfedges.size(); }
   GEO_NODISCARD constexpr size_type face_count() const noexcept { return m_faces.size(); }
@@ -1377,45 +1246,6 @@ private:
     }
   };
 
-  GEO_NODISCARD bool can_add_triangle(const std::array<VertexHandle, 3>& vertices) const
-  {
-    if (!contains(vertices[0]) || !contains(vertices[1]) || !contains(vertices[2]))
-    {
-      return false;
-    }
-
-    if (vertices[0] == vertices[1] || vertices[1] == vertices[2] || vertices[2] == vertices[0])
-    {
-      return false;
-    }
-
-    if (m_faceKeys.find(make_face_key(vertices)) != m_faceKeys.end())
-    {
-      return false;
-    }
-
-    for (size_type i = 0; i < vertices.size(); ++i)
-    {
-      VertexHandle const from = vertices[i];
-      VertexHandle const to = vertices[(i + 1) % vertices.size()];
-      DirectedEdgeKey const key{from.get_value(), to.get_value()};
-      DirectedEdgeKey const oppositeKey{to.get_value(), from.get_value()};
-
-      if (m_directedEdges.find(key) != m_directedEdges.end())
-      {
-        return false;
-      }
-
-      auto const oppositeIt = m_directedEdges.find(oppositeKey);
-      if (oppositeIt != m_directedEdges.end() && get_halfedge(oppositeIt->second).twin.is_valid())
-      {
-        return false;
-      }
-    }
-
-    return true;
-  }
-
   GEO_NODISCARD static FaceKey make_face_key(const std::array<VertexHandle, 3>& vertices) noexcept
   {
     FaceKey key{{vertices[0].get_value(), vertices[1].get_value(), vertices[2].get_value()}};
@@ -1568,4 +1398,4 @@ static_assert(std::random_access_iterator<Mesh::FaceIterator>);
 
 } // namespace Geometry
 
-#endif // GEOMETRY_TRIANGLEHALFEDGEMESH_HPP
+#endif // GEOMETRY_MESH_TRIANGLEHALFEDGEMESH_HPP

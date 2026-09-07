@@ -1,4 +1,5 @@
-#include <Geometry/TriangleHalfedgeMesh.hpp>
+#include <Geometry/Mesh/AddTriangle.hpp>
+#include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
 using namespace Geometry;
@@ -56,7 +57,7 @@ TEST(TriangleHalfedgeMeshTest, addTriangleCreatesFaceCycle)
   Mesh::VertexHandle const vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
 
-  Mesh::FaceHandle const face = mesh.add_triangle(vertex0, vertex1, vertex2);
+  Mesh::FaceHandle const face = add_triangle(mesh,vertex0, vertex1, vertex2);
 
   ASSERT_TRUE(face.is_valid());
   ASSERT_TRUE(mesh.is_valid());
@@ -86,8 +87,8 @@ TEST(TriangleHalfedgeMeshTest, adjacentTrianglesShareTwinHalfedges)
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
   Mesh::VertexHandle const vertex3 = mesh.add_vertex({1.0, 1.0, 0.0});
 
-  Mesh::FaceHandle const first = mesh.add_triangle(vertex0, vertex1, vertex2);
-  Mesh::FaceHandle const second = mesh.add_triangle(vertex2, vertex1, vertex3);
+  Mesh::FaceHandle const first = add_triangle(mesh,vertex0, vertex1, vertex2);
+  Mesh::FaceHandle const second = add_triangle(mesh,vertex2, vertex1, vertex3);
 
   ASSERT_TRUE(first.is_valid());
   ASSERT_TRUE(second.is_valid());
@@ -114,14 +115,14 @@ TEST(TriangleHalfedgeMeshTest, rejectsInvalidTrianglesWithoutChangingMesh)
   Mesh::VertexHandle const vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
 
-  EXPECT_FALSE(mesh.add_triangle(vertex0, vertex1, vertex1).is_valid());
-  EXPECT_FALSE(mesh.add_triangle(vertex0, vertex1, Mesh::VertexHandle{}).is_valid());
+  EXPECT_FALSE(add_triangle(mesh,vertex0, vertex1, vertex1).is_valid());
+  EXPECT_FALSE(add_triangle(mesh,vertex0, vertex1, Mesh::VertexHandle{}).is_valid());
   EXPECT_EQ(mesh.face_count(), 0U);
   EXPECT_EQ(mesh.halfedge_count(), 0U);
   EXPECT_EQ(mesh.edge_count(), 0U);
 
-  ASSERT_TRUE(mesh.add_triangle(vertex0, vertex1, vertex2).is_valid());
-  EXPECT_FALSE(mesh.add_triangle(vertex0, vertex1, vertex2).is_valid());
+  ASSERT_TRUE(add_triangle(mesh,vertex0, vertex1, vertex2).is_valid());
+  EXPECT_FALSE(add_triangle(mesh,vertex0, vertex1, vertex2).is_valid());
   EXPECT_EQ(mesh.face_count(), 1U);
   EXPECT_EQ(mesh.halfedge_count(), 3U);
   EXPECT_EQ(mesh.edge_count(), 3U);
@@ -135,9 +136,9 @@ TEST(TriangleHalfedgeMeshTest, rejectsReversedDuplicateTriangleWithoutChangingMe
   Mesh::VertexHandle const vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
 
-  ASSERT_TRUE(mesh.add_triangle(vertex0, vertex1, vertex2).is_valid());
+  ASSERT_TRUE(add_triangle(mesh,vertex0, vertex1, vertex2).is_valid());
 
-  EXPECT_FALSE(mesh.add_triangle(vertex0, vertex2, vertex1).is_valid());
+  EXPECT_FALSE(add_triangle(mesh,vertex0, vertex2, vertex1).is_valid());
   EXPECT_EQ(mesh.face_count(), 1U);
   EXPECT_EQ(mesh.halfedge_count(), 3U);
   EXPECT_EQ(mesh.edge_count(), 3U);
@@ -151,7 +152,7 @@ TEST(TriangleHalfedgeMeshTest, isValidReturnsFalseForBrokenHalfedgeLinks)
   Mesh::VertexHandle const vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
 
-  Mesh::FaceHandle const face = mesh.add_triangle(vertex0, vertex1, vertex2);
+  Mesh::FaceHandle const face = add_triangle(mesh,vertex0, vertex1, vertex2);
   ASSERT_TRUE(face.is_valid());
   ASSERT_TRUE(mesh.is_valid());
 
@@ -169,8 +170,8 @@ TEST(TriangleHalfedgeMeshTest, findsIncidentFacesAndHalfedges)
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
   Mesh::VertexHandle const vertex3 = mesh.add_vertex({1.0, 1.0, 0.0});
 
-  ASSERT_TRUE(mesh.add_triangle(vertex0, vertex1, vertex2).is_valid());
-  ASSERT_TRUE(mesh.add_triangle(vertex2, vertex1, vertex3).is_valid());
+  ASSERT_TRUE(add_triangle(mesh,vertex0, vertex1, vertex2).is_valid());
+  ASSERT_TRUE(add_triangle(mesh,vertex2, vertex1, vertex3).is_valid());
 
   std::vector<HalfedgeHandle> const halfedges = mesh.halfedges_around_vertex(vertex1);
   std::vector<Mesh::FaceHandle> const faces = mesh.faces_around_vertex(vertex1);
