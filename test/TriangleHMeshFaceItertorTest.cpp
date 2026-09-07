@@ -37,28 +37,55 @@ class TriangleHMeshFaceItertorTest : public ::testing::Test {
     std::vector<FaceHandle> m_faceHandles;
 };
 
-TEST_F(TriangleHMeshFaceItertorTest, ConstHalfEdgeIterator) {
-    auto faceHandle = m_mesh.get_face(m_faceHandles[0]);
-    Mesh::ConstHalfEdgeIterator iter = Mesh::ConstHalfEdgeIterator(faceHandle.halfedge, &m_mesh);
+TEST_F(TriangleHMeshFaceItertorTest, FaceHalfedgeIter) {
+    std::vector<const Mesh::Halfedge*> faceHalfedges;
+    for (const Mesh::Halfedge& he : m_mesh.halfedges(m_faceHandles[0]))
+    {
+        faceHalfedges.emplace_back(&he);
+    }
 
-    std::array<HalfedgeHandle, 3> heHandles;
+    // Range-for over the face must yield exactly the 3 face halfedges (not empty, not infinite).
+    ASSERT_EQ(faceHalfedges.size(), 3u);
 
-    heHandles[0] = iter.get_halfedgehandle();
-    EXPECT_EQ(heHandles[0], iter.get_halfedgehandle());
-    EXPECT_EQ(heHandles[0].get_value(), 0);
-    VertexHandle vHandle = iter->vertex;
-    EXPECT_EQ(vHandle.get_value(), 1);
+    std::vector<Mesh::VertexHandle> vertexHandles;
+    for (const auto* he : faceHalfedges)
+    {
+        vertexHandles.emplace_back(he->vertex);
+    }
 
-    iter++;
-    heHandles[1] = iter.get_halfedgehandle();
-    EXPECT_EQ(heHandles[1].get_value(), 1);
-    vHandle = (*iter).vertex;
-    EXPECT_EQ(vHandle.get_value(), 2);
+    // Target vertices of the three halfedges around face 0, matching the ordering used in the
+    // ConstHalfEdgeIterator test above.
+    ASSERT_EQ(vertexHandles.size(), 3u);
+    EXPECT_EQ(vertexHandles[0].get_value(), 1);
+    EXPECT_EQ(vertexHandles[1].get_value(), 2);
+    EXPECT_EQ(vertexHandles[2].get_value(), 0);
+}
 
-    ++iter;
-    heHandles[2] = iter.get_halfedgehandle();
-    EXPECT_EQ(heHandles[2].get_value(), 2);
+TEST_F(TriangleHMeshFaceItertorTest, FaceHalfedgeCirculator) {
+    std::vector<Mesh::VertexHandle> vertexHandles;
+    for (auto circ = m_mesh.halfedges(m_faceHandles[0]).circulator(); circ.is_valid(); ++circ)
+    {
+        vertexHandles.emplace_back(circ->vertex);
+    }
 
-    iter++;
-    EXPECT_EQ(heHandles[0], iter.get_halfedgehandle());
+    ASSERT_EQ(vertexHandles.size(), 3u);
+    EXPECT_EQ(vertexHandles[0].get_value(), 1);
+    EXPECT_EQ(vertexHandles[1].get_value(), 2);
+    EXPECT_EQ(vertexHandles[2].get_value(), 0);
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, EmptyRangeYieldsNothing) {
+    // A default-constructed range holds an invalid start handle, so it must iterate nothing
+    // (the circulator's is_valid() guards the invalid handle before any dereference).
+    Mesh::FaceHalfedgeRange emptyRange{};
+
+    std::size_t count = 0;
+    for (const Mesh::Halfedge& he : emptyRange)
+    {
+        (void)he;
+        ++count;
+    }
+    EXPECT_EQ(count, 0u);
+
+    EXPECT_FALSE(emptyRange.circulator().is_valid());
 }
