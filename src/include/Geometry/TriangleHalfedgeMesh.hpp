@@ -7,10 +7,12 @@
 #include <algorithm>
 #include <array>
 #include <cassert>
+#include <concepts>
 #include <cstdint>
 #include <iterator>
 #include <limits>
 #include <linal/vec.hpp>
+#include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -19,6 +21,14 @@
 
 namespace Geometry
 {
+
+template <typename C>
+concept MeshCirculator = requires(C c) {
+  { *c };
+  { ++c } -> std::same_as<C&>;
+  { c.is_valid() } -> std::same_as<bool>;
+  { static_cast<bool>(c) };
+};
 
 template <typename T, std::uint8_t D, typename TIndex = std::uint32_t>
 class TriangleHalfedgeMesh {
@@ -55,94 +65,6 @@ public:
     EdgeHandle edge{};
   };
 
-  class ConstFaceHalfedgeCirculator
-  {
-      const TriangleHalfedgeMesh* m_mesh{nullptr};
-      HalfedgeHandle m_heHandle{};
-      HalfedgeHandle m_start{};
-      bool m_started{false};
-
-    public:
-      using value_type = Halfedge;
-      using size_type = std::ptrdiff_t;
-      using difference_type = std::ptrdiff_t;
-
-      constexpr ConstFaceHalfedgeCirculator() noexcept = default;
-      constexpr explicit ConstFaceHalfedgeCirculator(HalfedgeHandle heHandle, const TriangleHalfedgeMesh* mesh) noexcept
-          : m_mesh(mesh)
-          , m_heHandle(heHandle)
-          , m_start(heHandle) {}
-      constexpr ConstFaceHalfedgeCirculator(const ConstFaceHalfedgeCirculator& other) = default;
-      constexpr ConstFaceHalfedgeCirculator& operator=(const ConstFaceHalfedgeCirculator& other) = default;
-      constexpr ConstFaceHalfedgeCirculator(ConstFaceHalfedgeCirculator&& other) noexcept = default;
-      constexpr ConstFaceHalfedgeCirculator& operator=(ConstFaceHalfedgeCirculator&& other) noexcept = default;
-      ~ConstFaceHalfedgeCirculator() = default;
-
-      constexpr const value_type* operator->() const noexcept { return &m_mesh->get_halfedge(m_heHandle); }
-      constexpr const value_type& operator*() const noexcept { return m_mesh->get_halfedge(m_heHandle); }
-
-      constexpr ConstFaceHalfedgeCirculator& operator++() {
-        auto nextHe = m_mesh->get_halfedge(m_heHandle).next;
-        assert(nextHe.is_valid());
-        m_heHandle = nextHe;
-        m_started = true;
-        return *this;
-      }
-
-      constexpr ConstFaceHalfedgeCirculator operator++(int) {
-        ConstFaceHalfedgeCirculator old = *this;
-        operator++();
-        return old;
-      }
-
-      // Valid (has more to yield) while the handle is valid and we have not returned to the start
-      // after at least one step. The handle check is first so an empty/invalid face never derefs.
-      [[nodiscard]] constexpr bool is_valid() const noexcept {
-        return m_heHandle.is_valid() && !(m_started && m_heHandle == m_start);
-      }
-
-      [[nodiscard]] constexpr explicit operator bool() const noexcept { return is_valid(); }
-
-      [[nodiscard]] constexpr bool operator==(const ConstFaceHalfedgeCirculator& other) const noexcept {
-        return m_mesh == other.m_mesh && 
-                m_heHandle == other.m_heHandle && 
-                m_start == other.m_start && 
-                m_started == other.m_started;
-      }
-      [[nodiscard]] constexpr bool operator!=(const ConstFaceHalfedgeCirculator& other) const noexcept { return !(*this == other); }
-
-      [[nodiscard]] constexpr const HalfedgeHandle& get_halfedgehandle() const noexcept { return m_heHandle; }
-      [[nodiscard]] constexpr const HalfedgeHandle& get_starthandle() const noexcept { return m_start; }
-  };
-
-  struct FaceHalfedgeSentinel
-  {
-      [[nodiscard]] friend constexpr bool operator==(const ConstFaceHalfedgeCirculator& circ, FaceHalfedgeSentinel) noexcept {
-        return !circ.is_valid();
-      }
-  };
-
-  class FaceHalfedgeRange
-  {
-      const TriangleHalfedgeMesh* m_mesh{nullptr};
-      HalfedgeHandle m_heHandle{};
-
-    public:
-      constexpr FaceHalfedgeRange() noexcept = default;
-      constexpr explicit FaceHalfedgeRange(HalfedgeHandle heHandle, const TriangleHalfedgeMesh* mesh) noexcept
-          : m_mesh(mesh)
-          , m_heHandle(heHandle) {}
-
-      [[nodiscard]] constexpr ConstFaceHalfedgeCirculator begin() const noexcept {
-        return ConstFaceHalfedgeCirculator(m_heHandle, m_mesh);
-      }
-      [[nodiscard]] constexpr FaceHalfedgeSentinel end() const noexcept { return FaceHalfedgeSentinel{}; }
-
-      [[nodiscard]] constexpr ConstFaceHalfedgeCirculator circulator() const noexcept {
-        return ConstFaceHalfedgeCirculator(m_heHandle, m_mesh);
-      }
-  };
-
   class Face
   {
     HalfedgeHandle m_heHandle{};
@@ -167,6 +89,287 @@ public:
   {
     HalfedgeHandle halfedge{};
   };
+
+  template <bool Const>
+  using MeshPtrT = std::conditional_t<Const, const TriangleHalfedgeMesh*, TriangleHalfedgeMesh*>;
+
+  template <bool Const>
+  class FaceHalfedgeCirculatorT
+  {
+      MeshPtrT<Const> m_mesh{nullptr};
+      HalfedgeHandle m_heHandle{};
+      HalfedgeHandle m_start{};
+      bool m_started{false};
+
+      template <bool> friend class FaceHalfedgeCirculatorT;
+
+      [[nodiscard]] constexpr bool has_returned_to_start() const noexcept { return m_started && m_heHandle == m_start; }
+
+    public:
+      using value_type = Halfedge;
+      using reference = std::conditional_t<Const, const Halfedge&, Halfedge&>;
+      using pointer = std::conditional_t<Const, const Halfedge*, Halfedge*>;
+      using mesh_pointer = MeshPtrT<Const>;
+      using size_type = std::ptrdiff_t;
+      using difference_type = std::ptrdiff_t;
+
+      constexpr FaceHalfedgeCirculatorT() noexcept = default;
+      constexpr explicit FaceHalfedgeCirculatorT(HalfedgeHandle heHandle, MeshPtrT<Const> mesh) noexcept
+          : m_mesh(mesh)
+          , m_heHandle(heHandle)
+          , m_start(heHandle) {}
+
+      // Non-const -> const conversion only. Templated on the source constness with a Const && !Other
+      // constraint so this never matches the copy/move constructor of the non-const specialization
+      // (which would otherwise suppress the implicit copy/move ctors and break std::semiregular).
+      template <bool Other>
+      constexpr FaceHalfedgeCirculatorT(const FaceHalfedgeCirculatorT<Other>& other) noexcept
+          requires(Const && !Other)
+          : m_mesh(other.m_mesh)
+          , m_heHandle(other.m_heHandle)
+          , m_start(other.m_start)
+          , m_started(other.m_started) {}
+
+      constexpr pointer operator->() const noexcept { return &m_mesh->get_halfedge(m_heHandle); }
+      constexpr reference operator*() const noexcept { return m_mesh->get_halfedge(m_heHandle); }
+
+      constexpr FaceHalfedgeCirculatorT& operator++() {
+        auto nextHe = m_mesh->get_halfedge(m_heHandle).next;
+        assert(nextHe.is_valid());
+        m_heHandle = nextHe;
+        m_started = true;
+        return *this;
+      }
+
+      constexpr FaceHalfedgeCirculatorT operator++(int) {
+        FaceHalfedgeCirculatorT old = *this;
+        operator++();
+        return old;
+      }
+
+      [[nodiscard]] constexpr bool is_valid() const noexcept {
+        return m_heHandle.is_valid() && !has_returned_to_start();
+      }
+
+      [[nodiscard]] constexpr explicit operator bool() const noexcept { return is_valid(); }
+
+      [[nodiscard]] constexpr bool operator==(const FaceHalfedgeCirculatorT& other) const noexcept {
+        return m_mesh == other.m_mesh &&
+                m_heHandle == other.m_heHandle &&
+                m_start == other.m_start &&
+                m_started == other.m_started;
+      }
+      [[nodiscard]] constexpr bool operator!=(const FaceHalfedgeCirculatorT& other) const noexcept { return !(*this == other); }
+
+      [[nodiscard]] constexpr const HalfedgeHandle& get_halfedgehandle() const noexcept { return m_heHandle; }
+      [[nodiscard]] constexpr const HalfedgeHandle& get_starthandle() const noexcept { return m_start; }
+  };
+
+  using ConstFaceHalfedgeCirculator = FaceHalfedgeCirculatorT<true>;
+  using FaceHalfedgeCirculator = FaceHalfedgeCirculatorT<false>;
+
+  template <bool Const>
+  class FaceVertexCirculatorT
+  {
+      MeshPtrT<Const> m_mesh{nullptr};
+      HalfedgeHandle m_heHandle{};
+      HalfedgeHandle m_start{};
+      bool m_started{false};
+
+      template <bool> friend class FaceVertexCirculatorT;
+
+      [[nodiscard]] constexpr bool has_returned_to_start() const noexcept { return m_started && m_heHandle == m_start; }
+
+    public:
+      using value_type = Vertex;
+      using reference = std::conditional_t<Const, const Vertex&, Vertex&>;
+      using pointer = std::conditional_t<Const, const Vertex*, Vertex*>;
+      using mesh_pointer = MeshPtrT<Const>;
+      using size_type = std::ptrdiff_t;
+      using difference_type = std::ptrdiff_t;
+
+      constexpr FaceVertexCirculatorT() noexcept = default;
+      constexpr explicit FaceVertexCirculatorT(HalfedgeHandle heHandle, MeshPtrT<Const> mesh) noexcept
+          : m_mesh(mesh)
+          , m_heHandle(heHandle)
+          , m_start(heHandle) {}
+
+      template <bool Other>
+      constexpr FaceVertexCirculatorT(const FaceVertexCirculatorT<Other>& other) noexcept
+          requires(Const && !Other)
+          : m_mesh(other.m_mesh)
+          , m_heHandle(other.m_heHandle)
+          , m_start(other.m_start)
+          , m_started(other.m_started) {}
+
+      constexpr pointer operator->() const noexcept { return &m_mesh->get_vertex(m_mesh->target_vertex(m_heHandle)); }
+      constexpr reference operator*() const noexcept { return m_mesh->get_vertex(m_mesh->target_vertex(m_heHandle)); }
+
+      constexpr FaceVertexCirculatorT& operator++() {
+        auto nextHe = m_mesh->get_halfedge(m_heHandle).next;
+        assert(nextHe.is_valid());
+        m_heHandle = nextHe;
+        m_started = true;
+        return *this;
+      }
+
+      constexpr FaceVertexCirculatorT operator++(int) {
+        FaceVertexCirculatorT old = *this;
+        operator++();
+        return old;
+      }
+
+      [[nodiscard]] constexpr bool is_valid() const noexcept {
+        return m_heHandle.is_valid() && !has_returned_to_start();
+      }
+
+      [[nodiscard]] constexpr explicit operator bool() const noexcept { return is_valid(); }
+
+      [[nodiscard]] constexpr bool operator==(const FaceVertexCirculatorT& other) const noexcept {
+        return m_mesh == other.m_mesh &&
+                m_heHandle == other.m_heHandle &&
+                m_start == other.m_start &&
+                m_started == other.m_started;
+      }
+      [[nodiscard]] constexpr bool operator!=(const FaceVertexCirculatorT& other) const noexcept { return !(*this == other); }
+
+      [[nodiscard]] constexpr VertexHandle get_vertexhandle() const noexcept { return m_mesh->target_vertex(m_heHandle); }
+      [[nodiscard]] constexpr const HalfedgeHandle& get_halfedgehandle() const noexcept { return m_heHandle; }
+      [[nodiscard]] constexpr const HalfedgeHandle& get_starthandle() const noexcept { return m_start; }
+  };
+
+  using ConstFaceVertexCirculator = FaceVertexCirculatorT<true>;
+  using FaceVertexCirculator = FaceVertexCirculatorT<false>;
+
+  template <bool Const>
+  class FaceFaceCirculatorT
+  {
+      MeshPtrT<Const> m_mesh{nullptr};
+      HalfedgeHandle m_heHandle{};
+      HalfedgeHandle m_start{};
+      bool m_started{false};
+
+      template <bool> friend class FaceFaceCirculatorT;
+
+      [[nodiscard]] constexpr bool has_returned_to_start() const noexcept { return m_started && m_heHandle == m_start; }
+
+      [[nodiscard]] constexpr bool cursor_is_boundary() const noexcept { return !m_mesh->get_halfedge(m_heHandle).twin.is_valid(); }
+
+      [[nodiscard]] constexpr FaceHandle neighbor_face() const noexcept {
+        return m_mesh->get_halfedge(m_mesh->get_halfedge(m_heHandle).twin).face;
+      }
+
+      constexpr void skip_boundary() noexcept {
+        while (m_heHandle.is_valid() && !has_returned_to_start() && cursor_is_boundary())
+        {
+          m_heHandle = m_mesh->get_halfedge(m_heHandle).next;
+          m_started = true;
+        }
+      }
+
+    public:
+      using value_type = Face;
+      using reference = std::conditional_t<Const, const Face&, Face&>;
+      using pointer = std::conditional_t<Const, const Face*, Face*>;
+      using mesh_pointer = MeshPtrT<Const>;
+      using size_type = std::ptrdiff_t;
+      using difference_type = std::ptrdiff_t;
+
+      constexpr FaceFaceCirculatorT() noexcept = default;
+      constexpr explicit FaceFaceCirculatorT(HalfedgeHandle heHandle, MeshPtrT<Const> mesh) noexcept
+          : m_mesh(mesh)
+          , m_heHandle(heHandle)
+          , m_start(heHandle) {
+        if (m_mesh != nullptr)
+        {
+          skip_boundary();
+        }
+      }
+
+      template <bool Other>
+      constexpr FaceFaceCirculatorT(const FaceFaceCirculatorT<Other>& other) noexcept
+          requires(Const && !Other)
+          : m_mesh(other.m_mesh)
+          , m_heHandle(other.m_heHandle)
+          , m_start(other.m_start)
+          , m_started(other.m_started) {}
+
+      constexpr pointer operator->() const noexcept { return &m_mesh->get_face(neighbor_face()); }
+      constexpr reference operator*() const noexcept { return m_mesh->get_face(neighbor_face()); }
+
+      constexpr FaceFaceCirculatorT& operator++() {
+        auto nextHe = m_mesh->get_halfedge(m_heHandle).next;
+        assert(nextHe.is_valid());
+        m_heHandle = nextHe;
+        m_started = true;
+        skip_boundary();
+        return *this;
+      }
+
+      constexpr FaceFaceCirculatorT operator++(int) {
+        FaceFaceCirculatorT old = *this;
+        operator++();
+        return old;
+      }
+
+      [[nodiscard]] constexpr bool is_valid() const noexcept {
+        return m_heHandle.is_valid() && !has_returned_to_start();
+      }
+
+      [[nodiscard]] constexpr explicit operator bool() const noexcept { return is_valid(); }
+
+      [[nodiscard]] constexpr bool operator==(const FaceFaceCirculatorT& other) const noexcept {
+        return m_mesh == other.m_mesh &&
+                m_heHandle == other.m_heHandle &&
+                m_start == other.m_start &&
+                m_started == other.m_started;
+      }
+      [[nodiscard]] constexpr bool operator!=(const FaceFaceCirculatorT& other) const noexcept { return !(*this == other); }
+
+      [[nodiscard]] constexpr FaceHandle get_facehandle() const noexcept { return neighbor_face(); }
+      [[nodiscard]] constexpr const HalfedgeHandle& get_halfedgehandle() const noexcept { return m_heHandle; }
+      [[nodiscard]] constexpr const HalfedgeHandle& get_starthandle() const noexcept { return m_start; }
+  };
+
+  using ConstFaceFaceCirculator = FaceFaceCirculatorT<true>;
+  using FaceFaceCirculator = FaceFaceCirculatorT<false>;
+
+  template <typename Circulator>
+  struct FaceCirculatorSentinel
+  {
+      [[nodiscard]] friend constexpr bool operator==(const Circulator& circ, FaceCirculatorSentinel) noexcept {
+        return !circ.is_valid();
+      }
+  };
+
+  using FaceHalfedgeSentinel = FaceCirculatorSentinel<ConstFaceHalfedgeCirculator>;
+
+  template <typename Circulator>
+  class FaceCirculatorRange
+  {
+      using MeshPtr = typename Circulator::mesh_pointer;
+
+      MeshPtr m_mesh{nullptr};
+      HalfedgeHandle m_heHandle{};
+
+    public:
+      constexpr FaceCirculatorRange() noexcept = default;
+      constexpr explicit FaceCirculatorRange(HalfedgeHandle heHandle, MeshPtr mesh) noexcept
+          : m_mesh(mesh)
+          , m_heHandle(heHandle) {}
+
+      [[nodiscard]] constexpr Circulator begin() const noexcept { return Circulator(m_heHandle, m_mesh); }
+      [[nodiscard]] constexpr FaceCirculatorSentinel<Circulator> end() const noexcept { return {}; }
+
+      [[nodiscard]] constexpr Circulator circulator() const noexcept { return Circulator(m_heHandle, m_mesh); }
+  };
+
+  using FaceHalfedgeRange = FaceCirculatorRange<ConstFaceHalfedgeCirculator>;
+  using FaceHalfedgeRangeMutable = FaceCirculatorRange<FaceHalfedgeCirculator>;
+  using FaceVertexRange = FaceCirculatorRange<ConstFaceVertexCirculator>;
+  using FaceVertexRangeMutable = FaceCirculatorRange<FaceVertexCirculator>;
+  using FaceFaceRange = FaceCirculatorRange<ConstFaceFaceCirculator>;
+  using FaceFaceRangeMutable = FaceCirculatorRange<FaceFaceCirculator>;
 
   GEO_NODISCARD VertexHandle add_vertex(const vec_t& position)
   {
@@ -388,6 +591,36 @@ public:
   {
     GEO_ASSERT(contains(face));
     return FaceHalfedgeRange(get_face(face).get_halfedgehandle(), this);
+  }
+
+  GEO_NODISCARD FaceHalfedgeRangeMutable halfedges(FaceHandle face) noexcept
+  {
+    GEO_ASSERT(contains(face));
+    return FaceHalfedgeRangeMutable(get_face(face).get_halfedgehandle(), this);
+  }
+
+  GEO_NODISCARD FaceVertexRange vertices(FaceHandle face) const noexcept
+  {
+    GEO_ASSERT(contains(face));
+    return FaceVertexRange(get_face(face).get_halfedgehandle(), this);
+  }
+
+  GEO_NODISCARD FaceVertexRangeMutable vertices(FaceHandle face) noexcept
+  {
+    GEO_ASSERT(contains(face));
+    return FaceVertexRangeMutable(get_face(face).get_halfedgehandle(), this);
+  }
+
+  GEO_NODISCARD FaceFaceRange adjacent_faces(FaceHandle face) const noexcept
+  {
+    GEO_ASSERT(contains(face));
+    return FaceFaceRange(get_face(face).get_halfedgehandle(), this);
+  }
+
+  GEO_NODISCARD FaceFaceRangeMutable adjacent_faces(FaceHandle face) noexcept
+  {
+    GEO_ASSERT(contains(face));
+    return FaceFaceRangeMutable(get_face(face).get_halfedgehandle(), this);
   }
 
   GEO_NODISCARD std::array<HalfedgeHandle, 3> halfedges_around_face(FaceHandle face) const noexcept
@@ -783,8 +1016,28 @@ using TriangleHalfedgeMesh3f = TriangleHalfedgeMesh3<float>;
 using TriangleHalfedgeMesh2d = TriangleHalfedgeMesh2<double>;
 using TriangleHalfedgeMesh3d = TriangleHalfedgeMesh3<double>;
 
-static_assert(std::sentinel_for<TriangleHalfedgeMesh3d::FaceHalfedgeSentinel,
-                                TriangleHalfedgeMesh3d::ConstFaceHalfedgeCirculator>);
+namespace detail
+{
+using Mesh = TriangleHalfedgeMesh3d;
+
+static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstFaceHalfedgeCirculator>, Mesh::ConstFaceHalfedgeCirculator>);
+static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::FaceHalfedgeCirculator>, Mesh::FaceHalfedgeCirculator>);
+static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstFaceVertexCirculator>, Mesh::ConstFaceVertexCirculator>);
+static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::FaceVertexCirculator>, Mesh::FaceVertexCirculator>);
+static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstFaceFaceCirculator>, Mesh::ConstFaceFaceCirculator>);
+static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::FaceFaceCirculator>, Mesh::FaceFaceCirculator>);
+
+static_assert(MeshCirculator<Mesh::ConstFaceHalfedgeCirculator>);
+static_assert(MeshCirculator<Mesh::FaceHalfedgeCirculator>);
+static_assert(MeshCirculator<Mesh::ConstFaceVertexCirculator>);
+static_assert(MeshCirculator<Mesh::FaceVertexCirculator>);
+static_assert(MeshCirculator<Mesh::ConstFaceFaceCirculator>);
+static_assert(MeshCirculator<Mesh::FaceFaceCirculator>);
+
+// Non-const -> const converts; const -> non-const does not.
+static_assert(std::is_convertible_v<Mesh::FaceHalfedgeCirculator, Mesh::ConstFaceHalfedgeCirculator>);
+static_assert(!std::is_convertible_v<Mesh::ConstFaceHalfedgeCirculator, Mesh::FaceHalfedgeCirculator>);
+} // namespace detail
 
 } // namespace Geometry
 
