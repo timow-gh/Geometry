@@ -328,3 +328,122 @@ TEST_F(TriangleHMeshFaceItertorTest, EmptyRangeYieldsNothing) {
 
     EXPECT_FALSE(emptyRange.circulator().is_valid());
 }
+
+TEST_F(TriangleHMeshFaceItertorTest, WholeMeshRangesVisitEveryElement) {
+    // Fixture: two triangles sharing edge v1->v2 => 4 vertices, 6 halfedges, 5 edges, 2 faces.
+    EXPECT_EQ(m_mesh.vertices().size(), m_mesh.vertex_count());
+    EXPECT_EQ(m_mesh.halfedges().size(), m_mesh.halfedge_count());
+    EXPECT_EQ(m_mesh.edges().size(), m_mesh.edge_count());
+    EXPECT_EQ(m_mesh.faces().size(), m_mesh.face_count());
+
+    std::size_t vertexCount = 0;
+    for (VertexHandle const vertex : m_mesh.vertices())
+    {
+        (void)vertex;
+        ++vertexCount;
+    }
+    EXPECT_EQ(vertexCount, m_mesh.vertex_count());
+
+    std::size_t halfedgeCount = 0;
+    for (HalfedgeHandle const halfedge : m_mesh.halfedges())
+    {
+        (void)halfedge;
+        ++halfedgeCount;
+    }
+    EXPECT_EQ(halfedgeCount, m_mesh.halfedge_count());
+
+    std::size_t edgeCount = 0;
+    for (Mesh::EdgeHandle const edge : m_mesh.edges())
+    {
+        (void)edge;
+        ++edgeCount;
+    }
+    EXPECT_EQ(edgeCount, m_mesh.edge_count());
+
+    std::size_t faceCount = 0;
+    for (FaceHandle const face : m_mesh.faces())
+    {
+        (void)face;
+        ++faceCount;
+    }
+    EXPECT_EQ(faceCount, m_mesh.face_count());
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, WholeMeshRangesYieldHandlesInIndexOrder) {
+    Mesh::handle_value_type expected = 0;
+    for (VertexHandle const vertex : m_mesh.vertices())
+    {
+        EXPECT_EQ(vertex.get_value(), expected);
+        ++expected;
+    }
+
+    expected = 0;
+    for (FaceHandle const face : m_mesh.faces())
+    {
+        EXPECT_EQ(face.get_value(), expected);
+        ++expected;
+    }
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, WholeMeshHandlesAreUsable) {
+    // Every yielded handle must be a valid handle into the mesh's storage.
+    for (VertexHandle const vertex : m_mesh.vertices())
+    {
+        ASSERT_TRUE(m_mesh.contains(vertex));
+        (void)m_mesh.get_vertex(vertex);
+    }
+    for (HalfedgeHandle const halfedge : m_mesh.halfedges())
+    {
+        ASSERT_TRUE(m_mesh.contains(halfedge));
+        (void)m_mesh.get_halfedge(halfedge);
+    }
+    for (Mesh::EdgeHandle const edge : m_mesh.edges())
+    {
+        ASSERT_TRUE(m_mesh.contains(edge));
+        (void)m_mesh.get_edge(edge);
+    }
+    for (FaceHandle const face : m_mesh.faces())
+    {
+        ASSERT_TRUE(m_mesh.contains(face));
+        (void)m_mesh.get_face(face);
+    }
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, WholeMeshFacesComposeWithLocalCirculator) {
+    // The whole-mesh face range and the per-face vertex circulator compose: each face yields three
+    // vertices.
+    std::size_t faceCount = 0;
+    for (FaceHandle const face : m_mesh.faces())
+    {
+        ++faceCount;
+        std::size_t verticesInFace = 0;
+        for (auto circ = m_mesh.vertices(face).circulator(); circ.is_valid(); ++circ)
+        {
+            ++verticesInFace;
+        }
+        EXPECT_EQ(verticesInFace, 3u);
+    }
+    EXPECT_EQ(faceCount, m_mesh.face_count());
+}
+
+TEST(TriangleHMeshWholeMeshIterator, EmptyMeshYieldsNothing) {
+    Mesh mesh;
+
+    EXPECT_TRUE(mesh.vertices().empty());
+    EXPECT_TRUE(mesh.halfedges().empty());
+    EXPECT_TRUE(mesh.edges().empty());
+    EXPECT_TRUE(mesh.faces().empty());
+
+    std::size_t count = 0;
+    for (VertexHandle const vertex : mesh.vertices())
+    {
+        (void)vertex;
+        ++count;
+    }
+    for (FaceHandle const face : mesh.faces())
+    {
+        (void)face;
+        ++count;
+    }
+    EXPECT_EQ(count, 0u);
+}

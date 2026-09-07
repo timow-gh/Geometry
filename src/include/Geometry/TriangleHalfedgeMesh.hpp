@@ -693,6 +693,111 @@ public:
   using VertexFaceRange = FaceCirculatorRange<ConstVertexFaceCirculator>;
   using VertexFaceRangeMutable = FaceCirculatorRange<VertexFaceCirculator>;
 
+  template <typename THandle>
+  class ElementIteratorT
+  {
+      handle_value_type m_index{};
+
+    public:
+      using value_type = THandle;
+      using reference = THandle;
+      using pointer = void;
+      using difference_type = std::ptrdiff_t;
+      using iterator_category = std::random_access_iterator_tag;
+
+      constexpr ElementIteratorT() noexcept = default;
+      constexpr explicit ElementIteratorT(handle_value_type index) noexcept
+          : m_index(index) {}
+
+      constexpr THandle operator*() const noexcept { return THandle{m_index}; }
+
+      constexpr ElementIteratorT& operator++() noexcept {
+        ++m_index;
+        return *this;
+      }
+
+      constexpr ElementIteratorT operator++(int) noexcept {
+        ElementIteratorT old = *this;
+        ++m_index;
+        return old;
+      }
+
+      constexpr ElementIteratorT& operator--() noexcept {
+        --m_index;
+        return *this;
+      }
+
+      constexpr ElementIteratorT operator--(int) noexcept {
+        ElementIteratorT old = *this;
+        --m_index;
+        return old;
+      }
+
+      constexpr ElementIteratorT& operator+=(difference_type offset) noexcept {
+        m_index = static_cast<handle_value_type>(static_cast<difference_type>(m_index) + offset);
+        return *this;
+      }
+
+      constexpr ElementIteratorT& operator-=(difference_type offset) noexcept { return *this += -offset; }
+
+      [[nodiscard]] friend constexpr ElementIteratorT operator+(ElementIteratorT iterator, difference_type offset) noexcept {
+        iterator += offset;
+        return iterator;
+      }
+
+      [[nodiscard]] friend constexpr ElementIteratorT operator+(difference_type offset, ElementIteratorT iterator) noexcept {
+        iterator += offset;
+        return iterator;
+      }
+
+      [[nodiscard]] friend constexpr ElementIteratorT operator-(ElementIteratorT iterator, difference_type offset) noexcept {
+        iterator -= offset;
+        return iterator;
+      }
+
+      [[nodiscard]] friend constexpr difference_type operator-(ElementIteratorT lhs, ElementIteratorT rhs) noexcept {
+        return static_cast<difference_type>(lhs.m_index) - static_cast<difference_type>(rhs.m_index);
+      }
+
+      [[nodiscard]] constexpr THandle operator[](difference_type offset) const noexcept { return *(*this + offset); }
+
+      [[nodiscard]] constexpr bool operator==(const ElementIteratorT& other) const noexcept { return m_index == other.m_index; }
+      [[nodiscard]] constexpr bool operator!=(const ElementIteratorT& other) const noexcept { return !(*this == other); }
+
+      [[nodiscard]] constexpr std::strong_ordering operator<=>(const ElementIteratorT& other) const noexcept {
+        return m_index <=> other.m_index;
+      }
+  };
+
+  using VertexIterator = ElementIteratorT<VertexHandle>;
+  using HalfedgeIterator = ElementIteratorT<HalfedgeHandle>;
+  using EdgeIterator = ElementIteratorT<EdgeHandle>;
+  using FaceIterator = ElementIteratorT<FaceHandle>;
+
+  template <typename THandle>
+  class ElementRangeT
+  {
+      handle_value_type m_begin{};
+      handle_value_type m_end{};
+
+    public:
+      constexpr ElementRangeT() noexcept = default;
+      constexpr ElementRangeT(handle_value_type first, handle_value_type last) noexcept
+          : m_begin(first)
+          , m_end(last) {}
+
+      [[nodiscard]] constexpr ElementIteratorT<THandle> begin() const noexcept { return ElementIteratorT<THandle>{m_begin}; }
+      [[nodiscard]] constexpr ElementIteratorT<THandle> end() const noexcept { return ElementIteratorT<THandle>{m_end}; }
+
+      [[nodiscard]] constexpr size_type size() const noexcept { return static_cast<size_type>(m_end - m_begin); }
+      [[nodiscard]] constexpr bool empty() const noexcept { return m_begin == m_end; }
+  };
+
+  using VertexRange = ElementRangeT<VertexHandle>;
+  using HalfedgeRange = ElementRangeT<HalfedgeHandle>;
+  using EdgeRange = ElementRangeT<EdgeHandle>;
+  using FaceRange = ElementRangeT<FaceHandle>;
+
   GEO_NODISCARD VertexHandle add_vertex(const vec_t& position)
   {
     VertexHandle const handle = make_handle<VertexHandle>(m_vertices.size());
@@ -851,6 +956,26 @@ public:
   GEO_NODISCARD constexpr size_type face_count() const noexcept { return m_faces.size(); }
   GEO_NODISCARD constexpr size_type edge_count() const noexcept { return m_edges.size(); }
   GEO_NODISCARD constexpr bool empty() const noexcept { return m_vertices.empty() && m_faces.empty(); }
+
+  GEO_NODISCARD VertexRange vertices() const noexcept
+  {
+    return VertexRange{0, static_cast<handle_value_type>(vertex_count())};
+  }
+
+  GEO_NODISCARD HalfedgeRange halfedges() const noexcept
+  {
+    return HalfedgeRange{0, static_cast<handle_value_type>(halfedge_count())};
+  }
+
+  GEO_NODISCARD EdgeRange edges() const noexcept
+  {
+    return EdgeRange{0, static_cast<handle_value_type>(edge_count())};
+  }
+
+  GEO_NODISCARD FaceRange faces() const noexcept
+  {
+    return FaceRange{0, static_cast<handle_value_type>(face_count())};
+  }
 
   GEO_NODISCARD bool contains(VertexHandle handle) const noexcept { return handle_in_range(handle, m_vertices.size()); }
   GEO_NODISCARD bool contains(HalfedgeHandle handle) const noexcept { return handle_in_range(handle, m_halfedges.size()); }
@@ -1431,6 +1556,14 @@ static_assert(std::is_convertible_v<Mesh::VertexVertexCirculator, Mesh::ConstVer
 static_assert(!std::is_convertible_v<Mesh::ConstVertexVertexCirculator, Mesh::VertexVertexCirculator>);
 static_assert(std::is_convertible_v<Mesh::VertexFaceCirculator, Mesh::ConstVertexFaceCirculator>);
 static_assert(!std::is_convertible_v<Mesh::ConstVertexFaceCirculator, Mesh::VertexFaceCirculator>);
+
+// Whole-mesh element iterators model the standard iterator concepts, so range-for and std algorithms work.
+static_assert(std::forward_iterator<Mesh::VertexIterator>);
+static_assert(std::forward_iterator<Mesh::HalfedgeIterator>);
+static_assert(std::forward_iterator<Mesh::EdgeIterator>);
+static_assert(std::forward_iterator<Mesh::FaceIterator>);
+static_assert(std::random_access_iterator<Mesh::VertexIterator>);
+static_assert(std::random_access_iterator<Mesh::FaceIterator>);
 } // namespace detail
 
 } // namespace Geometry
