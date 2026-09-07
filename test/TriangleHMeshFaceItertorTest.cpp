@@ -3,6 +3,7 @@
 #include <linal/vec.hpp>
 
 #include <gtest/gtest.h>
+#include <algorithm>
 #include <vector>
 
 using namespace Geometry;
@@ -151,6 +152,160 @@ TEST(TriangleHMeshFaceFaceCirculator, IsolatedTriangleHasNoNeighbors) {
 
     std::size_t count = 0;
     for (const Mesh::Face& face : mesh.adjacent_faces(f0))
+    {
+        (void)face;
+        ++count;
+    }
+    EXPECT_EQ(count, 0u);
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeCirculatorInteriorVertex) {
+    // v1 is shared by both fixture faces (edge v1->v2 is twinned), so the single fan around v1 has a
+    // valid twin step and the circulator visits both of v1's outgoing halfedges.
+    std::vector<HalfedgeHandle> outgoing;
+    for (auto circ = m_mesh.outgoing_halfedges(m_vertexHandles[1]).circulator(); circ.is_valid(); ++circ)
+    {
+        outgoing.emplace_back(circ.get_halfedgehandle());
+    }
+
+    ASSERT_EQ(outgoing.size(), 2u);
+    // Every yielded halfedge is outgoing from v1 (source == v1).
+    for (HalfedgeHandle const halfedge : outgoing)
+    {
+        EXPECT_EQ(m_mesh.source_vertex(halfedge), m_vertexHandles[1]);
+    }
+    // The two targets are v2 (Face0: v1->v2) and v3 (Face1: v1->v3).
+    std::vector<Mesh::handle_value_type> targets;
+    for (HalfedgeHandle const halfedge : outgoing)
+    {
+        targets.emplace_back(m_mesh.target_vertex(halfedge).get_value());
+    }
+    std::sort(targets.begin(), targets.end());
+    EXPECT_EQ(targets, (std::vector<Mesh::handle_value_type>{2u, 3u}));
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeCirculatorBoundaryVertexStops) {
+    // v0 belongs only to Face0 and both its incident edges are boundary. The circulator must yield
+    // v0's single outgoing halfedge and then stop at the boundary (twin invalid), not loop forever.
+    std::vector<HalfedgeHandle> outgoing;
+    for (auto circ = m_mesh.outgoing_halfedges(m_vertexHandles[0]).circulator(); circ.is_valid(); ++circ)
+    {
+        outgoing.emplace_back(circ.get_halfedgehandle());
+        ASSERT_LE(outgoing.size(), 8u); // guard against a non-terminating walk
+    }
+
+    ASSERT_EQ(outgoing.size(), 1u);
+    EXPECT_EQ(m_mesh.source_vertex(outgoing[0]), m_vertexHandles[0]);
+    EXPECT_EQ(m_mesh.target_vertex(outgoing[0]).get_value(), 1u); // Face0: v0->v1
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeMatchesEnumerationForInteriorVertex) {
+    // For a single closed/one-fan vertex the circulator's outgoing set must be a subset of the
+    // complete enumeration returned by halfedges_around_vertex().
+    std::vector<HalfedgeHandle> const all = m_mesh.halfedges_around_vertex(m_vertexHandles[1]);
+
+    for (auto circ = m_mesh.outgoing_halfedges(m_vertexHandles[1]).circulator(); circ.is_valid(); ++circ)
+    {
+        HalfedgeHandle const halfedge = circ.get_halfedgehandle();
+        EXPECT_NE(std::find(all.begin(), all.end(), halfedge), all.end());
+    }
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, VertexInHalfedgeCirculatorInteriorVertex) {
+    // Incoming halfedges around v1: their target must be v1, and each must be the twin of an outgoing.
+    std::vector<HalfedgeHandle> incoming;
+    for (auto circ = m_mesh.incoming_halfedges(m_vertexHandles[1]).circulator(); circ.is_valid(); ++circ)
+    {
+        incoming.emplace_back(circ.get_halfedgehandle());
+    }
+
+    ASSERT_EQ(incoming.size(), 2u);
+    for (HalfedgeHandle const halfedge : incoming)
+    {
+        EXPECT_EQ(m_mesh.target_vertex(halfedge), m_vertexHandles[1]);
+    }
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, VertexVertexCirculatorInteriorVertex) {
+    // 1-ring neighbors of v1 are the targets of its outgoing halfedges: v2 and v3.
+    std::vector<Mesh::handle_value_type> neighbors;
+    for (auto circ = m_mesh.vertices(m_vertexHandles[1]).circulator(); circ.is_valid(); ++circ)
+    {
+        neighbors.emplace_back(circ.get_vertexhandle().get_value());
+    }
+
+    ASSERT_EQ(neighbors.size(), 2u);
+    std::sort(neighbors.begin(), neighbors.end());
+    EXPECT_EQ(neighbors, (std::vector<Mesh::handle_value_type>{2u, 3u}));
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, VertexVertexRangeYieldsVertexReferences) {
+    std::vector<const Mesh::Vertex*> vertices;
+    for (const Mesh::Vertex& vertex : m_mesh.vertices(m_vertexHandles[1]))
+    {
+        vertices.emplace_back(&vertex);
+    }
+
+    ASSERT_EQ(vertices.size(), 2u);
+    // Each dereferenced reference must alias one of the mesh's neighbor vertices (v2 or v3).
+    for (const Mesh::Vertex* vertex : vertices)
+    {
+        EXPECT_TRUE(vertex == &m_mesh.get_vertex(m_vertexHandles[2]) ||
+                    vertex == &m_mesh.get_vertex(m_vertexHandles[3]));
+    }
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, VertexFaceCirculatorInteriorVertex) {
+    // Faces incident to v1 are both fixture faces.
+    std::vector<FaceHandle> faces;
+    for (auto circ = m_mesh.faces(m_vertexHandles[1]).circulator(); circ.is_valid(); ++circ)
+    {
+        faces.emplace_back(circ.get_facehandle());
+    }
+
+    ASSERT_EQ(faces.size(), 2u);
+    EXPECT_NE(std::find(faces.begin(), faces.end(), m_faceHandles[0]), faces.end());
+    EXPECT_NE(std::find(faces.begin(), faces.end(), m_faceHandles[1]), faces.end());
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, VertexFaceCirculatorBoundaryVertex) {
+    // v0 is only in Face0.
+    std::vector<FaceHandle> faces;
+    for (auto circ = m_mesh.faces(m_vertexHandles[0]).circulator(); circ.is_valid(); ++circ)
+    {
+        faces.emplace_back(circ.get_facehandle());
+    }
+
+    ASSERT_EQ(faces.size(), 1u);
+    EXPECT_EQ(faces[0], m_faceHandles[0]);
+}
+
+TEST_F(TriangleHMeshFaceItertorTest, VertexVertexCirculatorMutatesThroughReference) {
+    // The non-const vertex circulator yields Vertex&, so writes through it are visible in the mesh.
+    for (auto circ = m_mesh.vertices(m_vertexHandles[1]).circulator(); circ.is_valid(); ++circ)
+    {
+        (*circ).position = linal::double3{7.0, 8.0, 9.0};
+    }
+
+    for (auto circ = m_mesh.vertices(m_vertexHandles[1]).circulator(); circ.is_valid(); ++circ)
+    {
+        EXPECT_EQ(m_mesh.get_position(circ.get_vertexhandle()), (linal::double3{7.0, 8.0, 9.0}));
+    }
+}
+
+TEST(TriangleHMeshVertexCirculator, IsolatedVertexYieldsNothing) {
+    // A vertex with no incident face has an invalid Vertex.halfedge, so every vertex circulator is
+    // invalid immediately and iterates nothing.
+    Mesh mesh;
+    VertexHandle const lone = mesh.add_vertex(linal::double3{0.0, 0.0, 0.0});
+
+    EXPECT_FALSE(mesh.outgoing_halfedges(lone).circulator().is_valid());
+    EXPECT_FALSE(mesh.incoming_halfedges(lone).circulator().is_valid());
+    EXPECT_FALSE(mesh.vertices(lone).circulator().is_valid());
+    EXPECT_FALSE(mesh.faces(lone).circulator().is_valid());
+
+    std::size_t count = 0;
+    for (const Mesh::Face& face : mesh.faces(lone))
     {
         (void)face;
         ++count;
