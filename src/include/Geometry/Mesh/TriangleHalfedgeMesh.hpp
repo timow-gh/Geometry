@@ -1205,57 +1205,57 @@ using TriangleHalfedgeMesh3d = TriangleHalfedgeMesh3<double>;
 
 namespace detail
 {
-using Mesh = TriangleHalfedgeMesh3d;
+using Mesh3d = TriangleHalfedgeMesh3d;
 
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstFaceHalfedgeCirculator>, Mesh::ConstFaceHalfedgeCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::FaceHalfedgeCirculator>, Mesh::FaceHalfedgeCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstFaceVertexCirculator>, Mesh::ConstFaceVertexCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::FaceVertexCirculator>, Mesh::FaceVertexCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstFaceFaceCirculator>, Mesh::ConstFaceFaceCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::FaceFaceCirculator>, Mesh::FaceFaceCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstVertexOutHalfedgeCirculator>, Mesh::ConstVertexOutHalfedgeCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::VertexOutHalfedgeCirculator>, Mesh::VertexOutHalfedgeCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstVertexInHalfedgeCirculator>, Mesh::ConstVertexInHalfedgeCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::VertexInHalfedgeCirculator>, Mesh::VertexInHalfedgeCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstVertexVertexCirculator>, Mesh::ConstVertexVertexCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::VertexVertexCirculator>, Mesh::VertexVertexCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::ConstVertexFaceCirculator>, Mesh::ConstVertexFaceCirculator>);
-static_assert(std::sentinel_for<Mesh::FaceCirculatorSentinel<Mesh::VertexFaceCirculator>, Mesh::VertexFaceCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::ConstFaceHalfedgeCirculator>, Mesh3d::ConstFaceHalfedgeCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::FaceHalfedgeCirculator>, Mesh3d::FaceHalfedgeCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::ConstFaceVertexCirculator>, Mesh3d::ConstFaceVertexCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::FaceVertexCirculator>, Mesh3d::FaceVertexCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::ConstFaceFaceCirculator>, Mesh3d::ConstFaceFaceCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::FaceFaceCirculator>, Mesh3d::FaceFaceCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::ConstVertexOutHalfedgeCirculator>, Mesh3d::ConstVertexOutHalfedgeCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::VertexOutHalfedgeCirculator>, Mesh3d::VertexOutHalfedgeCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::ConstVertexInHalfedgeCirculator>, Mesh3d::ConstVertexInHalfedgeCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::VertexInHalfedgeCirculator>, Mesh3d::VertexInHalfedgeCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::ConstVertexVertexCirculator>, Mesh3d::ConstVertexVertexCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::VertexVertexCirculator>, Mesh3d::VertexVertexCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::ConstVertexFaceCirculator>, Mesh3d::ConstVertexFaceCirculator>);
+static_assert(std::sentinel_for<Mesh3d::FaceCirculatorSentinel<Mesh3d::VertexFaceCirculator>, Mesh3d::VertexFaceCirculator>);
 
-static_assert(MeshCirculator<Mesh::ConstFaceHalfedgeCirculator>);
-static_assert(MeshCirculator<Mesh::FaceHalfedgeCirculator>);
-static_assert(MeshCirculator<Mesh::ConstFaceVertexCirculator>);
-static_assert(MeshCirculator<Mesh::FaceVertexCirculator>);
-static_assert(MeshCirculator<Mesh::ConstFaceFaceCirculator>);
-static_assert(MeshCirculator<Mesh::FaceFaceCirculator>);
-static_assert(MeshCirculator<Mesh::ConstVertexOutHalfedgeCirculator>);
-static_assert(MeshCirculator<Mesh::VertexOutHalfedgeCirculator>);
-static_assert(MeshCirculator<Mesh::ConstVertexInHalfedgeCirculator>);
-static_assert(MeshCirculator<Mesh::VertexInHalfedgeCirculator>);
-static_assert(MeshCirculator<Mesh::ConstVertexVertexCirculator>);
-static_assert(MeshCirculator<Mesh::VertexVertexCirculator>);
-static_assert(MeshCirculator<Mesh::ConstVertexFaceCirculator>);
-static_assert(MeshCirculator<Mesh::VertexFaceCirculator>);
+static_assert(MeshCirculator<Mesh3d::ConstFaceHalfedgeCirculator>);
+static_assert(MeshCirculator<Mesh3d::FaceHalfedgeCirculator>);
+static_assert(MeshCirculator<Mesh3d::ConstFaceVertexCirculator>);
+static_assert(MeshCirculator<Mesh3d::FaceVertexCirculator>);
+static_assert(MeshCirculator<Mesh3d::ConstFaceFaceCirculator>);
+static_assert(MeshCirculator<Mesh3d::FaceFaceCirculator>);
+static_assert(MeshCirculator<Mesh3d::ConstVertexOutHalfedgeCirculator>);
+static_assert(MeshCirculator<Mesh3d::VertexOutHalfedgeCirculator>);
+static_assert(MeshCirculator<Mesh3d::ConstVertexInHalfedgeCirculator>);
+static_assert(MeshCirculator<Mesh3d::VertexInHalfedgeCirculator>);
+static_assert(MeshCirculator<Mesh3d::ConstVertexVertexCirculator>);
+static_assert(MeshCirculator<Mesh3d::VertexVertexCirculator>);
+static_assert(MeshCirculator<Mesh3d::ConstVertexFaceCirculator>);
+static_assert(MeshCirculator<Mesh3d::VertexFaceCirculator>);
 
 // Non-const -> const converts; const -> non-const does not.
-static_assert(std::is_convertible_v<Mesh::FaceHalfedgeCirculator, Mesh::ConstFaceHalfedgeCirculator>);
-static_assert(!std::is_convertible_v<Mesh::ConstFaceHalfedgeCirculator, Mesh::FaceHalfedgeCirculator>);
-static_assert(std::is_convertible_v<Mesh::VertexOutHalfedgeCirculator, Mesh::ConstVertexOutHalfedgeCirculator>);
-static_assert(!std::is_convertible_v<Mesh::ConstVertexOutHalfedgeCirculator, Mesh::VertexOutHalfedgeCirculator>);
-static_assert(std::is_convertible_v<Mesh::VertexInHalfedgeCirculator, Mesh::ConstVertexInHalfedgeCirculator>);
-static_assert(!std::is_convertible_v<Mesh::ConstVertexInHalfedgeCirculator, Mesh::VertexInHalfedgeCirculator>);
-static_assert(std::is_convertible_v<Mesh::VertexVertexCirculator, Mesh::ConstVertexVertexCirculator>);
-static_assert(!std::is_convertible_v<Mesh::ConstVertexVertexCirculator, Mesh::VertexVertexCirculator>);
-static_assert(std::is_convertible_v<Mesh::VertexFaceCirculator, Mesh::ConstVertexFaceCirculator>);
-static_assert(!std::is_convertible_v<Mesh::ConstVertexFaceCirculator, Mesh::VertexFaceCirculator>);
+static_assert(std::is_convertible_v<Mesh3d::FaceHalfedgeCirculator, Mesh3d::ConstFaceHalfedgeCirculator>);
+static_assert(!std::is_convertible_v<Mesh3d::ConstFaceHalfedgeCirculator, Mesh3d::FaceHalfedgeCirculator>);
+static_assert(std::is_convertible_v<Mesh3d::VertexOutHalfedgeCirculator, Mesh3d::ConstVertexOutHalfedgeCirculator>);
+static_assert(!std::is_convertible_v<Mesh3d::ConstVertexOutHalfedgeCirculator, Mesh3d::VertexOutHalfedgeCirculator>);
+static_assert(std::is_convertible_v<Mesh3d::VertexInHalfedgeCirculator, Mesh3d::ConstVertexInHalfedgeCirculator>);
+static_assert(!std::is_convertible_v<Mesh3d::ConstVertexInHalfedgeCirculator, Mesh3d::VertexInHalfedgeCirculator>);
+static_assert(std::is_convertible_v<Mesh3d::VertexVertexCirculator, Mesh3d::ConstVertexVertexCirculator>);
+static_assert(!std::is_convertible_v<Mesh3d::ConstVertexVertexCirculator, Mesh3d::VertexVertexCirculator>);
+static_assert(std::is_convertible_v<Mesh3d::VertexFaceCirculator, Mesh3d::ConstVertexFaceCirculator>);
+static_assert(!std::is_convertible_v<Mesh3d::ConstVertexFaceCirculator, Mesh3d::VertexFaceCirculator>);
 
 // Whole-mesh element iterators model the standard iterator concepts, so range-for and std algorithms work.
-static_assert(std::forward_iterator<Mesh::VertexIterator>);
-static_assert(std::forward_iterator<Mesh::HalfedgeIterator>);
-static_assert(std::forward_iterator<Mesh::EdgeIterator>);
-static_assert(std::forward_iterator<Mesh::FaceIterator>);
-static_assert(std::random_access_iterator<Mesh::VertexIterator>);
-static_assert(std::random_access_iterator<Mesh::FaceIterator>);
+static_assert(std::forward_iterator<Mesh3d::VertexIterator>);
+static_assert(std::forward_iterator<Mesh3d::HalfedgeIterator>);
+static_assert(std::forward_iterator<Mesh3d::EdgeIterator>);
+static_assert(std::forward_iterator<Mesh3d::FaceIterator>);
+static_assert(std::random_access_iterator<Mesh3d::VertexIterator>);
+static_assert(std::random_access_iterator<Mesh3d::FaceIterator>);
 } // namespace detail
 
 } // namespace Geometry
