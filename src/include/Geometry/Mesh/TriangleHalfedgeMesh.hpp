@@ -942,16 +942,16 @@ public:
     return stored.is_valid() && is_boundary(stored);
   }
 
-  // Walks the fan around `vertex` starting from an outgoing halfedge `startOutgoing` and returns the
+  // Walks the outgoing fan starting from an outgoing halfedge `startOutgoing` and returns the
   // first outgoing boundary (no-face) halfedge found, or an invalid handle if the vertex is interior.
   // Requires the local twin/next links around the vertex to be consistent.
   // The twin.next orbit is bounded by the halfedge count: a well-formed fan closes well within that
   // bound, and a malformed (non-closing) chain on a mesh built through the raw connectivity view is
   // detected by exceeding it and reported as "not found" rather than looping forever. This keeps the
   // verification callers (has_valid_connectivity) safe on corrupt input.
-  GEO_NODISCARD HalfedgeHandle find_outgoing_boundary(VertexHandle vertex, HalfedgeHandle startOutgoing) const noexcept
+  GEO_NODISCARD HalfedgeHandle find_outgoing_boundary(HalfedgeHandle startOutgoing) const noexcept
   {
-    GEO_ASSERT(contains(vertex));
+    GEO_ASSERT(!startOutgoing.is_valid() || contains(startOutgoing));
     if (!startOutgoing.is_valid())
     {
       return HalfedgeHandle{};
@@ -1054,7 +1054,7 @@ public:
       // Boundary convention: a boundary vertex references a boundary outgoing halfedge.
       if (halfedge.is_valid())
       {
-        const HalfedgeHandle boundary = find_outgoing_boundary(vertex, halfedge);
+        const HalfedgeHandle boundary = find_outgoing_boundary(halfedge);
         if (boundary.is_valid() && !m_halfedges[handle_index(halfedge)].is_boundary())
         {
           return false;

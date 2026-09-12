@@ -410,7 +410,7 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
       const VertexHandle vertex = triangleVertices[i];
       // Keep the vertex referencing a boundary outgoing halfedge if one remains; otherwise (now
       // interior) any outgoing interior halfedge is fine.
-      const HalfedgeHandle boundary = mesh.find_outgoing_boundary(vertex, inner[i]);
+      const HalfedgeHandle boundary = mesh.find_outgoing_boundary(inner[i]);
       if (boundary.is_valid())
       {
         set_vertex_logged(vertex, boundary);
