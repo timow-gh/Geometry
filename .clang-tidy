@@ -69,6 +69,10 @@ clang-analyzer-*,
 -misc-const-correctness,-misc-unused-parameters,-misc-non-private-member-variables-in-classes,-misc-no-recursion,-misc-use-anonymous-namespace,-misc-include-cleaner,
 -readability-magic-numbers'
 
+CheckOptions:
+  - key: readability-function-cognitive-complexity.IgnoreMacros
+    value: 'true'
+
 # cppcoreguidelines-pro-bounds-pointer-arithmetic
 # cppcoreguidelines-pro-bounds-constant-array-index # Removed, too many false positives
 
