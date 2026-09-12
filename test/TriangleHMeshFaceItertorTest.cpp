@@ -40,23 +40,24 @@ class TriangleHMeshFaceItertorTest : public ::testing::Test {
 
 TEST_F(TriangleHMeshFaceItertorTest, FaceHalfedgeIter) {
     std::vector<const Mesh::Halfedge*> faceHalfedges;
-    for (const Mesh::Halfedge& he : m_mesh.halfedges(m_faceHandles[0]))
+    for (const Mesh::Halfedge& halfedge : m_mesh.halfedges(m_faceHandles[0]))
     {
-        faceHalfedges.emplace_back(&he);
+        faceHalfedges.emplace_back(&halfedge);
     }
 
     // Range-for over the face must yield exactly the 3 face halfedges (not empty, not infinite).
-    ASSERT_EQ(faceHalfedges.size(), 3u);
+    ASSERT_EQ(faceHalfedges.size(), 3U);
 
     std::vector<Mesh::VertexHandle> vertexHandles;
-    for (const auto* he : faceHalfedges)
+    vertexHandles.reserve(faceHalfedges.size());
+    for (const auto* halfedge : faceHalfedges)
     {
-        vertexHandles.emplace_back(he->targetVertex);
+        vertexHandles.emplace_back(halfedge->targetVertex);
     }
 
     // Target vertices of the three halfedges around face 0, matching the ordering used in the
     // ConstHalfEdgeIterator test above.
-    ASSERT_EQ(vertexHandles.size(), 3u);
+    ASSERT_EQ(vertexHandles.size(), 3U);
     EXPECT_EQ(vertexHandles[0].get_value(), 1);
     EXPECT_EQ(vertexHandles[1].get_value(), 2);
     EXPECT_EQ(vertexHandles[2].get_value(), 0);
@@ -69,7 +70,7 @@ TEST_F(TriangleHMeshFaceItertorTest, FaceHalfedgeCirculator) {
         vertexHandles.emplace_back(circ->targetVertex);
     }
 
-    ASSERT_EQ(vertexHandles.size(), 3u);
+    ASSERT_EQ(vertexHandles.size(), 3U);
     EXPECT_EQ(vertexHandles[0].get_value(), 1);
     EXPECT_EQ(vertexHandles[1].get_value(), 2);
     EXPECT_EQ(vertexHandles[2].get_value(), 0);
@@ -84,7 +85,7 @@ TEST_F(TriangleHMeshFaceItertorTest, FaceVertexCirculator) {
 
     // Target vertices around face 0, in next order (matches vertices_around_face's 2nd/3rd/1st, i.e.
     // the same target ordering as the halfedge circulator: 1, 2, 0).
-    ASSERT_EQ(vertexHandles.size(), 3u);
+    ASSERT_EQ(vertexHandles.size(), 3U);
     EXPECT_EQ(vertexHandles[0].get_value(), 1);
     EXPECT_EQ(vertexHandles[1].get_value(), 2);
     EXPECT_EQ(vertexHandles[2].get_value(), 0);
@@ -97,7 +98,7 @@ TEST_F(TriangleHMeshFaceItertorTest, FaceVertexRangeYieldsVertexReferences) {
         vertices.emplace_back(&vertex);
     }
 
-    ASSERT_EQ(vertices.size(), 3u);
+    ASSERT_EQ(vertices.size(), 3U);
     // Dereferenced references must be the mesh's own vertex storage (target vertices 1, 2, 0).
     EXPECT_EQ(vertices[0], &m_mesh.get_vertex(m_vertexHandles[1]));
     EXPECT_EQ(vertices[1], &m_mesh.get_vertex(m_vertexHandles[2]));
@@ -127,7 +128,7 @@ TEST_F(TriangleHMeshFaceItertorTest, FaceFaceCirculatorSkipsBoundary) {
     {
         neighborsOfF0.emplace_back(circ.get_facehandle());
     }
-    ASSERT_EQ(neighborsOfF0.size(), 1u);
+    ASSERT_EQ(neighborsOfF0.size(), 1U);
     EXPECT_EQ(neighborsOfF0[0], m_faceHandles[1]);
 
     // Range-for yields Face& to the neighbor's storage.
@@ -136,28 +137,28 @@ TEST_F(TriangleHMeshFaceItertorTest, FaceFaceCirculatorSkipsBoundary) {
     {
         neighborRefs.emplace_back(&face);
     }
-    ASSERT_EQ(neighborRefs.size(), 1u);
+    ASSERT_EQ(neighborRefs.size(), 1U);
     EXPECT_EQ(neighborRefs[0], &m_mesh.get_face(m_faceHandles[0]));
 }
 
 TEST(TriangleHMeshFaceFaceCirculator, IsolatedTriangleHasNoNeighbors) {
     Mesh mesh;
-    VertexHandle const v0 = mesh.add_vertex(linal::double3{0.0, 0.0, 0.0});
-    VertexHandle const v1 = mesh.add_vertex(linal::double3{1.0, 0.0, 0.0});
-    VertexHandle const v2 = mesh.add_vertex(linal::double3{0.0, 1.0, 0.0});
-    FaceHandle const f0 = add_triangle(mesh, v0, v1, v2);
-    ASSERT_TRUE(f0.is_valid());
+    VertexHandle const vertex0 = mesh.add_vertex(linal::double3{0.0, 0.0, 0.0});
+    VertexHandle const vertex1 = mesh.add_vertex(linal::double3{1.0, 0.0, 0.0});
+    VertexHandle const vertex2 = mesh.add_vertex(linal::double3{0.0, 1.0, 0.0});
+    FaceHandle const face0 = add_triangle(mesh, vertex0, vertex1, vertex2);
+    ASSERT_TRUE(face0.is_valid());
 
     // All three edges are boundary -> the circulator is invalid immediately and yields nothing.
-    EXPECT_FALSE(mesh.adjacent_faces(f0).circulator().is_valid());
+    EXPECT_FALSE(mesh.adjacent_faces(face0).circulator().is_valid());
 
     std::size_t count = 0;
-    for (const Mesh::Face& face : mesh.adjacent_faces(f0))
+    for (const Mesh::Face& face : mesh.adjacent_faces(face0))
     {
         (void)face;
         ++count;
     }
-    EXPECT_EQ(count, 0u);
+    EXPECT_EQ(count, 0U);
 }
 
 TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeCirculatorInteriorVertex) {
@@ -168,10 +169,10 @@ TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeCirculatorInteriorVertex) 
     for (auto circ = m_mesh.outgoing_halfedges(m_vertexHandles[1]).circulator(); circ.is_valid(); ++circ)
     {
         outgoing.emplace_back(circ.get_halfedgehandle());
-        ASSERT_LE(outgoing.size(), 8u); // guard against a non-terminating walk
+        ASSERT_LE(outgoing.size(), 8U); // guard against a non-terminating walk
     }
 
-    ASSERT_EQ(outgoing.size(), 3u);
+    ASSERT_EQ(outgoing.size(), 3U);
     // Every yielded halfedge is outgoing from v1 (source == v1).
     for (HalfedgeHandle const halfedge : outgoing)
     {
@@ -187,7 +188,7 @@ TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeCirculatorInteriorVertex) 
         }
     }
     std::sort(interiorTargets.begin(), interiorTargets.end());
-    EXPECT_EQ(interiorTargets, (std::vector<Mesh::handle_value_type>{2u, 3u}));
+    EXPECT_EQ(interiorTargets, (std::vector<Mesh::handle_value_type>{2U, 3U}));
 }
 
 TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeCirculatorBoundaryVertexWrapsThroughBoundary) {
@@ -199,10 +200,10 @@ TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeCirculatorBoundaryVertexWr
     for (auto circ = m_mesh.outgoing_halfedges(m_vertexHandles[0]).circulator(); circ.is_valid(); ++circ)
     {
         outgoing.emplace_back(circ.get_halfedgehandle());
-        ASSERT_LE(outgoing.size(), 8u); // guard against a non-terminating walk
+        ASSERT_LE(outgoing.size(), 8U); // guard against a non-terminating walk
     }
 
-    ASSERT_EQ(outgoing.size(), 2u);
+    ASSERT_EQ(outgoing.size(), 2U);
     for (HalfedgeHandle const halfedge : outgoing)
     {
         EXPECT_EQ(m_mesh.source_vertex(halfedge), m_vertexHandles[0]);
@@ -218,11 +219,11 @@ TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeCirculatorBoundaryVertexWr
         else
         {
             ++interiorCount;
-            EXPECT_EQ(m_mesh.target_vertex(halfedge).get_value(), 1u); // Face0: v0->v1
+            EXPECT_EQ(m_mesh.target_vertex(halfedge).get_value(), 1U); // Face0: v0->v1
         }
     }
-    EXPECT_EQ(interiorCount, 1u);
-    EXPECT_EQ(boundaryCount, 1u);
+    EXPECT_EQ(interiorCount, 1U);
+    EXPECT_EQ(boundaryCount, 1U);
 }
 
 TEST_F(TriangleHMeshFaceItertorTest, VertexOutHalfedgeMatchesEnumerationForInteriorVertex) {
@@ -250,7 +251,7 @@ TEST_F(TriangleHMeshFaceItertorTest, VertexInHalfedgeCirculatorInteriorVertex) {
         incoming.emplace_back(circ.get_halfedgehandle());
     }
 
-    ASSERT_EQ(incoming.size(), 3u);
+    ASSERT_EQ(incoming.size(), 3U);
     for (HalfedgeHandle const halfedge : incoming)
     {
         EXPECT_EQ(m_mesh.target_vertex(halfedge), m_vertexHandles[1]);
@@ -265,9 +266,9 @@ TEST_F(TriangleHMeshFaceItertorTest, VertexVertexCirculatorInteriorVertex) {
         neighbors.emplace_back(circ.get_vertexhandle().get_value());
     }
 
-    ASSERT_EQ(neighbors.size(), 3u);
+    ASSERT_EQ(neighbors.size(), 3U);
     std::sort(neighbors.begin(), neighbors.end());
-    EXPECT_EQ(neighbors, (std::vector<Mesh::handle_value_type>{0u, 2u, 3u}));
+    EXPECT_EQ(neighbors, (std::vector<Mesh::handle_value_type>{0U, 2U, 3U}));
 }
 
 TEST_F(TriangleHMeshFaceItertorTest, VertexVertexRangeYieldsVertexReferences) {
@@ -277,7 +278,7 @@ TEST_F(TriangleHMeshFaceItertorTest, VertexVertexRangeYieldsVertexReferences) {
         vertices.emplace_back(&vertex);
     }
 
-    ASSERT_EQ(vertices.size(), 3u);
+    ASSERT_EQ(vertices.size(), 3U);
     // Each dereferenced reference must alias one of v1's neighbour vertices (v0, v2 or v3).
     for (const Mesh::Vertex* vertex : vertices)
     {
@@ -295,7 +296,7 @@ TEST_F(TriangleHMeshFaceItertorTest, VertexFaceCirculatorInteriorVertex) {
         faces.emplace_back(circ.get_facehandle());
     }
 
-    ASSERT_EQ(faces.size(), 2u);
+    ASSERT_EQ(faces.size(), 2U);
     EXPECT_NE(std::find(faces.begin(), faces.end(), m_faceHandles[0]), faces.end());
     EXPECT_NE(std::find(faces.begin(), faces.end(), m_faceHandles[1]), faces.end());
 }
@@ -308,7 +309,7 @@ TEST_F(TriangleHMeshFaceItertorTest, VertexFaceCirculatorBoundaryVertex) {
         faces.emplace_back(circ.get_facehandle());
     }
 
-    ASSERT_EQ(faces.size(), 1u);
+    ASSERT_EQ(faces.size(), 1U);
     EXPECT_EQ(faces[0], m_faceHandles[0]);
 }
 
@@ -342,7 +343,7 @@ TEST(TriangleHMeshVertexCirculator, IsolatedVertexYieldsNothing) {
         (void)face;
         ++count;
     }
-    EXPECT_EQ(count, 0u);
+    EXPECT_EQ(count, 0U);
 }
 
 TEST_F(TriangleHMeshFaceItertorTest, EmptyRangeYieldsNothing) {
@@ -351,12 +352,12 @@ TEST_F(TriangleHMeshFaceItertorTest, EmptyRangeYieldsNothing) {
     Mesh::ConstFaceHalfedgeRange emptyRange{};
 
     std::size_t count = 0;
-    for (const Mesh::Halfedge& he : emptyRange)
+    for (const Mesh::Halfedge& halfedge : emptyRange)
     {
-        (void)he;
+        (void)halfedge;
         ++count;
     }
-    EXPECT_EQ(count, 0u);
+    EXPECT_EQ(count, 0U);
 
     EXPECT_FALSE(emptyRange.circulator().is_valid());
 }
@@ -453,7 +454,7 @@ TEST_F(TriangleHMeshFaceItertorTest, WholeMeshFacesComposeWithLocalCirculator) {
         {
             ++verticesInFace;
         }
-        EXPECT_EQ(verticesInFace, 3u);
+        EXPECT_EQ(verticesInFace, 3U);
     }
     EXPECT_EQ(faceCount, m_mesh.face_count());
 }
@@ -477,5 +478,5 @@ TEST(TriangleHMeshWholeMeshIterator, EmptyMeshYieldsNothing) {
         (void)face;
         ++count;
     }
-    EXPECT_EQ(count, 0u);
+    EXPECT_EQ(count, 0U);
 }

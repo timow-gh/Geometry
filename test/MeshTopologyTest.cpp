@@ -5,6 +5,8 @@
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
+#include <array>
+
 using namespace Geometry;
 
 namespace
@@ -166,10 +168,10 @@ TEST(MeshManifoldTest, nonManifoldVertexRejectedAtConstruction)
 // per-vertex verifier V times; assert the two agree on every API-built fixture.
 TEST(MeshManifoldTest, wholeMeshVerifyMatchesPerVertex)
 {
-  const Mesh meshes[] = {make_single_triangle(),
-                         make_two_adjacent_triangles(),
-                         make_tetrahedron(),
-                         make_two_disjoint_triangles()};
+  const std::array<Mesh, 4> meshes = {make_single_triangle(),
+                                      make_two_adjacent_triangles(),
+                                      make_tetrahedron(),
+                                      make_two_disjoint_triangles()};
   for (const Mesh& mesh : meshes)
   {
     bool allVerify = true;

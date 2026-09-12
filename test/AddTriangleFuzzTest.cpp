@@ -44,13 +44,13 @@ void check_invariants(const Mesh& mesh)
   std::size_t boundaryCount = 0;
   for (const HalfedgeHandle halfedge : mesh.halfedges())
   {
-    const auto& he = mesh.get_halfedge(halfedge);
-    if (he.is_boundary())
+    const auto& meshHalfedge = mesh.get_halfedge(halfedge);
+    if (meshHalfedge.is_boundary())
     {
       ++boundaryCount;
       // next and prev of a boundary halfedge are boundary halfedges.
-      EXPECT_TRUE(mesh.get_halfedge(he.next).is_boundary());
-      EXPECT_TRUE(mesh.get_halfedge(he.prev).is_boundary());
+      EXPECT_TRUE(mesh.get_halfedge(meshHalfedge.next).is_boundary());
+      EXPECT_TRUE(mesh.get_halfedge(meshHalfedge.prev).is_boundary());
     }
   }
 
@@ -80,12 +80,14 @@ void check_invariants(const Mesh& mesh)
     const HalfedgeHandle start = mesh.get_vertex(vertex).halfedge;
     std::size_t orbit = 0;
     HalfedgeHandle current = start;
-    do
+    bool completedOrbit = false;
+    while (!completedOrbit)
     {
       ++orbit;
       ASSERT_LE(orbit, mesh.halfedge_count()); // guard against an open/broken fan
       current = mesh.get_halfedge(mesh.get_halfedge(current).twin).next;
-    } while (current != start);
+      completedOrbit = current == start;
+    }
 
     std::size_t scan = 0;
     for (const HalfedgeHandle halfedge : mesh.halfedges())
@@ -121,11 +123,11 @@ void build_grid(std::size_t rows, std::size_t cols, const std::vector<std::size_
 {
   Mesh mesh;
   std::vector<std::vector<VertexHandle>> grid(rows, std::vector<VertexHandle>(cols));
-  for (std::size_t r = 0; r < rows; ++r)
+  for (std::size_t row = 0; row < rows; ++row)
   {
-    for (std::size_t c = 0; c < cols; ++c)
+    for (std::size_t column = 0; column < cols; ++column)
     {
-      grid[r][c] = mesh.add_vertex({static_cast<double>(c), static_cast<double>(r), 0.0});
+      grid[row][column] = mesh.add_vertex({static_cast<double>(column), static_cast<double>(row), 0.0});
     }
   }
 
@@ -135,14 +137,14 @@ void build_grid(std::size_t rows, std::size_t cols, const std::vector<std::size_
     VertexHandle a, b, c;
   };
   std::vector<Tri> tris;
-  for (std::size_t r = 0; r + 1 < rows; ++r)
+  for (std::size_t row = 0; row + 1 < rows; ++row)
   {
-    for (std::size_t c = 0; c + 1 < cols; ++c)
+    for (std::size_t column = 0; column + 1 < cols; ++column)
     {
-      const VertexHandle v00 = grid[r][c];
-      const VertexHandle v10 = grid[r + 1][c];
-      const VertexHandle v01 = grid[r][c + 1];
-      const VertexHandle v11 = grid[r + 1][c + 1];
+      const VertexHandle v00 = grid[row][column];
+      const VertexHandle v10 = grid[row + 1][column];
+      const VertexHandle v01 = grid[row][column + 1];
+      const VertexHandle v11 = grid[row + 1][column + 1];
       tris.push_back({v00, v01, v11});
       tris.push_back({v00, v11, v10});
     }
@@ -150,8 +152,8 @@ void build_grid(std::size_t rows, std::size_t cols, const std::vector<std::size_
 
   for (const std::size_t idx : order)
   {
-    const Tri& t = tris[idx];
-    const FaceHandle face = add_triangle(mesh, t.a, t.b, t.c);
+    const Tri& triangle = tris[idx];
+    const FaceHandle face = add_triangle(mesh, triangle.a, triangle.b, triangle.c);
     // Some insertion orders make a triangle temporarily non-addable (would create a non-manifold
     // vertex before its neighbours exist). Those legitimately return invalid; skip them.
     if (!face.is_valid())
@@ -166,10 +168,10 @@ void build_grid(std::size_t rows, std::size_t cols, const std::vector<std::size_
 TEST(AddTriangleFuzzTest, SingleTriangleInvariants)
 {
   Mesh mesh;
-  const VertexHandle a = mesh.add_vertex({0.0, 0.0, 0.0});
-  const VertexHandle b = mesh.add_vertex({1.0, 0.0, 0.0});
-  const VertexHandle c = mesh.add_vertex({0.0, 1.0, 0.0});
-  ASSERT_TRUE(add_triangle(mesh, a, b, c).is_valid());
+  const VertexHandle vertex0 = mesh.add_vertex({0.0, 0.0, 0.0});
+  const VertexHandle vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
+  const VertexHandle vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
+  ASSERT_TRUE(add_triangle(mesh, vertex0, vertex1, vertex2).is_valid());
 
   check_invariants(mesh);
   EXPECT_EQ(mesh.halfedge_count(), 6U); // 3 interior + 3 boundary
@@ -181,12 +183,12 @@ TEST(AddTriangleFuzzTest, SingleTriangleInvariants)
 TEST(AddTriangleFuzzTest, TwoAdjacentTrianglesInvariants)
 {
   Mesh mesh;
-  const VertexHandle v0 = mesh.add_vertex({0.0, 0.0, 0.0});
-  const VertexHandle v1 = mesh.add_vertex({1.0, 0.0, 0.0});
-  const VertexHandle v2 = mesh.add_vertex({0.0, 1.0, 0.0});
-  const VertexHandle v3 = mesh.add_vertex({1.0, 1.0, 0.0});
-  ASSERT_TRUE(add_triangle(mesh, v0, v1, v2).is_valid());
-  ASSERT_TRUE(add_triangle(mesh, v2, v1, v3).is_valid());
+  const VertexHandle vertex0 = mesh.add_vertex({0.0, 0.0, 0.0});
+  const VertexHandle vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
+  const VertexHandle vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
+  const VertexHandle vertex3 = mesh.add_vertex({1.0, 1.0, 0.0});
+  ASSERT_TRUE(add_triangle(mesh, vertex0, vertex1, vertex2).is_valid());
+  ASSERT_TRUE(add_triangle(mesh, vertex2, vertex1, vertex3).is_valid());
 
   check_invariants(mesh);
   EXPECT_EQ(mesh.edge_count(), 5U);
@@ -196,14 +198,14 @@ TEST(AddTriangleFuzzTest, TwoAdjacentTrianglesInvariants)
 
 TEST(AddTriangleFuzzTest, GridInOrder)
 {
-  for (std::size_t n = 2; n <= 5; ++n)
+  for (std::size_t dimension = 2; dimension <= 5; ++dimension)
   {
-    std::vector<std::size_t> order(2 * (n - 1) * (n - 1));
+    std::vector<std::size_t> order(2 * (dimension - 1) * (dimension - 1));
     for (std::size_t i = 0; i < order.size(); ++i)
     {
       order[i] = i;
     }
-    build_grid(n, n, order);
+    build_grid(dimension, dimension, order);
   }
 }
 
@@ -212,28 +214,28 @@ TEST(AddTriangleFuzzTest, GridRandomOrders)
   std::mt19937 rng(12345);
   for (std::size_t trial = 0; trial < 400; ++trial)
   {
-    const std::size_t n = 2 + (rng() % 6); // 2..7
-    std::vector<std::size_t> order(2 * (n - 1) * (n - 1));
+    const std::size_t dimension = 2 + (rng() % 6); // 2..7
+    std::vector<std::size_t> order(2 * (dimension - 1) * (dimension - 1));
     for (std::size_t i = 0; i < order.size(); ++i)
     {
       order[i] = i;
     }
     std::shuffle(order.begin(), order.end(), rng);
-    build_grid(n, n, order);
+    build_grid(dimension, dimension, order);
   }
 }
 
 TEST(AddTriangleFuzzTest, ClosedTetrahedronHasNoBoundary)
 {
   Mesh mesh;
-  const VertexHandle v0 = mesh.add_vertex({0.0, 0.0, 0.0});
-  const VertexHandle v1 = mesh.add_vertex({1.0, 0.0, 0.0});
-  const VertexHandle v2 = mesh.add_vertex({0.0, 1.0, 0.0});
-  const VertexHandle v3 = mesh.add_vertex({0.0, 0.0, 1.0});
-  ASSERT_TRUE(add_triangle(mesh, v0, v2, v1).is_valid());
-  ASSERT_TRUE(add_triangle(mesh, v0, v1, v3).is_valid());
-  ASSERT_TRUE(add_triangle(mesh, v1, v2, v3).is_valid());
-  ASSERT_TRUE(add_triangle(mesh, v2, v0, v3).is_valid());
+  const VertexHandle vertex0 = mesh.add_vertex({0.0, 0.0, 0.0});
+  const VertexHandle vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
+  const VertexHandle vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
+  const VertexHandle vertex3 = mesh.add_vertex({0.0, 0.0, 1.0});
+  ASSERT_TRUE(add_triangle(mesh, vertex0, vertex2, vertex1).is_valid());
+  ASSERT_TRUE(add_triangle(mesh, vertex0, vertex1, vertex3).is_valid());
+  ASSERT_TRUE(add_triangle(mesh, vertex1, vertex2, vertex3).is_valid());
+  ASSERT_TRUE(add_triangle(mesh, vertex2, vertex0, vertex3).is_valid());
 
   check_invariants(mesh);
   EXPECT_TRUE(is_closed(mesh));
@@ -245,13 +247,13 @@ TEST(AddTriangleFuzzTest, RejectsNonManifoldVertex)
 {
   Mesh mesh;
   const VertexHandle shared = mesh.add_vertex({0.0, 0.0, 0.0});
-  const VertexHandle v1 = mesh.add_vertex({1.0, 0.0, 0.0});
-  const VertexHandle v2 = mesh.add_vertex({0.0, 1.0, 0.0});
-  const VertexHandle v3 = mesh.add_vertex({-1.0, 0.0, 0.0});
-  const VertexHandle v4 = mesh.add_vertex({0.0, -1.0, 0.0});
+  const VertexHandle vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
+  const VertexHandle vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
+  const VertexHandle vertex3 = mesh.add_vertex({-1.0, 0.0, 0.0});
+  const VertexHandle vertex4 = mesh.add_vertex({0.0, -1.0, 0.0});
 
-  ASSERT_TRUE(add_triangle(mesh, shared, v1, v2).is_valid());
-  const FaceHandle second = add_triangle(mesh, shared, v3, v4);
+  ASSERT_TRUE(add_triangle(mesh, shared, vertex1, vertex2).is_valid());
+  const FaceHandle second = add_triangle(mesh, shared, vertex3, vertex4);
   EXPECT_FALSE(second.is_valid());
   check_invariants(mesh);
   EXPECT_EQ(mesh.face_count(), 1U);
