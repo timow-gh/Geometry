@@ -1,48 +1,35 @@
 #include "draw.hpp"
 #include "geoqik_init.hpp"
-#include "origin.hpp"
 #include "grid.hpp"
+#include "origin.hpp"
 
-#include <Geometry/Mesh/AddTriangle.hpp>
-#include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
+#include <Geometry/Mesh/MakeTriangleMesh.hpp>
 
-#include <geoqik/GeoQik.hpp>
-
-#include <vector>
+namespace {
+template <typename Shape>
+void draw_primitive(const Shape& shape, const example::color& color, const char* name) {
+    const auto result = Geometry::make_triangle_mesh(shape);
+    if (!result)
+        example::fail_example(name, static_cast<int>(result.error));
+    example::draw(result.mesh, color);
+}
+} // namespace
 
 int main() {
     example::init_geoqik();
     example::draw_default_origin();
     example::draw_default_grid();
-    geoqik_draw();
 
-    Geometry::TriangleHalfedgeMesh3d mesh;
+    // Circular primitives use the factories' default of 32 segments.
+    draw_primitive(Geometry::Cone<double>{{-3, -3, 0}, {-3, -3, 3}, 1.25}, example::orange(), "Create cone");
+    draw_primitive(Geometry::Cylinder<double>{Geometry::Segment3d{{3, -3, 0}, {3, -3, 3}}, 1.25},
+                   example::blue(),
+                   "Create cylinder");
+    const std::array<linal::double3, 3> sides{{{2, 1, 0}, {-1, 2, 0}, {0, 0, 3}}};
+    draw_primitive(Geometry::Cuboid<double>{{-3.5, 1.5, 0}, sides}, example::green(), "Create cuboid");
+    draw_primitive(Geometry::AABB3d{{2, 2, 0}, {4, 4, 3}}, example::magenta(), "Create AABB");
 
-    auto vertexA = mesh.add_vertex(linal::double3{0.0 , 0.0, 0.0});
-    auto vertexB = mesh.add_vertex(linal::double3{0.0 , 1.0, 0.0});
-    auto vertexC = mesh.add_vertex(linal::double3{1.0 , 0.0, 0.0});
-
-    auto faceA = Geometry::add_triangle(mesh, vertexA, vertexB, vertexC);
-
-    std::vector<float> vertices;
-    std::vector<std::uint32_t> lineIndices;
-    std::vector<std::uint32_t> triangleIndices;
-
-    // Geometry::Segment3d seg1{{0.0, 0.0, 0.0}, {2.0, 2.0, 2.0}};
-    // linal::double3 seg2Source{0.0, 1.0, 1.0};
-    // linal::double3 seg2Target{1.0, 1.0, 1.0};
-    // Geometry::Segment3d seg2{seg2Source, seg2Source + (seg2Target - seg2Source) * 1.5};
-    // example::draw(seg1, example::green());
-    // example::draw(seg2, example::green());
-
-    // std::optional<linal::vec3<double>> intersection = Geometry::intersect(seg1, seg2);
-    // if (intersection.has_value()) {
-    //     geoqik_set_point_color(1.0f, 0.0f, 0.0f, 1.0f); // Red color for intersection point
-    //     linal::vec3<double>& intersectionPoint = intersection.value();
-    //     geoqik_add_point(intersectionPoint[0], intersectionPoint[1], intersectionPoint[2]);
-    // }
-
-    geoqik_wait_for_exit_and_cleanup();
-
-    return 0;
+    example::check_geoqik(geoqik_draw(), "Open visualization");
+    example::check_geoqik(geoqik_wait_for_exit_and_cleanup(), "Close visualization");
+    return EXIT_SUCCESS;
 }

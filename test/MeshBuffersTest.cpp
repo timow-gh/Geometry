@@ -1,0 +1,140 @@
+#include <Geometry/Mesh/MakeTriangleMesh.hpp>
+#include <Geometry/Mesh/MeshBuffers.hpp>
+
+#include <gtest/gtest.h>
+#include <set>
+
+using namespace Geometry;
+
+namespace {
+template <typename T>
+class MeshBuffersTest : public testing::Test {};
+using Scalars = testing::Types<float, double>;
+TYPED_TEST_SUITE(MeshBuffersTest, Scalars);
+
+TYPED_TEST(MeshBuffersTest, EmptyAndIsolatedVertices) {
+    TriangleHalfedgeMesh<TypeParam, 3, std::uint8_t> mesh;
+    EXPECT_TRUE(make_vertex_buffer(mesh));
+    EXPECT_TRUE(make_vertex_buffer(mesh).values.empty());
+    EXPECT_TRUE(make_triangle_index_buffer(mesh));
+    EXPECT_TRUE(make_triangle_index_buffer(mesh).values.empty());
+    EXPECT_TRUE(make_edge_index_buffer(mesh));
+    EXPECT_TRUE(make_edge_index_buffer(mesh).values.empty());
+    const auto vertex = mesh.add_vertex({1, 2, 3});
+    ASSERT_TRUE(vertex.is_valid());
+    const auto result = make_vertex_buffer(mesh);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.error, MeshBufferError::None);
+    EXPECT_EQ(result.values, (std::vector<float>{1, 2, 3}));
+    EXPECT_TRUE(make_triangle_index_buffer(mesh).values.empty());
+    EXPECT_TRUE(make_edge_index_buffer(mesh).values.empty());
+}
+
+TYPED_TEST(MeshBuffersTest, OpenPatchPreservesNumberingWindingAndUniqueEdges) {
+    TriangleHalfedgeMesh<TypeParam, 3, std::uint64_t> mesh;
+    const auto first = mesh.add_vertex({0, 0, 0});
+    const auto second = mesh.add_vertex({2, 0, 0});
+    const auto third = mesh.add_vertex({2, 3, 0});
+    const auto fourth = mesh.add_vertex({0, 3, 0});
+    const auto isolated = mesh.add_vertex({7, 8, 9});
+    ASSERT_TRUE(isolated.is_valid());
+    ASSERT_TRUE(add_triangle(mesh, first, second, third).is_valid());
+    ASSERT_TRUE(add_triangle(mesh, first, third, fourth).is_valid());
+    const auto positions = make_vertex_buffer(mesh);
+    const auto triangles = make_triangle_index_buffer(mesh);
+    const auto edges = make_edge_index_buffer(mesh);
+    ASSERT_TRUE(positions);
+    ASSERT_TRUE(triangles);
+    ASSERT_TRUE(edges);
+    EXPECT_EQ(positions.values, (std::vector<float>{0, 0, 0, 2, 0, 0, 2, 3, 0, 0, 3, 0, 7, 8, 9}));
+    ASSERT_EQ(triangles.values.size(), 6u);
+    // A circulator may cyclically rotate a triangle, but must preserve its winding.
+    for (std::size_t face = 0; face < 2; ++face) {
+        const std::array<std::uint32_t, 3> expected =
+            face == 0 ? std::array<std::uint32_t, 3>{0, 1, 2} : std::array<std::uint32_t, 3>{0, 2, 3};
+        bool matches = false;
+        for (std::size_t rotation = 0; rotation < 3; ++rotation)
+            matches = matches || (triangles.values[3 * face] == expected[rotation] &&
+                                  triangles.values[3 * face + 1] == expected[(rotation + 1) % 3] &&
+                                  triangles.values[3 * face + 2] == expected[(rotation + 2) % 3]);
+        EXPECT_TRUE(matches);
+    }
+    ASSERT_EQ(edges.values.size(), 10u);
+    std::set<std::pair<std::uint32_t, std::uint32_t>> unique;
+    for (std::size_t i = 0; i < edges.values.size(); i += 2)
+        EXPECT_TRUE(
+            unique
+                .emplace(std::min(edges.values[i], edges.values[i + 1]), std::max(edges.values[i], edges.values[i + 1]))
+                .second);
+    EXPECT_EQ(unique, (std::set<std::pair<std::uint32_t, std::uint32_t>>{{0, 1}, {1, 2}, {0, 2}, {2, 3}, {0, 3}}));
+    EXPECT_EQ(mesh.vertex_count(), 5u);
+    EXPECT_EQ(mesh.face_count(), 2u);
+    EXPECT_TRUE(mesh.has_valid_connectivity());
+}
+
+TEST(MeshBufferErrorsTest, InvalidPositionsDiscardAllValues) {
+    for (const double value: {std::numeric_limits<double>::infinity(),
+                              -std::numeric_limits<double>::infinity(),
+                              std::numeric_limits<double>::quiet_NaN(),
+                              std::numeric_limits<double>::max(),
+                              -std::numeric_limits<double>::max()}) {
+        TriangleHalfedgeMesh3d mesh;
+        const auto first = mesh.add_vertex({1, 2, 3});
+        const auto second = mesh.add_vertex({4, value, 6});
+        ASSERT_TRUE(first.is_valid() && second.is_valid());
+        const auto result = make_vertex_buffer(mesh);
+        EXPECT_FALSE(result);
+        EXPECT_FALSE(result.has_value());
+        EXPECT_TRUE(result.values.empty());
+        EXPECT_EQ(result.error,
+                  std::isfinite(value) ? MeshBufferError::PositionOutOfRange : MeshBufferError::NonFinitePosition);
+    }
+    TriangleHalfedgeMesh3d mesh;
+    const double limit = std::numeric_limits<float>::max();
+    const auto vertex = mesh.add_vertex({limit, -limit, 1.0 / 3});
+    ASSERT_TRUE(vertex.is_valid());
+    const auto result = make_vertex_buffer(mesh);
+    ASSERT_TRUE(result);
+    EXPECT_EQ(result.values,
+              (std::vector<float>{std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), 1.0f / 3}));
+}
+
+TEST(MeshBufferErrorsTest, CapacityBoundariesWithoutAllocation) {
+    EXPECT_TRUE(detail::mesh_buffer_count_fits(3, 3, 10));
+    EXPECT_FALSE(detail::mesh_buffer_count_fits(4, 3, 10));
+    const auto limit = std::numeric_limits<std::size_t>::max();
+    EXPECT_TRUE(detail::mesh_buffer_count_fits(limit / 3, 3, limit));
+    EXPECT_FALSE(detail::mesh_buffer_count_fits(limit / 3 + 1, 3, limit));
+    EXPECT_TRUE(detail::mesh_buffer_index_fits(std::numeric_limits<std::uint32_t>::max()));
+    EXPECT_FALSE(detail::mesh_buffer_index_fits(std::uint64_t{std::numeric_limits<std::uint32_t>::max()} + 1));
+}
+
+TEST(MeshBufferPrimitivesTest, EveryFactoryProducesConsistentBuffers) {
+    const auto check = [](const auto& result) {
+        ASSERT_TRUE(result);
+        const auto& mesh = result.mesh;
+        const auto positions = make_vertex_buffer(mesh);
+        const auto triangles = make_triangle_index_buffer(mesh);
+        const auto edges = make_edge_index_buffer(mesh);
+        ASSERT_TRUE(positions && triangles && edges);
+        EXPECT_EQ(positions.values.size(), 3 * mesh.vertex_count());
+        EXPECT_EQ(triangles.values.size(), 3 * mesh.face_count());
+        EXPECT_EQ(edges.values.size(), 2 * mesh.edge_count());
+        for (const auto index: triangles.values)
+            EXPECT_LT(index, mesh.vertex_count());
+        std::set<std::pair<std::uint32_t, std::uint32_t>> unique;
+        for (std::size_t i = 0; i < edges.values.size(); i += 2) {
+            EXPECT_LT(edges.values[i], mesh.vertex_count());
+            EXPECT_LT(edges.values[i + 1], mesh.vertex_count());
+            EXPECT_TRUE(unique
+                            .emplace(std::min(edges.values[i], edges.values[i + 1]),
+                                     std::max(edges.values[i], edges.values[i + 1]))
+                            .second);
+        }
+    };
+    check(make_triangle_mesh(Cone<double>{{0, 0, 0}, {0, 0, 3}, 1}));
+    check(make_triangle_mesh(Cylinder<double>{Segment3d{{0, 0, 0}, {0, 0, 3}}, 1}));
+    check(make_triangle_mesh(Cuboid<double>{{1, 2, 3}}));
+    check(make_triangle_mesh(AABB3d{{0, 0, 0}, {1, 2, 3}}));
+}
+} // namespace

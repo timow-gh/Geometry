@@ -1,8 +1,11 @@
 #pragma once
 
+#include "geoqik_init.hpp"
+
+#include <Geometry/Mesh/MeshBuffers.hpp>
 #include <Geometry/Segment.hpp>
 
-#include <geoqik/GeoQik.hpp>
+#include <GeoQik/GeoQik.hpp>
 
 #include <linal/vec.hpp>
 
@@ -79,7 +82,7 @@ inline geoqik_uuid_t draw(const Geometry::Segment3d& line, const color& color) {
                                                   line.get_target()[1],
                                                   line.get_target()[2],
                                                   &opts);
-    assert(result.err == GEOQIK_SUCCESS);
+    check_geoqik(result.err, "Draw segment");
     return result.geometryId;
 }
 
@@ -94,7 +97,7 @@ inline geoqik_uuid_t draw(const Geometry::Segment2d& line, const color& color) {
                                                   line.get_target()[1],
                                                   0.0f,
                                                   &opts);
-    assert(result.err == GEOQIK_SUCCESS);
+    check_geoqik(result.err, "Draw segment");
     return result.geometryId;
 }
 
@@ -103,7 +106,33 @@ inline geoqik_uuid_t draw(const linal::float3& source, const color& color) {
     opts.color = color.rgba.data();
     opts.colorCount = color.rgba.size();
     geoqik_result_t result = geoqik_add_point_opts(source[0], source[1], source[2], &opts);
-    assert(result.err == GEOQIK_SUCCESS);
+    check_geoqik(result.err, "Draw point");
+    return result.geometryId;
+}
+
+template <std::floating_point T, typename TIndex>
+inline geoqik_uuid_t draw(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& mesh, const color& surfaceColor) {
+    const auto vertices = Geometry::make_vertex_buffer(mesh);
+    if (!vertices) fail_example("Create vertex buffer", static_cast<int>(vertices.error));
+    const auto triangles = Geometry::make_triangle_index_buffer(mesh);
+    if (!triangles) fail_example("Create triangle buffer", static_cast<int>(triangles.error));
+    const auto edges = Geometry::make_edge_index_buffer(mesh);
+    if (!edges) fail_example("Create edge buffer", static_cast<int>(edges.error));
+
+    const auto edgeColor = black();
+    geoqik_add_mesh_opts_t options{};
+    options.color = surfaceColor.rgba.data();
+    options.colorCount = surfaceColor.rgba.size();
+    options.segmentIndices = edges.values.data();
+    // Unlike vertexCount and triangleCount, this field counts scalar indices.
+    options.segmentIndexCount = edges.values.size();
+    options.segmentColor = edgeColor.rgba.data();
+    options.showSegments = 1;
+    options.segmentLineWidth = 1.0f;
+    options.showVertices = 0;
+    const auto result = geoqik_add_mesh_opts(vertices.values.data(), vertices.values.size() / 3,
+                                           triangles.values.data(), triangles.values.size() / 3, &options);
+    check_geoqik(result.err, "Draw mesh");
     return result.geometryId;
 }
 

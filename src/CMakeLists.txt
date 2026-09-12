@@ -9,6 +9,8 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/TriangleHalfedgeMesh.hpp
         include/Geometry/Mesh/MeshConnectivity.hpp
         include/Geometry/Mesh/AddTriangle.hpp
+        include/Geometry/Mesh/MakeTriangleMesh.hpp
+        include/Geometry/Mesh/MeshBuffers.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectAABBHelper.hpp

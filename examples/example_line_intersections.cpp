@@ -6,7 +6,7 @@
 #include <Geometry/Intersect/IntersectSegment.hpp>
 #include <Geometry/Segment.hpp>
 
-#include <geoqik/GeoQik.hpp>
+#include <GeoQik/GeoQik.hpp>
 
 int main() {
     example::init_geoqik();
