@@ -71,7 +71,7 @@ bounded_single_fan_size(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
     {
       return std::nullopt; // fan does not close within the halfedge count -> malformed
     }
-    current = mesh.get_halfedge(mesh.get_halfedge(current).twin).next;
+    current = mesh.next_in_outgoing_fan(current);
   } while (current != start);
 
   return count;

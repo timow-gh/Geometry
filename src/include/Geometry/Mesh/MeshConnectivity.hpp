@@ -19,7 +19,7 @@ namespace Geometry
 // mesh in a consistent state.
 //
 // Const-correctness: the const specialization (C == Constness::Const) only exposes const
-// element access and read-only map lookups. Mutators live on the mutable specialization.
+// element access and read-only connectivity lookups. Mutators live on the mutable specialization.
 template <typename Mesh, Constness C>
 class MeshConnectivityView
 {
@@ -44,9 +44,6 @@ class MeshConnectivityView
     using Halfedge = typename Mesh::Halfedge;
     using Face = typename Mesh::Face;
     using Edge = typename Mesh::Edge;
-
-    using DirectedEdgeKey = typename Mesh::DirectedEdgeKey;
-    using FaceKey = typename Mesh::FaceKey;
 
     using VertexRef = qualified_ref_t<C, Vertex>;
     using HalfedgeRef = qualified_ref_t<C, Halfedge>;
@@ -78,21 +75,11 @@ class MeshConnectivityView
     GEO_NODISCARD bool contains(HalfedgeHandle handle) const noexcept { return m_mesh->contains(handle); }
     GEO_NODISCARD bool contains(VertexHandle handle) const noexcept { return m_mesh->contains(handle); }
 
-    // --- directed-edge / face-key maps --------------------------------------------------
-    GEO_NODISCARD HalfedgeHandle find_directed_edge(const DirectedEdgeKey& key) const noexcept
+    // --- connectivity lookup ------------------------------------------------------------
+    // Fan walk around `from`; replaces the former persistent directed-edge map.
+    GEO_NODISCARD HalfedgeHandle find_halfedge(VertexHandle from, VertexHandle to) const noexcept
     {
-      auto const it = m_mesh->m_directedEdges.find(key);
-      return it != m_mesh->m_directedEdges.end() ? it->second : HalfedgeHandle{};
-    }
-
-    GEO_NODISCARD bool contains_face_key(const FaceKey& key) const noexcept
-    {
-      return m_mesh->m_faceKeys.find(key) != m_mesh->m_faceKeys.end();
-    }
-
-    GEO_NODISCARD static FaceKey make_face_key(const std::array<VertexHandle, 3>& vertices) noexcept
-    {
-      return Mesh::make_face_key(vertices);
+      return m_mesh->find_halfedge(from, to);
     }
 
     // --- mutating primitives (mutable specialization only) ------------------------------
@@ -126,42 +113,10 @@ class MeshConnectivityView
       return handle;
     }
 
-    void insert_directed_edge(const DirectedEdgeKey& key, HalfedgeHandle halfedge) const
-      requires(!is_const(C))
-    {
-      m_mesh->m_directedEdges.emplace(key, halfedge);
-    }
-
-    void erase_directed_edge(const DirectedEdgeKey& key) const
-      requires(!is_const(C))
-    {
-      m_mesh->m_directedEdges.erase(key);
-    }
-
-    void insert_face_key(const FaceKey& key) const
-      requires(!is_const(C))
-    {
-      m_mesh->m_faceKeys.insert(key);
-    }
-
-    void erase_face_key(const FaceKey& key) const
-      requires(!is_const(C))
-    {
-      m_mesh->m_faceKeys.erase(key);
-    }
-
     // --- reserve / resize support for transactional rollback ----------------------------
     void reserve_faces(size_type additional) const requires(!is_const(C)) { m_mesh->m_faces.reserve(m_mesh->m_faces.size() + additional); }
     void reserve_halfedges(size_type additional) const requires(!is_const(C)) { m_mesh->m_halfedges.reserve(m_mesh->m_halfedges.size() + additional); }
     void reserve_edges(size_type additional) const requires(!is_const(C)) { m_mesh->m_edges.reserve(m_mesh->m_edges.size() + additional); }
-    void reserve_directed_edges(size_type additional) const requires(!is_const(C))
-    {
-      m_mesh->m_directedEdges.reserve(m_mesh->m_directedEdges.size() + additional);
-    }
-    void reserve_face_keys(size_type additional) const requires(!is_const(C))
-    {
-      m_mesh->m_faceKeys.reserve(m_mesh->m_faceKeys.size() + additional);
-    }
 
     void resize_faces(size_type count) const requires(!is_const(C)) { m_mesh->m_faces.resize(count); }
     void resize_halfedges(size_type count) const requires(!is_const(C)) { m_mesh->m_halfedges.resize(count); }

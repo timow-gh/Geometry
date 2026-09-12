@@ -2,6 +2,7 @@
 #define GEOMETRY_MESH_MESHTOPOLOGY_HPP
 
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <cstddef>
 #include <cstdint>
@@ -41,11 +42,15 @@ template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD std::size_t valence(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
                                   typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex)
 {
-  const std::size_t incidentFaceCount = mesh.count_incident_faces(vertex);
-  if (incidentFaceCount == 0)
+  if (is_isolated(mesh, vertex))
   {
-    return 0;
+    return 0; // no incident edges
   }
+  const std::size_t incidentFaceCount = mesh.count_incident_faces(vertex);
+  // A non-isolated vertex with no incident face is a dangling edge, which is non-manifold and cannot
+  // arise through the public mesh API (only the raw connectivity view). Algorithms assume a manifold
+  // mesh, so assert rather than return a meaningless valence.
+  GEO_ASSERT(incidentFaceCount > 0 && "valence assumes a manifold (non-dangling) vertex");
   return incidentFaceCount + (is_boundary(mesh, vertex) ? 1U : 0U);
 }
 

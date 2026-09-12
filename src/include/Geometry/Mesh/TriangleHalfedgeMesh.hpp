@@ -6,7 +6,6 @@
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include "Geometry/Utils/Constness.hpp"
-#include <algorithm>
 #include <array>
 #include <cassert>
 #include <concepts>
@@ -15,8 +14,6 @@
 #include <limits>
 #include <linal/vec.hpp>
 #include <type_traits>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
 #include <utility>
 #include <compare>
@@ -847,7 +844,7 @@ public:
       {
         result.push_back(current);
       }
-      current = get_halfedge(get_halfedge(current).twin).next;
+      current = next_in_outgoing_fan(current);
     } while (current != start);
 
     return result;
@@ -874,7 +871,7 @@ public:
       {
         ++count;
       }
-      current = get_halfedge(get_halfedge(current).twin).next;
+      current = next_in_outgoing_fan(current);
     } while (current != start);
 
     return count;
@@ -900,7 +897,7 @@ public:
       {
         result.push_back(get_halfedge(current).face);
       }
-      current = get_halfedge(get_halfedge(current).twin).next;
+      current = next_in_outgoing_fan(current);
     } while (current != start);
 
     return result;
@@ -948,6 +945,10 @@ public:
   // Walks the fan around `vertex` starting from an outgoing halfedge `startOutgoing` and returns the
   // first outgoing boundary (no-face) halfedge found, or an invalid handle if the vertex is interior.
   // Requires the local twin/next links around the vertex to be consistent.
+  // The twin.next orbit is bounded by the halfedge count: a well-formed fan closes well within that
+  // bound, and a malformed (non-closing) chain on a mesh built through the raw connectivity view is
+  // detected by exceeding it and reported as "not found" rather than looping forever. This keeps the
+  // verification callers (has_valid_connectivity) safe on corrupt input.
   GEO_NODISCARD HalfedgeHandle find_outgoing_boundary(VertexHandle vertex, HalfedgeHandle startOutgoing) const noexcept
   {
     GEO_ASSERT(contains(vertex));
@@ -955,24 +956,74 @@ public:
     {
       return HalfedgeHandle{};
     }
+    const size_type limit = m_halfedges.size();
+    size_type steps = 0;
     HalfedgeHandle current = startOutgoing;
     do
     {
+      if (++steps > limit)
+      {
+        return HalfedgeHandle{}; // non-closing fan -> not found, no hang
+      }
       if (get_halfedge(current).is_boundary())
       {
         return current;
       }
-      current = get_halfedge(get_halfedge(current).twin).next;
+      current = next_in_outgoing_fan(current);
     } while (current != startOutgoing);
     return HalfedgeHandle{};
   }
 
+  // One step of the outgoing fan orbit around a vertex: from an outgoing halfedge, cross the twin and
+  // take its next to reach the next outgoing halfedge. Single definition of the orbit convention,
+  // shared by every fan walk (find_halfedge, find_outgoing_boundary, halfedges_around_vertex,
+  // count_incident_faces, faces_around_vertex, and bounded_single_fan_size in MeshManifold.hpp).
+  GEO_NODISCARD HalfedgeHandle next_in_outgoing_fan(HalfedgeHandle outgoing) const noexcept
+  {
+    return get_halfedge(get_halfedge(outgoing).twin).next;
+  }
+
+  // Returns the halfedge running from `from` to `to`, or an invalid handle if none exists. Walks the
+  // outgoing fan around `from` via the twin/next orbit, comparing each outgoing halfedge's target.
+  // O(degree(from)). Mirrors OpenMesh find_halfedge and replaces a persistent directed-edge map. The
+  // orbit is bounded by the halfedge count so a non-closing fan on a raw-view-built mesh reports "not
+  // found" instead of looping forever (keeps has_valid_connectivity safe on corrupt input).
+  GEO_NODISCARD HalfedgeHandle find_halfedge(VertexHandle from, VertexHandle to) const noexcept
+  {
+    GEO_ASSERT(contains(from));
+    const HalfedgeHandle start = get_vertex(from).halfedge;
+    if (!start.is_valid())
+    {
+      return HalfedgeHandle{};
+    }
+    const size_type limit = m_halfedges.size();
+    size_type steps = 0;
+    HalfedgeHandle current = start;
+    do
+    {
+      if (++steps > limit)
+      {
+        return HalfedgeHandle{}; // non-closing fan -> not found, no hang
+      }
+      if (get_halfedge(current).targetVertex == to)
+      {
+        return current;
+      }
+      current = next_in_outgoing_fan(current);
+    } while (current != start);
+    return HalfedgeHandle{};
+  }
+
   // Validates internal CONNECTIVITY consistency only: handle ranges, twin involution, next/prev
-  // reciprocity, face-cycle shape, and the directed-edge / face-key bijections. It deliberately does
-  // NOT check topological vertex-manifoldness -- a vertex whose incident halfedges form two separate
-  // fans (umbrellas meeting only at the vertex) still passes here because it only walks the single fan
-  // reachable from the stored halfedge. That topological property is a separate concern checked by
-  // verify_vertex_manifold() in MeshManifold.hpp; keep the two distinct.
+  // reciprocity, face-cycle shape, the boundary-representative convention, and the per-halfedge fan
+  // round-trip (each halfedge is rediscovered by find_halfedge from its source vertex). It
+  // deliberately does NOT check winding-independent duplicate faces (a coincident opposite-wound
+  // triangle pair is a valid closed 2-manifold, and add_triangle already refuses to build it), nor
+  // topological vertex-manifoldness -- a vertex whose incident halfedges form two separate fans
+  // (umbrellas meeting only at the vertex) still passes here because the round-trip only walks the
+  // single fan reachable from the stored halfedge. That topological property is a separate concern
+  // checked by verify_vertex_manifold() in MeshManifold.hpp; keep the two distinct. Safe (terminates,
+  // returns false) on corrupt meshes: the fan walks it relies on are bounded by the halfedge count.
   GEO_NODISCARD bool has_valid_connectivity() const noexcept
   {
     for (size_type i = 0; i < m_halfedges.size(); ++i)
@@ -1049,11 +1100,6 @@ public:
       }
     }
 
-    if (m_directedEdges.size() != m_halfedges.size() || m_faceKeys.size() != m_faces.size())
-    {
-      return false;
-    }
-
     for (size_type i = 0; i < m_halfedges.size(); ++i)
     {
       const HalfedgeHandle halfedgeHandle = make_handle<HalfedgeHandle>(i);
@@ -1086,18 +1132,10 @@ public:
         }
       }
 
-      const DirectedEdgeKey key{unchecked_source_vertex(halfedgeHandle).get_value(), unchecked_target_vertex(halfedgeHandle).get_value()};
-      const auto directedEdgeIt = m_directedEdges.find(key);
-      if (directedEdgeIt == m_directedEdges.end() || directedEdgeIt->second != halfedgeHandle)
-      {
-        return false;
-      }
-    }
-
-    for (size_type i = 0; i < m_faces.size(); ++i)
-    {
-      const FaceHandle face = make_handle<FaceHandle>(i);
-      if (m_faceKeys.find(make_face_key(vertices_around_face(face))) == m_faceKeys.end())
+      // The fan walk that answers edge queries must be able to rediscover this halfedge from its
+      // source vertex; if it cannot, the outgoing fan around that vertex is inconsistent.
+      const VertexHandle source = unchecked_source_vertex(halfedgeHandle);
+      if (find_halfedge(source, unchecked_target_vertex(halfedgeHandle)) != halfedgeHandle)
       {
         return false;
       }
@@ -1107,55 +1145,6 @@ public:
   }
 
 private:
-  struct DirectedEdgeKey
-  {
-    handle_value_type from{};
-    handle_value_type to{};
-
-    GEO_NODISCARD constexpr bool operator==(const DirectedEdgeKey& other) const noexcept
-    {
-      return from == other.from && to == other.to;
-    }
-  };
-
-  struct DirectedEdgeKeyHash
-  {
-    GEO_NODISCARD size_type operator()(const DirectedEdgeKey& key) const noexcept
-    {
-      const size_type from = static_cast<size_type>(key.from);
-      const size_type to = static_cast<size_type>(key.to);
-      return from ^ (to + 0x9e3779b9U + (from << 6U) + (from >> 2U));
-    }
-  };
-
-  struct FaceKey
-  {
-    std::array<handle_value_type, 3> vertices{};
-
-    GEO_NODISCARD constexpr bool operator==(const FaceKey& other) const noexcept { return vertices == other.vertices; }
-  };
-
-  struct FaceKeyHash
-  {
-    GEO_NODISCARD size_type operator()(const FaceKey& key) const noexcept
-    {
-      size_type seed = 0;
-      for (handle_value_type vertex : key.vertices)
-      {
-        const size_type value = static_cast<size_type>(vertex);
-        seed ^= value + 0x9e3779b9U + (seed << 6U) + (seed >> 2U);
-      }
-      return seed;
-    }
-  };
-
-  GEO_NODISCARD static FaceKey make_face_key(const std::array<VertexHandle, 3>& vertices) noexcept
-  {
-    FaceKey key{{vertices[0].get_value(), vertices[1].get_value(), vertices[2].get_value()}};
-    std::sort(key.vertices.begin(), key.vertices.end());
-    return key;
-  }
-
   GEO_NODISCARD VertexHandle unchecked_source_vertex(HalfedgeHandle halfedge) const noexcept
   {
     return m_halfedges[handle_index(m_halfedges[handle_index(halfedge)].prev)].targetVertex;
@@ -1188,8 +1177,6 @@ private:
   std::vector<Halfedge> m_halfedges;
   std::vector<Face> m_faces;
   std::vector<Edge> m_edges;
-  std::unordered_map<DirectedEdgeKey, HalfedgeHandle, DirectedEdgeKeyHash> m_directedEdges;
-  std::unordered_set<FaceKey, FaceKeyHash> m_faceKeys;
 };
 
 template <typename T>

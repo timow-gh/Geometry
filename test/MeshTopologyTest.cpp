@@ -199,6 +199,9 @@ TEST(MeshManifoldTest, brokenFanDoesNotHang)
 
   EXPECT_FALSE(verify_vertex_manifold(mesh, vertex1));
   EXPECT_FALSE(verify_vertex_manifold(mesh));
+  // has_valid_connectivity relies on the same twin.next fan walk; it must terminate (its walks are
+  // bounded by the halfedge count) and report the corruption rather than hang.
+  EXPECT_FALSE(mesh.has_valid_connectivity());
 }
 
 // --- MeshEuler ------------------------------------------------------------------------------
@@ -235,6 +238,22 @@ TEST(MeshEulerTest, tetrahedronIsGenusZeroSphere)
   EXPECT_EQ(euler_characteristic(mesh), 2);
   EXPECT_TRUE(boundary_loops(mesh).empty());
   EXPECT_EQ(num_connected_components(mesh), 1U);
+
+  const auto surfaceGenus = genus(mesh);
+  ASSERT_TRUE(surfaceGenus.has_value());
+  EXPECT_EQ(*surfaceGenus, 0U);
+}
+
+// An isolated vertex is manifold-legal (add_vertex creates one before it is wired into a face) and is
+// ignored by num_connected_components and verify_manifold; genus must ignore it too rather than let
+// it inflate the Euler characteristic and skew the result.
+TEST(MeshEulerTest, genusIgnoresIsolatedVertex)
+{
+  Mesh mesh = make_tetrahedron();
+  (void)mesh.add_vertex({9.0, 9.0, 9.0}); // isolated, unused vertex
+
+  EXPECT_EQ(num_connected_components(mesh), 1U);
+  EXPECT_TRUE(verify_manifold(mesh));
 
   const auto surfaceGenus = genus(mesh);
   ASSERT_TRUE(surfaceGenus.has_value());
