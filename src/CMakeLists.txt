@@ -6,6 +6,9 @@ set(geometry_TARGET_HEADER
         include/Geometry/Distance/DistanceSegment.hpp
         include/Geometry/Distance/DistancePlane.hpp
         include/Geometry/Distance/DistanceSphere.hpp
+        include/Geometry/Mesh/TriangleHalfedgeMesh.hpp
+        include/Geometry/Mesh/MeshConnectivity.hpp
+        include/Geometry/Mesh/AddTriangle.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectAABBHelper.hpp
@@ -45,7 +48,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/PointQueries.hpp
         include/Geometry/Sphere.hpp
         include/Geometry/Triangle.hpp
-        include/Geometry/TriangleHalfedgeMesh.hpp
 )
 
 set(TARGET_NAME ${${PROJECT_NAME}_TARGET_NAME})

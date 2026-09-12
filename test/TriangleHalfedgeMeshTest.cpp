@@ -1,4 +1,5 @@
-#include <Geometry/TriangleHalfedgeMesh.hpp>
+#include <Geometry/Mesh/AddTriangle.hpp>
+#include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
 using namespace Geometry;
@@ -30,7 +31,7 @@ TEST(TriangleHalfedgeMeshTest, defaultConstructorCreatesEmptyValidMesh)
   Mesh const mesh;
 
   EXPECT_TRUE(mesh.empty());
-  EXPECT_TRUE(mesh.is_valid());
+  EXPECT_TRUE(mesh.has_valid_connectivity());
   EXPECT_EQ(mesh.vertex_count(), 0U);
   EXPECT_EQ(mesh.halfedge_count(), 0U);
   EXPECT_EQ(mesh.edge_count(), 0U);
@@ -56,12 +57,13 @@ TEST(TriangleHalfedgeMeshTest, addTriangleCreatesFaceCycle)
   Mesh::VertexHandle const vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
 
-  Mesh::FaceHandle const face = mesh.add_triangle(vertex0, vertex1, vertex2);
+  Mesh::FaceHandle const face = add_triangle(mesh,vertex0, vertex1, vertex2);
 
   ASSERT_TRUE(face.is_valid());
-  ASSERT_TRUE(mesh.is_valid());
+  ASSERT_TRUE(mesh.has_valid_connectivity());
   EXPECT_EQ(mesh.vertex_count(), 3U);
-  EXPECT_EQ(mesh.halfedge_count(), 3U);
+  // Every edge owns two halfedges: 3 interior (with the face) + 3 boundary (no face).
+  EXPECT_EQ(mesh.halfedge_count(), 6U);
   EXPECT_EQ(mesh.edge_count(), 3U);
   EXPECT_EQ(mesh.face_count(), 1U);
 
@@ -73,9 +75,14 @@ TEST(TriangleHalfedgeMeshTest, addTriangleCreatesFaceCycle)
   EXPECT_EQ(mesh.source_vertex(halfedges[2]), vertex2);
   EXPECT_EQ(mesh.target_vertex(halfedges[2]), vertex0);
 
-  EXPECT_TRUE(mesh.is_boundary(halfedges[0]));
-  EXPECT_TRUE(mesh.is_boundary(halfedges[1]));
-  EXPECT_TRUE(mesh.is_boundary(halfedges[2]));
+  // The face-cycle halfedges are interior (carry the face); their twins are the boundary halfedges,
+  // so every edge is a boundary edge.
+  for (const HalfedgeHandle halfedge : halfedges)
+  {
+    EXPECT_FALSE(mesh.is_boundary(halfedge));
+    EXPECT_TRUE(mesh.is_boundary(mesh.get_halfedge(halfedge).twin));
+    EXPECT_TRUE(mesh.is_boundary(mesh.get_halfedge(halfedge).edge));
+  }
 }
 
 TEST(TriangleHalfedgeMeshTest, adjacentTrianglesShareTwinHalfedges)
@@ -86,14 +93,16 @@ TEST(TriangleHalfedgeMeshTest, adjacentTrianglesShareTwinHalfedges)
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
   Mesh::VertexHandle const vertex3 = mesh.add_vertex({1.0, 1.0, 0.0});
 
-  Mesh::FaceHandle const first = mesh.add_triangle(vertex0, vertex1, vertex2);
-  Mesh::FaceHandle const second = mesh.add_triangle(vertex2, vertex1, vertex3);
+  Mesh::FaceHandle const first = add_triangle(mesh,vertex0, vertex1, vertex2);
+  Mesh::FaceHandle const second = add_triangle(mesh,vertex2, vertex1, vertex3);
 
   ASSERT_TRUE(first.is_valid());
   ASSERT_TRUE(second.is_valid());
-  ASSERT_TRUE(mesh.is_valid());
+  ASSERT_TRUE(mesh.has_valid_connectivity());
   EXPECT_EQ(mesh.face_count(), 2U);
-  EXPECT_EQ(mesh.halfedge_count(), 6U);
+  // 5 edges x 2 halfedges: the shared edge has two interior halfedges, the 4 boundary edges each have
+  // one interior + one boundary halfedge.
+  EXPECT_EQ(mesh.halfedge_count(), 10U);
   EXPECT_EQ(mesh.edge_count(), 5U);
 
   HalfedgeHandle const firstShared = find_halfedge(mesh, first, vertex1, vertex2);
@@ -114,18 +123,18 @@ TEST(TriangleHalfedgeMeshTest, rejectsInvalidTrianglesWithoutChangingMesh)
   Mesh::VertexHandle const vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
 
-  EXPECT_FALSE(mesh.add_triangle(vertex0, vertex1, vertex1).is_valid());
-  EXPECT_FALSE(mesh.add_triangle(vertex0, vertex1, Mesh::VertexHandle{}).is_valid());
+  EXPECT_FALSE(add_triangle(mesh,vertex0, vertex1, vertex1).is_valid());
+  EXPECT_FALSE(add_triangle(mesh,vertex0, vertex1, Mesh::VertexHandle{}).is_valid());
   EXPECT_EQ(mesh.face_count(), 0U);
   EXPECT_EQ(mesh.halfedge_count(), 0U);
   EXPECT_EQ(mesh.edge_count(), 0U);
 
-  ASSERT_TRUE(mesh.add_triangle(vertex0, vertex1, vertex2).is_valid());
-  EXPECT_FALSE(mesh.add_triangle(vertex0, vertex1, vertex2).is_valid());
+  ASSERT_TRUE(add_triangle(mesh,vertex0, vertex1, vertex2).is_valid());
+  EXPECT_FALSE(add_triangle(mesh,vertex0, vertex1, vertex2).is_valid());
   EXPECT_EQ(mesh.face_count(), 1U);
-  EXPECT_EQ(mesh.halfedge_count(), 3U);
+  EXPECT_EQ(mesh.halfedge_count(), 6U);
   EXPECT_EQ(mesh.edge_count(), 3U);
-  EXPECT_TRUE(mesh.is_valid());
+  EXPECT_TRUE(mesh.has_valid_connectivity());
 }
 
 TEST(TriangleHalfedgeMeshTest, rejectsReversedDuplicateTriangleWithoutChangingMesh)
@@ -135,13 +144,13 @@ TEST(TriangleHalfedgeMeshTest, rejectsReversedDuplicateTriangleWithoutChangingMe
   Mesh::VertexHandle const vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
 
-  ASSERT_TRUE(mesh.add_triangle(vertex0, vertex1, vertex2).is_valid());
+  ASSERT_TRUE(add_triangle(mesh,vertex0, vertex1, vertex2).is_valid());
 
-  EXPECT_FALSE(mesh.add_triangle(vertex0, vertex2, vertex1).is_valid());
+  EXPECT_FALSE(add_triangle(mesh,vertex0, vertex2, vertex1).is_valid());
   EXPECT_EQ(mesh.face_count(), 1U);
-  EXPECT_EQ(mesh.halfedge_count(), 3U);
+  EXPECT_EQ(mesh.halfedge_count(), 6U);
   EXPECT_EQ(mesh.edge_count(), 3U);
-  EXPECT_TRUE(mesh.is_valid());
+  EXPECT_TRUE(mesh.has_valid_connectivity());
 }
 
 TEST(TriangleHalfedgeMeshTest, isValidReturnsFalseForBrokenHalfedgeLinks)
@@ -151,14 +160,14 @@ TEST(TriangleHalfedgeMeshTest, isValidReturnsFalseForBrokenHalfedgeLinks)
   Mesh::VertexHandle const vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
 
-  Mesh::FaceHandle const face = mesh.add_triangle(vertex0, vertex1, vertex2);
+  Mesh::FaceHandle const face = add_triangle(mesh,vertex0, vertex1, vertex2);
   ASSERT_TRUE(face.is_valid());
-  ASSERT_TRUE(mesh.is_valid());
+  ASSERT_TRUE(mesh.has_valid_connectivity());
 
   HalfedgeHandle const halfedge = mesh.halfedges_around_face(face)[0];
   mesh.get_halfedge(halfedge).prev = HalfedgeHandle{999U};
 
-  EXPECT_FALSE(mesh.is_valid());
+  EXPECT_FALSE(mesh.has_valid_connectivity());
 }
 
 TEST(TriangleHalfedgeMeshTest, findsIncidentFacesAndHalfedges)
@@ -169,8 +178,8 @@ TEST(TriangleHalfedgeMeshTest, findsIncidentFacesAndHalfedges)
   Mesh::VertexHandle const vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
   Mesh::VertexHandle const vertex3 = mesh.add_vertex({1.0, 1.0, 0.0});
 
-  ASSERT_TRUE(mesh.add_triangle(vertex0, vertex1, vertex2).is_valid());
-  ASSERT_TRUE(mesh.add_triangle(vertex2, vertex1, vertex3).is_valid());
+  ASSERT_TRUE(add_triangle(mesh,vertex0, vertex1, vertex2).is_valid());
+  ASSERT_TRUE(add_triangle(mesh,vertex2, vertex1, vertex3).is_valid());
 
   std::vector<HalfedgeHandle> const halfedges = mesh.halfedges_around_vertex(vertex1);
   std::vector<Mesh::FaceHandle> const faces = mesh.faces_around_vertex(vertex1);
