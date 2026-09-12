@@ -5,9 +5,27 @@
 #include "Geometry/Utils/Compiler.hpp"
 #include <array>
 #include <cstdint>
+#include <utility>
+#include <vector>
 
 namespace Geometry
 {
+
+// -----------------------------------------------------------------------------------------------
+// add_triangle inserts one triangular face into a TriangleHalfedgeMesh, maintaining this mesh's
+// halfedge representation:
+//
+//   * The interior halfedge carries the incident face; the opposite halfedge is either the 
+//     interior halfedge of a neighbouring face or a BOUNDARY halfedge whose face is 
+//     invalid (FaceHandle{}).
+//   * Every halfedge therefore always has a valid twin, and boundary halfedges are chained through
+//     next/prev into closed boundary loops (all with invalid face).
+//   * The mesh stays manifold: a vertex's incident faces form a single fan. add_triangle rejects any
+//     triangle that would create a non-manifold edge or a non-manifold vertex.
+//
+// The directed-edge map is kept a bijection halfedge <-> (source,target): interior a->b keyed (a,b);
+// its opposite b->a keyed (b,a).
+// -----------------------------------------------------------------------------------------------
 
 namespace detail
 {
@@ -18,41 +36,66 @@ GEO_NODISCARD bool can_add_triangle(const TriangleHalfedgeMesh<T, D, TIndex>& me
                                     const std::array<typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle, 3>& vertices)
 {
   using Mesh = TriangleHalfedgeMesh<T, D, TIndex>;
+  using size_type = typename Mesh::size_type;
+  using HalfedgeHandle = typename Mesh::HalfedgeHandle;
+  using VertexHandle = typename Mesh::VertexHandle;
 
-  auto const connectivity = mesh.connectivity();
+  const auto connectivity = mesh.connectivity();
   using DirectedEdgeKey = typename decltype(connectivity)::DirectedEdgeKey;
 
   if (!mesh.contains(vertices[0]) || !mesh.contains(vertices[1]) || !mesh.contains(vertices[2]))
   {
     return false;
   }
-
   if (vertices[0] == vertices[1] || vertices[1] == vertices[2] || vertices[2] == vertices[0])
   {
     return false;
   }
-
   if (connectivity.contains_face_key(connectivity.make_face_key(vertices)))
   {
     return false;
   }
 
-  for (typename Mesh::size_type i = 0; i < vertices.size(); ++i)
+  for (size_type i = 0; i < vertices.size(); ++i)
   {
-    typename Mesh::VertexHandle const from = vertices[i];
-    typename Mesh::VertexHandle const to = vertices[(i + 1) % vertices.size()];
-    DirectedEdgeKey const key{from.get_value(), to.get_value()};
-    DirectedEdgeKey const oppositeKey{to.get_value(), from.get_value()};
+    const VertexHandle from = vertices[i];
+    const VertexHandle to = vertices[(i + 1) % vertices.size()];
+    const DirectedEdgeKey key{from.get_value(), to.get_value()};
 
-    if (connectivity.find_directed_edge(key).is_valid())
+    // A halfedge already running from->to must be a boundary halfedge we will consume; an interior
+    // one means this directed edge already bounds a face -> duplicate/non-manifold edge.
+    const HalfedgeHandle existing = connectivity.find_directed_edge(key);
+    if (existing.is_valid() && !connectivity.halfedge(existing).is_boundary())
+    {
+      return false;
+    }
+  }
+
+  auto edge_exists = [&](VertexHandle a, VertexHandle b) {
+    return connectivity.find_directed_edge(DirectedEdgeKey{a.get_value(), b.get_value()}).is_valid()
+           || connectivity.find_directed_edge(DirectedEdgeKey{b.get_value(), a.get_value()}).is_valid();
+  };
+
+  for (size_type i = 0; i < vertices.size(); ++i)
+  {
+    const VertexHandle vertex = vertices[i];
+
+    // A used vertex must lie on the boundary; one already surrounded by faces would gain a second fan.
+    if (mesh.get_vertex(vertex).halfedge.is_valid() && !mesh.is_boundary_outgoing(vertex))
     {
       return false;
     }
 
-    typename Mesh::HalfedgeHandle const opposite = connectivity.find_directed_edge(oppositeKey);
-    if (opposite.is_valid() && connectivity.halfedge(opposite).twin.is_valid())
+    // A used vertex whose two incident triangle edges are BOTH new starts a fan disconnected from the
+    // existing one at that vertex (e.g. two triangles sharing only a corner) -> non-manifold vertex.
+    if (mesh.get_vertex(vertex).halfedge.is_valid())
     {
-      return false;
+      const VertexHandle prev = vertices[(i + vertices.size() - 1) % vertices.size()];
+      const VertexHandle next = vertices[(i + 1) % vertices.size()];
+      if (!edge_exists(prev, vertex) && !edge_exists(vertex, next))
+      {
+        return false;
+      }
     }
   }
 
@@ -61,13 +104,8 @@ GEO_NODISCARD bool can_add_triangle(const TriangleHalfedgeMesh<T, D, TIndex>& me
 
 } // namespace detail
 
-// Adds a triangle face spanned by the three vertices (in order) to the mesh, reusing existing
-// halfedges/edges where the neighbouring triangle already created them. Returns an invalid
-// FaceHandle if the triangle cannot be added (duplicate face, non-manifold edge, degenerate
-// vertices, ...). Strongly exception-safe: on failure the mesh is rolled back to its prior state.
-//
-// This is a write algorithm built on the mesh's low-level connectivity kernel
-// (mesh.connectivity()); it maintains all mesh invariants itself.
+// Adds a triangle face spanned by the three vertices (in order). Returns an invalid FaceHandle if the
+// triangle cannot be added. Strongly exception-safe: on failure the mesh is rolled back.
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD typename TriangleHalfedgeMesh<T, D, TIndex>::FaceHandle
 add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
@@ -90,70 +128,97 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   using DirectedEdgeKey = typename decltype(connectivity)::DirectedEdgeKey;
   using FaceKey = typename decltype(connectivity)::FaceKey;
 
-  FaceKey const faceKey = connectivity.make_face_key(triangleVertices);
-  std::array<HalfedgeHandle, 3> triangleHalfedges{};
-  std::array<HalfedgeHandle, 3> previousVertexHalfedges{};
-  std::array<size_type, 3> previousVertexHalfedgeCounts{};
-  std::array<HalfedgeHandle, 3> oppositeHalfedges{};
-  std::array<DirectedEdgeKey, 3> directedEdgeKeys{};
+  const FaceKey faceKey = connectivity.make_face_key(triangleVertices);
+
+  auto halfedge_at = [&](HalfedgeHandle handle) -> Halfedge& { return connectivity.halfedge(handle); };
+
+  // --- Phase A: locate existing (boundary) halfedges per edge; determine which edges are new -------
+  std::array<HalfedgeHandle, 3> existingInner{};
+  std::array<bool, 3> isNew{};
   size_type newEdgeCount = 0;
 
-  for (size_type i = 0; i < triangleVertices.size(); ++i)
+  for (size_type i = 0; i < 3; ++i)
   {
-    VertexHandle const from = triangleVertices[i];
-    VertexHandle const to = triangleVertices[(i + 1) % triangleVertices.size()];
-    directedEdgeKeys[i] = DirectedEdgeKey{from.get_value(), to.get_value()};
-    DirectedEdgeKey const oppositeKey{to.get_value(), from.get_value()};
-
-    previousVertexHalfedges[i] = connectivity.vertex(from).halfedge;
-    previousVertexHalfedgeCounts[i] = connectivity.vertex_halfedges(from).size();
-    connectivity.reserve_vertex_halfedges(from, 1);
-
-    HalfedgeHandle const opposite = connectivity.find_directed_edge(oppositeKey);
-    if (opposite.is_valid())
-    {
-      oppositeHalfedges[i] = opposite;
-    }
-    else
+    const VertexHandle from = triangleVertices[i];
+    const VertexHandle to = triangleVertices[(i + 1) % 3];
+    const HalfedgeHandle existing = connectivity.find_directed_edge(DirectedEdgeKey{from.get_value(), to.get_value()});
+    existingInner[i] = existing;
+    isNew[i] = !existing.is_valid();
+    if (isNew[i])
     {
       ++newEdgeCount;
     }
   }
 
   connectivity.reserve_faces(1);
-  connectivity.reserve_halfedges(triangleHalfedges.size());
+  connectivity.reserve_halfedges(2 * newEdgeCount);
   connectivity.reserve_edges(newEdgeCount);
-  connectivity.reserve_directed_edges(directedEdgeKeys.size());
+  connectivity.reserve_directed_edges(2 * newEdgeCount);
   connectivity.reserve_face_keys(1);
 
-  size_type const faceCount = connectivity.face_count();
-  size_type const halfedgeCount = connectivity.halfedge_count();
-  size_type const edgeCount = connectivity.edge_count();
+  const size_type faceCount = connectivity.face_count();
+  const size_type halfedgeCount = connectivity.halfedge_count();
+  const size_type edgeCount = connectivity.edge_count();
 
-  FaceHandle const face = connectivity.new_face();
+  // Undo log for links overwritten on pre-existing halfedges/vertices (strong exception safety).
+  // nextUndo records overwritten .next (and, via set_next, the paired .prev of the old successor);
+  // prevUndo records an overwritten .prev on a pre-existing successor when only that side is
+  // pre-existing (the .next side being a new, roll-back-truncated halfedge).
+  std::vector<std::pair<HalfedgeHandle, HalfedgeHandle>> nextUndo;
+  std::vector<std::pair<HalfedgeHandle, HalfedgeHandle>> prevUndo;
+  std::vector<std::pair<HalfedgeHandle, FaceHandle>> faceUndo;
+  std::vector<std::pair<VertexHandle, HalfedgeHandle>> vertexUndo;
+  nextUndo.reserve(16);
+  prevUndo.reserve(3);
+  faceUndo.reserve(3);
+  vertexUndo.reserve(3);
+
+  auto set_next = [&](HalfedgeHandle prev, HalfedgeHandle next) {
+    halfedge_at(prev).next = next;
+    halfedge_at(next).prev = prev;
+  };
+  // set_next that records the old next of `prev` for rollback (prev is a pre-existing halfedge).
+  auto set_next_logged = [&](HalfedgeHandle prev, HalfedgeHandle next) {
+    nextUndo.emplace_back(prev, halfedge_at(prev).next);
+    set_next(prev, next);
+  };
+  // set_next that records the old prev of `next` for rollback. Use when `next` is the pre-existing
+  // halfedge and `prev` is a new (roll-back-truncated) halfedge, so only `next.prev` must survive.
+  auto set_next_logged_succ = [&](HalfedgeHandle prev, HalfedgeHandle next) {
+    prevUndo.emplace_back(next, halfedge_at(next).prev);
+    set_next(prev, next);
+  };
+  auto set_face_logged = [&](HalfedgeHandle handle, FaceHandle face) {
+    faceUndo.emplace_back(handle, halfedge_at(handle).face);
+    halfedge_at(handle).face = face;
+  };
+  auto set_vertex_logged = [&](VertexHandle vertex, HalfedgeHandle handle) {
+    vertexUndo.emplace_back(vertex, connectivity.vertex(vertex).halfedge);
+    connectivity.vertex(vertex).halfedge = handle;
+  };
+
+  const FaceHandle face = connectivity.new_face();
 
   auto rollback = [&]() noexcept {
-    for (DirectedEdgeKey const key : directedEdgeKeys)
+    for (auto it = nextUndo.rbegin(); it != nextUndo.rend(); ++it)
     {
-      connectivity.erase_directed_edge(key);
+      halfedge_at(it->first).next = it->second;
+      halfedge_at(it->second).prev = it->first;
     }
-    connectivity.erase_face_key(faceKey);
-
-    for (size_type i = 0; i < triangleVertices.size(); ++i)
+    for (auto it = prevUndo.rbegin(); it != prevUndo.rend(); ++it) halfedge_at(it->first).prev = it->second;
+    for (auto it = faceUndo.rbegin(); it != faceUndo.rend(); ++it) halfedge_at(it->first).face = it->second;
+    for (auto it = vertexUndo.rbegin(); it != vertexUndo.rend(); ++it) connectivity.vertex(it->first).halfedge = it->second;
+    for (size_type i = 0; i < 3; ++i)
     {
-      connectivity.vertex(triangleVertices[i]).halfedge = previousVertexHalfedges[i];
-      connectivity.resize_vertex_halfedges(triangleVertices[i], previousVertexHalfedgeCounts[i]);
-
-      if (oppositeHalfedges[i].is_valid() && connectivity.contains(oppositeHalfedges[i]))
+      if (isNew[i])
       {
-        Halfedge& oppositeHalfedge = connectivity.halfedge(oppositeHalfedges[i]);
-        if (oppositeHalfedge.twin == triangleHalfedges[i])
-        {
-          oppositeHalfedge.twin = HalfedgeHandle{};
-        }
+        const VertexHandle from = triangleVertices[i];
+        const VertexHandle to = triangleVertices[(i + 1) % 3];
+        connectivity.erase_directed_edge(DirectedEdgeKey{from.get_value(), to.get_value()});
+        connectivity.erase_directed_edge(DirectedEdgeKey{to.get_value(), from.get_value()});
       }
     }
-
+    connectivity.erase_face_key(faceKey);
     connectivity.resize_edges(edgeCount);
     connectivity.resize_halfedges(halfedgeCount);
     connectivity.resize_faces(faceCount);
@@ -161,52 +226,197 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
 
   try
   {
-    for (size_type i = 0; i < triangleHalfedges.size(); ++i)
+    // --- Phase B: for corners where both edges already exist, ensure the two inner halfedges are
+    //     adjacent in the boundary loop, patching (rotating) the loop if not. Patches are collected
+    //     here and applied below rather than immediately. For a triangle there are at most 3 such corners.
+    std::vector<std::pair<HalfedgeHandle, HalfedgeHandle>> nextCache; // deferred set_next(prev,next)
+    nextCache.reserve(6);
+
+    for (size_type i = 0; i < 3; ++i)
     {
-      triangleHalfedges[i] = connectivity.new_halfedge();
-    }
-
-    for (size_type i = 0; i < triangleHalfedges.size(); ++i)
-    {
-      size_type const nextIndex = (i + 1) % triangleHalfedges.size();
-      size_type const prevIndex = (i + triangleHalfedges.size() - 1) % triangleHalfedges.size();
-
-      Halfedge& halfedge = connectivity.halfedge(triangleHalfedges[i]);
-      halfedge.vertex = triangleVertices[nextIndex];
-      halfedge.next = triangleHalfedges[nextIndex];
-      halfedge.prev = triangleHalfedges[prevIndex];
-      halfedge.face = face;
-
-      if (!connectivity.vertex(triangleVertices[i]).halfedge.is_valid())
+      const size_type ii = (i + 1) % 3;
+      if (isNew[i] || isNew[ii])
       {
-        connectivity.vertex(triangleVertices[i]).halfedge = triangleHalfedges[i];
+        continue; // corner between v_{i+1}; only patch when both incident edges pre-exist
       }
-      connectivity.vertex_halfedges(triangleVertices[i]).push_back(triangleHalfedges[i]);
+      const HalfedgeHandle innerPrevHe = existingInner[i];  // ... -> corner
+      const HalfedgeHandle innerNextHe = existingInner[ii]; // corner -> ...
+
+      if (halfedge_at(innerPrevHe).next != innerNextHe)
+      {
+        // Need to make innerPrevHe.next == innerNextHe. Find a free (boundary) gap to rotate.
+        // outerPrev = twin(innerNextHe) is boundary; rotate around the corner via twin/next to find
+        // an incoming boundary halfedge whose next is a boundary outgoing at the corner.
+        const HalfedgeHandle outerPrev = halfedge_at(innerNextHe).twin;
+        const HalfedgeHandle outerNext = halfedge_at(innerPrevHe).twin;
+
+        // boundaryPrev: an incoming boundary halfedge at the corner, distinct from the wedge edge.
+        // Rotate around the corner until we land on a boundary (no-face) halfedge that is not the
+        // wedge's own incoming interior halfedge.
+        HalfedgeHandle boundaryPrev = outerPrev;
+        do
+        {
+          boundaryPrev = halfedge_at(halfedge_at(boundaryPrev).next).twin;
+        } while (!halfedge_at(boundaryPrev).is_boundary() || boundaryPrev == innerNextHe);
+        // boundaryPrev is now an incoming boundary halfedge at the corner distinct from the wedge.
+        const HalfedgeHandle boundaryNext = halfedge_at(boundaryPrev).next;
+
+        const HalfedgeHandle patchStart = halfedge_at(innerPrevHe).next;
+        const HalfedgeHandle patchEnd = halfedge_at(innerNextHe).prev;
+
+        nextCache.emplace_back(boundaryPrev, patchStart);
+        nextCache.emplace_back(patchEnd, boundaryNext);
+        nextCache.emplace_back(outerPrev, outerNext);
+      }
     }
 
-    for (size_type i = 0; i < triangleHalfedges.size(); ++i)
+    // --- Phase C: create the interior + boundary halfedge pairs for new edges. -----------------------
+    std::array<HalfedgeHandle, 3> inner{};
+    std::array<HalfedgeHandle, 3> outer{};
+
+    for (size_type i = 0; i < 3; ++i)
     {
-      Halfedge& halfedge = connectivity.halfedge(triangleHalfedges[i]);
-
-      if (oppositeHalfedges[i].is_valid())
+      const VertexHandle from = triangleVertices[i];
+      const VertexHandle to = triangleVertices[(i + 1) % 3];
+      if (isNew[i])
       {
-        Halfedge& oppositeHalfedge = connectivity.halfedge(oppositeHalfedges[i]);
-
-        halfedge.twin = oppositeHalfedges[i];
-        oppositeHalfedge.twin = triangleHalfedges[i];
-        halfedge.edge = oppositeHalfedge.edge;
+        const HalfedgeHandle innerHe = connectivity.new_halfedge();
+        const HalfedgeHandle outerHe = connectivity.new_halfedge();
+        halfedge_at(innerHe).targetVertex = to;
+        halfedge_at(outerHe).targetVertex = from;
+        halfedge_at(innerHe).twin = outerHe;
+        halfedge_at(outerHe).twin = innerHe;
+        const EdgeHandle edge = connectivity.new_edge(innerHe);
+        halfedge_at(innerHe).edge = edge;
+        halfedge_at(outerHe).edge = edge;
+        connectivity.insert_directed_edge(DirectedEdgeKey{from.get_value(), to.get_value()}, innerHe);
+        connectivity.insert_directed_edge(DirectedEdgeKey{to.get_value(), from.get_value()}, outerHe);
+        inner[i] = innerHe;
+        outer[i] = outerHe;
       }
       else
       {
-        EdgeHandle const edge = connectivity.new_edge(triangleHalfedges[i]);
-        halfedge.edge = edge;
+        inner[i] = existingInner[i];
+        outer[i] = halfedge_at(inner[i]).twin;
       }
+    }
 
-      connectivity.insert_directed_edge(directedEdgeKeys[i], triangleHalfedges[i]);
+    // Apply Phase B patches first (open the boundary gaps before we relink corners).
+    for (const auto& [prev, next] : nextCache)
+    {
+      set_next_logged(prev, next);
+    }
+
+    // --- Phase D: relink the boundary loop at each corner. -------------------------------------------
+    // At corner c = v_{ii} between incoming interior inner[i] (-> c) and outgoing interior inner[ii]
+    // (c ->). The boundary-side halfedges run opposite to the interior:
+    //   outerIntoC   = twin(inner[ii]) = outer[ii]   (a boundary halfedge arriving at c)
+    //   outerOutOfC  = twin(inner[i])  = outer[i]    (a boundary halfedge leaving c)
+    // Only the boundary halfedges of NEW edges actually stay on the boundary. We connect, in boundary
+    // order, [boundary arriving at c] -> outerIntoC (if edge ii new) ... outerOutOfC (if edge i new)
+    // -> [boundary leaving c], collapsing to a direct link when an edge is reused.
+    for (size_type i = 0; i < 3; ++i)
+    {
+      const size_type ii = (i + 1) % 3;
+      const bool prevNew = isNew[i];  // edge inner[i]
+      const bool nextNew = isNew[ii]; // edge inner[ii]
+
+      const HalfedgeHandle outerIntoC = outer[ii];
+      const HalfedgeHandle outerOutOfC = outer[i];
+
+      if (prevNew && nextNew)
+      {
+        // Both new. Find where the wedge splices into any existing boundary loop at the corner.
+        // outerOutOfC leaves c; the boundary that used to leave c (if any) becomes its next.
+        // outerIntoC arrives at c; the boundary that used to arrive at c becomes its prev.
+        const VertexHandle corner = triangleVertices[ii];
+        const HalfedgeHandle oldBoundaryOut = connectivity.vertex(corner).halfedge; // boundary leaving c
+        if (oldBoundaryOut.is_valid() && halfedge_at(oldBoundaryOut).is_boundary())
+        {
+          const HalfedgeHandle oldBoundaryIn = halfedge_at(oldBoundaryOut).prev; // boundary arriving at c
+          set_next_logged(oldBoundaryIn, outerIntoC);
+          set_next(outerIntoC, outerOutOfC);
+          set_next_logged(outerOutOfC, oldBoundaryOut);
+        }
+        else
+        {
+          // brand-new corner: the two new boundary halfedges chain directly.
+          set_next(outerIntoC, outerOutOfC);
+        }
+      }
+      else if (!prevNew && nextNew)
+      {
+        // inner[i] reused (was boundary, becoming interior); its old boundary continuation now
+        // continues from outerIntoC. outerOutOfC is not on the boundary (edge i reused).
+        const HalfedgeHandle oldContinuation = halfedge_at(inner[i]).next; // where the old boundary went after c
+        // oldContinuation is pre-existing; outerIntoC is new (edge ii is new). Only oldContinuation.prev
+        // must survive a rollback, so log that side.
+        set_next_logged_succ(outerIntoC, oldContinuation);
+      }
+      else if (prevNew && !nextNew)
+      {
+        // inner[ii] reused; the old boundary that arrived at c now flows into outerOutOfC.
+        const HalfedgeHandle oldPredecessor = halfedge_at(inner[ii]).prev; // what arrived before c on old boundary
+        // oldPredecessor is pre-existing; outerOutOfC is new (edge i is new). Only oldPredecessor.next
+        // must survive a rollback, so log that side.
+        set_next_logged(oldPredecessor, outerOutOfC);
+      }
+      // both reused: handled by Phase B (loop already made consistent); nothing to link here.
+    }
+
+    // --- Phase E: interior triangle cycle, faces, and vertex halfedge adjustment. --------------------
+    for (size_type i = 0; i < 3; ++i)
+    {
+      const size_type ii = (i + 1) % 3;
+      if (!isNew[i])
+      {
+        // inner[i] was a boundary halfedge; its next is being repointed into the face cycle.
+        nextUndo.emplace_back(inner[i], halfedge_at(inner[i]).next);
+      }
+      // set_next also overwrites inner[ii].prev. When inner[ii] is pre-existing and inner[i] is new
+      // (so inner[i].next is truncated on rollback and cannot carry the paired restore), inner[ii].prev
+      // must be logged on its own side. In the both-reused case Phase B already made this link
+      // consistent, so the write is a no-op and logging it is harmless.
+      if (!isNew[ii] && isNew[i])
+      {
+        prevUndo.emplace_back(inner[ii], halfedge_at(inner[ii]).prev);
+      }
+      set_next(inner[i], inner[ii]);
+    }
+    for (size_type i = 0; i < 3; ++i)
+    {
+      if (!isNew[i])
+      {
+        set_face_logged(inner[i], face);
+      }
+      else
+      {
+        halfedge_at(inner[i]).face = face;
+      }
+    }
+
+    for (size_type i = 0; i < 3; ++i)
+    {
+      const VertexHandle vertex = triangleVertices[i];
+      // Keep the vertex referencing a boundary outgoing halfedge if one remains; otherwise (now
+      // interior) any outgoing interior halfedge is fine.
+      const HalfedgeHandle boundary = mesh.find_outgoing_boundary(vertex, inner[i]);
+      if (boundary.is_valid())
+      {
+        set_vertex_logged(vertex, boundary);
+      }
+      else if (!connectivity.vertex(vertex).halfedge.is_valid())
+      {
+        set_vertex_logged(vertex, inner[i]);
+      }
+      else
+      {
+        set_vertex_logged(vertex, connectivity.vertex(vertex).halfedge); // record only, keep value
+      }
     }
 
     connectivity.insert_face_key(faceKey);
-    connectivity.face(face).set_halfedgehandle(triangleHalfedges.front());
+    connectivity.face(face).set_halfedgehandle(inner.front());
   }
   catch (...)
   {

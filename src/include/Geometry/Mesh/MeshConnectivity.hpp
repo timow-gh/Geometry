@@ -3,6 +3,7 @@
 
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
+#include "Geometry/Utils/Constness.hpp"
 #include <array>
 #include <type_traits>
 #include <vector>
@@ -17,16 +18,16 @@ namespace Geometry
 // these primitives validate mesh invariants -- callers are responsible for leaving the
 // mesh in a consistent state.
 //
-// Const-correctness: the const specialization (Const == true) only exposes const element
-// access and read-only map lookups. Mutators live on the mutable specialization.
-template <typename Mesh, bool Const>
+// Const-correctness: the const specialization (C == Constness::Const) only exposes const
+// element access and read-only map lookups. Mutators live on the mutable specialization.
+template <typename Mesh, Constness C>
 class MeshConnectivityView
 {
-    using MeshPtr = std::conditional_t<Const, const Mesh*, Mesh*>;
+    using MeshPtr = qualified_ptr_t<C, Mesh>;
 
     MeshPtr m_mesh{nullptr};
 
-    template <typename, bool>
+    template <typename, Constness>
     friend class MeshConnectivityView;
 
   public:
@@ -47,19 +48,19 @@ class MeshConnectivityView
     using DirectedEdgeKey = typename Mesh::DirectedEdgeKey;
     using FaceKey = typename Mesh::FaceKey;
 
-    using VertexRef = std::conditional_t<Const, const Vertex&, Vertex&>;
-    using HalfedgeRef = std::conditional_t<Const, const Halfedge&, Halfedge&>;
-    using FaceRef = std::conditional_t<Const, const Face&, Face&>;
-    using EdgeRef = std::conditional_t<Const, const Edge&, Edge&>;
+    using VertexRef = qualified_ref_t<C, Vertex>;
+    using HalfedgeRef = qualified_ref_t<C, Halfedge>;
+    using FaceRef = qualified_ref_t<C, Face>;
+    using EdgeRef = qualified_ref_t<C, Edge>;
 
     constexpr MeshConnectivityView() noexcept = default;
     constexpr explicit MeshConnectivityView(MeshPtr mesh) noexcept
         : m_mesh(mesh) {}
 
     // Non-const -> const conversion only.
-    template <bool Other>
+    template <Constness Other>
     constexpr MeshConnectivityView(const MeshConnectivityView<Mesh, Other>& other) noexcept
-        requires(Const && !Other)
+        requires(is_const(C) && !is_const(Other))
         : m_mesh(other.m_mesh) {}
 
     // --- element counts -----------------------------------------------------------------
@@ -96,13 +97,13 @@ class MeshConnectivityView
 
     // --- mutating primitives (mutable specialization only) ------------------------------
     GEO_NODISCARD VertexHandle new_vertex(const vec_t& position) const
-      requires(!Const)
+      requires(!is_const(C))
     {
       return m_mesh->add_vertex(position);
     }
 
     GEO_NODISCARD HalfedgeHandle new_halfedge() const
-      requires(!Const)
+      requires(!is_const(C))
     {
       HalfedgeHandle const handle = Mesh::template make_handle<HalfedgeHandle>(m_mesh->m_halfedges.size());
       m_mesh->m_halfedges.push_back(Halfedge{});
@@ -110,7 +111,7 @@ class MeshConnectivityView
     }
 
     GEO_NODISCARD EdgeHandle new_edge(HalfedgeHandle halfedge) const
-      requires(!Const)
+      requires(!is_const(C))
     {
       EdgeHandle const handle = Mesh::template make_handle<EdgeHandle>(m_mesh->m_edges.size());
       m_mesh->m_edges.push_back(Edge{halfedge});
@@ -118,7 +119,7 @@ class MeshConnectivityView
     }
 
     GEO_NODISCARD FaceHandle new_face() const
-      requires(!Const)
+      requires(!is_const(C))
     {
       FaceHandle const handle = Mesh::template make_handle<FaceHandle>(m_mesh->m_faces.size());
       m_mesh->m_faces.push_back(Face{});
@@ -126,69 +127,45 @@ class MeshConnectivityView
     }
 
     void insert_directed_edge(const DirectedEdgeKey& key, HalfedgeHandle halfedge) const
-      requires(!Const)
+      requires(!is_const(C))
     {
       m_mesh->m_directedEdges.emplace(key, halfedge);
     }
 
     void erase_directed_edge(const DirectedEdgeKey& key) const
-      requires(!Const)
+      requires(!is_const(C))
     {
       m_mesh->m_directedEdges.erase(key);
     }
 
     void insert_face_key(const FaceKey& key) const
-      requires(!Const)
+      requires(!is_const(C))
     {
       m_mesh->m_faceKeys.insert(key);
     }
 
     void erase_face_key(const FaceKey& key) const
-      requires(!Const)
+      requires(!is_const(C))
     {
       m_mesh->m_faceKeys.erase(key);
     }
 
-    // Outgoing-halfedge bookkeeping stored per vertex.
-    GEO_NODISCARD std::vector<HalfedgeHandle>& vertex_halfedges(VertexHandle vertex) const
-      requires(!Const)
-    {
-      return m_mesh->m_vertexHalfedges[Mesh::handle_index(vertex)];
-    }
-
-    GEO_NODISCARD const std::vector<HalfedgeHandle>& vertex_halfedges(VertexHandle vertex) const noexcept
-      requires(Const)
-    {
-      return m_mesh->m_vertexHalfedges[Mesh::handle_index(vertex)];
-    }
-
     // --- reserve / resize support for transactional rollback ----------------------------
-    void reserve_vertex_halfedges(VertexHandle vertex, size_type additional) const
-      requires(!Const)
-    {
-      auto& halfedges = m_mesh->m_vertexHalfedges[Mesh::handle_index(vertex)];
-      halfedges.reserve(halfedges.size() + additional);
-    }
-
-    void reserve_faces(size_type additional) const requires(!Const) { m_mesh->m_faces.reserve(m_mesh->m_faces.size() + additional); }
-    void reserve_halfedges(size_type additional) const requires(!Const) { m_mesh->m_halfedges.reserve(m_mesh->m_halfedges.size() + additional); }
-    void reserve_edges(size_type additional) const requires(!Const) { m_mesh->m_edges.reserve(m_mesh->m_edges.size() + additional); }
-    void reserve_directed_edges(size_type additional) const requires(!Const)
+    void reserve_faces(size_type additional) const requires(!is_const(C)) { m_mesh->m_faces.reserve(m_mesh->m_faces.size() + additional); }
+    void reserve_halfedges(size_type additional) const requires(!is_const(C)) { m_mesh->m_halfedges.reserve(m_mesh->m_halfedges.size() + additional); }
+    void reserve_edges(size_type additional) const requires(!is_const(C)) { m_mesh->m_edges.reserve(m_mesh->m_edges.size() + additional); }
+    void reserve_directed_edges(size_type additional) const requires(!is_const(C))
     {
       m_mesh->m_directedEdges.reserve(m_mesh->m_directedEdges.size() + additional);
     }
-    void reserve_face_keys(size_type additional) const requires(!Const)
+    void reserve_face_keys(size_type additional) const requires(!is_const(C))
     {
       m_mesh->m_faceKeys.reserve(m_mesh->m_faceKeys.size() + additional);
     }
 
-    void resize_faces(size_type count) const requires(!Const) { m_mesh->m_faces.resize(count); }
-    void resize_halfedges(size_type count) const requires(!Const) { m_mesh->m_halfedges.resize(count); }
-    void resize_edges(size_type count) const requires(!Const) { m_mesh->m_edges.resize(count); }
-    void resize_vertex_halfedges(VertexHandle vertex, size_type count) const requires(!Const)
-    {
-      m_mesh->m_vertexHalfedges[Mesh::handle_index(vertex)].resize(count);
-    }
+    void resize_faces(size_type count) const requires(!is_const(C)) { m_mesh->m_faces.resize(count); }
+    void resize_halfedges(size_type count) const requires(!is_const(C)) { m_mesh->m_halfedges.resize(count); }
+    void resize_edges(size_type count) const requires(!is_const(C)) { m_mesh->m_edges.resize(count); }
 };
 
 } // namespace Geometry
