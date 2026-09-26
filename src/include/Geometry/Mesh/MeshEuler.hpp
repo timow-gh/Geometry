@@ -43,7 +43,7 @@ boundary_loops(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;
 
   std::vector<std::vector<HalfedgeHandle>> loops;
-  std::vector<unsigned char> visited(mesh.halfedge_count(), 0U);
+  std::vector<unsigned char> visited(mesh.halfedge_storage_size(), 0U);
 
   for (const HalfedgeHandle start : mesh.halfedges())
   {
@@ -57,7 +57,7 @@ boundary_loops(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
     // halfedge count. On a mesh built through the raw connectivity view a boundary halfedge's .next
     // may leave the boundary or never return to `start`; the step budget and the boundary guard make
     // the walk terminate rather than hang (the loop contents on such corrupt input are unspecified).
-    const std::size_t limit = mesh.halfedge_count();
+    const std::size_t limit = mesh.halfedge_storage_size();
     std::size_t steps = 0;
     HalfedgeHandle current = start;
     do
@@ -86,7 +86,7 @@ GEO_NODISCARD std::size_t num_connected_components(const TriangleHalfedgeMesh<T,
   using Mesh = TriangleHalfedgeMesh<T, D, TIndex>;
   using FaceHandle = typename Mesh::FaceHandle;
 
-  std::vector<unsigned char> visited(mesh.face_count(), 0U);
+  std::vector<unsigned char> visited(mesh.face_storage_size(), 0U);
   std::size_t componentCount = 0;
   std::vector<FaceHandle> stack;
 

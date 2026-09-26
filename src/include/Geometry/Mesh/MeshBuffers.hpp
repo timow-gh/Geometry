@@ -4,6 +4,7 @@
 #include "Geometry/Mesh/MeshNormals.hpp"
 #include "Geometry/Mesh/MeshResult.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
+#include "Geometry/Utils/Assert.hpp"
 
 #include <cmath>
 #include <concepts>
@@ -62,12 +63,15 @@ constexpr bool mesh_buffer_index_fits(TIndex index) noexcept {
 /**
  * \brief Flat XYZ vertex positions in vertex-handle order, including isolated vertices.
  *
- * Requires valid mesh connectivity; open meshes and isolated vertices are supported.
+ * Requires valid mesh connectivity; open meshes and isolated vertices are supported. Requires no
+ * tombstoned elements (run \c garbage_collection() first): buffer slots are handle values, which only
+ * match the emitted order in compacted storage.
  *
  * \return Float triples per vertex, or an empty result whose \c error names the failure.
  */
 template <std::floating_point T, typename TIndex>
 GEO_NODISCARD MeshBufferResult<float> make_vertex_buffer(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh) {
+    GEO_ASSERT(!mesh.has_garbage());
     MeshBufferResult<float> result;
     if (!detail::mesh_buffer_count_fits(mesh.vertex_count(), 3, result.values.max_size()))
         return {{}, MeshBufferStatus::CapacityExceeded};
@@ -91,11 +95,15 @@ GEO_NODISCARD MeshBufferResult<float> make_vertex_buffer(const TriangleHalfedgeM
 /**
  * \brief Three vertex indices per face in face-handle order, preserving face winding.
  *
+ * Requires no tombstoned elements (run \c garbage_collection() first): the indices are vertex handle
+ * values, which address \c make_vertex_buffer only in compacted storage.
+ *
  * \return Index triples per face, or an empty result whose \c error names the failure.
  */
 template <std::floating_point T, typename TIndex>
 GEO_NODISCARD MeshBufferResult<BufferIndex>
 make_triangle_index_buffer(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh) {
+    GEO_ASSERT(!mesh.has_garbage());
     MeshBufferResult<BufferIndex> result;
     if (!detail::mesh_buffer_count_fits(mesh.face_count(), 3, result.values.max_size()))
         return {{}, MeshBufferStatus::CapacityExceeded};
@@ -116,12 +124,14 @@ make_triangle_index_buffer(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh) {
  * \brief Two endpoint indices per edge in edge-handle order, including boundary edges and
  * triangulation diagonals.
  *
- * Each undirected edge is emitted exactly once.
+ * Each undirected edge is emitted exactly once. Requires no tombstoned elements (run
+ * \c garbage_collection() first), for the same reason as \c make_triangle_index_buffer.
  *
  * \return Index pairs per edge, or an empty result whose \c error names the failure.
  */
 template <std::floating_point T, typename TIndex>
 GEO_NODISCARD MeshBufferResult<BufferIndex> make_edge_index_buffer(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh) {
+    GEO_ASSERT(!mesh.has_garbage());
     MeshBufferResult<BufferIndex> result;
     if (!detail::mesh_buffer_count_fits(mesh.edge_count(), 2, result.values.max_size()))
         return {{}, MeshBufferStatus::CapacityExceeded};
@@ -206,10 +216,10 @@ GEO_NODISCARD MeshRenderBuffers make_render_buffers(const TriangleHalfedgeMesh<T
     // Per mesh vertex, the render copies already emitted (their normal and render id). A corner
     // reuses a copy with the identical normal (same smooth sector) or creates a new one.
     struct Copy { linal::vec3<T> normal; BufferIndex id; };
-    std::vector<std::vector<Copy>> copies(mesh.vertex_count());
+    std::vector<std::vector<Copy>> copies(mesh.vertex_storage_size());
     // One representative render id per mesh vertex, used to remap wireframe segment endpoints
     // (all copies share a position, so any copy yields the same line).
-    std::vector<BufferIndex> representative(mesh.vertex_count(), std::numeric_limits<BufferIndex>::max());
+    std::vector<BufferIndex> representative(mesh.vertex_storage_size(), std::numeric_limits<BufferIndex>::max());
 
     const auto append_vertex = [&](TIndex vertexValue, const linal::vec3<T>& normal, BufferIndex& outId) -> MeshBufferStatus {
         const auto slot = static_cast<std::size_t>(vertexValue);

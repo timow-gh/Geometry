@@ -51,6 +51,9 @@ public:
   {
     vec_t position{};
     HalfedgeHandle halfedge{};
+    // Tombstone: removal operators mark instead of erasing so that handles held across a pass stay
+    // valid; garbage_collection() drops marked elements.
+    bool deleted{false};
   };
 
   struct Halfedge
@@ -70,6 +73,7 @@ public:
   class Face
   {
     HalfedgeHandle m_heHandle{};
+    bool m_deleted{false};
 
   public:
     constexpr Face() noexcept = default;
@@ -85,6 +89,9 @@ public:
 
     [[nodiscard]] constexpr const HalfedgeHandle get_halfedgehandle() const noexcept { return m_heHandle; }
     constexpr void set_halfedgehandle(HalfedgeHandle heHandle) noexcept { m_heHandle = heHandle; }
+
+    [[nodiscard]] constexpr bool is_deleted() const noexcept { return m_deleted; }
+    constexpr void set_deleted(bool deleted) noexcept { m_deleted = deleted; }
   };
 
   struct Edge
@@ -94,6 +101,8 @@ public:
     // non-crease edges but kept separate across crease edges, giving a sharp look. Defaults to
     // smooth so existing meshes are unaffected.
     bool crease{false};
+    // Tombstone for the edge and both of its halfedges; halfedges carry no flag of their own.
+    bool deleted{false};
   };
 
   template <typename Mesh, Constness C>
@@ -528,80 +537,70 @@ public:
   using ConstVertexFaceRange = FaceCirculatorRange<ConstVertexFaceCirculator>;
   using VertexFaceRange = FaceCirculatorRange<VertexFaceCirculator>;
 
+  // Whole-mesh element iterator. Skips tombstoned (deleted) elements, which is why it is bidirectional
+  // rather than random access: the position of the n-th live element is unknown without a scan.
   template <typename THandle>
   class ElementIteratorT
   {
+      const TriangleHalfedgeMesh* m_mesh{nullptr};
       handle_value_type m_index{};
+
+      constexpr void skip_deleted_forward() noexcept {
+        const size_type storageSize = m_mesh->template storage_size_of<THandle>();
+        while (m_index < storageSize && m_mesh->is_deleted(THandle{m_index}))
+        {
+          ++m_index;
+        }
+      }
 
     public:
       using value_type = THandle;
       using reference = THandle;
       using pointer = void;
       using difference_type = std::ptrdiff_t;
-      using iterator_category = std::random_access_iterator_tag;
+      using iterator_category = std::bidirectional_iterator_tag;
 
       constexpr ElementIteratorT() noexcept = default;
-      constexpr explicit ElementIteratorT(handle_value_type index) noexcept
-          : m_index(index) {}
+      constexpr ElementIteratorT(const TriangleHalfedgeMesh* mesh, handle_value_type index) noexcept
+          : m_mesh(mesh)
+          , m_index(index) {
+        GEO_ASSERT(m_mesh != nullptr);
+        skip_deleted_forward();
+      }
 
       constexpr THandle operator*() const noexcept { return THandle{m_index}; }
 
       constexpr ElementIteratorT& operator++() noexcept {
         ++m_index;
+        skip_deleted_forward();
         return *this;
       }
 
       constexpr ElementIteratorT operator++(int) noexcept {
         ElementIteratorT old = *this;
-        ++m_index;
+        ++(*this);
         return old;
       }
 
+      // Precondition: a live element precedes the current position (as for any bidirectional iterator
+      // not at begin()).
       constexpr ElementIteratorT& operator--() noexcept {
-        --m_index;
+        do
+        {
+          GEO_ASSERT(m_index > 0);
+          --m_index;
+        } while (m_mesh->is_deleted(THandle{m_index}));
         return *this;
       }
 
       constexpr ElementIteratorT operator--(int) noexcept {
         ElementIteratorT old = *this;
-        --m_index;
+        --(*this);
         return old;
       }
 
-      constexpr ElementIteratorT& operator+=(difference_type offset) noexcept {
-        m_index = static_cast<handle_value_type>(static_cast<difference_type>(m_index) + offset);
-        return *this;
-      }
-
-      constexpr ElementIteratorT& operator-=(difference_type offset) noexcept { return *this += -offset; }
-
-      [[nodiscard]] friend constexpr ElementIteratorT operator+(ElementIteratorT iterator, difference_type offset) noexcept {
-        iterator += offset;
-        return iterator;
-      }
-
-      [[nodiscard]] friend constexpr ElementIteratorT operator+(difference_type offset, ElementIteratorT iterator) noexcept {
-        iterator += offset;
-        return iterator;
-      }
-
-      [[nodiscard]] friend constexpr ElementIteratorT operator-(ElementIteratorT iterator, difference_type offset) noexcept {
-        iterator -= offset;
-        return iterator;
-      }
-
-      [[nodiscard]] friend constexpr difference_type operator-(ElementIteratorT lhs, ElementIteratorT rhs) noexcept {
-        return static_cast<difference_type>(lhs.m_index) - static_cast<difference_type>(rhs.m_index);
-      }
-
-      [[nodiscard]] constexpr THandle operator[](difference_type offset) const noexcept { return *(*this + offset); }
-
       [[nodiscard]] constexpr bool operator==(const ElementIteratorT& other) const noexcept { return m_index == other.m_index; }
       [[nodiscard]] constexpr bool operator!=(const ElementIteratorT& other) const noexcept { return !(*this == other); }
-
-      [[nodiscard]] constexpr std::strong_ordering operator<=>(const ElementIteratorT& other) const noexcept {
-        return m_index <=> other.m_index;
-      }
   };
 
   using VertexIterator = ElementIteratorT<VertexHandle>;
@@ -609,23 +608,24 @@ public:
   using EdgeIterator = ElementIteratorT<EdgeHandle>;
   using FaceIterator = ElementIteratorT<FaceHandle>;
 
+  // Range over the live elements of one kind. size() is the live count, not the storage size.
   template <typename THandle>
   class ElementRangeT
   {
-      handle_value_type m_begin{};
-      handle_value_type m_end{};
+      const TriangleHalfedgeMesh* m_mesh{nullptr};
 
     public:
       constexpr ElementRangeT() noexcept = default;
-      constexpr ElementRangeT(handle_value_type first, handle_value_type last) noexcept
-          : m_begin(first)
-          , m_end(last) {}
+      constexpr explicit ElementRangeT(const TriangleHalfedgeMesh* mesh) noexcept
+          : m_mesh(mesh) {}
 
-      [[nodiscard]] constexpr ElementIteratorT<THandle> begin() const noexcept { return ElementIteratorT<THandle>{m_begin}; }
-      [[nodiscard]] constexpr ElementIteratorT<THandle> end() const noexcept { return ElementIteratorT<THandle>{m_end}; }
+      [[nodiscard]] constexpr ElementIteratorT<THandle> begin() const noexcept { return ElementIteratorT<THandle>{m_mesh, 0}; }
+      [[nodiscard]] constexpr ElementIteratorT<THandle> end() const noexcept {
+        return ElementIteratorT<THandle>{m_mesh, static_cast<handle_value_type>(m_mesh->template storage_size_of<THandle>())};
+      }
 
-      [[nodiscard]] constexpr size_type size() const noexcept { return static_cast<size_type>(m_end - m_begin); }
-      [[nodiscard]] constexpr bool empty() const noexcept { return m_begin == m_end; }
+      [[nodiscard]] constexpr size_type size() const noexcept { return m_mesh->template live_count_of<THandle>(); }
+      [[nodiscard]] constexpr bool empty() const noexcept { return size() == 0; }
   };
 
   using VertexRange = ElementRangeT<VertexHandle>;
@@ -641,32 +641,46 @@ public:
     return handle;
   }
 
-  GEO_NODISCARD constexpr size_type vertex_count() const noexcept { return m_vertices.size(); }
-  GEO_NODISCARD constexpr size_type halfedge_count() const noexcept { return m_halfedges.size(); }
-  GEO_NODISCARD constexpr size_type face_count() const noexcept { return m_faces.size(); }
-  GEO_NODISCARD constexpr size_type edge_count() const noexcept { return m_edges.size(); }
-  GEO_NODISCARD constexpr bool empty() const noexcept { return m_vertices.empty() && m_faces.empty(); }
+  // Live element counts: deleted (tombstoned) elements are excluded, so V - E + F stays meaningful
+  // while garbage is present. Use *_storage_size() to size arrays indexed by handle value.
+  GEO_NODISCARD constexpr size_type vertex_count() const noexcept { return m_vertices.size() - m_deletedVertexCount; }
+  // Each deleted edge takes both of its halfedges with it.
+  GEO_NODISCARD constexpr size_type halfedge_count() const noexcept { return m_halfedges.size() - 2 * m_deletedEdgeCount; }
+  GEO_NODISCARD constexpr size_type face_count() const noexcept { return m_faces.size() - m_deletedFaceCount; }
+  GEO_NODISCARD constexpr size_type edge_count() const noexcept { return m_edges.size() - m_deletedEdgeCount; }
+  GEO_NODISCARD constexpr bool empty() const noexcept { return vertex_count() == 0 && face_count() == 0; }
 
-  GEO_NODISCARD VertexRange vertices() const noexcept
+  // Storage sizes: one past the largest handle value, deleted elements included. The bound for
+  // arrays indexed by handle value and for orbit step budgets.
+  GEO_NODISCARD constexpr size_type vertex_storage_size() const noexcept { return m_vertices.size(); }
+  GEO_NODISCARD constexpr size_type halfedge_storage_size() const noexcept { return m_halfedges.size(); }
+  GEO_NODISCARD constexpr size_type face_storage_size() const noexcept { return m_faces.size(); }
+  GEO_NODISCARD constexpr size_type edge_storage_size() const noexcept { return m_edges.size(); }
+
+  // True while tombstoned elements await garbage_collection().
+  GEO_NODISCARD constexpr bool has_garbage() const noexcept
   {
-    return VertexRange{0, static_cast<handle_value_type>(vertex_count())};
+    return m_deletedVertexCount != 0 || m_deletedEdgeCount != 0 || m_deletedFaceCount != 0;
   }
 
-  GEO_NODISCARD HalfedgeRange halfedges() const noexcept
+  GEO_NODISCARD bool is_deleted(VertexHandle handle) const noexcept { return get_vertex(handle).deleted; }
+  GEO_NODISCARD bool is_deleted(EdgeHandle handle) const noexcept { return get_edge(handle).deleted; }
+  GEO_NODISCARD bool is_deleted(FaceHandle handle) const noexcept { return get_face(handle).is_deleted(); }
+
+  // A halfedge shares its edge's tombstone. A halfedge whose edge is not linked yet (mid-construction,
+  // or a corrupt raw-view mesh) counts as live so that has_valid_connectivity() still inspects it.
+  GEO_NODISCARD bool is_deleted(HalfedgeHandle handle) const noexcept
   {
-    return HalfedgeRange{0, static_cast<handle_value_type>(halfedge_count())};
+    const EdgeHandle edge = get_halfedge(handle).edge;
+    return contains(edge) && get_edge(edge).deleted;
   }
 
-  GEO_NODISCARD EdgeRange edges() const noexcept
-  {
-    return EdgeRange{0, static_cast<handle_value_type>(edge_count())};
-  }
+  GEO_NODISCARD VertexRange vertices() const noexcept { return VertexRange{this}; }
+  GEO_NODISCARD HalfedgeRange halfedges() const noexcept { return HalfedgeRange{this}; }
+  GEO_NODISCARD EdgeRange edges() const noexcept { return EdgeRange{this}; }
+  GEO_NODISCARD FaceRange faces() const noexcept { return FaceRange{this}; }
 
-  GEO_NODISCARD FaceRange faces() const noexcept
-  {
-    return FaceRange{0, static_cast<handle_value_type>(face_count())};
-  }
-
+  // Storage-range membership only: a deleted element is still contained until garbage_collection().
   GEO_NODISCARD bool contains(VertexHandle handle) const noexcept { return handle_in_range(handle, m_vertices.size()); }
   GEO_NODISCARD bool contains(HalfedgeHandle handle) const noexcept { return handle_in_range(handle, m_halfedges.size()); }
   GEO_NODISCARD bool contains(FaceHandle handle) const noexcept { return handle_in_range(handle, m_faces.size()); }
@@ -1022,6 +1036,65 @@ public:
     return HalfedgeHandle{};
   }
 
+  /**
+   * \brief Drops every tombstoned element and compacts storage, renumbering the survivors.
+   *
+   * Removal operators (e.g. collapses) only mark elements deleted so that handles held during a pass
+   * stay meaningful; call this once the pass is done to reclaim the storage. Survivors keep their
+   * relative order. Every handle held outside the mesh is invalidated -- it may now name a different
+   * element -- so re-acquire handles afterwards. A no-op when \c has_garbage() is false.
+   *
+   * Requires valid connectivity: no live element may reference a deleted one (asserted).
+   * Strongly exception safe: the only allocations (the index maps) happen before any mutation. O(V + H + E + F).
+   */
+  void garbage_collection()
+  {
+    if (!has_garbage())
+    {
+      return;
+    }
+
+    const std::vector<handle_value_type> vertexMap = make_compaction_map<VertexHandle>();
+    const std::vector<handle_value_type> halfedgeMap = make_compaction_map<HalfedgeHandle>();
+    const std::vector<handle_value_type> edgeMap = make_compaction_map<EdgeHandle>();
+    const std::vector<handle_value_type> faceMap = make_compaction_map<FaceHandle>();
+
+    compact_storage(m_vertices, vertexMap);
+    compact_storage(m_halfedges, halfedgeMap);
+    compact_storage(m_edges, edgeMap);
+    compact_storage(m_faces, faceMap);
+
+    for (Vertex& vertex : m_vertices)
+    {
+      vertex.halfedge = remap_handle(halfedgeMap, vertex.halfedge);
+    }
+    for (Halfedge& halfedge : m_halfedges)
+    {
+      halfedge.targetVertex = remap_handle(vertexMap, halfedge.targetVertex);
+      halfedge.twin = remap_handle(halfedgeMap, halfedge.twin);
+      halfedge.next = remap_handle(halfedgeMap, halfedge.next);
+      halfedge.prev = remap_handle(halfedgeMap, halfedge.prev);
+      halfedge.face = remap_handle(faceMap, halfedge.face);
+      halfedge.edge = remap_handle(edgeMap, halfedge.edge);
+      GEO_ASSERT(halfedge.targetVertex.is_valid() && halfedge.twin.is_valid() && halfedge.next.is_valid()
+                 && halfedge.prev.is_valid() && halfedge.edge.is_valid());
+    }
+    for (Edge& edge : m_edges)
+    {
+      edge.halfedge = remap_handle(halfedgeMap, edge.halfedge);
+      GEO_ASSERT(edge.halfedge.is_valid());
+    }
+    for (Face& face : m_faces)
+    {
+      face.set_halfedgehandle(remap_handle(halfedgeMap, face.get_halfedgehandle()));
+      GEO_ASSERT(face.get_halfedgehandle().is_valid());
+    }
+
+    m_deletedVertexCount = 0;
+    m_deletedEdgeCount = 0;
+    m_deletedFaceCount = 0;
+  }
+
   // Validates internal CONNECTIVITY consistency only: handle ranges, twin involution, next/prev
   // reciprocity, face-cycle shape, the boundary-representative convention, and the per-halfedge fan
   // round-trip (each halfedge is rediscovered by find_halfedge from its source vertex). It
@@ -1032,6 +1105,7 @@ public:
   // single fan reachable from the stored halfedge. That topological property is a separate concern
   // checked by verify_vertex_manifold() in MeshManifold.hpp; keep the two distinct. Safe (terminates,
   // returns false) on corrupt meshes: the fan walks it relies on are bounded by the halfedge count.
+  // Tombstoned elements are skipped, but a live element referencing a tombstoned one fails the check.
   GEO_NODISCARD bool has_valid_connectivity() const noexcept
   {
     for (size_type i = 0; i < m_halfedges.size(); ++i)
@@ -1049,13 +1123,28 @@ public:
       {
         return false;
       }
+      if (is_deleted(make_handle<HalfedgeHandle>(i)))
+      {
+        continue;
+      }
+      // A live halfedge must not reference a tombstoned element: garbage_collection() would drop it.
+      if (is_deleted(halfedge.targetVertex) || is_deleted(halfedge.next) || is_deleted(halfedge.prev)
+          || is_deleted(halfedge.twin) || (halfedge.face.is_valid() && is_deleted(halfedge.face)))
+      {
+        return false;
+      }
     }
 
     for (size_type i = 0; i < m_vertices.size(); ++i)
     {
       const VertexHandle vertex = make_handle<VertexHandle>(i);
+      if (m_vertices[i].deleted)
+      {
+        continue;
+      }
       const HalfedgeHandle halfedge = m_vertices[i].halfedge;
-      if (halfedge.is_valid() && (!contains(halfedge) || unchecked_source_vertex(halfedge) != vertex))
+      if (halfedge.is_valid()
+          && (!contains(halfedge) || is_deleted(halfedge) || unchecked_source_vertex(halfedge) != vertex))
       {
         return false;
       }
@@ -1073,8 +1162,12 @@ public:
     for (size_type i = 0; i < m_faces.size(); ++i)
     {
       const FaceHandle face = make_handle<FaceHandle>(i);
+      if (m_faces[i].is_deleted())
+      {
+        continue;
+      }
       const HalfedgeHandle firstHalfedge = m_faces[i].get_halfedgehandle();
-      if (!contains(firstHalfedge))
+      if (!contains(firstHalfedge) || is_deleted(firstHalfedge))
       {
         return false;
       }
@@ -1101,6 +1194,10 @@ public:
     for (size_type i = 0; i < m_edges.size(); ++i)
     {
       const EdgeHandle edge = make_handle<EdgeHandle>(i);
+      if (m_edges[i].deleted)
+      {
+        continue;
+      }
       const HalfedgeHandle halfedge = m_edges[i].halfedge;
       if (!contains(halfedge) || m_halfedges[handle_index(halfedge)].edge != edge)
       {
@@ -1112,6 +1209,10 @@ public:
     {
       const HalfedgeHandle halfedgeHandle = make_handle<HalfedgeHandle>(i);
       const Halfedge& halfedge = m_halfedges[i];
+      if (is_deleted(halfedgeHandle))
+      {
+        continue;
+      }
 
       if (m_halfedges[handle_index(halfedge.next)].prev != halfedgeHandle
           || m_halfedges[handle_index(halfedge.prev)].next != halfedgeHandle)
@@ -1153,6 +1254,29 @@ public:
   }
 
 private:
+  // Tombstone primitives, reached through MeshConnectivityView::mark_deleted. They set the flag and
+  // the counter only; relinking the surrounding connectivity is the caller's job.
+  void mark_deleted(VertexHandle handle) noexcept
+  {
+    GEO_ASSERT(!is_deleted(handle));
+    get_vertex(handle).deleted = true;
+    ++m_deletedVertexCount;
+  }
+
+  void mark_deleted(EdgeHandle handle) noexcept
+  {
+    GEO_ASSERT(!is_deleted(handle));
+    get_edge(handle).deleted = true;
+    ++m_deletedEdgeCount;
+  }
+
+  void mark_deleted(FaceHandle handle) noexcept
+  {
+    GEO_ASSERT(!is_deleted(handle));
+    get_face(handle).set_deleted(true);
+    ++m_deletedFaceCount;
+  }
+
   GEO_NODISCARD VertexHandle unchecked_source_vertex(HalfedgeHandle halfedge) const noexcept
   {
     return m_halfedges[handle_index(m_halfedges[handle_index(halfedge)].prev)].targetVertex;
@@ -1181,10 +1305,89 @@ private:
     return handle.is_valid() && handle_index(handle) < count;
   }
 
+  template <typename THandle>
+  GEO_NODISCARD constexpr size_type storage_size_of() const noexcept
+  {
+    if constexpr (std::is_same_v<THandle, VertexHandle>) { return vertex_storage_size(); }
+    else if constexpr (std::is_same_v<THandle, HalfedgeHandle>) { return halfedge_storage_size(); }
+    else if constexpr (std::is_same_v<THandle, EdgeHandle>) { return edge_storage_size(); }
+    else
+    {
+      static_assert(std::is_same_v<THandle, FaceHandle>);
+      return face_storage_size();
+    }
+  }
+
+  template <typename THandle>
+  GEO_NODISCARD constexpr size_type live_count_of() const noexcept
+  {
+    if constexpr (std::is_same_v<THandle, VertexHandle>) { return vertex_count(); }
+    else if constexpr (std::is_same_v<THandle, HalfedgeHandle>) { return halfedge_count(); }
+    else if constexpr (std::is_same_v<THandle, EdgeHandle>) { return edge_count(); }
+    else
+    {
+      static_assert(std::is_same_v<THandle, FaceHandle>);
+      return face_count();
+    }
+  }
+
+  // Maps a pre-collection handle to its post-collection handle. Invalid stays invalid; a handle to a
+  // deleted element maps to invalid, which the callers assert never happens for a live referrer.
+  template <typename THandle>
+  GEO_NODISCARD static THandle remap_handle(const std::vector<handle_value_type>& indexMap, THandle handle) noexcept
+  {
+    if (!handle.is_valid())
+    {
+      return handle;
+    }
+    GEO_ASSERT(handle_index(handle) < indexMap.size());
+    return THandle{indexMap[handle_index(handle)]};
+  }
+
+  // Builds the old -> new index map for one element kind: live elements get consecutive indices in
+  // their original order, deleted ones get the invalid index.
+  template <typename THandle>
+  GEO_NODISCARD std::vector<handle_value_type> make_compaction_map() const
+  {
+    const size_type storageSize = storage_size_of<THandle>();
+    std::vector<handle_value_type> indexMap(storageSize, THandle{}.get_value());
+    handle_value_type nextIndex = 0;
+    for (size_type i = 0; i < storageSize; ++i)
+    {
+      if (!is_deleted(make_handle<THandle>(i)))
+      {
+        indexMap[i] = nextIndex++;
+      }
+    }
+    return indexMap;
+  }
+
+  // Moves every live element to its mapped slot and drops the tail. Stable, so the map's increasing
+  // order guarantees a slot is read before it is overwritten.
+  template <typename TElement>
+  static void compact_storage(std::vector<TElement>& storage, const std::vector<handle_value_type>& indexMap) noexcept
+  {
+    constexpr handle_value_type invalidIndex = Handle<handle_value_type>{}.get_value();
+    size_type liveCount = 0;
+    for (size_type i = 0; i < storage.size(); ++i)
+    {
+      if (indexMap[i] != invalidIndex)
+      {
+        GEO_ASSERT(indexMap[i] == liveCount);
+        storage[liveCount++] = storage[i];
+      }
+    }
+    storage.erase(storage.begin() + static_cast<std::ptrdiff_t>(liveCount), storage.end());
+  }
+
   std::vector<Vertex> m_vertices;
   std::vector<Halfedge> m_halfedges;
   std::vector<Face> m_faces;
   std::vector<Edge> m_edges;
+
+  size_type m_deletedVertexCount{0};
+  size_type m_deletedEdgeCount{0};
+  size_type m_deletedFaceCount{0};
 };
 
 template <typename T>
@@ -1249,8 +1452,11 @@ static_assert(std::forward_iterator<Mesh3d::VertexIterator>);
 static_assert(std::forward_iterator<Mesh3d::HalfedgeIterator>);
 static_assert(std::forward_iterator<Mesh3d::EdgeIterator>);
 static_assert(std::forward_iterator<Mesh3d::FaceIterator>);
-static_assert(std::random_access_iterator<Mesh3d::VertexIterator>);
-static_assert(std::random_access_iterator<Mesh3d::FaceIterator>);
+// Bidirectional, not random access: iteration skips tombstoned elements.
+static_assert(std::bidirectional_iterator<Mesh3d::VertexIterator>);
+static_assert(std::bidirectional_iterator<Mesh3d::HalfedgeIterator>);
+static_assert(std::bidirectional_iterator<Mesh3d::EdgeIterator>);
+static_assert(std::bidirectional_iterator<Mesh3d::FaceIterator>);
 } // namespace detail
 
 } // namespace Geometry

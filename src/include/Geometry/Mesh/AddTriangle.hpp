@@ -174,9 +174,9 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   connectivity.reserve_halfedges(2 * newEdgeCount);
   connectivity.reserve_edges(newEdgeCount);
 
-  const size_type faceCount = connectivity.face_count();
-  const size_type halfedgeCount = connectivity.halfedge_count();
-  const size_type edgeCount = connectivity.edge_count();
+  const size_type faceCount = connectivity.face_storage_size();
+  const size_type halfedgeCount = connectivity.halfedge_storage_size();
+  const size_type edgeCount = connectivity.edge_storage_size();
 
   // Undo log for links overwritten on pre-existing halfedges/vertices (strong exception safety).
   // nextUndo records overwritten .next (and, via set_next, the paired .prev of the old successor);

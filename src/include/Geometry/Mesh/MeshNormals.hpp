@@ -94,10 +94,10 @@ GEO_NODISCARD HalfedgeNormals<T> compute_halfedge_normals(const TriangleHalfedge
   using size_type = typename Mesh::size_type;
 
   HalfedgeNormals<T> result;
-  result.values.assign(mesh.halfedge_count(), linal::vec3<T>{});
+  result.values.assign(mesh.halfedge_storage_size(), linal::vec3<T>{});
 
   // Precompute each face's flat normal once; corner accumulation reuses them.
-  std::vector<linal::vec3<T>> faceNormals(mesh.face_count(), linal::vec3<T>{});
+  std::vector<linal::vec3<T>> faceNormals(mesh.face_storage_size(), linal::vec3<T>{});
   for (const auto face: mesh.faces())
     if (!detail::mesh_face_normal(mesh, face, faceNormals[static_cast<std::size_t>(face.get_value())]))
       return {{}, MeshNormalStatus::DegenerateGeometry};
@@ -105,7 +105,7 @@ GEO_NODISCARD HalfedgeNormals<T> compute_halfedge_normals(const TriangleHalfedge
   // For each corner (interior halfedge pointing into its vertex), sum angle-weighted face normals
   // over the crease-bounded sector of faces around that vertex. The sector is walked through the
   // outgoing fan around the vertex, stopping at crease edges and boundaries.
-  const size_type faceLimit = mesh.face_count();
+  const size_type faceLimit = mesh.face_storage_size();
   for (const auto face: mesh.faces())
   {
     const auto corners = mesh.halfedges_around_face(face);

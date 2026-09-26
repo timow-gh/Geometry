@@ -62,11 +62,13 @@ class MeshConnectivityView
         requires(is_const(C) && !is_const(Other))
         : m_mesh(other.m_mesh) {}
 
-    // --- element counts -----------------------------------------------------------------
-    GEO_NODISCARD size_type vertex_count() const noexcept { return m_mesh->m_vertices.size(); }
-    GEO_NODISCARD size_type halfedge_count() const noexcept { return m_mesh->m_halfedges.size(); }
-    GEO_NODISCARD size_type face_count() const noexcept { return m_mesh->m_faces.size(); }
-    GEO_NODISCARD size_type edge_count() const noexcept { return m_mesh->m_edges.size(); }
+    // --- storage sizes --------------------------------------------------------------------
+    // Raw storage sizes, tombstoned elements included: the next handle value new_* will hand out, and
+    // the truncation point resize_* rolls back to.
+    GEO_NODISCARD size_type vertex_storage_size() const noexcept { return m_mesh->m_vertices.size(); }
+    GEO_NODISCARD size_type halfedge_storage_size() const noexcept { return m_mesh->m_halfedges.size(); }
+    GEO_NODISCARD size_type face_storage_size() const noexcept { return m_mesh->m_faces.size(); }
+    GEO_NODISCARD size_type edge_storage_size() const noexcept { return m_mesh->m_edges.size(); }
 
     // --- raw element access -------------------------------------------------------------
     GEO_NODISCARD VertexRef vertex(VertexHandle handle) const noexcept { return m_mesh->get_vertex(handle); }
@@ -76,6 +78,13 @@ class MeshConnectivityView
 
     GEO_NODISCARD bool contains(HalfedgeHandle handle) const noexcept { return m_mesh->contains(handle); }
     GEO_NODISCARD bool contains(VertexHandle handle) const noexcept { return m_mesh->contains(handle); }
+    GEO_NODISCARD bool contains(FaceHandle handle) const noexcept { return m_mesh->contains(handle); }
+    GEO_NODISCARD bool contains(EdgeHandle handle) const noexcept { return m_mesh->contains(handle); }
+
+    GEO_NODISCARD bool is_deleted(VertexHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
+    GEO_NODISCARD bool is_deleted(HalfedgeHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
+    GEO_NODISCARD bool is_deleted(FaceHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
+    GEO_NODISCARD bool is_deleted(EdgeHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
 
     // --- connectivity lookup ------------------------------------------------------------
     /**
@@ -124,6 +133,17 @@ class MeshConnectivityView
       m_mesh->m_faces.push_back(Face{});
       return handle;
     }
+
+    /**
+     * \brief Tombstones an element: sets its deleted flag and updates the live counts.
+     *
+     * Nothing is relinked -- the caller must first detach the element so that no live element still
+     * references it, or \c has_valid_connectivity() fails and \c garbage_collection() asserts.
+     * Deleting an edge deletes both of its halfedges. Precondition: not already deleted.
+     */
+    void mark_deleted(VertexHandle handle) const noexcept requires(!is_const(C)) { m_mesh->mark_deleted(handle); }
+    void mark_deleted(EdgeHandle handle) const noexcept requires(!is_const(C)) { m_mesh->mark_deleted(handle); }
+    void mark_deleted(FaceHandle handle) const noexcept requires(!is_const(C)) { m_mesh->mark_deleted(handle); }
 
     // --- reserve / resize support for transactional rollback ----------------------------
     // reserve_* pre-grows storage so a transaction's appends never reallocate mid-way; resize_*

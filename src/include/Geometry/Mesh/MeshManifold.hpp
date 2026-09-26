@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_MESH_MESHMANIFOLD_HPP
 #define GEOMETRY_MESH_MESHMANIFOLD_HPP
 
+#include "Geometry/Mesh/MeshTopology.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <cstddef>
@@ -66,7 +67,7 @@ bounded_single_fan_size(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
     return std::size_t{0};
   }
 
-  const std::size_t limit = mesh.halfedge_count();
+  const std::size_t limit = mesh.halfedge_storage_size();
   std::size_t count = 0;
   HalfedgeHandle current = start;
   do
@@ -138,7 +139,7 @@ GEO_NODISCARD bool verify_vertex_manifold(const TriangleHalfedgeMesh<T, D, TInde
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;
   using VertexHandle = typename Mesh::VertexHandle;
 
-  std::vector<std::size_t> outgoingCount(mesh.vertex_count(), 0);
+  std::vector<std::size_t> outgoingCount(mesh.vertex_storage_size(), 0);
   for (const HalfedgeHandle halfedge : mesh.halfedges())
   {
     ++outgoingCount[mesh.source_vertex(halfedge).get_value()];
