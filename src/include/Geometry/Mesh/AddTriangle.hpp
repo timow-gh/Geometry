@@ -10,29 +10,19 @@
 namespace Geometry
 {
 
-// -----------------------------------------------------------------------------------------------
-// add_triangle inserts one triangular face into a TriangleHalfedgeMesh, maintaining this mesh's
-// halfedge representation:
-//
-//   * The interior halfedge carries the incident face; the opposite halfedge is either the 
-//     interior halfedge of a neighbouring face or a BOUNDARY halfedge whose face is 
-//     invalid (FaceHandle{}).
-//   * Every halfedge therefore always has a valid twin, and boundary halfedges are chained through
-//     next/prev into closed boundary loops (all with invalid face).
-//   * The mesh stays manifold: a vertex's incident faces form a single fan. add_triangle rejects any
-//     triangle that would create a non-manifold edge or a non-manifold vertex.
-//
-// The directed-edge map is kept a bijection halfedge <-> (source,target): interior a->b keyed (a,b);
-// its opposite b->a keyed (b,a).
-// -----------------------------------------------------------------------------------------------
-
 namespace detail
 {
 
-// Precondition check for add_triangle. Uses only the read-only (const) connectivity view. On success
-// `existingInner` is filled with the forward halfedge located for each edge i (vertices[i] ->
-// vertices[i+1]), or an invalid handle where that edge is new; add_triangle reuses these so the
-// forward fan walks are not repeated. On failure `existingInner` is left unspecified.
+/**
+ * \internal
+ * \brief Precondition check for \c add_triangle, over the read-only connectivity view.
+ *
+ * On success \p existingInner is filled with the forward halfedge located for each edge \c i
+ * (\c vertices[i] -> \c vertices[i+1]), or an invalid handle where that edge is new; \c add_triangle
+ * reuses these so the forward fan walks are not repeated. On failure \p existingInner is unspecified.
+ *
+ * \return \c true if the triangle can be added without breaking edge- or vertex-manifoldness.
+ */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD bool can_add_triangle(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
                                     const std::array<typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle, 3>& vertices,
@@ -128,8 +118,20 @@ GEO_NODISCARD bool can_add_triangle(const TriangleHalfedgeMesh<T, D, TIndex>& me
 
 } // namespace detail
 
-// Adds a triangle face spanned by the three vertices (in order). Returns an invalid FaceHandle if the
-// triangle cannot be added. Strongly exception-safe: on failure the mesh is rolled back.
+/**
+ * \brief Inserts one triangular face spanned by \p triangleVertices (in winding order), keeping the
+ * mesh a valid manifold.
+ *
+ * The primary mesh-construction primitive: prefer it over writing the raw connectivity view directly,
+ * since it maintains every halfedge invariant. Each interior halfedge carries the incident face; its
+ * twin is either a neighbouring face's interior halfedge or a boundary halfedge (invalid face) chained
+ * through next/prev into a closed boundary loop. The triangle is rejected -- leaving the mesh
+ * untouched -- when it would create a non-manifold edge or vertex (a vertex's incident faces must form
+ * a single fan). Strongly exception-safe: any failure mid-build is rolled back.
+ *
+ * \param triangleVertices The three corner vertices in winding order.
+ * \return The new face handle, or an invalid \c FaceHandle if the triangle cannot be added.
+ */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD typename TriangleHalfedgeMesh<T, D, TIndex>::FaceHandle
 add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
@@ -436,6 +438,7 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   return face;
 }
 
+/** \brief Convenience overload of \c add_triangle taking the three corners as separate arguments. */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD typename TriangleHalfedgeMesh<T, D, TIndex>::FaceHandle
 add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,

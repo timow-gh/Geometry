@@ -11,15 +11,17 @@
 namespace Geometry
 {
 
-// Low-level connectivity kernel handle for TriangleHalfedgeMesh.
-//
-// This is the "unchecked" tier of the mesh API: it exposes the raw element-creation and
-// link-setting primitives that write algorithms need to build connectivity. None of
-// these primitives validate mesh invariants -- callers are responsible for leaving the
-// mesh in a consistent state.
-//
-// Const-correctness: the const specialization (C == Constness::Const) only exposes const
-// element access and read-only connectivity lookups. Mutators live on the mutable specialization.
+/**
+ * \brief Low-level connectivity kernel view for \c TriangleHalfedgeMesh -- the "unchecked" tier of
+ * the mesh API.
+ *
+ * Exposes the raw element-creation and link-setting primitives that write algorithms (e.g.
+ * \c add_triangle) need to build connectivity directly. None of these primitives validate mesh
+ * invariants; the caller is responsible for leaving the mesh in a consistent state.
+ *
+ * The const specialization (\c C == \c Constness::Const) exposes only const element access and
+ * read-only lookups; mutators live on the mutable specialization via \c requires clauses.
+ */
 template <typename Mesh, Constness C>
 class MeshConnectivityView
 {
@@ -54,7 +56,7 @@ class MeshConnectivityView
     constexpr explicit MeshConnectivityView(MeshPtr mesh) noexcept
         : m_mesh(mesh) {}
 
-    // Non-const -> const conversion only.
+    /** \brief Converts a mutable view to a const view; the reverse is disabled by the \c requires. */
     template <Constness Other>
     constexpr MeshConnectivityView(const MeshConnectivityView<Mesh, Other>& other) noexcept
         requires(is_const(C) && !is_const(Other))
@@ -76,44 +78,56 @@ class MeshConnectivityView
     GEO_NODISCARD bool contains(VertexHandle handle) const noexcept { return m_mesh->contains(handle); }
 
     // --- connectivity lookup ------------------------------------------------------------
-    // Fan walk around `from`; replaces the former persistent directed-edge map.
+    /**
+     * \brief Locates the halfedge from \p from to \p to by walking the fan around \p from, or an
+     * invalid handle if none exists.
+     *
+     * A fan walk rather than a lookup table: it replaces the former persistent directed-edge map, so
+     * there is no side structure to keep in sync across mutations.
+     */
     GEO_NODISCARD HalfedgeHandle find_halfedge(VertexHandle from, VertexHandle to) const noexcept
     {
       return m_mesh->find_halfedge(from, to);
     }
 
     // --- mutating primitives (mutable specialization only) ------------------------------
+    /** \brief Appends a vertex at \p position and returns its handle; sets no connectivity. */
     GEO_NODISCARD VertexHandle new_vertex(const vec_t& position) const
       requires(!is_const(C))
     {
       return m_mesh->add_vertex(position);
     }
 
+    /** \brief Appends a default (unlinked) halfedge and returns its handle. */
     GEO_NODISCARD HalfedgeHandle new_halfedge() const
       requires(!is_const(C))
     {
-      HalfedgeHandle const handle = Mesh::template make_handle<HalfedgeHandle>(m_mesh->m_halfedges.size());
+      const HalfedgeHandle handle = Mesh::template make_handle<HalfedgeHandle>(m_mesh->m_halfedges.size());
       m_mesh->m_halfedges.push_back(Halfedge{});
       return handle;
     }
 
+    /** \brief Appends an edge referencing \p halfedge and returns its handle. */
     GEO_NODISCARD EdgeHandle new_edge(HalfedgeHandle halfedge) const
       requires(!is_const(C))
     {
-      EdgeHandle const handle = Mesh::template make_handle<EdgeHandle>(m_mesh->m_edges.size());
+      const EdgeHandle handle = Mesh::template make_handle<EdgeHandle>(m_mesh->m_edges.size());
       m_mesh->m_edges.push_back(Edge{halfedge});
       return handle;
     }
 
+    /** \brief Appends a default (unlinked) face and returns its handle. */
     GEO_NODISCARD FaceHandle new_face() const
       requires(!is_const(C))
     {
-      FaceHandle const handle = Mesh::template make_handle<FaceHandle>(m_mesh->m_faces.size());
+      const FaceHandle handle = Mesh::template make_handle<FaceHandle>(m_mesh->m_faces.size());
       m_mesh->m_faces.push_back(Face{});
       return handle;
     }
 
     // --- reserve / resize support for transactional rollback ----------------------------
+    // reserve_* pre-grows storage so a transaction's appends never reallocate mid-way; resize_*
+    // truncates back to a prior element count to undo the appends on rollback.
     void reserve_faces(size_type additional) const requires(!is_const(C)) { m_mesh->m_faces.reserve(m_mesh->m_faces.size() + additional); }
     void reserve_halfedges(size_type additional) const requires(!is_const(C)) { m_mesh->m_halfedges.reserve(m_mesh->m_halfedges.size() + additional); }
     void reserve_edges(size_type additional) const requires(!is_const(C)) { m_mesh->m_edges.reserve(m_mesh->m_edges.size() + additional); }

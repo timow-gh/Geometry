@@ -90,6 +90,10 @@ public:
   struct Edge
   {
     HalfedgeHandle halfedge{};
+    // A crease (feature) edge marks a shading discontinuity: normals are averaged across
+    // non-crease edges but kept separate across crease edges, giving a sharp look. Defaults to
+    // smooth so existing meshes are unaffected.
+    bool crease{false};
   };
 
   template <typename Mesh, Constness C>
@@ -715,6 +719,10 @@ public:
     GEO_ASSERT(contains(handle));
     return m_edges[handle_index(handle)];
   }
+
+  // Crease (feature) tagging: drives smooth-vs-flat shading. See Edge::crease.
+  GEO_NODISCARD bool is_crease(EdgeHandle handle) const noexcept { return get_edge(handle).crease; }
+  void set_crease(EdgeHandle handle, bool crease) noexcept { get_edge(handle).crease = crease; }
 
   GEO_NODISCARD const vec_t& get_position(VertexHandle handle) const noexcept { return get_vertex(handle).position; }
 

@@ -13,8 +13,12 @@
 namespace Geometry
 {
 
-// Returns the Euler characteristic chi = V - E + F. Signed because a mesh with boundary or several
-// components can have chi larger than 2.
+/**
+ * \brief Euler characteristic chi = V - E + F of the mesh.
+ *
+ * \return The signed characteristic; signed because a mesh with boundary or several components can
+ * exceed 2.
+ */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD std::ptrdiff_t euler_characteristic(const TriangleHalfedgeMesh<T, D, TIndex>& mesh) noexcept
 {
@@ -24,9 +28,13 @@ GEO_NODISCARD std::ptrdiff_t euler_characteristic(const TriangleHalfedgeMesh<T, 
   return vertexCount - edgeCount + faceCount;
 }
 
-// Enumerates the boundary loops of the mesh. Each loop is the ordered list of boundary halfedges
-// (halfedges with no incident face) forming one closed boundary cycle. A closed (watertight) mesh
-// returns an empty result.
+/**
+ * \brief Enumerates the boundary loops of the mesh, one ordered cycle of boundary halfedges each.
+ *
+ * Each loop lists the halfedges with no incident face forming one closed boundary cycle. O(H).
+ *
+ * \return One entry per boundary loop; empty for a closed (watertight) mesh.
+ */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD std::vector<std::vector<typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle>>
 boundary_loops(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
@@ -65,8 +73,13 @@ boundary_loops(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
   return loops;
 }
 
-// Returns the number of connected components (flood fill over faces across shared, non-boundary
-// edges). Isolated vertices are ignored; a mesh with no faces has zero components.
+/**
+ * \brief Number of connected components, by flood fill over faces across shared, non-boundary edges.
+ *
+ * Isolated vertices are ignored, so a mesh with no faces has zero components. O(H).
+ *
+ * \return The component count.
+ */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD std::size_t num_connected_components(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
 {
@@ -108,16 +121,19 @@ GEO_NODISCARD std::size_t num_connected_components(const TriangleHalfedgeMesh<T,
   return componentCount;
 }
 
-// Returns the genus of the surface, or std::nullopt when the formula does not yield a non-negative
-// integer.
-//
-// For a connected, orientable, manifold surface with b boundary loops:
-//   V - E + F = 2 - 2g - b   =>   g = (2 - b - chi) / 2
-// Genus counts handles and is defined for surfaces with boundary as well as closed ones (a disc
-// has genus 0). Preconditions (ASSUMED, not checked at runtime): the mesh is manifold and connected
-// (exactly one component); the halfedge kernel is orientable by construction. Verify manifoldness with
-// verify_manifold() and connectedness with num_connected_components() beforehand if unsure -- genus
-// assumes both, like every other mesh algorithm, and only guards its own arithmetic.
+/**
+ * \brief Genus (handle count) of the surface.
+ *
+ * Defined for surfaces with boundary as well as closed ones (a disc has genus 0), from
+ * \c V - E + F = 2 - 2g - b for a connected, orientable, manifold surface with \c b boundary loops,
+ * so \c g = (2 - b - chi) / 2.
+ *
+ * Preconditions are ASSUMED, not checked at runtime: the mesh is manifold and connected (exactly one
+ * component); the halfedge kernel is orientable by construction. Verify with \c verify_manifold() and
+ * \c num_connected_components() beforehand if unsure -- genus guards only its own arithmetic.
+ *
+ * \return The genus, or \c std::nullopt when the formula does not yield a non-negative integer.
+ */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD std::optional<std::size_t> genus(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
 {

@@ -4,7 +4,7 @@
 
 #include <Geometry/Segment.hpp>
 
-#include <geoqik/GeoQik.hpp>
+#include <GeoQik/GeoQik.hpp>
 
 #include <linal/vec.hpp>
 
