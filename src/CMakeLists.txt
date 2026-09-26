@@ -17,6 +17,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/MeshOrientation.hpp
         include/Geometry/Mesh/MeshCollapse.hpp
         include/Geometry/Mesh/MeshVertexRemoval.hpp
+        include/Geometry/Mesh/MeshDelete.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectAABBHelper.hpp

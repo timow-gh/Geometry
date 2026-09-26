@@ -145,6 +145,24 @@ class MeshConnectivityView
     void mark_deleted(EdgeHandle handle) const noexcept requires(!is_const(C)) { m_mesh->mark_deleted(handle); }
     void mark_deleted(FaceHandle handle) const noexcept requires(!is_const(C)) { m_mesh->mark_deleted(handle); }
 
+    /**
+     * \brief Re-establishes the boundary representative rule for \p vertex after its fan changed: a
+     * boundary vertex must store a boundary outgoing halfedge.
+     *
+     * Removal operators call this for every vertex whose fan they edited. Precondition: the stored
+     * halfedge is a live outgoing halfedge of \p vertex. O(valence).
+     */
+    void restore_boundary_representative(VertexHandle vertex) const noexcept requires(!is_const(C))
+    {
+      HalfedgeHandle& stored = m_mesh->get_vertex(vertex).halfedge;
+      GEO_ASSERT(stored.is_valid() && !m_mesh->is_deleted(stored));
+      const HalfedgeHandle boundary = m_mesh->find_outgoing_boundary(stored);
+      if (boundary.is_valid())
+      {
+        stored = boundary;
+      }
+    }
+
     // --- reserve / resize support for transactional rollback ----------------------------
     // reserve_* pre-grows storage so a transaction's appends never reallocate mid-way; resize_*
     // truncates back to a prior element count to undo the appends on rollback.

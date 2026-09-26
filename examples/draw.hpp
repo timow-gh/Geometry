@@ -111,7 +111,9 @@ inline geoqik_uuid_t draw(const linal::float3& source, const color& color) {
 }
 
 template <std::floating_point T, typename TIndex>
-inline geoqik_uuid_t draw(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& mesh, const color& surfaceColor) {
+inline geoqik_uuid_t draw(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
+                          const color& surfaceColor,
+                          float segmentLineWidth = 5.0f) {
     // Split vertices along crease edges so each render vertex carries one normal, matching geoqik's
     // one-normal-per-vertex contract. Smooth sectors stay shared; creases produce sharp shading.
     const auto buffers = Geometry::make_render_buffers(mesh);
@@ -128,7 +130,7 @@ inline geoqik_uuid_t draw(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& me
     options.segmentIndexCount = buffers.segments.size();
     options.segmentColor = edgeColor.rgba.data();
     options.showSegments = 1;
-    options.segmentLineWidth = 5.0f;
+    options.segmentLineWidth = segmentLineWidth;
     options.showVertices = 0;
     options.vertexPointSize = 2.0f;
     const auto result = geoqik_add_mesh_opts(buffers.positions.data(), buffers.vertex_count(),

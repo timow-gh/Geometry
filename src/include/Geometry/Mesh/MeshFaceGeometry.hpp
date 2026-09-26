@@ -4,13 +4,60 @@
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 
+#include <cstdint>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
+#include <type_traits>
 
 namespace Geometry
 {
 namespace detail
 {
+
+/**
+ * \internal
+ * \brief Orientation of the triangle (a, b, c): the area vector (cross product of two edges) in 3D,
+ * the signed doubled area in 2D.
+ *
+ * One primitive for both dimensions, so orientation tests (flip checks, hole triangulation) are
+ * written once: two triangles agree in orientation iff \c orientation_dot of theirs is positive, and
+ * a triangle is degenerate iff \c orientation_dot with itself is zero.
+ */
+template <typename T, std::uint8_t D>
+GEO_NODISCARD auto triangle_orientation(const linal::vec<T, D>& a, const linal::vec<T, D>& b, const linal::vec<T, D>& c) noexcept
+{
+  static_assert(D == 2 || D == 3, "orientation is defined for planar and spatial triangles only");
+  using Vec = linal::vec<T, D>;
+
+  const Vec first{b - a};
+  const Vec second{c - a};
+  if constexpr (D == 3)
+  {
+    return linal::vec3<T>{linal::cross(first, second)};
+  }
+  else
+  {
+    return first[0] * second[1] - first[1] * second[0];
+  }
+}
+
+/**
+ * \internal
+ * \brief Inner product of two \c triangle_orientation values: positive when the triangles agree in
+ * orientation; with itself, the squared doubled area.
+ */
+template <typename TOrientation>
+GEO_NODISCARD auto orientation_dot(const TOrientation& lhs, const TOrientation& rhs) noexcept
+{
+  if constexpr (std::is_arithmetic_v<TOrientation>)
+  {
+    return lhs * rhs;
+  }
+  else
+  {
+    return linal::dot(lhs, rhs);
+  }
+}
 
 /**
  * \internal

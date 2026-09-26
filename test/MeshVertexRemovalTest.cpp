@@ -10,9 +10,11 @@
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <limits>
 #include <random>
 #include <utility>
 #include <vector>
@@ -313,4 +315,210 @@ TEST(MeshVertexRemovalFuzz, ClosedSurfaceDecimationKeepsTopology)
     ASSERT_TRUE(is_consistently_oriented(mesh));
   }
   EXPECT_LT(mesh.vertex_count(), 20U);
+}
+
+// --- remove_vertex_retriangulate --------------------------------------------------------------
+
+TEST(MeshVertexRetriangulation, RejectsInvalidAndDeletesIsolatedVertex)
+{
+  Mesh mesh = make_grid(3);
+  EXPECT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{}), VertexRemovalStatus::InvalidHandle);
+
+  const VertexHandle isolated = mesh.add_vertex({5.0, 5.0, 0.0});
+  EXPECT_EQ(remove_vertex_retriangulate(mesh, isolated), VertexRemovalStatus::Ok);
+  EXPECT_TRUE(mesh.is_deleted(isolated));
+  EXPECT_EQ(remove_vertex_retriangulate(mesh, isolated), VertexRemovalStatus::InvalidHandle);
+}
+
+TEST(MeshVertexRetriangulation, RemovesInteriorVertex)
+{
+  Mesh mesh = make_grid(3);
+  const ElementCounts before = counts_of(mesh);
+
+  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{4}), VertexRemovalStatus::Ok);
+
+  EXPECT_TRUE(mesh.is_deleted(VertexHandle{4}));
+  EXPECT_EQ(counts_of(mesh), (ElementCounts{before.vertices - 1, before.edges - 3, before.faces - 2}));
+  EXPECT_EQ(euler_characteristic(mesh), 1);
+  EXPECT_EQ(boundary_loops(mesh).front().size(), 8U);
+  EXPECT_TRUE(all_faces_face_up(mesh));
+  expect_structurally_valid(mesh);
+  mesh.garbage_collection();
+  expect_structurally_valid(mesh);
+}
+
+TEST(MeshVertexRetriangulation, PrefersWellShapedTriangles)
+{
+  // Rhombus ring: splitting along the short diagonal gives two fat triangles (cost 7), the long one
+  // two slivers (cost 13).
+  Mesh mesh = make_fan({{2.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {-2.0, 0.0, 0.0}, {0.0, -1.0, 0.0}});
+
+  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{0}), VertexRemovalStatus::Ok);
+
+  EXPECT_TRUE(mesh.find_halfedge(VertexHandle{2}, VertexHandle{4}).is_valid());
+  EXPECT_FALSE(mesh.find_halfedge(VertexHandle{1}, VertexHandle{3}).is_valid());
+  EXPECT_EQ(mesh.face_count(), 2U);
+  EXPECT_TRUE(all_faces_face_up(mesh));
+  expect_structurally_valid(mesh);
+}
+
+TEST(MeshVertexRetriangulation, SucceedsWhereEveryFanFoldsOver)
+{
+  Mesh mesh = make_fan(pinwheelRing);
+  ASSERT_EQ(remove_vertex(mesh, VertexHandle{0}).status, CollapseStatus::InvertsFaces);
+
+  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{0}), VertexRemovalStatus::Ok);
+
+  EXPECT_EQ(mesh.face_count(), pinwheelRing.size() - 2);
+  EXPECT_EQ(mesh.edge_count(), 2 * pinwheelRing.size() - 3);
+  EXPECT_TRUE(all_faces_face_up(mesh));
+  expect_structurally_valid(mesh);
+}
+
+TEST(MeshVertexRetriangulation, RemovesBoundaryVertex)
+{
+  Mesh mesh = make_grid(3);
+  const ElementCounts before = counts_of(mesh);
+
+  // (1, 0): the hole is closed by a new boundary edge (0,0)-(2,0).
+  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{1}), VertexRemovalStatus::Ok);
+
+  EXPECT_EQ(counts_of(mesh), (ElementCounts{before.vertices - 1, before.edges - 2, before.faces - 1}));
+  EXPECT_TRUE(mesh.find_halfedge(VertexHandle{0}, VertexHandle{2}).is_valid());
+  ASSERT_EQ(boundary_loops(mesh).size(), 1U);
+  EXPECT_EQ(boundary_loops(mesh).front().size(), 7U);
+  EXPECT_TRUE(all_faces_face_up(mesh));
+  expect_structurally_valid(mesh);
+}
+
+TEST(MeshVertexRetriangulation, RemovesEarVertex)
+{
+  Mesh mesh = make_grid(3);
+  const ElementCounts before = counts_of(mesh);
+
+  // Corner (2, 0) has a single face; removing it just drops that face.
+  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{2}), VertexRemovalStatus::Ok);
+
+  EXPECT_EQ(counts_of(mesh), (ElementCounts{before.vertices - 1, before.edges - 2, before.faces - 1}));
+  EXPECT_TRUE(mesh.is_boundary(mesh.get_halfedge(mesh.find_halfedge(VertexHandle{1}, VertexHandle{5})).edge));
+  EXPECT_EQ(boundary_loops(mesh).front().size(), 7U);
+  expect_structurally_valid(mesh);
+}
+
+TEST(MeshVertexRetriangulation, ReportsTopologicalObstructions)
+{
+  Mesh triangle;
+  const VertexHandle vertex0 = triangle.add_vertex({0.0, 0.0, 0.0});
+  const VertexHandle vertex1 = triangle.add_vertex({1.0, 0.0, 0.0});
+  const VertexHandle vertex2 = triangle.add_vertex({0.0, 1.0, 0.0});
+  ASSERT_TRUE(add_triangle(triangle, vertex0, vertex1, vertex2).is_valid());
+  EXPECT_EQ(remove_vertex_retriangulate(triangle, vertex0), VertexRemovalStatus::IsolatedTriangle);
+  EXPECT_FALSE(triangle.has_garbage());
+
+  Mesh tetrahedron = make_tetrahedron();
+  EXPECT_EQ(remove_vertex_retriangulate(tetrahedron, VertexHandle{0}), VertexRemovalStatus::Tetrahedron);
+  EXPECT_FALSE(tetrahedron.has_garbage());
+
+  // A two-face fan around a boundary vertex whose two boundary neighbours are already joined by a
+  // back face: closing the hole would duplicate that edge.
+  Mesh closedBack;
+  const VertexHandle hub = closedBack.add_vertex({0.0, 0.0, 0.0});
+  const VertexHandle right = closedBack.add_vertex({1.0, 0.0, 0.0});
+  const VertexHandle top = closedBack.add_vertex({0.0, 1.0, 0.0});
+  const VertexHandle left = closedBack.add_vertex({-1.0, 0.0, 0.0});
+  ASSERT_TRUE(add_triangle(closedBack, hub, right, top).is_valid());
+  ASSERT_TRUE(add_triangle(closedBack, hub, top, left).is_valid());
+  ASSERT_TRUE(add_triangle(closedBack, left, top, right).is_valid());
+  ASSERT_TRUE(is_boundary(closedBack, hub));
+  EXPECT_EQ(remove_vertex_retriangulate(closedBack, hub), VertexRemovalStatus::DuplicateEdge);
+  EXPECT_FALSE(closedBack.has_garbage());
+}
+
+TEST(MeshVertexRetriangulation, TriangulatePolygonRespectsForbiddenDiagonals)
+{
+  const auto uniform = [](std::size_t, std::size_t, std::size_t) { return 1.0; };
+  const auto forbidZeroTwo = [](std::size_t from, std::size_t to) { return !(from == 0 && to == 2); };
+  const auto quad = detail::triangulate_polygon<double>(4, uniform, forbidZeroTwo);
+  ASSERT_TRUE(quad.has_value());
+  ASSERT_EQ(quad->size(), 2U);
+  for (const auto& triangle : *quad)
+  {
+    // Only the diagonal (1, 3) is left, so both triangles contain corners 1 and 3.
+    EXPECT_TRUE(std::find(triangle.begin(), triangle.end(), std::size_t{1}) != triangle.end());
+    EXPECT_TRUE(std::find(triangle.begin(), triangle.end(), std::size_t{3}) != triangle.end());
+  }
+
+  const auto noDiagonals = [](std::size_t, std::size_t) { return false; };
+  EXPECT_FALSE(detail::triangulate_polygon<double>(5, uniform, noDiagonals).has_value());
+  EXPECT_TRUE(detail::triangulate_polygon<double>(3, uniform, noDiagonals).has_value());
+
+  const auto forbidden = [](std::size_t, std::size_t, std::size_t) { return std::numeric_limits<double>::infinity(); };
+  const auto anyDiagonal = [](std::size_t, std::size_t) { return true; };
+  EXPECT_FALSE(detail::triangulate_polygon<double>(6, forbidden, anyDiagonal).has_value());
+  EXPECT_EQ(detail::triangulate_polygon<double>(7, uniform, anyDiagonal)->size(), 5U);
+}
+
+TEST(MeshVertexRetriangulationFuzz, PlanarDecimationNeverFoldsOver)
+{
+  for (std::uint32_t seed = 1; seed <= 5; ++seed)
+  {
+    Mesh mesh = make_grid(8, 0.1, seed);
+    std::mt19937 generator(seed);
+    std::size_t removedCount = 0;
+
+    for (int attempt = 0; attempt < 200 && mesh.face_count() > 1; ++attempt)
+    {
+      const std::vector<VertexHandle> live(mesh.vertices().begin(), mesh.vertices().end());
+      std::uniform_int_distribution<std::size_t> pick(0, live.size() - 1);
+      const VertexHandle vertex = live[pick(generator)];
+      const bool boundary = is_boundary(mesh, vertex);
+      const ElementCounts before = counts_of(mesh);
+
+      if (remove_vertex_retriangulate(mesh, vertex) != VertexRemovalStatus::Ok)
+      {
+        ASSERT_EQ(counts_of(mesh), before);
+        continue;
+      }
+
+      ++removedCount;
+      const ElementCounts expected = boundary ? ElementCounts{before.vertices - 1, before.edges - 2, before.faces - 1}
+                                              : ElementCounts{before.vertices - 1, before.edges - 3, before.faces - 2};
+      ASSERT_EQ(counts_of(mesh), expected) << "seed " << seed << ", attempt " << attempt;
+      ASSERT_TRUE(all_faces_face_up(mesh)) << "seed " << seed << ", attempt " << attempt;
+      ASSERT_TRUE(mesh.has_valid_connectivity());
+      ASSERT_TRUE(verify_manifold(mesh));
+    }
+
+    EXPECT_GT(removedCount, 40U) << "seed " << seed;
+    mesh.garbage_collection();
+    expect_structurally_valid(mesh);
+    EXPECT_TRUE(all_faces_face_up(mesh));
+  }
+}
+
+TEST(MeshVertexRetriangulationFuzz, ClosedSurfaceDecimationKeepsTopology)
+{
+  const Cylinder<double> cylinder{Segment3<double>{{0.0, 0.0, 0.0}, {0.0, 0.0, 2.0}}, 1.0};
+  auto creation = make_triangle_mesh(cylinder, 16);
+  ASSERT_TRUE(creation.has_value());
+  Mesh mesh = std::move(creation.mesh);
+  std::mt19937 generator(11);
+  std::size_t removedCount = 0;
+
+  for (int attempt = 0; attempt < 200 && mesh.vertex_count() > 4; ++attempt)
+  {
+    const std::vector<VertexHandle> live(mesh.vertices().begin(), mesh.vertices().end());
+    std::uniform_int_distribution<std::size_t> pick(0, live.size() - 1);
+    if (remove_vertex_retriangulate(mesh, live[pick(generator)]) != VertexRemovalStatus::Ok)
+    {
+      continue;
+    }
+    ++removedCount;
+    ASSERT_EQ(euler_characteristic(mesh), 2);
+    ASSERT_TRUE(verify_closed(mesh));
+    ASSERT_TRUE(mesh.has_valid_connectivity());
+    ASSERT_TRUE(verify_manifold(mesh));
+    ASSERT_TRUE(is_consistently_oriented(mesh));
+  }
+  EXPECT_GT(removedCount, 15U);
 }

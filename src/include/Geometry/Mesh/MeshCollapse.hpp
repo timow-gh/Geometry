@@ -1,6 +1,7 @@
 #ifndef GEOMETRY_MESH_MESHCOLLAPSE_HPP
 #define GEOMETRY_MESH_MESHCOLLAPSE_HPP
 
+#include "Geometry/Mesh/MeshFaceGeometry.hpp"
 #include "Geometry/Mesh/MeshResult.hpp"
 #include "Geometry/Mesh/MeshTopology.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
@@ -267,28 +268,6 @@ void remove_collapsed_loop(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
 
 /**
  * \internal
- * \brief Re-establishes the boundary representative rule for \p vertex: a boundary vertex must
- * store a boundary outgoing halfedge. Precondition: the stored halfedge is live.
- */
-template <typename T, std::uint8_t D, typename TIndex>
-void restore_boundary_representative(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
-                                     typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex) noexcept
-{
-  if (!vertex.is_valid())
-  {
-    return;
-  }
-  auto& stored = mesh.connectivity().vertex(vertex).halfedge;
-  GEO_ASSERT(stored.is_valid() && !mesh.is_deleted(stored));
-  const auto boundary = mesh.find_outgoing_boundary(stored);
-  if (boundary.is_valid())
-  {
-    stored = boundary;
-  }
-}
-
-/**
- * \internal
  * \brief Collapses \p halfedge (p -> q) without checking legality: p is deleted and its edges are
  * re-attached to q; the one or two faces on the edge are deleted and each of them merges its two
  * remaining edges into one.
@@ -355,54 +334,34 @@ void collapse_halfedge_unchecked(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   connectivity.mark_deleted(connectivity.halfedge(halfedge).edge);
   connectivity.mark_deleted(removed);
 
-  restore_boundary_representative(mesh, survivor);
-  restore_boundary_representative(mesh, leftApex);
-  restore_boundary_representative(mesh, rightApex);
+  for (const VertexHandle vertex : {survivor, leftApex, rightApex})
+  {
+    if (vertex.is_valid())
+    {
+      connectivity.restore_boundary_representative(vertex);
+    }
+  }
 }
 
 /**
  * \internal
  * \brief Whether moving a triangle's corners from \p before to \p after flips or flattens it.
  *
- * A triangle that was already degenerate has no orientation to lose, so only its becoming
- * non-degenerate counts, never as an inversion. In 3D the orientation is the area vector and a
- * flip is a non-positive dot product; in 2D it is the sign of the signed area.
+ * A triangle that was already degenerate has no orientation to lose, so it counts as inverted only
+ * if it stays degenerate. Works in 2D and 3D via \c triangle_orientation.
  */
 template <typename T, std::uint8_t D>
 GEO_NODISCARD bool triangle_inverts(const std::array<linal::vec<T, D>, 3>& before,
                                     const std::array<linal::vec<T, D>, 3>& after) noexcept
 {
-  static_assert(D == 2 || D == 3, "orientation is defined for planar and spatial triangles only");
-  using Vec = linal::vec<T, D>;
-
-  if constexpr (D == 3)
+  const auto orientationBefore = triangle_orientation(before[0], before[1], before[2]);
+  const auto orientationAfter = triangle_orientation(after[0], after[1], after[2]);
+  if (orientation_dot(orientationAfter, orientationAfter) == T{0})
   {
-    const auto area_vector = [](const std::array<Vec, 3>& corners) {
-      return linal::cross(Vec{corners[1] - corners[0]}, Vec{corners[2] - corners[0]});
-    };
-    const Vec areaBefore = area_vector(before);
-    const Vec areaAfter = area_vector(after);
-    if (linal::length_squared(areaAfter) == T{0})
-    {
-      return true;
-    }
-    return linal::length_squared(areaBefore) != T{0} && linal::dot(areaBefore, areaAfter) <= T{0};
+    return true;
   }
-  else
-  {
-    const auto signed_area = [](const std::array<Vec, 3>& corners) {
-      const Vec first{corners[1] - corners[0]};
-      const Vec second{corners[2] - corners[0]};
-      return first[0] * second[1] - first[1] * second[0];
-    };
-    const T areaBefore = signed_area(before);
-    const T areaAfter = signed_area(after);
-    if (areaAfter == T{0})
-    {
-      return true;
-    }
-    return areaBefore != T{0} && (areaBefore > T{0}) != (areaAfter > T{0});
-  }
+  return orientation_dot(orientationBefore, orientationBefore) != T{0}
+         && orientation_dot(orientationBefore, orientationAfter) <= T{0};
 }
 
 } // namespace detail
