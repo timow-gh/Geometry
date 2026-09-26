@@ -17,24 +17,26 @@ linal::vec3<T> corner_normal(const HalfedgeNormals<T>& normals,
                              const TriangleHalfedgeMesh<T, 3>& mesh,
                              typename TriangleHalfedgeMesh<T, 3>::FaceHandle face,
                              typename TriangleHalfedgeMesh<T, 3>::VertexHandle vertex) {
-    for (const auto halfedge: mesh.halfedges_around_face(face))
-        if (mesh.target_vertex(halfedge) == vertex)
+    for (const auto halfedge: mesh.halfedges_around_face(face)) {
+        if (mesh.target_vertex(halfedge) == vertex) {
             return normals.values[static_cast<std::size_t>(halfedge.get_value())];
+        }
+    }
     return {};
 }
 
 TEST(MeshNormalsTest, FlatTriangleCornerNormalsEqualFaceNormal) {
     TriangleHalfedgeMesh3d mesh;
-    const auto a = mesh.add_vertex({0, 0, 0});
-    const auto b = mesh.add_vertex({1, 0, 0});
-    const auto c = mesh.add_vertex({0, 1, 0});
-    const auto face = add_triangle(mesh, a, b, c);
+    const auto vertexA = mesh.add_vertex({0, 0, 0});
+    const auto vertexB = mesh.add_vertex({1, 0, 0});
+    const auto vertexC = mesh.add_vertex({0, 1, 0});
+    const auto face = add_triangle(mesh, vertexA, vertexB, vertexC);
     ASSERT_TRUE(face.is_valid());
 
     const auto normals = compute_halfedge_normals(mesh);
     ASSERT_TRUE(normals);
     const linal::vec3<double> expected{0, 0, 1};
-    for (const auto vertex: {a, b, c}) {
+    for (const auto vertex: {vertexA, vertexB, vertexC}) {
         const auto normal = corner_normal(normals, mesh, face, vertex);
         EXPECT_NEAR(linal::dot(normal, expected), 1.0, 1e-9);
     }
@@ -45,15 +47,17 @@ TEST(MeshNormalsTest, FlatTriangleCornerNormalsEqualFaceNormal) {
 TEST(MeshNormalsTest, SharedEdgeSmoothVersusCrease) {
     const auto build = [](bool crease) {
         TriangleHalfedgeMesh3d mesh;
-        const auto a = mesh.add_vertex({0, 0, 0});
-        const auto b = mesh.add_vertex({1, 0, 0});
-        const auto c = mesh.add_vertex({0, 1, 0});
-        const auto d = mesh.add_vertex({1, 1, 1}); // lifted so the second triangle tilts
-        EXPECT_TRUE(add_triangle(mesh, a, b, c).is_valid());
-        EXPECT_TRUE(add_triangle(mesh, b, d, c).is_valid());
-        if (crease)
-            for (const auto edge: mesh.edges())
+        const auto vertexA = mesh.add_vertex({0, 0, 0});
+        const auto vertexB = mesh.add_vertex({1, 0, 0});
+        const auto vertexC = mesh.add_vertex({0, 1, 0});
+        const auto vertexD = mesh.add_vertex({1, 1, 1}); // lifted so the second triangle tilts
+        EXPECT_TRUE(add_triangle(mesh, vertexA, vertexB, vertexC).is_valid());
+        EXPECT_TRUE(add_triangle(mesh, vertexB, vertexD, vertexC).is_valid());
+        if (crease) {
+            for (const auto edge: mesh.edges()) {
                 mesh.set_crease(edge, true);
+            }
+        }
         return mesh;
     };
 
@@ -67,18 +71,18 @@ TEST(MeshNormalsTest, SharedEdgeSmoothVersusCrease) {
     // Shared vertices b and c belong to both faces. Find them by value (1 and 2).
     using VertexHandle = TriangleHalfedgeMesh3d::VertexHandle;
     using FaceHandle = TriangleHalfedgeMesh3d::FaceHandle;
-    const VertexHandle b{1};
+    const VertexHandle vertexB{1};
     const FaceHandle face0{0};
     const FaceHandle face1{1};
 
     // Sharp: the two corners at b differ (each equals its own face normal).
-    const auto sharpB0 = corner_normal(sharpNormals, sharp, face0, b);
-    const auto sharpB1 = corner_normal(sharpNormals, sharp, face1, b);
+    const auto sharpB0 = corner_normal(sharpNormals, sharp, face0, vertexB);
+    const auto sharpB1 = corner_normal(sharpNormals, sharp, face1, vertexB);
     EXPECT_LT(linal::dot(sharpB0, sharpB1), 0.999);
 
     // Smooth: the two corners at b are identical (same averaged sector normal).
-    const auto smoothB0 = corner_normal(smoothNormals, smooth, face0, b);
-    const auto smoothB1 = corner_normal(smoothNormals, smooth, face1, b);
+    const auto smoothB0 = corner_normal(smoothNormals, smooth, face0, vertexB);
+    const auto smoothB1 = corner_normal(smoothNormals, smooth, face1, vertexB);
     EXPECT_NEAR(linal::dot(smoothB0, smoothB1), 1.0, 1e-9);
     EXPECT_NEAR(linal::length(smoothB0), 1.0, 1e-9);
 }
@@ -91,27 +95,30 @@ TEST(MeshNormalsTest, CuboidIsFullyFacetedAndSplits) {
     // The 12 real box edges (90 deg dihedral) are creases; the 12 in-face diagonals of the split
     // quads are coplanar (0 deg) and correctly stay smooth, so no seam appears inside a flat face.
     std::size_t creaseCount = 0;
-    for (const auto edge: mesh.edges())
-        if (mesh.is_crease(edge))
+    for (const auto edge: mesh.edges()) {
+        if (mesh.is_crease(edge)) {
             ++creaseCount;
-    EXPECT_EQ(creaseCount, 12u);
+        }
+    }
+    EXPECT_EQ(creaseCount, 12U);
 
     const auto normals = compute_halfedge_normals(mesh);
     ASSERT_TRUE(normals);
     // Each face's three corner normals equal that face's flat normal (all corners split apart).
     for (const auto face: mesh.faces()) {
         const auto handles = mesh.vertices_around_face(face);
-        const linal::vec3<double> e1{mesh.get_vertex(handles[1]).position - mesh.get_vertex(handles[0]).position};
-        const linal::vec3<double> e2{mesh.get_vertex(handles[2]).position - mesh.get_vertex(handles[0]).position};
-        const auto faceNormal = linal::normalize(linal::cross(e1, e2));
-        for (const auto vertex: handles)
+        const linal::vec3<double> edge1{mesh.get_vertex(handles[1]).position - mesh.get_vertex(handles[0]).position};
+        const linal::vec3<double> edge2{mesh.get_vertex(handles[2]).position - mesh.get_vertex(handles[0]).position};
+        const auto faceNormal = linal::normalize(linal::cross(edge1, edge2));
+        for (const auto vertex: handles) {
             EXPECT_NEAR(linal::dot(corner_normal(normals, mesh, face, vertex), faceNormal), 1.0, 1e-9);
+        }
     }
 
     // Fully split: 8 mesh vertices, 3 faces meeting at each corner with distinct normals -> 24.
     const auto buffers = make_render_buffers(mesh);
     ASSERT_TRUE(buffers);
-    EXPECT_EQ(buffers.vertex_count(), 24u);
+    EXPECT_EQ(buffers.vertex_count(), 24U);
     EXPECT_EQ(buffers.normals.size(), buffers.positions.size());
     EXPECT_EQ(buffers.triangles.size(), mesh.face_count() * 3);
 }
@@ -132,15 +139,16 @@ TEST(MeshNormalsTest, ConeWallSmoothCapSharp) {
     // Splitting must increase the render vertex count beyond the mesh vertex count (rim is creased).
     EXPECT_GT(buffers.vertex_count(), mesh.vertex_count());
     EXPECT_EQ(buffers.normals.size(), buffers.positions.size());
-    for (const auto index: buffers.triangles)
+    for (const auto index: buffers.triangles) {
         EXPECT_LT(index, buffers.vertex_count());
+    }
     // Every emitted normal is unit length (or a zero normal only for isolated vertices, of which a
     // closed cone has none).
     for (std::size_t i = 0; i < buffers.normals.size(); i += 3) {
-        const double length = std::sqrt(buffers.normals[i] * buffers.normals[i] +
-                                        buffers.normals[i + 1] * buffers.normals[i + 1] +
-                                        buffers.normals[i + 2] * buffers.normals[i + 2]);
-        EXPECT_NEAR(length, 1.0, 1e-5);
+        const float length = std::sqrt(buffers.normals[i] * buffers.normals[i] +
+                                       buffers.normals[i + 1] * buffers.normals[i + 1] +
+                                       buffers.normals[i + 2] * buffers.normals[i + 2]);
+        EXPECT_NEAR(length, 1.0F, 1e-5F);
     }
 }
 
@@ -148,15 +156,16 @@ TEST(MeshNormalsTest, MarkCreasesByAngleFlatMeshHasNoCreases) {
     // Two coplanar triangles: dihedral angle is 0, so no interior edge should become a crease; only
     // the boundary edges are creases.
     TriangleHalfedgeMesh3d mesh;
-    const auto a = mesh.add_vertex({0, 0, 0});
-    const auto b = mesh.add_vertex({1, 0, 0});
-    const auto c = mesh.add_vertex({0, 1, 0});
-    const auto d = mesh.add_vertex({1, 1, 0});
-    ASSERT_TRUE(add_triangle(mesh, a, b, c).is_valid());
-    ASSERT_TRUE(add_triangle(mesh, b, d, c).is_valid());
+    const auto vertexA = mesh.add_vertex({0, 0, 0});
+    const auto vertexB = mesh.add_vertex({1, 0, 0});
+    const auto vertexC = mesh.add_vertex({0, 1, 0});
+    const auto vertexD = mesh.add_vertex({1, 1, 0});
+    ASSERT_TRUE(add_triangle(mesh, vertexA, vertexB, vertexC).is_valid());
+    ASSERT_TRUE(add_triangle(mesh, vertexB, vertexD, vertexC).is_valid());
     mark_creases_by_angle(mesh, std::numbers::pi / 6);
-    for (const auto edge: mesh.edges())
+    for (const auto edge: mesh.edges()) {
         EXPECT_EQ(mesh.is_crease(edge), mesh.is_boundary(edge));
+    }
 }
 
 } // namespace

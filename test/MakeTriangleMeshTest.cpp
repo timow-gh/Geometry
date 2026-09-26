@@ -23,7 +23,7 @@ void check_solid(const MeshCreationResult<T, TIndex>& result,
     EXPECT_TRUE(verify_manifold(mesh));
     EXPECT_TRUE(verify_closed(mesh));
     EXPECT_TRUE(boundary_loops(mesh).empty());
-    EXPECT_EQ(num_connected_components(mesh), 1u);
+    EXPECT_EQ(num_connected_components(mesh), 1U);
     EXPECT_EQ(euler_characteristic(mesh), 2);
     T volume = 0;
     for (const auto face: mesh.faces()) {
@@ -35,16 +35,18 @@ void check_solid(const MeshCreationResult<T, TIndex>& result,
         EXPECT_GT(linal::dot(normal, first), T{0});
         volume += linal::dot(first, linal::cross(second, third)) / T{6};
         std::size_t neighbors = 0;
-        for (auto circ = mesh.adjacent_faces(face).circulator(); circ.is_valid() && neighbors < 4; ++circ)
+        for (auto circ = mesh.adjacent_faces(face).circulator(); circ.is_valid() && neighbors < 4; ++circ) {
             ++neighbors;
-        EXPECT_EQ(neighbors, 3u);
+        }
+        EXPECT_EQ(neighbors, 3U);
     }
     EXPECT_GT(volume, T{0});
     for (const auto vertex: mesh.vertices()) {
         std::size_t count = 0;
-        for (auto circ = mesh.outgoing_halfedges(vertex).circulator(); circ.is_valid() && count <= faces; ++circ)
+        for (auto circ = mesh.outgoing_halfedges(vertex).circulator(); circ.is_valid() && count <= faces; ++circ) {
             ++count;
-        EXPECT_GE(count, 3u);
+        }
+        EXPECT_GE(count, 3U);
         EXPECT_LE(count, faces);
     }
 }
@@ -64,8 +66,9 @@ TYPED_TEST(PrimitiveMeshTest, Boxes) {
         check_solid(result, 8, 12, linal::vec3<T>{origin + (sides[0] + sides[1] + sides[2]) / T{2}});
         ASSERT_TRUE(result);
         const auto corners = calc_cuboid_vertices(shape);
-        for (const auto vertex: result.mesh.vertices())
+        for (const auto vertex: result.mesh.vertices()) {
             EXPECT_TRUE(linal::is_equal(result.mesh.get_vertex(vertex).position, corners[vertex.get_value()]));
+        }
     }
     const auto result = make_triangle_mesh<T, std::uint8_t>(AABB<T, 3>{origin, linal::vec3<T>{4, 7, 10}});
     check_solid(result, 8, 12, linal::vec3<T>{3, 5, 7});
@@ -76,7 +79,7 @@ TYPED_TEST(PrimitiveMeshTest, RoundShapes) {
     for (const linal::vec3<T> target: {linal::vec3<T>{2, 3, 9}, linal::vec3<T>{5, 7, 8}, linal::vec3<T>{2, 3, -1}}) {
         const linal::vec3<T> source{2, 3, 4};
         const Segment3<T> segment{source, target};
-        for (const std::size_t count: {3u, 4u, 32u}) {
+        for (const std::size_t count: {3U, 4U, 32U}) {
             const auto cone = make_triangle_mesh(Cone<T>{segment, T{2}}, count);
             const auto cylinder = make_triangle_mesh(Cylinder<T>{segment, T{2}}, count);
             check_solid(cone, count + 2, 2 * count, linal::vec3<T>{source + (target - source) / T{4}});
@@ -86,8 +89,9 @@ TYPED_TEST(PrimitiveMeshTest, RoundShapes) {
             const auto axis = segment.direction();
             for (const auto vertex: cylinder.mesh.vertices()) {
                 const auto index = vertex.get_value();
-                if (index >= 2 * count)
+                if (index >= 2 * count) {
                     continue;
+                }
                 const linal::vec3<T> radial{cylinder.mesh.get_vertex(vertex).position -
                                             (index < count ? source : target)};
                 EXPECT_NEAR(linal::length(radial), T{2}, 1e-5);
@@ -103,8 +107,8 @@ TYPED_TEST(PrimitiveMeshTest, RoundShapes) {
     auto result = make_triangle_mesh(Cone<T>{{0, 0, 0}, {0, 0, 2}, T{1}});
     ASSERT_TRUE(result);
     auto mesh = std::move(result.mesh);
-    EXPECT_EQ(mesh.face_count(), 64u);
-    EXPECT_EQ(make_triangle_mesh(Cylinder<T>{Segment3<T>{{0, 0, 0}, {0, 0, 2}}, T{1}}).mesh.face_count(), 128u);
+    EXPECT_EQ(mesh.face_count(), 64U);
+    EXPECT_EQ(make_triangle_mesh(Cylinder<T>{Segment3<T>{{0, 0, 0}, {0, 0, 2}}, T{1}}).mesh.face_count(), 128U);
 }
 
 template <typename T, typename TIndex>
@@ -113,8 +117,8 @@ void check_error(const MeshCreationResult<T, TIndex>& result, MeshCreationStatus
     EXPECT_FALSE(result.has_value());
     EXPECT_EQ(result.error, error);
     EXPECT_TRUE(result.mesh.empty());
-    EXPECT_EQ(result.mesh.edge_count(), 0u);
-    EXPECT_EQ(result.mesh.halfedge_count(), 0u);
+    EXPECT_EQ(result.mesh.edge_count(), 0U);
+    EXPECT_EQ(result.mesh.halfedge_count(), 0U);
 }
 
 TEST(MakeTriangleMeshTest, Errors) {
@@ -167,7 +171,7 @@ TEST(MakeTriangleMeshTest, CheckedInsertionRejectsDuplicate) {
     ASSERT_EQ(detail::add_mesh_creation_triangle(mesh, first, second, third), MeshCreationStatus::Ok);
     EXPECT_EQ(detail::add_mesh_creation_triangle(mesh, first, second, third),
               MeshCreationStatus::TriangleInsertionFailed);
-    EXPECT_EQ(mesh.face_count(), 1u);
+    EXPECT_EQ(mesh.face_count(), 1U);
     EXPECT_TRUE(mesh.has_valid_connectivity());
 }
 } // namespace

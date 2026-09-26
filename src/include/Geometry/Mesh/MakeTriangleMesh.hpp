@@ -152,8 +152,8 @@ MeshCreationResult<T, TIndex> make_round_triangle_mesh(const Segment3<T>& segmen
     const auto bottom = mesh.add_vertex(source);
     const auto top = mesh.add_vertex(target);
     MeshCreationStatus error = MeshCreationStatus::Ok;
-    const auto triangle = [&](VertexHandle first, VertexHandle second, VertexHandle third) {
-        error = add_mesh_creation_triangle(mesh, first, second, third);
+    const auto triangle = [&](VertexHandle v0, VertexHandle v1, VertexHandle v2) {
+        error = add_mesh_creation_triangle(mesh, v0, v1, v2);
         return error == MeshCreationStatus::Ok;
     };
     for (std::size_t i = 0; i < segments; ++i)

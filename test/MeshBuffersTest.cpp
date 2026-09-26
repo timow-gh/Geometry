@@ -32,14 +32,14 @@ TYPED_TEST(MeshBuffersTest, EmptyAndIsolatedVertices) {
 
 TYPED_TEST(MeshBuffersTest, OpenPatchPreservesNumberingWindingAndUniqueEdges) {
     TriangleHalfedgeMesh<TypeParam, 3, std::uint64_t> mesh;
-    const auto first = mesh.add_vertex({0, 0, 0});
-    const auto second = mesh.add_vertex({2, 0, 0});
-    const auto third = mesh.add_vertex({2, 3, 0});
-    const auto fourth = mesh.add_vertex({0, 3, 0});
+    const auto vertex0 = mesh.add_vertex({0, 0, 0});
+    const auto vertex1 = mesh.add_vertex({2, 0, 0});
+    const auto vertex2 = mesh.add_vertex({2, 3, 0});
+    const auto vertex3 = mesh.add_vertex({0, 3, 0});
     const auto isolated = mesh.add_vertex({7, 8, 9});
     ASSERT_TRUE(isolated.is_valid());
-    ASSERT_TRUE(add_triangle(mesh, first, second, third).is_valid());
-    ASSERT_TRUE(add_triangle(mesh, first, third, fourth).is_valid());
+    ASSERT_TRUE(add_triangle(mesh, vertex0, vertex1, vertex2).is_valid());
+    ASSERT_TRUE(add_triangle(mesh, vertex0, vertex2, vertex3).is_valid());
     const auto positions = make_vertex_buffer(mesh);
     const auto triangles = make_triangle_index_buffer(mesh);
     const auto edges = make_edge_index_buffer(mesh);
@@ -47,28 +47,30 @@ TYPED_TEST(MeshBuffersTest, OpenPatchPreservesNumberingWindingAndUniqueEdges) {
     ASSERT_TRUE(triangles);
     ASSERT_TRUE(edges);
     EXPECT_EQ(positions.values, (std::vector<float>{0, 0, 0, 2, 0, 0, 2, 3, 0, 0, 3, 0, 7, 8, 9}));
-    ASSERT_EQ(triangles.values.size(), 6u);
+    ASSERT_EQ(triangles.values.size(), 6U);
     // A circulator may cyclically rotate a triangle, but must preserve its winding.
     for (std::size_t face = 0; face < 2; ++face) {
         const std::array<std::uint32_t, 3> expected =
             face == 0 ? std::array<std::uint32_t, 3>{0, 1, 2} : std::array<std::uint32_t, 3>{0, 2, 3};
         bool matches = false;
-        for (std::size_t rotation = 0; rotation < 3; ++rotation)
+        for (std::size_t rotation = 0; rotation < 3; ++rotation) {
             matches = matches || (triangles.values[3 * face] == expected[rotation] &&
                                   triangles.values[3 * face + 1] == expected[(rotation + 1) % 3] &&
                                   triangles.values[3 * face + 2] == expected[(rotation + 2) % 3]);
+        }
         EXPECT_TRUE(matches);
     }
-    ASSERT_EQ(edges.values.size(), 10u);
+    ASSERT_EQ(edges.values.size(), 10U);
     std::set<std::pair<std::uint32_t, std::uint32_t>> unique;
-    for (std::size_t i = 0; i < edges.values.size(); i += 2)
+    for (std::size_t i = 0; i < edges.values.size(); i += 2) {
         EXPECT_TRUE(
             unique
                 .emplace(std::min(edges.values[i], edges.values[i + 1]), std::max(edges.values[i], edges.values[i + 1]))
                 .second);
+    }
     EXPECT_EQ(unique, (std::set<std::pair<std::uint32_t, std::uint32_t>>{{0, 1}, {1, 2}, {0, 2}, {2, 3}, {0, 3}}));
-    EXPECT_EQ(mesh.vertex_count(), 5u);
-    EXPECT_EQ(mesh.face_count(), 2u);
+    EXPECT_EQ(mesh.vertex_count(), 5U);
+    EXPECT_EQ(mesh.face_count(), 2U);
     EXPECT_TRUE(mesh.has_valid_connectivity());
 }
 
@@ -90,13 +92,13 @@ TEST(MeshBufferErrorsTest, InvalidPositionsDiscardAllValues) {
                   std::isfinite(value) ? MeshBufferStatus::PositionOutOfRange : MeshBufferStatus::NonFinitePosition);
     }
     TriangleHalfedgeMesh3d mesh;
-    const double limit = std::numeric_limits<float>::max();
+    const auto limit = static_cast<double>(std::numeric_limits<float>::max());
     const auto vertex = mesh.add_vertex({limit, -limit, 1.0 / 3});
     ASSERT_TRUE(vertex.is_valid());
     const auto result = make_vertex_buffer(mesh);
     ASSERT_TRUE(result);
     EXPECT_EQ(result.values,
-              (std::vector<float>{std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), 1.0f / 3}));
+              (std::vector<float>{std::numeric_limits<float>::max(), -std::numeric_limits<float>::max(), 1.0F / 3}));
 }
 
 TEST(MeshBufferErrorsTest, CapacityBoundariesWithoutAllocation) {
@@ -121,8 +123,9 @@ TEST(MeshBufferPrimitivesTest, EveryFactoryProducesConsistentBuffers) {
         EXPECT_EQ(positions.values.size(), 3 * mesh.vertex_count());
         EXPECT_EQ(triangles.values.size(), 3 * mesh.face_count());
         EXPECT_EQ(edges.values.size(), 2 * mesh.edge_count());
-        for (const auto index: triangles.values)
+        for (const auto index: triangles.values) {
             EXPECT_LT(index, mesh.vertex_count());
+        }
         std::set<std::pair<std::uint32_t, std::uint32_t>> unique;
         for (std::size_t i = 0; i < edges.values.size(); i += 2) {
             EXPECT_LT(edges.values[i], mesh.vertex_count());
@@ -149,14 +152,17 @@ TEST(MeshRenderBuffersTest, ParallelNormalsRemappedIndicesAndUniqueEdges) {
         EXPECT_EQ(buffers.triangles.size(), 3 * result.mesh.face_count());
         // The overlay carries only crease edges, so it never exceeds the full edge set and is even.
         std::size_t creaseEdges = 0;
-        for (const auto edge: result.mesh.edges())
-            if (result.mesh.is_crease(edge))
+        for (const auto edge: result.mesh.edges()) {
+            if (result.mesh.is_crease(edge)) {
                 ++creaseEdges;
+            }
+        }
         EXPECT_EQ(buffers.segments.size(), 2 * creaseEdges);
         // Splitting only ever adds render vertices relative to the mesh's shared vertices.
         EXPECT_GE(buffers.vertex_count(), result.mesh.vertex_count());
-        for (const auto index: buffers.triangles)
+        for (const auto index: buffers.triangles) {
             EXPECT_LT(index, buffers.vertex_count());
+        }
         std::set<std::pair<std::uint32_t, std::uint32_t>> unique;
         for (std::size_t i = 0; i < buffers.segments.size(); i += 2) {
             EXPECT_LT(buffers.segments[i], buffers.vertex_count());
