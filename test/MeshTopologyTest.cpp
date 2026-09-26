@@ -128,17 +128,17 @@ TEST(MeshTopologyTest, tetrahedronValenceInterior)
 TEST(MeshManifoldTest, singleTriangleIsOpenManifold)
 {
   const Mesh mesh = make_single_triangle();
-  EXPECT_TRUE(is_edge_manifold(mesh));
+  EXPECT_TRUE(verify_edge_manifold(mesh));
   EXPECT_TRUE(verify_vertex_manifold(mesh));
   EXPECT_TRUE(verify_manifold(mesh));
-  EXPECT_FALSE(is_closed(mesh));
+  EXPECT_FALSE(verify_closed(mesh));
 }
 
 TEST(MeshManifoldTest, tetrahedronIsClosedManifold)
 {
   const Mesh mesh = make_tetrahedron();
   EXPECT_TRUE(verify_manifold(mesh));
-  EXPECT_TRUE(is_closed(mesh));
+  EXPECT_TRUE(verify_closed(mesh));
 }
 
 TEST(MeshManifoldTest, nonManifoldVertexRejectedAtConstruction)
@@ -161,7 +161,7 @@ TEST(MeshManifoldTest, nonManifoldVertexRejectedAtConstruction)
   EXPECT_TRUE(verify_vertex_manifold(mesh, shared));
   EXPECT_TRUE(verify_vertex_manifold(mesh));
   EXPECT_TRUE(verify_manifold(mesh));
-  EXPECT_TRUE(is_edge_manifold(mesh));
+  EXPECT_TRUE(verify_edge_manifold(mesh));
 }
 
 // The whole-mesh verify_vertex_manifold overload uses a single O(V+H) pass rather than calling the

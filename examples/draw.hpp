@@ -112,26 +112,27 @@ inline geoqik_uuid_t draw(const linal::float3& source, const color& color) {
 
 template <std::floating_point T, typename TIndex>
 inline geoqik_uuid_t draw(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& mesh, const color& surfaceColor) {
-    const auto vertices = Geometry::make_vertex_buffer(mesh);
-    if (!vertices) fail_example("Create vertex buffer", static_cast<int>(vertices.error));
-    const auto triangles = Geometry::make_triangle_index_buffer(mesh);
-    if (!triangles) fail_example("Create triangle buffer", static_cast<int>(triangles.error));
-    const auto edges = Geometry::make_edge_index_buffer(mesh);
-    if (!edges) fail_example("Create edge buffer", static_cast<int>(edges.error));
+    // Split vertices along crease edges so each render vertex carries one normal, matching geoqik's
+    // one-normal-per-vertex contract. Smooth sectors stay shared; creases produce sharp shading.
+    const auto buffers = Geometry::make_render_buffers(mesh);
+    if (!buffers) fail_example("Create render buffers", static_cast<int>(buffers.error));
 
     const auto edgeColor = black();
     geoqik_add_mesh_opts_t options{};
     options.color = surfaceColor.rgba.data();
     options.colorCount = surfaceColor.rgba.size();
-    options.segmentIndices = edges.values.data();
+    options.normals = buffers.normals.data();
+    options.normalsCount = buffers.normals.size();
+    options.segmentIndices = buffers.segments.data();
     // Unlike vertexCount and triangleCount, this field counts scalar indices.
-    options.segmentIndexCount = edges.values.size();
+    options.segmentIndexCount = buffers.segments.size();
     options.segmentColor = edgeColor.rgba.data();
     options.showSegments = 1;
-    options.segmentLineWidth = 1.0f;
+    options.segmentLineWidth = 5.0f;
     options.showVertices = 0;
-    const auto result = geoqik_add_mesh_opts(vertices.values.data(), vertices.values.size() / 3,
-                                           triangles.values.data(), triangles.values.size() / 3, &options);
+    options.vertexPointSize = 2.0f;
+    const auto result = geoqik_add_mesh_opts(buffers.positions.data(), buffers.vertex_count(),
+                                             buffers.triangles.data(), buffers.triangles.size() / 3, &options);
     check_geoqik(result.err, "Draw mesh");
     return result.geometryId;
 }

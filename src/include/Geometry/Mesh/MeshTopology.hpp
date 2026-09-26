@@ -10,11 +10,14 @@
 namespace Geometry
 {
 
-// Per-element topological queries on a TriangleHalfedgeMesh. They complement (but do not overlap) 
-// the connectivity-consistency check TriangleHalfedgeMesh::has_valid_connectivity(), which validates
-// internal reference consistency rather than topology.
-
-// Returns true if the vertex has no incident halfedge (it belongs to no edge or face).
+/**
+ * \brief Whether \p vertex has no incident halfedge, i.e. it belongs to no edge or face.
+ *
+ * A per-element topological query, distinct from \c TriangleHalfedgeMesh::has_valid_connectivity(),
+ * which checks internal reference consistency rather than topology.
+ *
+ * \return \c true if the vertex is isolated.
+ */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD bool is_isolated(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
                                typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex) noexcept
@@ -22,9 +25,15 @@ GEO_NODISCARD bool is_isolated(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   return !mesh.get_vertex(vertex).halfedge.is_valid();
 }
 
-// Returns true if the vertex lies on the boundary, i.e. one of its incident halfedges is a boundary
-// halfedge (has no incident face). Isolated vertices are not considered boundary vertices. By the
-// mesh's boundary convention a boundary vertex stores a boundary outgoing halfedge, so this is O(1).
+/**
+ * \brief Whether \p vertex lies on the boundary -- one of its incident halfedges is a boundary
+ * halfedge (has no incident face).
+ *
+ * Isolated vertices are not boundary vertices. O(1): by the mesh's boundary convention a boundary
+ * vertex stores a boundary outgoing halfedge, so no fan walk is needed.
+ *
+ * \return \c true if the vertex is on the boundary.
+ */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD bool is_boundary(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
                                typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex)
@@ -32,12 +41,15 @@ GEO_NODISCARD bool is_boundary(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   return mesh.is_boundary_outgoing(vertex);
 }
 
-// Returns the valence (degree) of a vertex: the number of distinct incident edges.
-//
-// halfedges_around_vertex returns the interior (face-bearing) outgoing halfedges, one per incident
-// face. For a triangle-fan vertex the number of incident edges equals the number of incident faces
-// when the vertex is interior (the fan closes), and one more than the number of faces when the vertex
-// is on the boundary (the open fan has an extra bounding edge).
+/**
+ * \brief Valence (degree) of \p vertex: the number of distinct incident edges.
+ *
+ * Derived from the incident face count rather than a separate edge walk: for a triangle-fan vertex
+ * the incident-edge count equals the incident-face count when the vertex is interior (the fan
+ * closes), and one more when it is on the boundary (the open fan has an extra bounding edge).
+ *
+ * \return The valence, or 0 for an isolated vertex.
+ */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD std::size_t valence(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
                                   typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex)

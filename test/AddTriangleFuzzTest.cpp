@@ -26,7 +26,7 @@ using FaceHandle = Mesh::FaceHandle;
 void check_invariants(const Mesh& mesh)
 {
   ASSERT_TRUE(mesh.has_valid_connectivity());
-  ASSERT_TRUE(is_edge_manifold(mesh));
+  ASSERT_TRUE(verify_edge_manifold(mesh));
   // Exhaustively verify vertex-manifoldness: this fuzz test exists to prove add_triangle maintains the
   // manifold invariant, so it must independently confirm no detached second fan was produced.
   ASSERT_TRUE(verify_vertex_manifold(mesh));
@@ -238,7 +238,7 @@ TEST(AddTriangleFuzzTest, ClosedTetrahedronHasNoBoundary)
   ASSERT_TRUE(add_triangle(mesh, vertex2, vertex0, vertex3).is_valid());
 
   check_invariants(mesh);
-  EXPECT_TRUE(is_closed(mesh));
+  EXPECT_TRUE(verify_closed(mesh));
   EXPECT_EQ(boundary_loops(mesh).size(), 0U);
   EXPECT_EQ(mesh.halfedge_count(), 12U); // 6 edges x 2, all interior
 }

@@ -6,6 +6,8 @@
 #include "Geometry/Cuboid.hpp"
 #include "Geometry/Cylinder.hpp"
 #include "Geometry/Mesh/AddTriangle.hpp"
+#include "Geometry/Mesh/MeshNormals.hpp"
+#include "Geometry/Mesh/MeshResult.hpp"
 
 #include <cmath>
 #include <concepts>
@@ -14,8 +16,8 @@
 
 namespace Geometry {
 
-enum class MeshCreationError {
-    None,
+enum class MeshCreationStatus {
+    Ok,
     InvalidSegmentCount,
     NonFiniteGeometry,
     DegenerateGeometry,
@@ -27,11 +29,17 @@ enum class MeshCreationError {
 template <typename T, typename TIndex = std::uint32_t>
 struct MeshCreationResult {
     TriangleHalfedgeMesh<T, 3, TIndex> mesh;
-    MeshCreationError error = MeshCreationError::None;
+    MeshCreationStatus error = MeshCreationStatus::Ok;
 
-    GEO_NODISCARD bool has_value() const noexcept { return error == MeshCreationError::None; }
+    GEO_NODISCARD bool has_value() const noexcept { return detail::mesh_result_ok(error); }
     GEO_NODISCARD explicit operator bool() const noexcept { return has_value(); }
 };
+
+// Default crease angle (radians) applied by the factories. Chosen between the small dihedral of a
+// tessellated wall (which stays smooth) and the sharp cap/apex/box transitions (which become
+// creases). Callers can re-tag with mark_creases_by_angle or set_crease to override.
+template <typename T>
+inline constexpr T default_crease_angle = static_cast<T>(0.5); // ~28.6 degrees
 
 namespace detail {
 template <typename T>
@@ -54,26 +62,26 @@ bool mesh_counts_fit(std::size_t segments, std::size_t halfedgesPerSegment) {
 }
 
 template <typename T, typename TIndex>
-MeshCreationError add_mesh_creation_triangle(TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
+MeshCreationStatus add_mesh_creation_triangle(TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
                                              typename TriangleHalfedgeMesh<T, 3, TIndex>::VertexHandle first,
                                              typename TriangleHalfedgeMesh<T, 3, TIndex>::VertexHandle second,
                                              typename TriangleHalfedgeMesh<T, 3, TIndex>::VertexHandle third) {
     const auto& origin = mesh.get_vertex(first).position;
     const linal::vec3<T> edge1{mesh.get_vertex(second).position - origin};
     const linal::vec3<T> edge2{mesh.get_vertex(third).position - origin};
+    // Callers validate all vertex positions finite before inserting, so the edge lengths here are
+    // finite too; only degeneracy (a collapsed edge or face) can still arise and must be caught.
     const T length1 = mesh_vector_length(edge1);
     const T length2 = mesh_vector_length(edge2);
-    if (!std::isfinite(length1) || !std::isfinite(length2))
-        return MeshCreationError::NonFiniteGeometry;
     if (length1 == T{0} || length2 == T{0})
-        return MeshCreationError::DegenerateGeometry;
+        return MeshCreationStatus::DegenerateGeometry;
     // Scaling avoids squaring tiny lengths and detects positions that collapsed
     // through rounding, even when the input dimensions were nonzero.
     const auto normal = linal::cross(linal::vec3<T>{edge1 / length1}, linal::vec3<T>{edge2 / length2});
     if (mesh_vector_length(normal) == T{0})
-        return MeshCreationError::DegenerateGeometry;
-    return add_triangle(mesh, first, second, third).is_valid() ? MeshCreationError::None
-                                                               : MeshCreationError::TriangleInsertionFailed;
+        return MeshCreationStatus::DegenerateGeometry;
+    return add_triangle(mesh, first, second, third).is_valid() ? MeshCreationStatus::Ok
+                                                               : MeshCreationStatus::TriangleInsertionFailed;
 }
 
 template <bool IsCylinder, std::floating_point T, typename TIndex>
@@ -81,21 +89,21 @@ MeshCreationResult<T, TIndex> make_round_triangle_mesh(const Segment3<T>& segmen
     using Result = MeshCreationResult<T, TIndex>;
     using Mesh = TriangleHalfedgeMesh<T, 3, TIndex>;
     using VertexHandle = typename Mesh::VertexHandle;
-    const auto failure = [](MeshCreationError error) { return Result{{}, error}; };
+    const auto failure = [](MeshCreationStatus error) { return Result{{}, error}; };
     if (segments < 3)
-        return failure(MeshCreationError::InvalidSegmentCount);
+        return failure(MeshCreationStatus::InvalidSegmentCount);
     const auto source = segment.get_source();
     const auto target = segment.get_target();
     if (!mesh_position_is_finite(source) || !mesh_position_is_finite(target) || !std::isfinite(radius))
-        return failure(MeshCreationError::NonFiniteGeometry);
+        return failure(MeshCreationStatus::NonFiniteGeometry);
     const linal::vec3<T> delta{target - source};
     const T height = mesh_vector_length(delta);
     if (!std::isfinite(height))
-        return failure(MeshCreationError::NonFiniteGeometry);
+        return failure(MeshCreationStatus::NonFiniteGeometry);
     if (radius <= T{0} || height == T{0})
-        return failure(MeshCreationError::DegenerateGeometry);
+        return failure(MeshCreationStatus::DegenerateGeometry);
     if (!mesh_counts_fit<TIndex>(segments, IsCylinder ? 12 : 6))
-        return failure(MeshCreationError::IndexCapacityExceeded);
+        return failure(MeshCreationStatus::IndexCapacityExceeded);
 
     const linal::vec3<T> axis{delta / height};
     typename linal::vec3<T>::size_type least = 0;
@@ -108,16 +116,28 @@ MeshCreationResult<T, TIndex> make_round_triangle_mesh(const Segment3<T>& segmen
     const linal::vec3<T> first{cross / mesh_vector_length(cross)};
     const auto second = linal::cross(axis, first);
 
-    // Validate sampled positions before allocating the mesh. The second pass uses
-    // the same formula, avoiding a separate position buffer.
     const auto position = [&](std::size_t i, bool upper) {
         const T angle = T{2} * std::numbers::pi_v<T> * (static_cast<T>(i) / static_cast<T>(segments));
         return linal::vec3<T>{(upper ? target : source) +
                               radius * (std::cos(angle) * first + std::sin(angle) * second)};
     };
-    for (std::size_t i = 0; i < segments; ++i)
-        if (!mesh_position_is_finite(position(i, false)) || (IsCylinder && !mesh_position_is_finite(position(i, true))))
-            return failure(MeshCreationError::NonFiniteGeometry);
+
+    // Sample each ring position once, validating finiteness while filling, and reuse the stored
+    // positions for insertion. Computing them twice would double the per-vertex sin/cos work.
+    std::vector<linal::vec3<T>> lowerPositions, upperPositions;
+    lowerPositions.reserve(segments);
+    if constexpr (IsCylinder)
+        upperPositions.reserve(segments);
+    for (std::size_t i = 0; i < segments; ++i) {
+        lowerPositions.push_back(position(i, false));
+        if (!mesh_position_is_finite(lowerPositions.back()))
+            return failure(MeshCreationStatus::NonFiniteGeometry);
+        if constexpr (IsCylinder) {
+            upperPositions.push_back(position(i, true));
+            if (!mesh_position_is_finite(upperPositions.back()))
+                return failure(MeshCreationStatus::NonFiniteGeometry);
+        }
+    }
 
     Mesh mesh;
     std::vector<VertexHandle> lower, upper;
@@ -125,16 +145,16 @@ MeshCreationResult<T, TIndex> make_round_triangle_mesh(const Segment3<T>& segmen
     if constexpr (IsCylinder)
         upper.reserve(segments);
     for (std::size_t i = 0; i < segments; ++i)
-        lower.push_back(mesh.add_vertex(position(i, false)));
+        lower.push_back(mesh.add_vertex(lowerPositions[i]));
     if constexpr (IsCylinder)
         for (std::size_t i = 0; i < segments; ++i)
-            upper.push_back(mesh.add_vertex(position(i, true)));
+            upper.push_back(mesh.add_vertex(upperPositions[i]));
     const auto bottom = mesh.add_vertex(source);
     const auto top = mesh.add_vertex(target);
-    MeshCreationError error = MeshCreationError::None;
-    const auto triangle = [&](VertexHandle a, VertexHandle b, VertexHandle c) {
-        error = add_mesh_creation_triangle(mesh, a, b, c);
-        return error == MeshCreationError::None;
+    MeshCreationStatus error = MeshCreationStatus::Ok;
+    const auto triangle = [&](VertexHandle first, VertexHandle second, VertexHandle third) {
+        error = add_mesh_creation_triangle(mesh, first, second, third);
+        return error == MeshCreationStatus::Ok;
     };
     for (std::size_t i = 0; i < segments; ++i)
         if (!triangle(bottom, lower[(i + 1) % segments], lower[i]))
@@ -151,7 +171,8 @@ MeshCreationResult<T, TIndex> make_round_triangle_mesh(const Segment3<T>& segmen
         for (std::size_t i = 0; i < segments; ++i)
             if (!triangle(top, upper[i], upper[(i + 1) % segments]))
                 return failure(error);
-    return {std::move(mesh), MeshCreationError::None};
+    mark_creases_by_angle(mesh, default_crease_angle<T>);
+    return {std::move(mesh), MeshCreationStatus::Ok};
 }
 } // namespace detail
 
@@ -171,31 +192,31 @@ template <std::floating_point T, typename TIndex = std::uint32_t>
 GEO_NODISCARD MeshCreationResult<T, TIndex> make_triangle_mesh(const Cuboid<T>& shape) {
     using Result = MeshCreationResult<T, TIndex>;
     using Mesh = TriangleHalfedgeMesh<T, 3, TIndex>;
-    const auto failure = [](MeshCreationError error) { return Result{{}, error}; };
+    const auto failure = [](MeshCreationStatus error) { return Result{{}, error}; };
     if (!detail::mesh_position_is_finite(shape.get_origin()))
-        return failure(MeshCreationError::NonFiniteGeometry);
+        return failure(MeshCreationStatus::NonFiniteGeometry);
     std::array<linal::vec3<T>, 3> directions;
     const auto& sides = shape.get_side_vectors();
     for (const auto& side: sides)
         if (!detail::mesh_position_is_finite(side))
-            return failure(MeshCreationError::NonFiniteGeometry);
+            return failure(MeshCreationStatus::NonFiniteGeometry);
     for (std::size_t i = 0; i < 3; ++i) {
         const T length = detail::mesh_vector_length(sides[i]);
         if (!std::isfinite(length))
-            return failure(MeshCreationError::NonFiniteGeometry);
+            return failure(MeshCreationStatus::NonFiniteGeometry);
         if (length == T{0})
-            return failure(MeshCreationError::DegenerateGeometry);
+            return failure(MeshCreationStatus::DegenerateGeometry);
         directions[i] = sides[i] / length;
     }
     const T determinant = linal::dot(directions[0], linal::cross(directions[1], directions[2]));
     if (determinant == T{0})
-        return failure(MeshCreationError::DegenerateGeometry);
+        return failure(MeshCreationStatus::DegenerateGeometry);
     if (!detail::mesh_counts_fit<TIndex>(1, 36))
-        return failure(MeshCreationError::IndexCapacityExceeded);
+        return failure(MeshCreationStatus::IndexCapacityExceeded);
     const auto positions = calc_cuboid_vertices(shape);
     for (const auto& position: positions)
         if (!detail::mesh_position_is_finite(position))
-            return failure(MeshCreationError::NonFiniteGeometry);
+            return failure(MeshCreationStatus::NonFiniteGeometry);
     Mesh mesh;
     std::array<typename Mesh::VertexHandle, 8> vertices;
     for (std::size_t i = 0; i < 8; ++i)
@@ -219,24 +240,27 @@ GEO_NODISCARD MeshCreationResult<T, TIndex> make_triangle_mesh(const Cuboid<T>& 
                                                               vertices[triangle[0]],
                                                               vertices[triangle[1]],
                                                               vertices[triangle[2]]);
-        if (error != MeshCreationError::None)
+        if (error != MeshCreationStatus::Ok)
             return failure(error);
     }
-    return {std::move(mesh), MeshCreationError::None};
+    mark_creases_by_angle(mesh, default_crease_angle<T>);
+    return {std::move(mesh), MeshCreationStatus::Ok};
 }
 
 template <std::floating_point T, typename TIndex = std::uint32_t>
 GEO_NODISCARD MeshCreationResult<T, TIndex> make_triangle_mesh(const AABB<T, 3>& shape) {
+    using Result = MeshCreationResult<T, TIndex>;
+    const auto failure = [](MeshCreationStatus error) { return Result{{}, error}; };
     const auto minimum = shape.get_min();
     const auto maximum = shape.get_max();
     if (!detail::mesh_position_is_finite(minimum) || !detail::mesh_position_is_finite(maximum))
-        return {{}, MeshCreationError::NonFiniteGeometry};
+        return failure(MeshCreationStatus::NonFiniteGeometry);
     for (typename linal::vec3<T>::size_type i = 0; i < 3; ++i)
         if (minimum[i] > maximum[i])
-            return {{}, MeshCreationError::InvalidBounds};
+            return failure(MeshCreationStatus::InvalidBounds);
     for (typename linal::vec3<T>::size_type i = 0; i < 3; ++i)
         if (minimum[i] == maximum[i])
-            return {{}, MeshCreationError::DegenerateGeometry};
+            return failure(MeshCreationStatus::DegenerateGeometry);
     return make_triangle_mesh<T, TIndex>(Cuboid<T>{minimum, linal::vec3<T>{maximum - minimum}});
 }
 

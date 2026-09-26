@@ -24,7 +24,7 @@ TYPED_TEST(MeshBuffersTest, EmptyAndIsolatedVertices) {
     ASSERT_TRUE(vertex.is_valid());
     const auto result = make_vertex_buffer(mesh);
     ASSERT_TRUE(result.has_value());
-    EXPECT_EQ(result.error, MeshBufferError::None);
+    EXPECT_EQ(result.error, MeshBufferStatus::Ok);
     EXPECT_EQ(result.values, (std::vector<float>{1, 2, 3}));
     EXPECT_TRUE(make_triangle_index_buffer(mesh).values.empty());
     EXPECT_TRUE(make_edge_index_buffer(mesh).values.empty());
@@ -87,7 +87,7 @@ TEST(MeshBufferErrorsTest, InvalidPositionsDiscardAllValues) {
         EXPECT_FALSE(result.has_value());
         EXPECT_TRUE(result.values.empty());
         EXPECT_EQ(result.error,
-                  std::isfinite(value) ? MeshBufferError::PositionOutOfRange : MeshBufferError::NonFinitePosition);
+                  std::isfinite(value) ? MeshBufferStatus::PositionOutOfRange : MeshBufferStatus::NonFinitePosition);
     }
     TriangleHalfedgeMesh3d mesh;
     const double limit = std::numeric_limits<float>::max();
@@ -105,8 +105,9 @@ TEST(MeshBufferErrorsTest, CapacityBoundariesWithoutAllocation) {
     const auto limit = std::numeric_limits<std::size_t>::max();
     EXPECT_TRUE(detail::mesh_buffer_count_fits(limit / 3, 3, limit));
     EXPECT_FALSE(detail::mesh_buffer_count_fits(limit / 3 + 1, 3, limit));
-    EXPECT_TRUE(detail::mesh_buffer_index_fits(std::numeric_limits<std::uint32_t>::max()));
-    EXPECT_FALSE(detail::mesh_buffer_index_fits(std::uint64_t{std::numeric_limits<std::uint32_t>::max()} + 1));
+    EXPECT_TRUE(detail::mesh_buffer_index_fits<std::uint32_t>(std::numeric_limits<std::uint32_t>::max()));
+    EXPECT_FALSE(
+        detail::mesh_buffer_index_fits<std::uint32_t>(std::uint64_t{std::numeric_limits<std::uint32_t>::max()} + 1));
 }
 
 TEST(MeshBufferPrimitivesTest, EveryFactoryProducesConsistentBuffers) {
@@ -129,6 +130,40 @@ TEST(MeshBufferPrimitivesTest, EveryFactoryProducesConsistentBuffers) {
             EXPECT_TRUE(unique
                             .emplace(std::min(edges.values[i], edges.values[i + 1]),
                                      std::max(edges.values[i], edges.values[i + 1]))
+                            .second);
+        }
+    };
+    check(make_triangle_mesh(Cone<double>{{0, 0, 0}, {0, 0, 3}, 1}));
+    check(make_triangle_mesh(Cylinder<double>{Segment3d{{0, 0, 0}, {0, 0, 3}}, 1}));
+    check(make_triangle_mesh(Cuboid<double>{{1, 2, 3}}));
+    check(make_triangle_mesh(AABB3d{{0, 0, 0}, {1, 2, 3}}));
+}
+
+TEST(MeshRenderBuffersTest, ParallelNormalsRemappedIndicesAndUniqueEdges) {
+    const auto check = [](const auto& result) {
+        ASSERT_TRUE(result);
+        const auto buffers = make_render_buffers(result.mesh);
+        ASSERT_TRUE(buffers);
+        // Positions and normals are parallel (geoqik requires one normal per vertex).
+        EXPECT_EQ(buffers.normals.size(), buffers.positions.size());
+        EXPECT_EQ(buffers.triangles.size(), 3 * result.mesh.face_count());
+        // The overlay carries only crease edges, so it never exceeds the full edge set and is even.
+        std::size_t creaseEdges = 0;
+        for (const auto edge: result.mesh.edges())
+            if (result.mesh.is_crease(edge))
+                ++creaseEdges;
+        EXPECT_EQ(buffers.segments.size(), 2 * creaseEdges);
+        // Splitting only ever adds render vertices relative to the mesh's shared vertices.
+        EXPECT_GE(buffers.vertex_count(), result.mesh.vertex_count());
+        for (const auto index: buffers.triangles)
+            EXPECT_LT(index, buffers.vertex_count());
+        std::set<std::pair<std::uint32_t, std::uint32_t>> unique;
+        for (std::size_t i = 0; i < buffers.segments.size(); i += 2) {
+            EXPECT_LT(buffers.segments[i], buffers.vertex_count());
+            EXPECT_LT(buffers.segments[i + 1], buffers.vertex_count());
+            EXPECT_TRUE(unique
+                            .emplace(std::min(buffers.segments[i], buffers.segments[i + 1]),
+                                     std::max(buffers.segments[i], buffers.segments[i + 1]))
                             .second);
         }
     };
