@@ -49,7 +49,7 @@ void delete_face_unchecked(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   using EdgeHandle = typename Mesh::EdgeHandle;
   using FaceHandle = typename Mesh::FaceHandle;
 
-  GEO_ASSERT(mesh.contains(face) && !mesh.is_deleted(face));
+  GEO_ASSERT(mesh.is_live(face));
   const auto connectivity = mesh.connectivity();
   const std::array<HalfedgeHandle, 3> faceHalfedges = mesh.halfedges_around_face(face);
   const std::array<VertexHandle, 3> corners{mesh.target_vertex(faceHalfedges[0]), mesh.target_vertex(faceHalfedges[1]),
@@ -68,11 +68,6 @@ void delete_face_unchecked(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   }
   connectivity.mark_deleted(face);
 
-  const auto link = [&](HalfedgeHandle prev, HalfedgeHandle next) {
-    connectivity.halfedge(prev).next = next;
-    connectivity.halfedge(next).prev = prev;
-  };
-
   for (std::size_t i = 0; i < facelessCount; ++i)
   {
     const HalfedgeHandle first = connectivity.edge(faceless[i]).halfedge;
@@ -84,8 +79,8 @@ void delete_face_unchecked(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
     const HalfedgeHandle secondNext = connectivity.halfedge(second).next;
     const HalfedgeHandle secondPrev = connectivity.halfedge(second).prev;
 
-    link(firstPrev, secondNext);
-    link(secondPrev, firstNext);
+    connectivity.link(firstPrev, secondNext);
+    connectivity.link(secondPrev, firstNext);
     connectivity.mark_deleted(faceless[i]);
 
     // Each endpoint loses one outgoing halfedge; if the loop went straight back along the deleted
@@ -160,7 +155,7 @@ GEO_NODISCARD MeshDeleteStatus delete_face(TriangleHalfedgeMesh<T, D, TIndex>& m
 {
   using HalfedgeHandle = typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle;
 
-  if (!mesh.contains(face) || mesh.is_deleted(face))
+  if (!mesh.is_live(face))
   {
     return MeshDeleteStatus::InvalidHandle;
   }
@@ -198,7 +193,7 @@ GEO_NODISCARD MeshDeleteStatus delete_vertex(TriangleHalfedgeMesh<T, D, TIndex>&
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;
   using FaceHandle = typename Mesh::FaceHandle;
 
-  if (!mesh.contains(vertex) || mesh.is_deleted(vertex))
+  if (!mesh.is_live(vertex))
   {
     return MeshDeleteStatus::InvalidHandle;
   }

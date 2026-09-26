@@ -26,6 +26,12 @@ enum class MeshCreationStatus {
     TriangleInsertionFailed
 };
 
+/**
+ * \brief Mesh produced by a \c make_triangle_mesh factory, or the reason it could not be built.
+ *
+ * A reported failure always carries an empty mesh, never a partial one. Allocation failures are not
+ * reported here: they propagate from the underlying containers, so the factories are not noexcept.
+ */
 template <typename T, typename TIndex = std::uint32_t>
 struct MeshCreationResult {
     TriangleHalfedgeMesh<T, 3, TIndex> mesh;
@@ -35,9 +41,13 @@ struct MeshCreationResult {
     GEO_NODISCARD explicit operator bool() const noexcept { return has_value(); }
 };
 
-// Default crease angle (radians) applied by the factories. Chosen between the small dihedral of a
-// tessellated wall (which stays smooth) and the sharp cap/apex/box transitions (which become
-// creases). Callers can re-tag with mark_creases_by_angle or set_crease to override.
+/**
+ * \brief Default crease angle (radians) applied by the factories.
+ *
+ * Chosen between the small dihedral of a tessellated wall (which stays smooth) and the sharp
+ * cap/apex/box transitions (which become creases). Callers can re-tag with \c mark_creases_by_angle
+ * or \c set_crease to override.
+ */
 template <typename T>
 inline constexpr T default_crease_angle = static_cast<T>(0.5); // ~28.6 degrees
 
@@ -176,8 +186,6 @@ MeshCreationResult<T, TIndex> make_round_triangle_mesh(const Segment3<T>& segmen
 }
 } // namespace detail
 
-// Reported failures always contain an empty mesh. Allocation failures retain the
-// behavior of the underlying containers; these factories are not noexcept.
 template <std::floating_point T, typename TIndex = std::uint32_t>
 GEO_NODISCARD MeshCreationResult<T, TIndex> make_triangle_mesh(const Cone<T>& shape, std::size_t segments = 32) {
     return detail::make_round_triangle_mesh<false, T, TIndex>(shape.get_segment(), shape.get_radius(), segments);

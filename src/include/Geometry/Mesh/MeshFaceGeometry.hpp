@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <linal/vec.hpp>
 #include <linal/vec_operations.hpp>
+#include <optional>
 #include <type_traits>
 
 namespace Geometry
@@ -16,7 +17,7 @@ namespace detail
 
 /**
  * \internal
- * \brief Orientation of the triangle (a, b, c): the area vector (cross product of two edges) in 3D,
+ * \brief Orientation of the triangle (first, apex, last): the area vector (cross product of two edges) in 3D,
  * the signed doubled area in 2D.
  *
  * One primitive for both dimensions, so orientation tests (flip checks, hole triangulation) are
@@ -24,20 +25,21 @@ namespace detail
  * a triangle is degenerate iff \c orientation_dot with itself is zero.
  */
 template <typename T, std::uint8_t D>
-GEO_NODISCARD auto triangle_orientation(const linal::vec<T, D>& a, const linal::vec<T, D>& b, const linal::vec<T, D>& c) noexcept
+GEO_NODISCARD auto triangle_orientation(const linal::vec<T, D>& first, const linal::vec<T, D>& apex,
+                                        const linal::vec<T, D>& last) noexcept
 {
   static_assert(D == 2 || D == 3, "orientation is defined for planar and spatial triangles only");
   using Vec = linal::vec<T, D>;
 
-  const Vec first{b - a};
-  const Vec second{c - a};
+  const Vec toApex{apex - first};
+  const Vec toLast{last - first};
   if constexpr (D == 3)
   {
-    return linal::vec3<T>{linal::cross(first, second)};
+    return linal::vec3<T>{linal::cross(toApex, toLast)};
   }
   else
   {
-    return first[0] * second[1] - first[1] * second[0];
+    return toApex[0] * toLast[1] - toApex[1] * toLast[0];
   }
 }
 
@@ -94,22 +96,20 @@ GEO_NODISCARD bool mesh_face_is_degenerate(const TriangleHalfedgeMesh<T, 3, TInd
 
 /**
  * \internal
- * \brief Normalized geometric (flat) normal of a triangular face, written to \p normal.
+ * \brief Normalized geometric (flat) normal of a triangular face.
  *
- * \return \c false with \p normal left unset when the triangle is degenerate (zero area); the
+ * \return The unit normal, or \c std::nullopt when the triangle is degenerate (zero area); the
  * caller reports this as \c DegenerateGeometry.
  */
 template <typename T, typename TIndex>
-GEO_NODISCARD bool mesh_face_normal(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
-                                    typename TriangleHalfedgeMesh<T, 3, TIndex>::FaceHandle face,
-                                    linal::vec3<T>& normal) noexcept
+GEO_NODISCARD std::optional<linal::vec3<T>> mesh_face_normal(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
+                                                             typename TriangleHalfedgeMesh<T, 3, TIndex>::FaceHandle face) noexcept
 {
   const linal::vec3<T> areaVector = mesh_face_area_vector(mesh, face);
   const T length = linal::length(areaVector);
   if (length == T{0})
-    return false;
-  normal = linal::vec3<T>{areaVector / length};
-  return true;
+    return std::nullopt;
+  return linal::vec3<T>{areaVector / length};
 }
 
 } // namespace detail

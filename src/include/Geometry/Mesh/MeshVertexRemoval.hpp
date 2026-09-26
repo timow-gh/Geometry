@@ -46,7 +46,7 @@ remove_vertex(TriangleHalfedgeMesh<T, D, TIndex>& mesh, typename TriangleHalfedg
   using VertexHandle = typename Mesh::VertexHandle;
   using vec_t = typename Mesh::vec_t;
 
-  if (!mesh.contains(vertex) || mesh.is_deleted(vertex))
+  if (!mesh.is_live(vertex))
   {
     return {VertexHandle{}, CollapseStatus::InvalidHandle};
   }
@@ -282,14 +282,10 @@ void remove_ear_vertex_unchecked(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   GEO_ASSERT(star.boundary && star.faces.size() == 1);
   const auto connectivity = mesh.connectivity();
   const HalfedgeHandle opposite = star.ringHalfedges.front();
-  const auto link = [&](HalfedgeHandle prev, HalfedgeHandle next) {
-    connectivity.halfedge(prev).next = next;
-    connectivity.halfedge(next).prev = prev;
-  };
 
   connectivity.halfedge(opposite).face = FaceHandle{};
-  link(connectivity.halfedge(star.boundaryIn).prev, opposite);
-  link(opposite, connectivity.halfedge(star.boundaryOut).next);
+  connectivity.link(connectivity.halfedge(star.boundaryIn).prev, opposite);
+  connectivity.link(opposite, connectivity.halfedge(star.boundaryOut).next);
 
   connectivity.mark_deleted(star.faces.front());
   for (const EdgeHandle spoke : star.spokes)
@@ -329,10 +325,6 @@ void retriangulate_star(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   GEO_ASSERT(triangles.size() == count - 2);
   const auto connectivity = mesh.connectivity();
   const auto slot = [count](std::size_t from, std::size_t to) { return from * count + to; };
-  const auto link = [&](HalfedgeHandle prev, HalfedgeHandle next) {
-    connectivity.halfedge(prev).next = next;
-    connectivity.halfedge(next).prev = prev;
-  };
 
   // directed[slot(i, j)]: the halfedge ring[i] -> ring[j] of a polygon side or diagonal.
   std::vector<HalfedgeHandle> directed(count * count);
@@ -364,8 +356,8 @@ void retriangulate_star(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
     // The closing side replaces the vertex's two boundary halfedges in the boundary loop.
     new_edge_between(count - 1, 0);
     const HalfedgeHandle closingBoundary = directed[slot(0, count - 1)];
-    link(connectivity.halfedge(star.boundaryIn).prev, closingBoundary);
-    link(closingBoundary, connectivity.halfedge(star.boundaryOut).next);
+    connectivity.link(connectivity.halfedge(star.boundaryIn).prev, closingBoundary);
+    connectivity.link(closingBoundary, connectivity.halfedge(star.boundaryOut).next);
   }
   for (const auto& [first, apex, last] : triangles)
   {
@@ -386,7 +378,7 @@ void retriangulate_star(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
     for (std::size_t i = 0; i < 3; ++i)
     {
       GEO_ASSERT(sides[i].is_valid());
-      link(sides[i], sides[(i + 1) % 3]);
+      connectivity.link(sides[i], sides[(i + 1) % 3]);
       connectivity.halfedge(sides[i]).face = face;
     }
     connectivity.face(face).set_halfedgehandle(sides[0]);
@@ -436,7 +428,7 @@ GEO_NODISCARD VertexRemovalStatus remove_vertex_retriangulate(TriangleHalfedgeMe
   using FaceHandle = typename Mesh::FaceHandle;
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;
 
-  if (!mesh.contains(vertex) || mesh.is_deleted(vertex))
+  if (!mesh.is_live(vertex))
   {
     return VertexRemovalStatus::InvalidHandle;
   }
@@ -495,17 +487,18 @@ GEO_NODISCARD VertexRemovalStatus remove_vertex_retriangulate(TriangleHalfedgeMe
   }
 
   const auto aspectCost = [&](std::size_t first, std::size_t apex, std::size_t last) -> T {
-    const auto& a = mesh.get_position(star.ring[first]);
-    const auto& b = mesh.get_position(star.ring[apex]);
-    const auto& c = mesh.get_position(star.ring[last]);
-    const auto orientation = detail::triangle_orientation(a, b, c);
+    const auto& firstPosition = mesh.get_position(star.ring[first]);
+    const auto& apexPosition = mesh.get_position(star.ring[apex]);
+    const auto& lastPosition = mesh.get_position(star.ring[last]);
+    const auto orientation = detail::triangle_orientation(firstPosition, apexPosition, lastPosition);
     if (!(detail::orientation_dot(orientation, reference) > T{0}))
     {
       return std::numeric_limits<T>::infinity();
     }
     using vec_t = typename Mesh::vec_t;
-    const T squaredEdges = linal::length_squared(vec_t{b - a}) + linal::length_squared(vec_t{c - b})
-                           + linal::length_squared(vec_t{a - c});
+    const T squaredEdges = linal::length_squared(vec_t{apexPosition - firstPosition})
+                           + linal::length_squared(vec_t{lastPosition - apexPosition})
+                           + linal::length_squared(vec_t{firstPosition - lastPosition});
     return squaredEdges / std::sqrt(detail::orientation_dot(orientation, orientation));
   };
 

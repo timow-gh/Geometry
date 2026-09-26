@@ -7,6 +7,7 @@
 #include <cmath>
 #include <numbers>
 #include <set>
+#include <vector>
 
 using namespace Geometry;
 
@@ -121,6 +122,38 @@ TEST(MeshNormalsTest, CuboidIsFullyFacetedAndSplits) {
     EXPECT_EQ(buffers.vertex_count(), 24U);
     EXPECT_EQ(buffers.normals.size(), buffers.positions.size());
     EXPECT_EQ(buffers.triangles.size(), mesh.face_count() * 3);
+}
+
+// Each sector's normal is computed once, so the corners sharing it must be bitwise equal -- the
+// render buffers weld on that. Summing per corner from different start faces would round differently.
+TEST(MeshNormalsTest, SmoothSectorCornersAreBitwiseEqualAndWeld) {
+    auto result = make_triangle_mesh(Cylinder<double>{Segment3d{{0, 0, 0}, {0, 0, 3}}, 1}, 17);
+    ASSERT_TRUE(result);
+    auto& mesh = result.mesh;
+    for (const auto edge: mesh.edges())
+        mesh.set_crease(edge, false);
+
+    const auto normals = compute_halfedge_normals(mesh);
+    ASSERT_TRUE(normals);
+    std::vector<linal::vec3<double>> firstSeen(mesh.vertex_storage_size());
+    std::vector<bool> seen(mesh.vertex_storage_size(), false);
+    for (const auto face: mesh.faces()) {
+        for (const auto corner: mesh.halfedges_around_face(face)) {
+            const auto slot = static_cast<std::size_t>(mesh.target_vertex(corner).get_value());
+            const auto& normal = normals.values[static_cast<std::size_t>(corner.get_value())];
+            if (!seen[slot]) {
+                firstSeen[slot] = normal;
+                seen[slot] = true;
+                continue;
+            }
+            for (typename linal::vec3<double>::size_type coordinate = 0; coordinate < 3; ++coordinate)
+                EXPECT_EQ(normal[coordinate], firstSeen[slot][coordinate]);
+        }
+    }
+
+    const auto buffers = make_render_buffers(mesh);
+    ASSERT_TRUE(buffers);
+    EXPECT_EQ(buffers.vertex_count(), mesh.vertex_count());
 }
 
 TEST(MeshNormalsTest, ConeWallSmoothCapSharp) {

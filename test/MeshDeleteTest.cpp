@@ -287,6 +287,31 @@ TEST(MeshDelete, DeletesIsolatedVertexAndRejectsInvalid)
   EXPECT_EQ(delete_vertex(mesh, VertexHandle{}), MeshDeleteStatus::InvalidHandle);
 }
 
+// Handles to deleted vertices stay in range until garbage_collection(), so add_triangle must reject
+// them explicitly; otherwise a live face would reference a tombstoned vertex.
+TEST(MeshDelete, AddTriangleRejectsDeletedVertex)
+{
+  Mesh mesh = make_grid(5);
+  const VertexHandle isolated = mesh.add_vertex({9.0, 9.0, 0.0});
+  const VertexHandle center = grid_vertex(5, 2, 2);
+  ASSERT_EQ(delete_vertex(mesh, isolated), MeshDeleteStatus::Ok);
+  ASSERT_EQ(delete_vertex(mesh, center), MeshDeleteStatus::Ok);
+  const auto faceCount = mesh.face_count();
+  const auto halfedgeCount = mesh.halfedge_count();
+
+  // Refilling one of the hole's original faces through the deleted center.
+  EXPECT_FALSE(add_triangle(mesh, grid_vertex(5, 1, 1), grid_vertex(5, 2, 1), center).is_valid());
+  const VertexHandle fresh = mesh.add_vertex({9.0, 8.0, 0.0});
+  const VertexHandle other = mesh.add_vertex({8.0, 9.0, 0.0});
+  EXPECT_FALSE(add_triangle(mesh, isolated, fresh, other).is_valid());
+
+  EXPECT_EQ(mesh.face_count(), faceCount);
+  EXPECT_EQ(mesh.halfedge_count(), halfedgeCount);
+  expect_structurally_valid(mesh);
+  mesh.garbage_collection();
+  expect_structurally_valid(mesh);
+}
+
 TEST(MeshDelete, DeletingVertexSurvivesIntermediateBowTie)
 {
   // Faces go one at a time in fan order, so a boundary neighbour of (1,1) such as (1,0) can lose its

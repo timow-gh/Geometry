@@ -4,12 +4,36 @@
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include "Geometry/Utils/Constness.hpp"
+#include <algorithm>
 #include <array>
 #include <type_traits>
 #include <vector>
 
 namespace Geometry
 {
+
+namespace detail
+{
+
+/**
+ * \internal
+ * \brief Ensures \p storage can take \p additional appends without reallocating.
+ *
+ * Grows geometrically rather than to the exact size: the mesh operators reserve once per call, and
+ * a decimation pass calls them once per element, so exact-size reserves would reallocate and copy
+ * all storage on every call. Amortized O(additional).
+ */
+template <typename TElement>
+void reserve_additional(std::vector<TElement>& storage, typename std::vector<TElement>::size_type additional)
+{
+  const auto required = storage.size() + additional;
+  if (required > storage.capacity())
+  {
+    storage.reserve(std::max(required, 2 * storage.capacity()));
+  }
+}
+
+} // namespace detail
 
 /**
  * \brief Low-level connectivity kernel view for \c TriangleHalfedgeMesh -- the "unchecked" tier of
@@ -86,6 +110,11 @@ class MeshConnectivityView
     GEO_NODISCARD bool is_deleted(FaceHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
     GEO_NODISCARD bool is_deleted(EdgeHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
 
+    GEO_NODISCARD bool is_live(VertexHandle handle) const noexcept { return m_mesh->is_live(handle); }
+    GEO_NODISCARD bool is_live(HalfedgeHandle handle) const noexcept { return m_mesh->is_live(handle); }
+    GEO_NODISCARD bool is_live(FaceHandle handle) const noexcept { return m_mesh->is_live(handle); }
+    GEO_NODISCARD bool is_live(EdgeHandle handle) const noexcept { return m_mesh->is_live(handle); }
+
     // --- connectivity lookup ------------------------------------------------------------
     /**
      * \brief Locates the halfedge from \p from to \p to by walking the fan around \p from, or an
@@ -146,6 +175,18 @@ class MeshConnectivityView
     void mark_deleted(FaceHandle handle) const noexcept requires(!is_const(C)) { m_mesh->mark_deleted(handle); }
 
     /**
+     * \brief Makes \p next follow \p prev in a halfedge cycle, setting both directions of the link.
+     *
+     * The one place the next/prev reciprocity invariant is written, so removal operators cannot
+     * update one side and forget the other.
+     */
+    void link(HalfedgeHandle prev, HalfedgeHandle next) const noexcept requires(!is_const(C))
+    {
+      m_mesh->get_halfedge(prev).next = next;
+      m_mesh->get_halfedge(next).prev = prev;
+    }
+
+    /**
      * \brief Re-establishes the boundary representative rule for \p vertex after its fan changed: a
      * boundary vertex must store a boundary outgoing halfedge.
      *
@@ -166,9 +207,9 @@ class MeshConnectivityView
     // --- reserve / resize support for transactional rollback ----------------------------
     // reserve_* pre-grows storage so a transaction's appends never reallocate mid-way; resize_*
     // truncates back to a prior element count to undo the appends on rollback.
-    void reserve_faces(size_type additional) const requires(!is_const(C)) { m_mesh->m_faces.reserve(m_mesh->m_faces.size() + additional); }
-    void reserve_halfedges(size_type additional) const requires(!is_const(C)) { m_mesh->m_halfedges.reserve(m_mesh->m_halfedges.size() + additional); }
-    void reserve_edges(size_type additional) const requires(!is_const(C)) { m_mesh->m_edges.reserve(m_mesh->m_edges.size() + additional); }
+    void reserve_faces(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_faces, additional); }
+    void reserve_halfedges(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_halfedges, additional); }
+    void reserve_edges(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_edges, additional); }
 
     void resize_faces(size_type count) const requires(!is_const(C)) { m_mesh->m_faces.resize(count); }
     void resize_halfedges(size_type count) const requires(!is_const(C)) { m_mesh->m_halfedges.resize(count); }

@@ -686,6 +686,12 @@ public:
   GEO_NODISCARD bool contains(FaceHandle handle) const noexcept { return handle_in_range(handle, m_faces.size()); }
   GEO_NODISCARD bool contains(EdgeHandle handle) const noexcept { return handle_in_range(handle, m_edges.size()); }
 
+  // In range and not tombstoned: the precondition of every public operator that takes a handle.
+  GEO_NODISCARD bool is_live(VertexHandle handle) const noexcept { return contains(handle) && !is_deleted(handle); }
+  GEO_NODISCARD bool is_live(HalfedgeHandle handle) const noexcept { return contains(handle) && !is_deleted(handle); }
+  GEO_NODISCARD bool is_live(FaceHandle handle) const noexcept { return contains(handle) && !is_deleted(handle); }
+  GEO_NODISCARD bool is_live(EdgeHandle handle) const noexcept { return contains(handle) && !is_deleted(handle); }
+
   GEO_NODISCARD Vertex& get_vertex(VertexHandle handle) noexcept
   {
     GEO_ASSERT(contains(handle));

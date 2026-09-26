@@ -52,9 +52,12 @@ GEO_NODISCARD bool is_consistently_oriented(const TriangleHalfedgeMesh<T, D, TIn
 
 /** \brief Global winding of a closed surface relative to its enclosed volume. */
 enum class MeshOrientation : std::uint8_t {
-  Outward,   ///< Face normals point away from the enclosed volume (positive signed volume).
-  Inward,    ///< Face normals point into the enclosed volume; flip every winding to correct.
-  Undefined  ///< Not a closed volume (open or empty), so "outward" has no meaning.
+  // Face normals point away from the enclosed volume (positive signed volume).
+  Outward,
+  // Face normals point into the enclosed volume; flip every winding to correct.
+  Inward,
+  // Not a closed volume (open or empty), so "outward" has no meaning.
+  Undefined
 };
 
 /**

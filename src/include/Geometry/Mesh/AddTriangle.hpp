@@ -35,7 +35,7 @@ GEO_NODISCARD bool can_add_triangle(const TriangleHalfedgeMesh<T, D, TIndex>& me
 
   const auto connectivity = mesh.connectivity();
 
-  if (!mesh.contains(vertices[0]) || !mesh.contains(vertices[1]) || !mesh.contains(vertices[2]))
+  if (!mesh.is_live(vertices[0]) || !mesh.is_live(vertices[1]) || !mesh.is_live(vertices[2]))
   {
     return false;
   }
@@ -179,7 +179,7 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   const size_type edgeCount = connectivity.edge_storage_size();
 
   // Undo log for links overwritten on pre-existing halfedges/vertices (strong exception safety).
-  // nextUndo records overwritten .next (and, via set_next, the paired .prev of the old successor);
+  // nextUndo records overwritten .next (and, via link, the paired .prev of the old successor);
   // prevUndo records an overwritten .prev on a pre-existing successor when only that side is
   // pre-existing (the .next side being a new, roll-back-truncated halfedge).
   //
@@ -195,20 +195,16 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   size_type faceUndoCount = 0;
   size_type vertexUndoCount = 0;
 
-  auto set_next = [&](HalfedgeHandle prev, HalfedgeHandle next) {
-    halfedge_at(prev).next = next;
-    halfedge_at(next).prev = prev;
-  };
-  // set_next that records the old next of `prev` for rollback (prev is a pre-existing halfedge).
+  // link that records the old next of `prev` for rollback (prev is a pre-existing halfedge).
   auto set_next_logged = [&](HalfedgeHandle prev, HalfedgeHandle next) {
     nextUndo[nextUndoCount++] = {prev, halfedge_at(prev).next};
-    set_next(prev, next);
+    connectivity.link(prev, next);
   };
-  // set_next that records the old prev of `next` for rollback. Use when `next` is the pre-existing
+  // link that records the old prev of `next` for rollback. Use when `next` is the pre-existing
   // halfedge and `prev` is a new (roll-back-truncated) halfedge, so only `next.prev` must survive.
   auto set_next_logged_succ = [&](HalfedgeHandle prev, HalfedgeHandle next) {
     prevUndo[prevUndoCount++] = {next, halfedge_at(next).prev};
-    set_next(prev, next);
+    connectivity.link(prev, next);
   };
   auto set_face_logged = [&](HalfedgeHandle handle, FaceHandle face) {
     faceUndo[faceUndoCount++] = {handle, halfedge_at(handle).face};
@@ -242,7 +238,7 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
     // --- Phase B: for corners where both edges already exist, ensure the two inner halfedges are
     //     adjacent in the boundary loop, patching (rotating) the loop if not. Patches are collected
     //     here and applied below rather than immediately. For a triangle there are at most 3 such corners.
-    // Deferred set_next(prev,next): at most 3 patches per patched corner over at most 3 corners.
+    // Deferred link(prev,next): at most 3 patches per patched corner over at most 3 corners.
     std::array<std::pair<HalfedgeHandle, HalfedgeHandle>, 9> nextCache{};
     size_type nextCacheCount = 0;
 
@@ -347,13 +343,13 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
         {
           const HalfedgeHandle oldBoundaryIn = halfedge_at(oldBoundaryOut).prev; // boundary arriving at c
           set_next_logged(oldBoundaryIn, outerIntoC);
-          set_next(outerIntoC, outerOutOfC);
+          connectivity.link(outerIntoC, outerOutOfC);
           set_next_logged(outerOutOfC, oldBoundaryOut);
         }
         else
         {
           // brand-new corner: the two new boundary halfedges chain directly.
-          set_next(outerIntoC, outerOutOfC);
+          connectivity.link(outerIntoC, outerOutOfC);
         }
       }
       else if (!prevNew && nextNew)
@@ -385,7 +381,7 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
         // inner[i] was a boundary halfedge; its next is being repointed into the face cycle.
         nextUndo[nextUndoCount++] = {inner[i], halfedge_at(inner[i]).next};
       }
-      // set_next also overwrites inner[ii].prev. When inner[ii] is pre-existing and inner[i] is new
+      // link also overwrites inner[ii].prev. When inner[ii] is pre-existing and inner[i] is new
       // (so inner[i].next is truncated on rollback and cannot carry the paired restore), inner[ii].prev
       // must be logged on its own side. In the both-reused case Phase B already made this link
       // consistent, so the write is a no-op and logging it is harmless.
@@ -393,7 +389,7 @@ add_triangle(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
       {
         prevUndo[prevUndoCount++] = {inner[ii], halfedge_at(inner[ii]).prev};
       }
-      set_next(inner[i], inner[ii]);
+      connectivity.link(inner[i], inner[ii]);
     }
     for (size_type i = 0; i < 3; ++i)
     {

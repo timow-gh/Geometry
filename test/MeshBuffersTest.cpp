@@ -1,5 +1,6 @@
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
 #include <Geometry/Mesh/MeshBuffers.hpp>
+#include <Geometry/Mesh/MeshDelete.hpp>
 
 #include <gtest/gtest.h>
 #include <set>
@@ -177,5 +178,59 @@ TEST(MeshRenderBuffersTest, ParallelNormalsRemappedIndicesAndUniqueEdges) {
     check(make_triangle_mesh(Cylinder<double>{Segment3d{{0, 0, 0}, {0, 0, 3}}, 1}));
     check(make_triangle_mesh(Cuboid<double>{{1, 2, 3}}));
     check(make_triangle_mesh(AABB3d{{0, 0, 0}, {1, 2, 3}}));
+}
+
+TEST(MeshRenderBuffersTest, DegenerateFaceIsReportedAsDegenerate) {
+    TriangleHalfedgeMesh3d mesh;
+    const auto first = mesh.add_vertex({0, 0, 0});
+    const auto second = mesh.add_vertex({1, 0, 0});
+    const auto third = mesh.add_vertex({2, 0, 0});
+    ASSERT_TRUE(add_triangle(mesh, first, second, third).is_valid());
+
+    EXPECT_EQ(make_render_buffers(mesh).error, MeshBufferStatus::DegenerateGeometry);
+}
+
+// Tombstoned vertices shift the live vertices' buffer slots below their handle values, so index
+// buffers built before garbage_collection() must translate handles, in release builds too.
+TEST(MeshBufferGarbageTest, IndexBuffersAddressCompactedVertexBuffer) {
+    TriangleHalfedgeMesh3d mesh;
+    const auto corner = mesh.add_vertex({0, 0, 0});
+    const auto right = mesh.add_vertex({1, 0, 0});
+    const auto top = mesh.add_vertex({1, 1, 0});
+    const auto left = mesh.add_vertex({0, 1, 0});
+    const auto farRight = mesh.add_vertex({2, 0, 0});
+    ASSERT_TRUE(add_triangle(mesh, corner, right, top).is_valid());
+    ASSERT_TRUE(add_triangle(mesh, corner, top, left).is_valid());
+    ASSERT_TRUE(add_triangle(mesh, right, farRight, top).is_valid());
+    // Removes both faces at the corner; the left vertex is left isolated and dropped with it.
+    ASSERT_EQ(delete_vertex(mesh, corner), MeshDeleteStatus::Ok);
+    ASSERT_TRUE(mesh.has_garbage());
+
+    const auto positions = make_vertex_buffer(mesh);
+    const auto triangles = make_triangle_index_buffer(mesh);
+    const auto edges = make_edge_index_buffer(mesh);
+    ASSERT_TRUE(positions);
+    ASSERT_TRUE(triangles);
+    ASSERT_TRUE(edges);
+    ASSERT_EQ(positions.values.size(), 3 * mesh.vertex_count());
+    ASSERT_EQ(triangles.values.size(), 3u);
+    ASSERT_EQ(edges.values.size(), 6u);
+
+    const auto expect_position = [&](BufferIndex index, TriangleHalfedgeMesh3d::VertexHandle vertex) {
+        ASSERT_LT(index, mesh.vertex_count());
+        const auto& expected = mesh.get_vertex(vertex).position;
+        for (linal::vec3<double>::size_type coordinate = 0; coordinate < 3; ++coordinate)
+            EXPECT_EQ(positions.values[3 * index + coordinate], static_cast<float>(expected[coordinate]));
+    };
+    std::size_t slot = 0;
+    for (const auto face: mesh.faces())
+        for (auto vertex = mesh.vertices(face).circulator(); vertex.is_valid(); ++vertex)
+            expect_position(triangles.values[slot++], vertex.get_vertexhandle());
+    slot = 0;
+    for (const auto edge: mesh.edges()) {
+        const auto halfedge = mesh.get_edge(edge).halfedge;
+        expect_position(edges.values[slot++], mesh.source_vertex(halfedge));
+        expect_position(edges.values[slot++], mesh.target_vertex(halfedge));
+    }
 }
 } // namespace

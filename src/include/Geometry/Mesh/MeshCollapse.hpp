@@ -170,7 +170,7 @@ GEO_NODISCARD CollapseStatus is_collapse_ok(const TriangleHalfedgeMesh<T, D, TIn
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;
   using VertexHandle = typename Mesh::VertexHandle;
 
-  if (!mesh.contains(halfedge) || mesh.is_deleted(halfedge))
+  if (!mesh.is_live(halfedge))
   {
     return CollapseStatus::InvalidHandle;
   }
@@ -313,12 +313,8 @@ void collapse_halfedge_unchecked(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
     outgoing = mesh.next_in_outgoing_fan(outgoing);
   } while (outgoing != halfedge);
 
-  const auto link = [&](HalfedgeHandle prev, HalfedgeHandle next) {
-    connectivity.halfedge(prev).next = next;
-    connectivity.halfedge(next).prev = prev;
-  };
-  link(leftPrev, leftNext);
-  link(rightPrev, rightNext);
+  connectivity.link(leftPrev, leftNext);
+  connectivity.link(rightPrev, rightNext);
 
   // Each squashed face keeps the edge that already joined q to its apex.
   if (hasLeftFace)
@@ -387,7 +383,7 @@ GEO_NODISCARD bool collapse_inverts_faces(const TriangleHalfedgeMesh<T, D, TInde
   using FaceHandle = typename Mesh::FaceHandle;
   using vec_t = typename Mesh::vec_t;
 
-  GEO_ASSERT(mesh.contains(halfedge) && !mesh.is_deleted(halfedge));
+  GEO_ASSERT(mesh.is_live(halfedge));
   const VertexHandle removed = mesh.source_vertex(halfedge);
   const VertexHandle survivor = mesh.target_vertex(halfedge);
   const FaceHandle leftFace = mesh.get_halfedge(halfedge).face;
@@ -465,7 +461,7 @@ collapse_edge(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
 {
   using VertexHandle = typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle;
 
-  if (!mesh.contains(edge) || mesh.is_deleted(edge))
+  if (!mesh.is_live(edge))
   {
     return {VertexHandle{}, CollapseStatus::InvalidHandle};
   }
