@@ -34,6 +34,9 @@ enum class CollapseStatus
   LinkCondition,
   // The edge lies on a closed tetrahedron component; the result would be two coincident triangles.
   Tetrahedron,
+  // Topologically legal, but the collapse would flip or flatten a face (see collapse_inverts_faces).
+  // Never returned by is_collapse_ok; reported by operations that also check geometry.
+  InvertsFaces,
 };
 
 /**
