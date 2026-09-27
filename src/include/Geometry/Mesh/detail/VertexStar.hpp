@@ -2,11 +2,13 @@
 #define GEOMETRY_MESH_DETAIL_VERTEXSTAR_HPP
 
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
+#include "Geometry/PolygonTriangulation.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <span>
 #include <vector>
 
 namespace Geometry
@@ -138,7 +140,7 @@ template <typename T, std::uint8_t D, typename TIndex>
 void retriangulate_star(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
                         typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex,
                         const VertexStar<TriangleHalfedgeMesh<T, D, TIndex>>& star,
-                        const std::vector<std::array<std::size_t, 3>>& triangles)
+                        std::span<const PolygonTriangle> triangles)
 {
   using Mesh = TriangleHalfedgeMesh<T, D, TIndex>;
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;

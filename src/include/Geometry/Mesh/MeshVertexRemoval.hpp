@@ -8,8 +8,8 @@
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
 #include "Geometry/Mesh/detail/EdgeCollapse.hpp"
 #include "Geometry/Mesh/detail/FaceGeometry.hpp"
-#include "Geometry/Mesh/detail/PolygonTriangulation.hpp"
 #include "Geometry/Mesh/detail/VertexStar.hpp"
+#include "Geometry/PolygonTriangulation.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <algorithm>
@@ -255,15 +255,17 @@ GEO_NODISCARD VertexRemovalStatus remove_vertex_retriangulate(TriangleHalfedgeMe
     return squaredEdges / std::sqrt(detail::orientation_dot(orientation, orientation));
   };
 
-  const auto triangles = detail::triangulate_polygon<T>(count, aspectCost, isDiagonalAllowed);
-  if (!triangles)
+  // The valence is unbounded, so the buffers live on the heap; the fallback search below reuses them.
+  std::vector<TriangulationCell<T>> scratch(triangulation_scratch_size(count));
+  std::vector<PolygonTriangle> triangles(triangulation_triangle_count(count));
+  if (!minimum_cost_triangulation(count, aspectCost, scratch, triangles, isDiagonalAllowed))
   {
-    const auto anyCost = [](std::size_t, std::size_t, std::size_t) { return T{0}; };
-    const bool topologicallyPossible = detail::triangulate_polygon<T>(count, anyCost, isDiagonalAllowed).has_value();
+    const auto anyCost = [](std::size_t, std::size_t, std::size_t) noexcept { return T{0}; };
+    const bool topologicallyPossible = minimum_cost_triangulation(count, anyCost, scratch, triangles, isDiagonalAllowed);
     return topologicallyPossible ? VertexRemovalStatus::InvertsFaces : VertexRemovalStatus::DuplicateEdge;
   }
 
-  detail::retriangulate_star(mesh, vertex, star, *triangles);
+  detail::retriangulate_star(mesh, vertex, star, triangles);
   return VertexRemovalStatus::Ok;
 }
 

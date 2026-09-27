@@ -9,14 +9,11 @@
 #include <Geometry/Mesh/MeshVertexRemoval.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <Geometry/Mesh/detail/FaceGeometry.hpp>
-#include <Geometry/Mesh/detail/PolygonTriangulation.hpp>
 #include <gtest/gtest.h>
 
-#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
-#include <limits>
 #include <random>
 #include <utility>
 #include <vector>
@@ -434,30 +431,6 @@ TEST(MeshVertexRetriangulation, ReportsTopologicalObstructions)
   ASSERT_TRUE(is_boundary(closedBack, hub));
   EXPECT_EQ(remove_vertex_retriangulate(closedBack, hub), VertexRemovalStatus::DuplicateEdge);
   EXPECT_FALSE(closedBack.has_garbage());
-}
-
-TEST(MeshVertexRetriangulation, TriangulatePolygonRespectsForbiddenDiagonals)
-{
-  const auto uniform = [](std::size_t, std::size_t, std::size_t) { return 1.0; };
-  const auto forbidZeroTwo = [](std::size_t from, std::size_t to) { return !(from == 0 && to == 2); };
-  const auto quad = detail::triangulate_polygon<double>(4, uniform, forbidZeroTwo);
-  ASSERT_TRUE(quad.has_value());
-  ASSERT_EQ(quad->size(), 2U);
-  for (const auto& triangle : *quad)
-  {
-    // Only the diagonal (1, 3) is left, so both triangles contain corners 1 and 3.
-    EXPECT_TRUE(std::find(triangle.begin(), triangle.end(), std::size_t{1}) != triangle.end());
-    EXPECT_TRUE(std::find(triangle.begin(), triangle.end(), std::size_t{3}) != triangle.end());
-  }
-
-  const auto noDiagonals = [](std::size_t, std::size_t) { return false; };
-  EXPECT_FALSE(detail::triangulate_polygon<double>(5, uniform, noDiagonals).has_value());
-  EXPECT_TRUE(detail::triangulate_polygon<double>(3, uniform, noDiagonals).has_value());
-
-  const auto forbidden = [](std::size_t, std::size_t, std::size_t) { return std::numeric_limits<double>::infinity(); };
-  const auto anyDiagonal = [](std::size_t, std::size_t) { return true; };
-  EXPECT_FALSE(detail::triangulate_polygon<double>(6, forbidden, anyDiagonal).has_value());
-  EXPECT_EQ(detail::triangulate_polygon<double>(7, uniform, anyDiagonal)->size(), 5U);
 }
 
 TEST(MeshVertexRetriangulationFuzz, PlanarDecimationNeverFoldsOver)

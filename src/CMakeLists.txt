@@ -27,7 +27,6 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/detail/EdgeCollapseChecks.hpp
         include/Geometry/Mesh/detail/EdgeCollapse.hpp
         include/Geometry/Mesh/detail/VertexStar.hpp
-        include/Geometry/Mesh/detail/PolygonTriangulation.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectAABBHelper.hpp
@@ -44,6 +43,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Transform/TransformCylinder.hpp
         include/Geometry/Transform/TransformSphere.hpp
         include/Geometry/Transform/TransformAABB.hpp
+        include/Geometry/detail/TriangleOrientation.hpp
         include/Geometry/Utils/Assert.hpp
         include/Geometry/Utils/Compiler.hpp
         include/Geometry/Utils/DefaultValues.hpp
@@ -65,6 +65,8 @@ set(geometry_TARGET_HEADER
         include/Geometry/Line.hpp
         include/Geometry/Plane.hpp
         include/Geometry/PointQueries.hpp
+        include/Geometry/PolygonTriangulation.hpp
+        include/Geometry/PolygonTriangulationCosts.hpp
         include/Geometry/Sphere.hpp
         include/Geometry/Triangle.hpp
 )
