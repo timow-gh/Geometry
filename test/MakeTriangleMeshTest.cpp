@@ -1,5 +1,5 @@
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
-#include <Geometry/Mesh/MeshEuler.hpp>
+#include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshTopology.hpp>
 
 #include <gtest/gtest.h>
@@ -22,8 +22,8 @@ void check_solid(const MeshCreationResult<T, TIndex>& result,
     ASSERT_TRUE(mesh.has_valid_connectivity());
     EXPECT_TRUE(verify_manifold(mesh));
     EXPECT_TRUE(verify_closed(mesh));
-    EXPECT_TRUE(boundary_loops(mesh).empty());
-    EXPECT_EQ(num_connected_components(mesh), 1U);
+    EXPECT_EQ(boundary_loop_count(mesh), 0U);
+    EXPECT_EQ(connected_component_count(mesh), 1U);
     EXPECT_EQ(euler_characteristic(mesh), 2);
     T volume = 0;
     for (const auto face: mesh.faces()) {

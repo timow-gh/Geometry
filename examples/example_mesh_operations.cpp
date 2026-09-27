@@ -6,14 +6,14 @@
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/Mesh/AddTriangle.hpp>
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
+#include <Geometry/Mesh/MeshDelete.hpp>
 #include <Geometry/Mesh/MeshEdgeCollapse.hpp>
 #include <Geometry/Mesh/MeshEdgeCollapseChecks.hpp>
-#include <Geometry/Mesh/MeshDelete.hpp>
-#include <Geometry/Mesh/MeshManifold.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
 #include <Geometry/Mesh/MeshQuality.hpp>
 #include <Geometry/Mesh/MeshTopology.hpp>
-#include <Geometry/Mesh/MeshVertexRemoval.hpp>
+#include <Geometry/Mesh/MeshVerify.hpp>
+#include <Geometry/Mesh/MeshVertexDecimation.hpp>
 
 #include <algorithm>
 #include <array>
@@ -145,11 +145,12 @@ void decimate_by_vertex_removal(Mesh& mesh, std::size_t targetVertexCount, TRemo
 }
 
 bool remove_by_halfedge_collapse(Mesh& mesh, VertexHandle vertex) {
-    return Geometry::remove_vertex(mesh, vertex, decimationLimits).has_value();
+    return Geometry::decimate_vertex_by_collapse(mesh, vertex, decimationLimits).has_value();
 }
 
 bool remove_by_retriangulation(Mesh& mesh, VertexHandle vertex) {
-    return Geometry::remove_vertex_retriangulate(mesh, vertex, decimationLimits) == Geometry::VertexRemovalStatus::Ok;
+    return Geometry::decimate_vertex_by_retriangulation(mesh, vertex, decimationLimits) ==
+           Geometry::VertexDecimationStatus::Ok;
 }
 
 // A bad operator result is reported here, naming the broken property, instead of being left for the
@@ -185,13 +186,13 @@ void punch_holes(Mesh& mesh) {
         return VertexHandle{static_cast<std::uint32_t>(j * surfaceResolution + i)};
     };
     for (const auto& [i, j] : std::array<std::array<std::size_t, 2>, 3>{{{2, 3}, {7, 2}, {5, 7}}})
-        if (Geometry::delete_vertex(mesh, grid_vertex(i, j)) != Geometry::MeshDeleteStatus::Ok)
+        if (Geometry::delete_vertex(mesh, grid_vertex(i, j)) != Geometry::DeleteStatus::Ok)
             example::fail_example("Delete vertex", 0);
 
     for (const auto& [i, j] : std::array<std::array<std::size_t, 2>, 2>{{{2, 7}, {7, 6}}}) {
         const auto halfedge = mesh.find_halfedge(grid_vertex(i, j), grid_vertex(i + 1, j));
         const FaceHandle face = mesh.get_halfedge(halfedge).face;
-        if (Geometry::delete_face(mesh, face) != Geometry::MeshDeleteStatus::Ok)
+        if (Geometry::delete_face(mesh, face) != Geometry::DeleteStatus::Ok)
             example::fail_example("Delete face", 0);
     }
 }

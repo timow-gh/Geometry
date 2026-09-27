@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_MESH_MESHMANIFOLD_HPP
-#define GEOMETRY_MESH_MESHMANIFOLD_HPP
+#ifndef GEOMETRY_MESH_MESHVERIFY_HPP
+#define GEOMETRY_MESH_MESHVERIFY_HPP
 
 #include "Geometry/Mesh/MeshTopology.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
@@ -228,4 +228,4 @@ GEO_NODISCARD bool verify_closed(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
 
 } // namespace Geometry
 
-#endif // GEOMETRY_MESH_MESHMANIFOLD_HPP
+#endif // GEOMETRY_MESH_MESHVERIFY_HPP

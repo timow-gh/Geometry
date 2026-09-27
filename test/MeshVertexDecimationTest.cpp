@@ -2,11 +2,11 @@
 #include <Geometry/Mesh/AddTriangle.hpp>
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
 #include <Geometry/Mesh/MeshEdgeCollapseChecks.hpp>
-#include <Geometry/Mesh/MeshEuler.hpp>
-#include <Geometry/Mesh/MeshManifold.hpp>
+#include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
 #include <Geometry/Mesh/MeshTopology.hpp>
-#include <Geometry/Mesh/MeshVertexRemoval.hpp>
+#include <Geometry/Mesh/MeshVerify.hpp>
+#include <Geometry/Mesh/MeshVertexDecimation.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <Geometry/Mesh/detail/FaceGeometry.hpp>
 #include <gtest/gtest.h>
@@ -143,23 +143,23 @@ Mesh make_tetrahedron()
 
 } // namespace
 
-TEST(MeshVertexRemoval, RejectsInvalidAndDeletedVertices)
+TEST(MeshVertexDecimation, RejectsInvalidAndDeletedVertices)
 {
   Mesh mesh = make_grid(3);
-  EXPECT_EQ(remove_vertex(mesh, VertexHandle{}).status, CollapseStatus::InvalidHandle);
+  EXPECT_EQ(decimate_vertex_by_collapse(mesh, VertexHandle{}).status, CollapseStatus::InvalidHandle);
 
-  ASSERT_TRUE(remove_vertex(mesh, VertexHandle{4}).has_value());
-  const auto again = remove_vertex(mesh, VertexHandle{4});
+  ASSERT_TRUE(decimate_vertex_by_collapse(mesh, VertexHandle{4}).has_value());
+  const auto again = decimate_vertex_by_collapse(mesh, VertexHandle{4});
   EXPECT_EQ(again.status, CollapseStatus::InvalidHandle);
   EXPECT_FALSE(again.survivor.is_valid());
 }
 
-TEST(MeshVertexRemoval, DeletesIsolatedVertex)
+TEST(MeshVertexDecimation, DeletesIsolatedVertex)
 {
   Mesh mesh = make_grid(3);
   const VertexHandle isolated = mesh.add_vertex({5.0, 5.0, 0.0});
 
-  const auto result = remove_vertex(mesh, isolated);
+  const auto result = decimate_vertex_by_collapse(mesh, isolated);
 
   EXPECT_TRUE(result.has_value());
   EXPECT_FALSE(result.survivor.is_valid());
@@ -168,7 +168,7 @@ TEST(MeshVertexRemoval, DeletesIsolatedVertex)
   expect_structurally_valid(mesh);
 }
 
-TEST(MeshVertexRemoval, CollapsesInteriorVertexIntoNearestNeighbour)
+TEST(MeshVertexDecimation, CollapsesInteriorVertexIntoNearestNeighbour)
 {
   Mesh mesh = make_grid(3);
   // Pull (0, 1) towards the center so it is the unique nearest neighbour.
@@ -176,7 +176,7 @@ TEST(MeshVertexRemoval, CollapsesInteriorVertexIntoNearestNeighbour)
   mesh.set_position(nearest, {0.5, 1.0, 0.0});
   const ElementCounts before = counts_of(mesh);
 
-  const auto result = remove_vertex(mesh, VertexHandle{4});
+  const auto result = decimate_vertex_by_collapse(mesh, VertexHandle{4});
 
   ASSERT_TRUE(result.has_value());
   EXPECT_EQ(result.survivor, nearest);
@@ -187,30 +187,30 @@ TEST(MeshVertexRemoval, CollapsesInteriorVertexIntoNearestNeighbour)
   expect_structurally_valid(mesh);
 }
 
-TEST(MeshVertexRemoval, RemovesBoundaryCorner)
+TEST(MeshVertexDecimation, RemovesBoundaryCorner)
 {
   Mesh mesh = make_grid(3);
   const ElementCounts before = counts_of(mesh);
 
-  const auto result = remove_vertex(mesh, VertexHandle{0});
+  const auto result = decimate_vertex_by_collapse(mesh, VertexHandle{0});
 
   ASSERT_TRUE(result.has_value());
   // The corner's shortest legal spokes are the two boundary edges; each takes one face with it.
   EXPECT_TRUE(result.survivor == VertexHandle{1} || result.survivor == VertexHandle{3});
   EXPECT_EQ(counts_of(mesh), (ElementCounts{before.vertices - 1, before.edges - 2, before.faces - 1}));
-  EXPECT_EQ(boundary_loops(mesh).size(), 1U);
+  EXPECT_EQ(boundary_loop_count(mesh), 1U);
   EXPECT_TRUE(all_faces_face_up(mesh));
   expect_structurally_valid(mesh);
 }
 
-TEST(MeshVertexRemoval, SkipsNearestNeighbourWhoseCollapseFoldsOver)
+TEST(MeshVertexDecimation, SkipsNearestNeighbourWhoseCollapseFoldsOver)
 {
   Mesh mesh = make_fan(starRing);
   const VertexHandle center{0};
   const VertexHandle spike{1};
   ASSERT_TRUE(collapse_inverts_faces(mesh, mesh.find_halfedge(center, spike), mesh.get_position(spike)));
 
-  const auto result = remove_vertex(mesh, center);
+  const auto result = decimate_vertex_by_collapse(mesh, center);
 
   ASSERT_TRUE(result.has_value());
   // The next-nearest spokes are the two notches beside the spike, at equal distance.
@@ -219,7 +219,7 @@ TEST(MeshVertexRemoval, SkipsNearestNeighbourWhoseCollapseFoldsOver)
   expect_structurally_valid(mesh);
 }
 
-TEST(MeshVertexRemoval, ReportsFoldOverWhenEveryLegalCollapseFolds)
+TEST(MeshVertexDecimation, ReportsFoldOverWhenEveryLegalCollapseFolds)
 {
   Mesh mesh = make_fan(pinwheelRing);
   const VertexHandle center{0};
@@ -231,7 +231,7 @@ TEST(MeshVertexRemoval, ReportsFoldOverWhenEveryLegalCollapseFolds)
   }
   const ElementCounts before = counts_of(mesh);
 
-  const auto result = remove_vertex(mesh, center);
+  const auto result = decimate_vertex_by_collapse(mesh, center);
 
   EXPECT_EQ(result.status, CollapseStatus::InvertsFaces);
   EXPECT_FALSE(result.survivor.is_valid());
@@ -239,10 +239,10 @@ TEST(MeshVertexRemoval, ReportsFoldOverWhenEveryLegalCollapseFolds)
   EXPECT_FALSE(mesh.has_garbage());
 }
 
-TEST(MeshVertexRemoval, ReportsTopologicalReasonWhenNoCollapseIsLegal)
+TEST(MeshVertexDecimation, ReportsTopologicalReasonWhenNoCollapseIsLegal)
 {
   Mesh tetrahedron = make_tetrahedron();
-  EXPECT_EQ(remove_vertex(tetrahedron, VertexHandle{0}).status, CollapseStatus::Tetrahedron);
+  EXPECT_EQ(decimate_vertex_by_collapse(tetrahedron, VertexHandle{0}).status, CollapseStatus::Tetrahedron);
   EXPECT_FALSE(tetrahedron.has_garbage());
 
   Mesh triangle;
@@ -250,11 +250,11 @@ TEST(MeshVertexRemoval, ReportsTopologicalReasonWhenNoCollapseIsLegal)
   const VertexHandle vertex1 = triangle.add_vertex({1.0, 0.0, 0.0});
   const VertexHandle vertex2 = triangle.add_vertex({0.0, 1.0, 0.0});
   ASSERT_TRUE(add_triangle(triangle, vertex0, vertex1, vertex2).is_valid());
-  EXPECT_EQ(remove_vertex(triangle, vertex0).status, CollapseStatus::IsolatedTriangle);
+  EXPECT_EQ(decimate_vertex_by_collapse(triangle, vertex0).status, CollapseStatus::IsolatedTriangle);
   EXPECT_FALSE(triangle.has_garbage());
 }
 
-TEST(MeshVertexRemovalFuzz, PlanarDecimationNeverFoldsOver)
+TEST(MeshVertexDecimationFuzz, PlanarDecimationNeverFoldsOver)
 {
   for (std::uint32_t seed = 1; seed <= 5; ++seed)
   {
@@ -269,7 +269,7 @@ TEST(MeshVertexRemovalFuzz, PlanarDecimationNeverFoldsOver)
       std::uniform_int_distribution<std::size_t> pick(0, live.size() - 1);
       const ElementCounts before = counts_of(mesh);
 
-      const auto result = remove_vertex(mesh, live[pick(generator)]);
+      const auto result = decimate_vertex_by_collapse(mesh, live[pick(generator)]);
       if (!result.has_value())
       {
         EXPECT_EQ(counts_of(mesh), before);
@@ -291,7 +291,7 @@ TEST(MeshVertexRemovalFuzz, PlanarDecimationNeverFoldsOver)
   }
 }
 
-TEST(MeshVertexRemovalFuzz, ClosedSurfaceDecimationKeepsTopology)
+TEST(MeshVertexDecimationFuzz, ClosedSurfaceDecimationKeepsTopology)
 {
   const Cylinder<double> cylinder{Segment3<double>{{0.0, 0.0, 0.0}, {0.0, 0.0, 2.0}}, 1.0};
   auto creation = make_triangle_mesh(cylinder, 16);
@@ -303,7 +303,7 @@ TEST(MeshVertexRemovalFuzz, ClosedSurfaceDecimationKeepsTopology)
   {
     const std::vector<VertexHandle> live(mesh.vertices().begin(), mesh.vertices().end());
     std::uniform_int_distribution<std::size_t> pick(0, live.size() - 1);
-    if (!remove_vertex(mesh, live[pick(generator)]).has_value())
+    if (!decimate_vertex_by_collapse(mesh, live[pick(generator)]).has_value())
     {
       continue;
     }
@@ -316,17 +316,17 @@ TEST(MeshVertexRemovalFuzz, ClosedSurfaceDecimationKeepsTopology)
   EXPECT_LT(mesh.vertex_count(), 20U);
 }
 
-// --- remove_vertex_retriangulate --------------------------------------------------------------
+// --- decimate_vertex_by_retriangulation --------------------------------------------------------------
 
 TEST(MeshVertexRetriangulation, RejectsInvalidAndDeletesIsolatedVertex)
 {
   Mesh mesh = make_grid(3);
-  EXPECT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{}), VertexRemovalStatus::InvalidHandle);
+  EXPECT_EQ(decimate_vertex_by_retriangulation(mesh, VertexHandle{}), VertexDecimationStatus::InvalidHandle);
 
   const VertexHandle isolated = mesh.add_vertex({5.0, 5.0, 0.0});
-  EXPECT_EQ(remove_vertex_retriangulate(mesh, isolated), VertexRemovalStatus::Ok);
+  EXPECT_EQ(decimate_vertex_by_retriangulation(mesh, isolated), VertexDecimationStatus::Ok);
   EXPECT_TRUE(mesh.is_deleted(isolated));
-  EXPECT_EQ(remove_vertex_retriangulate(mesh, isolated), VertexRemovalStatus::InvalidHandle);
+  EXPECT_EQ(decimate_vertex_by_retriangulation(mesh, isolated), VertexDecimationStatus::InvalidHandle);
 }
 
 TEST(MeshVertexRetriangulation, RemovesInteriorVertex)
@@ -334,7 +334,7 @@ TEST(MeshVertexRetriangulation, RemovesInteriorVertex)
   Mesh mesh = make_grid(3);
   const ElementCounts before = counts_of(mesh);
 
-  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{4}), VertexRemovalStatus::Ok);
+  ASSERT_EQ(decimate_vertex_by_retriangulation(mesh, VertexHandle{4}), VertexDecimationStatus::Ok);
 
   EXPECT_TRUE(mesh.is_deleted(VertexHandle{4}));
   EXPECT_EQ(counts_of(mesh), (ElementCounts{before.vertices - 1, before.edges - 3, before.faces - 2}));
@@ -352,7 +352,7 @@ TEST(MeshVertexRetriangulation, PrefersWellShapedTriangles)
   // two slivers (cost 13).
   Mesh mesh = make_fan({{2.0, 0.0, 0.0}, {0.0, 1.0, 0.0}, {-2.0, 0.0, 0.0}, {0.0, -1.0, 0.0}});
 
-  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{0}), VertexRemovalStatus::Ok);
+  ASSERT_EQ(decimate_vertex_by_retriangulation(mesh, VertexHandle{0}), VertexDecimationStatus::Ok);
 
   EXPECT_TRUE(mesh.find_halfedge(VertexHandle{2}, VertexHandle{4}).is_valid());
   EXPECT_FALSE(mesh.find_halfedge(VertexHandle{1}, VertexHandle{3}).is_valid());
@@ -364,9 +364,9 @@ TEST(MeshVertexRetriangulation, PrefersWellShapedTriangles)
 TEST(MeshVertexRetriangulation, SucceedsWhereEveryFanFoldsOver)
 {
   Mesh mesh = make_fan(pinwheelRing);
-  ASSERT_EQ(remove_vertex(mesh, VertexHandle{0}).status, CollapseStatus::InvertsFaces);
+  ASSERT_EQ(decimate_vertex_by_collapse(mesh, VertexHandle{0}).status, CollapseStatus::InvertsFaces);
 
-  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{0}), VertexRemovalStatus::Ok);
+  ASSERT_EQ(decimate_vertex_by_retriangulation(mesh, VertexHandle{0}), VertexDecimationStatus::Ok);
 
   EXPECT_EQ(mesh.face_count(), pinwheelRing.size() - 2);
   EXPECT_EQ(mesh.edge_count(), 2 * pinwheelRing.size() - 3);
@@ -380,11 +380,11 @@ TEST(MeshVertexRetriangulation, RemovesBoundaryVertex)
   const ElementCounts before = counts_of(mesh);
 
   // (1, 0): the hole is closed by a new boundary edge (0,0)-(2,0).
-  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{1}), VertexRemovalStatus::Ok);
+  ASSERT_EQ(decimate_vertex_by_retriangulation(mesh, VertexHandle{1}), VertexDecimationStatus::Ok);
 
   EXPECT_EQ(counts_of(mesh), (ElementCounts{before.vertices - 1, before.edges - 2, before.faces - 1}));
   EXPECT_TRUE(mesh.find_halfedge(VertexHandle{0}, VertexHandle{2}).is_valid());
-  ASSERT_EQ(boundary_loops(mesh).size(), 1U);
+  ASSERT_EQ(boundary_loop_count(mesh), 1U);
   EXPECT_EQ(boundary_loops(mesh).front().size(), 7U);
   EXPECT_TRUE(all_faces_face_up(mesh));
   expect_structurally_valid(mesh);
@@ -396,7 +396,7 @@ TEST(MeshVertexRetriangulation, RemovesEarVertex)
   const ElementCounts before = counts_of(mesh);
 
   // Corner (2, 0) has a single face; removing it just drops that face.
-  ASSERT_EQ(remove_vertex_retriangulate(mesh, VertexHandle{2}), VertexRemovalStatus::Ok);
+  ASSERT_EQ(decimate_vertex_by_retriangulation(mesh, VertexHandle{2}), VertexDecimationStatus::Ok);
 
   EXPECT_EQ(counts_of(mesh), (ElementCounts{before.vertices - 1, before.edges - 2, before.faces - 1}));
   EXPECT_TRUE(mesh.is_boundary(mesh.get_halfedge(mesh.find_halfedge(VertexHandle{1}, VertexHandle{5})).edge));
@@ -411,11 +411,11 @@ TEST(MeshVertexRetriangulation, ReportsTopologicalObstructions)
   const VertexHandle vertex1 = triangle.add_vertex({1.0, 0.0, 0.0});
   const VertexHandle vertex2 = triangle.add_vertex({0.0, 1.0, 0.0});
   ASSERT_TRUE(add_triangle(triangle, vertex0, vertex1, vertex2).is_valid());
-  EXPECT_EQ(remove_vertex_retriangulate(triangle, vertex0), VertexRemovalStatus::IsolatedTriangle);
+  EXPECT_EQ(decimate_vertex_by_retriangulation(triangle, vertex0), VertexDecimationStatus::IsolatedTriangle);
   EXPECT_FALSE(triangle.has_garbage());
 
   Mesh tetrahedron = make_tetrahedron();
-  EXPECT_EQ(remove_vertex_retriangulate(tetrahedron, VertexHandle{0}), VertexRemovalStatus::Tetrahedron);
+  EXPECT_EQ(decimate_vertex_by_retriangulation(tetrahedron, VertexHandle{0}), VertexDecimationStatus::Tetrahedron);
   EXPECT_FALSE(tetrahedron.has_garbage());
 
   // A two-face fan around a boundary vertex whose two boundary neighbours are already joined by a
@@ -429,7 +429,7 @@ TEST(MeshVertexRetriangulation, ReportsTopologicalObstructions)
   ASSERT_TRUE(add_triangle(closedBack, hub, top, left).is_valid());
   ASSERT_TRUE(add_triangle(closedBack, left, top, right).is_valid());
   ASSERT_TRUE(is_boundary(closedBack, hub));
-  EXPECT_EQ(remove_vertex_retriangulate(closedBack, hub), VertexRemovalStatus::DuplicateEdge);
+  EXPECT_EQ(decimate_vertex_by_retriangulation(closedBack, hub), VertexDecimationStatus::DuplicateEdge);
   EXPECT_FALSE(closedBack.has_garbage());
 }
 
@@ -449,7 +449,7 @@ TEST(MeshVertexRetriangulationFuzz, PlanarDecimationNeverFoldsOver)
       const bool boundary = is_boundary(mesh, vertex);
       const ElementCounts before = counts_of(mesh);
 
-      if (remove_vertex_retriangulate(mesh, vertex) != VertexRemovalStatus::Ok)
+      if (decimate_vertex_by_retriangulation(mesh, vertex) != VertexDecimationStatus::Ok)
       {
         ASSERT_EQ(counts_of(mesh), before);
         continue;
@@ -484,7 +484,7 @@ TEST(MeshVertexRetriangulationFuzz, ClosedSurfaceDecimationKeepsTopology)
   {
     const std::vector<VertexHandle> live(mesh.vertices().begin(), mesh.vertices().end());
     std::uniform_int_distribution<std::size_t> pick(0, live.size() - 1);
-    if (remove_vertex_retriangulate(mesh, live[pick(generator)]) != VertexRemovalStatus::Ok)
+    if (decimate_vertex_by_retriangulation(mesh, live[pick(generator)]) != VertexDecimationStatus::Ok)
     {
       continue;
     }

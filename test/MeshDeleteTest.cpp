@@ -2,9 +2,9 @@
 #include <Geometry/Mesh/AddTriangle.hpp>
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
 #include <Geometry/Mesh/MeshDelete.hpp>
-#include <Geometry/Mesh/MeshEuler.hpp>
-#include <Geometry/Mesh/MeshManifold.hpp>
+#include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
+#include <Geometry/Mesh/MeshVerify.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
@@ -104,11 +104,11 @@ void expect_structurally_valid(const Mesh& mesh)
 TEST(MeshDelete, RejectsInvalidAndDeletedFace)
 {
   Mesh mesh = make_grid(3);
-  EXPECT_EQ(delete_face(mesh, FaceHandle{}), MeshDeleteStatus::InvalidHandle);
+  EXPECT_EQ(delete_face(mesh, FaceHandle{}), DeleteStatus::InvalidHandle);
 
   const FaceHandle corner = face_with(mesh, grid_vertex(3, 0, 0), grid_vertex(3, 1, 1), grid_vertex(3, 0, 1));
-  ASSERT_EQ(delete_face(mesh, corner), MeshDeleteStatus::Ok);
-  EXPECT_EQ(delete_face(mesh, corner), MeshDeleteStatus::InvalidHandle);
+  ASSERT_EQ(delete_face(mesh, corner), DeleteStatus::Ok);
+  EXPECT_EQ(delete_face(mesh, corner), DeleteStatus::InvalidHandle);
 }
 
 TEST(MeshDelete, DeletingIsolatedTriangleEmptiesMesh)
@@ -119,7 +119,7 @@ TEST(MeshDelete, DeletingIsolatedTriangleEmptiesMesh)
   const VertexHandle vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
   const FaceHandle face = add_triangle(mesh, vertex0, vertex1, vertex2);
 
-  ASSERT_EQ(delete_face(mesh, face), MeshDeleteStatus::Ok);
+  ASSERT_EQ(delete_face(mesh, face), DeleteStatus::Ok);
 
   EXPECT_EQ(mesh.vertex_count(), 0U);
   EXPECT_EQ(mesh.edge_count(), 0U);
@@ -135,7 +135,7 @@ TEST(MeshDelete, DeletingBoundaryFaceShrinksBoundary)
   Mesh mesh = make_grid(3);
   const FaceHandle face = face_with(mesh, grid_vertex(3, 1, 0), grid_vertex(3, 2, 0), grid_vertex(3, 2, 1));
 
-  ASSERT_EQ(delete_face(mesh, face), MeshDeleteStatus::Ok);
+  ASSERT_EQ(delete_face(mesh, face), DeleteStatus::Ok);
 
   // The corner (2,0) belonged to this face only, so it goes with its two boundary edges.
   EXPECT_TRUE(mesh.is_deleted(grid_vertex(3, 2, 0)));
@@ -143,7 +143,7 @@ TEST(MeshDelete, DeletingBoundaryFaceShrinksBoundary)
   EXPECT_EQ(mesh.edge_count(), 14U);
   EXPECT_EQ(mesh.face_count(), 7U);
   EXPECT_EQ(euler_characteristic(mesh), 1);
-  EXPECT_EQ(boundary_loops(mesh).size(), 1U);
+  EXPECT_EQ(boundary_loop_count(mesh), 1U);
   expect_structurally_valid(mesh);
 }
 
@@ -152,13 +152,13 @@ TEST(MeshDelete, DeletingInteriorFaceOpensHole)
   Mesh mesh = make_grid(4);
   const FaceHandle face = face_with(mesh, grid_vertex(4, 1, 1), grid_vertex(4, 2, 1), grid_vertex(4, 2, 2));
 
-  ASSERT_EQ(delete_face(mesh, face), MeshDeleteStatus::Ok);
+  ASSERT_EQ(delete_face(mesh, face), DeleteStatus::Ok);
 
   EXPECT_EQ(mesh.face_count(), 17U);
   EXPECT_EQ(mesh.edge_count(), 33U);
   EXPECT_EQ(mesh.vertex_count(), 16U);
   EXPECT_EQ(euler_characteristic(mesh), 0);
-  EXPECT_EQ(boundary_loops(mesh).size(), 2U);
+  EXPECT_EQ(boundary_loop_count(mesh), 2U);
   expect_structurally_valid(mesh);
 }
 
@@ -168,7 +168,7 @@ TEST(MeshDelete, RejectsFaceWhoseDeletionSplitsBoundaryFan)
   // Fan face (hub, 2, 3) has both edges at the boundary hub interior.
   const FaceHandle middle = face_with(mesh, VertexHandle{0}, VertexHandle{2}, VertexHandle{3});
 
-  EXPECT_EQ(delete_face(mesh, middle), MeshDeleteStatus::NonManifoldVertex);
+  EXPECT_EQ(delete_face(mesh, middle), DeleteStatus::NonManifoldVertex);
   EXPECT_FALSE(mesh.has_garbage());
 
   // Forced through the unchecked kernel, the deletion leaves the hub with two boundary gaps. The
@@ -180,7 +180,7 @@ TEST(MeshDelete, RejectsFaceWhoseDeletionSplitsBoundaryFan)
   EXPECT_FALSE(verify_manifold(bowTie));
 
   // The first face touches the hub's boundary gap, so it can go.
-  EXPECT_EQ(delete_face(mesh, face_with(mesh, VertexHandle{0}, VertexHandle{1}, VertexHandle{2})), MeshDeleteStatus::Ok);
+  EXPECT_EQ(delete_face(mesh, face_with(mesh, VertexHandle{0}, VertexHandle{1}, VertexHandle{2})), DeleteStatus::Ok);
   expect_structurally_valid(mesh);
 }
 
@@ -205,13 +205,13 @@ TEST(MeshDeleteFuzz, DeletingFacesInAnyLegalOrderStaysValid)
       for (const FaceHandle face : faces)
       {
         const std::size_t faceCount = mesh.face_count();
-        const MeshDeleteStatus status = delete_face(mesh, face);
-        if (status == MeshDeleteStatus::NonManifoldVertex)
+        const DeleteStatus status = delete_face(mesh, face);
+        if (status == DeleteStatus::NonManifoldVertex)
         {
           ASSERT_EQ(mesh.face_count(), faceCount);
           continue;
         }
-        ASSERT_EQ(status, MeshDeleteStatus::Ok);
+        ASSERT_EQ(status, DeleteStatus::Ok);
         ASSERT_EQ(mesh.face_count(), faceCount - 1);
         ASSERT_TRUE(mesh.has_valid_connectivity()) << "seed " << seed;
         ASSERT_TRUE(verify_manifold(mesh)) << "seed " << seed;
@@ -236,12 +236,12 @@ TEST(MeshDelete, DeletingInteriorVertexOpensHole)
   // from the outer boundary.
   Mesh mesh = make_grid(5);
 
-  ASSERT_EQ(delete_vertex(mesh, grid_vertex(5, 2, 2)), MeshDeleteStatus::Ok);
+  ASSERT_EQ(delete_vertex(mesh, grid_vertex(5, 2, 2)), DeleteStatus::Ok);
 
   EXPECT_TRUE(mesh.is_deleted(grid_vertex(5, 2, 2)));
   EXPECT_EQ(mesh.vertex_count(), 24U);
   EXPECT_EQ(mesh.face_count(), 26U);
-  EXPECT_EQ(boundary_loops(mesh).size(), 2U);
+  EXPECT_EQ(boundary_loop_count(mesh), 2U);
   EXPECT_EQ(euler_characteristic(mesh), 0);
   expect_structurally_valid(mesh);
 }
@@ -250,7 +250,7 @@ TEST(MeshDelete, DeletingVertexDropsNeighboursLeftIsolated)
 {
   Mesh mesh = make_grid(3);
 
-  ASSERT_EQ(delete_vertex(mesh, grid_vertex(3, 1, 1)), MeshDeleteStatus::Ok);
+  ASSERT_EQ(delete_vertex(mesh, grid_vertex(3, 1, 1)), DeleteStatus::Ok);
 
   // Corners (0,0) and (2,2) only had faces around the center; two lone triangles remain.
   EXPECT_TRUE(mesh.is_deleted(grid_vertex(3, 0, 0)));
@@ -258,7 +258,7 @@ TEST(MeshDelete, DeletingVertexDropsNeighboursLeftIsolated)
   EXPECT_EQ(mesh.vertex_count(), 6U);
   EXPECT_EQ(mesh.edge_count(), 6U);
   EXPECT_EQ(mesh.face_count(), 2U);
-  EXPECT_EQ(num_connected_components(mesh), 2U);
+  EXPECT_EQ(connected_component_count(mesh), 2U);
   expect_structurally_valid(mesh);
 }
 
@@ -266,11 +266,11 @@ TEST(MeshDelete, RejectsVertexWhoseDeletionPinchesNeighbour)
 {
   Mesh mesh = make_open_fan();
   // Deleting ring vertex 3 removes the two middle fan faces, cutting the hub's fan in two.
-  EXPECT_EQ(delete_vertex(mesh, VertexHandle{3}), MeshDeleteStatus::NonManifoldVertex);
+  EXPECT_EQ(delete_vertex(mesh, VertexHandle{3}), DeleteStatus::NonManifoldVertex);
   EXPECT_FALSE(mesh.has_garbage());
 
   // Deleting the hub takes the whole fan with it.
-  ASSERT_EQ(delete_vertex(mesh, VertexHandle{0}), MeshDeleteStatus::Ok);
+  ASSERT_EQ(delete_vertex(mesh, VertexHandle{0}), DeleteStatus::Ok);
   EXPECT_EQ(mesh.vertex_count(), 0U);
   EXPECT_EQ(mesh.face_count(), 0U);
   EXPECT_TRUE(mesh.has_valid_connectivity());
@@ -281,10 +281,10 @@ TEST(MeshDelete, DeletesIsolatedVertexAndRejectsInvalid)
   Mesh mesh = make_grid(3);
   const VertexHandle isolated = mesh.add_vertex({9.0, 9.0, 0.0});
 
-  EXPECT_EQ(delete_vertex(mesh, isolated), MeshDeleteStatus::Ok);
+  EXPECT_EQ(delete_vertex(mesh, isolated), DeleteStatus::Ok);
   EXPECT_TRUE(mesh.is_deleted(isolated));
-  EXPECT_EQ(delete_vertex(mesh, isolated), MeshDeleteStatus::InvalidHandle);
-  EXPECT_EQ(delete_vertex(mesh, VertexHandle{}), MeshDeleteStatus::InvalidHandle);
+  EXPECT_EQ(delete_vertex(mesh, isolated), DeleteStatus::InvalidHandle);
+  EXPECT_EQ(delete_vertex(mesh, VertexHandle{}), DeleteStatus::InvalidHandle);
 }
 
 // Handles to deleted vertices stay in range until garbage_collection(), so add_triangle must reject
@@ -294,8 +294,8 @@ TEST(MeshDelete, AddTriangleRejectsDeletedVertex)
   Mesh mesh = make_grid(5);
   const VertexHandle isolated = mesh.add_vertex({9.0, 9.0, 0.0});
   const VertexHandle center = grid_vertex(5, 2, 2);
-  ASSERT_EQ(delete_vertex(mesh, isolated), MeshDeleteStatus::Ok);
-  ASSERT_EQ(delete_vertex(mesh, center), MeshDeleteStatus::Ok);
+  ASSERT_EQ(delete_vertex(mesh, isolated), DeleteStatus::Ok);
+  ASSERT_EQ(delete_vertex(mesh, center), DeleteStatus::Ok);
   const auto faceCount = mesh.face_count();
   const auto halfedgeCount = mesh.halfedge_count();
 
@@ -318,7 +318,7 @@ TEST(MeshDelete, DeletingVertexSurvivesIntermediateBowTie)
   // face away from the boundary first and pass through a bow-tie; only the final state is checked
   // up front, so the face-by-face splicing must cope.
   Mesh mesh = make_grid(4);
-  ASSERT_EQ(delete_vertex(mesh, grid_vertex(4, 1, 1)), MeshDeleteStatus::Ok);
+  ASSERT_EQ(delete_vertex(mesh, grid_vertex(4, 1, 1)), DeleteStatus::Ok);
   EXPECT_TRUE(mesh.is_deleted(grid_vertex(4, 0, 0)));
   expect_structurally_valid(mesh);
   mesh.garbage_collection();

@@ -203,7 +203,7 @@ TEST(MeshBufferGarbageTest, IndexBuffersAddressCompactedVertexBuffer) {
     ASSERT_TRUE(add_triangle(mesh, corner, top, left).is_valid());
     ASSERT_TRUE(add_triangle(mesh, right, farRight, top).is_valid());
     // Removes both faces at the corner; the left vertex is left isolated and dropped with it.
-    ASSERT_EQ(delete_vertex(mesh, corner), MeshDeleteStatus::Ok);
+    ASSERT_EQ(delete_vertex(mesh, corner), DeleteStatus::Ok);
     ASSERT_TRUE(mesh.has_garbage());
 
     const auto positions = make_vertex_buffer(mesh);

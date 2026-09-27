@@ -1,7 +1,7 @@
 #include <Geometry/Mesh/AddTriangle.hpp>
-#include <Geometry/Mesh/MeshEuler.hpp>
-#include <Geometry/Mesh/MeshManifold.hpp>
+#include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshTopology.hpp>
+#include <Geometry/Mesh/MeshVerify.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
@@ -176,7 +176,7 @@ TEST(AddTriangleFuzzTest, SingleTriangleInvariants)
   check_invariants(mesh);
   EXPECT_EQ(mesh.halfedge_count(), 6U); // 3 interior + 3 boundary
   EXPECT_EQ(mesh.edge_count(), 3U);
-  ASSERT_EQ(boundary_loops(mesh).size(), 1U);
+  ASSERT_EQ(boundary_loop_count(mesh), 1U);
   EXPECT_EQ(boundary_loops(mesh).front().size(), 3U);
 }
 
@@ -192,7 +192,7 @@ TEST(AddTriangleFuzzTest, TwoAdjacentTrianglesInvariants)
 
   check_invariants(mesh);
   EXPECT_EQ(mesh.edge_count(), 5U);
-  ASSERT_EQ(boundary_loops(mesh).size(), 1U);
+  ASSERT_EQ(boundary_loop_count(mesh), 1U);
   EXPECT_EQ(boundary_loops(mesh).front().size(), 4U);
 }
 
@@ -239,7 +239,7 @@ TEST(AddTriangleFuzzTest, ClosedTetrahedronHasNoBoundary)
 
   check_invariants(mesh);
   EXPECT_TRUE(verify_closed(mesh));
-  EXPECT_EQ(boundary_loops(mesh).size(), 0U);
+  EXPECT_EQ(boundary_loop_count(mesh), 0U);
   EXPECT_EQ(mesh.halfedge_count(), 12U); // 6 edges x 2, all interior
 }
 

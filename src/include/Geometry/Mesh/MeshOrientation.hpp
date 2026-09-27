@@ -1,7 +1,7 @@
 #ifndef GEOMETRY_MESH_MESHORIENTATION_HPP
 #define GEOMETRY_MESH_MESHORIENTATION_HPP
 
-#include "Geometry/Mesh/MeshManifold.hpp"
+#include "Geometry/Mesh/MeshVerify.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 

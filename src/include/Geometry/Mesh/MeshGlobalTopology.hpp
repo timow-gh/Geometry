@@ -1,7 +1,7 @@
-#ifndef GEOMETRY_MESH_MESHEULER_HPP
-#define GEOMETRY_MESH_MESHEULER_HPP
+#ifndef GEOMETRY_MESH_MESHGLOBALTOPOLOGY_HPP
+#define GEOMETRY_MESH_MESHGLOBALTOPOLOGY_HPP
 
-#include "Geometry/Mesh/MeshManifold.hpp"
+#include "Geometry/Mesh/MeshVerify.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
@@ -28,23 +28,25 @@ GEO_NODISCARD std::ptrdiff_t euler_characteristic(const TriangleHalfedgeMesh<T, 
   return vertexCount - edgeCount + faceCount;
 }
 
-/**
- * \brief Enumerates the boundary loops of the mesh, one ordered cycle of boundary halfedges each.
- *
- * Each loop lists the halfedges with no incident face forming one closed boundary cycle. O(H).
- *
- * \return One entry per boundary loop; empty for a closed (watertight) mesh.
- */
-template <typename T, std::uint8_t D, typename TIndex>
-GEO_NODISCARD std::vector<std::vector<typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle>>
-boundary_loops(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
+namespace detail
 {
-  using Mesh = TriangleHalfedgeMesh<T, D, TIndex>;
-  using HalfedgeHandle = typename Mesh::HalfedgeHandle;
 
-  std::vector<std::vector<HalfedgeHandle>> loops;
+/**
+ * \internal
+ * \brief Walks every boundary loop once, calling \p onLoopStart before each loop and
+ * \p onHalfedge for each of its halfedges in order.
+ *
+ * Shared by \c boundary_loops and \c boundary_loop_count so the corruption guard below exists once,
+ * while the count needs no storage for the loops themselves. O(H).
+ */
+template <typename T, std::uint8_t D, typename TIndex, typename TOnLoopStart, typename TOnHalfedge>
+void for_each_boundary_loop(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+                            TOnLoopStart&& onLoopStart,
+                            TOnHalfedge&& onHalfedge)
+{
+  using HalfedgeHandle = typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle;
+
   std::vector<unsigned char> visited(mesh.halfedge_storage_size(), 0U);
-
   for (const HalfedgeHandle start : mesh.halfedges())
   {
     if (visited[start.get_value()] != 0U || !mesh.is_boundary(start))
@@ -52,7 +54,7 @@ boundary_loops(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
       continue;
     }
 
-    std::vector<HalfedgeHandle> loop;
+    onLoopStart();
     // A well-formed boundary loop chains boundary halfedges through .next and closes within the
     // halfedge count. On a mesh built through the raw connectivity view a boundary halfedge's .next
     // may leave the boundary or never return to `start`; the step budget and the boundary guard make
@@ -63,14 +65,51 @@ boundary_loops(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
     do
     {
       visited[current.get_value()] = 1U;
-      loop.push_back(current);
+      onHalfedge(current);
       current = mesh.get_halfedge(current).next;
     } while (current != start && ++steps <= limit && mesh.is_boundary(current));
-
-    loops.push_back(std::move(loop));
   }
+}
 
+} // namespace detail
+
+/**
+ * \brief Enumerates the boundary loops of the mesh, one ordered cycle of boundary halfedges each.
+ *
+ * Each loop lists the halfedges with no incident face forming one closed boundary cycle. Use
+ * \c boundary_loop_count when only the number of loops is needed. O(H).
+ *
+ * \return One entry per boundary loop; empty for a closed (watertight) mesh.
+ */
+template <typename T, std::uint8_t D, typename TIndex>
+GEO_NODISCARD std::vector<std::vector<typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle>>
+boundary_loops(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
+{
+  using HalfedgeHandle = typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle;
+
+  std::vector<std::vector<HalfedgeHandle>> loops;
+  detail::for_each_boundary_loop(
+      mesh, [&loops]() { loops.emplace_back(); },
+      [&loops](HalfedgeHandle halfedge) { loops.back().push_back(halfedge); });
   return loops;
+}
+
+/**
+ * \brief Number of boundary loops, i.e. the \c b in \c V - E + F = 2 - 2g - b.
+ *
+ * Counts the loops \c boundary_loops would enumerate without storing their halfedges. O(H).
+ *
+ * \return The loop count; 0 for a closed (watertight) mesh.
+ */
+template <typename T, std::uint8_t D, typename TIndex>
+GEO_NODISCARD std::size_t boundary_loop_count(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
+{
+  using HalfedgeHandle = typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle;
+
+  std::size_t loopCount = 0;
+  detail::for_each_boundary_loop(
+      mesh, [&loopCount]() noexcept { ++loopCount; }, [](HalfedgeHandle) noexcept {});
+  return loopCount;
 }
 
 /**
@@ -81,7 +120,7 @@ boundary_loops(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
  * \return The component count.
  */
 template <typename T, std::uint8_t D, typename TIndex>
-GEO_NODISCARD std::size_t num_connected_components(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
+GEO_NODISCARD std::size_t connected_component_count(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
 {
   using Mesh = TriangleHalfedgeMesh<T, D, TIndex>;
   using FaceHandle = typename Mesh::FaceHandle;
@@ -130,7 +169,7 @@ GEO_NODISCARD std::size_t num_connected_components(const TriangleHalfedgeMesh<T,
  *
  * Preconditions are ASSUMED, not checked at runtime: the mesh is manifold and connected (exactly one
  * component); the halfedge kernel is orientable by construction. Verify with \c verify_manifold() and
- * \c num_connected_components() beforehand if unsure -- genus guards only its own arithmetic.
+ * \c connected_component_count() beforehand if unsure -- genus guards only its own arithmetic.
  *
  * \return The genus, or \c std::nullopt when the formula does not yield a non-negative integer.
  */
@@ -142,11 +181,11 @@ GEO_NODISCARD std::optional<std::size_t> genus(const TriangleHalfedgeMesh<T, D, 
 
   // Preconditions are assumed; the assertions catch a violated caller in debug builds and compile out
   // in release, so genus stays free of the manifold/connectivity scans it would otherwise pay for.
-  GEO_ASSERT(num_connected_components(mesh) == 1);
+  GEO_ASSERT(connected_component_count(mesh) == 1);
   GEO_ASSERT(verify_manifold(mesh));
 
   // Count only vertices that belong to the surface. Isolated vertices are manifold-legal (add_vertex
-  // creates them) but are ignored by num_connected_components and verify_manifold, so the Euler
+  // creates them) but are ignored by connected_component_count and verify_manifold, so the Euler
   // characteristic must ignore them too or a stray isolated vertex would inflate chi by one and skew
   // the genus. The public euler_characteristic() stays the literal V - E + F.
   std::ptrdiff_t usedVertices = 0;
@@ -161,7 +200,7 @@ GEO_NODISCARD std::optional<std::size_t> genus(const TriangleHalfedgeMesh<T, D, 
   const std::ptrdiff_t chi = usedVertices
                            - static_cast<std::ptrdiff_t>(mesh.edge_count())
                            + static_cast<std::ptrdiff_t>(mesh.face_count());
-  const auto boundaryLoopCount = static_cast<std::ptrdiff_t>(boundary_loops(mesh).size());
+  const auto boundaryLoopCount = static_cast<std::ptrdiff_t>(boundary_loop_count(mesh));
   const std::ptrdiff_t twiceGenus = 2 - boundaryLoopCount - chi;
   if (twiceGenus < 0 || (twiceGenus % 2) != 0)
   {
@@ -173,4 +212,4 @@ GEO_NODISCARD std::optional<std::size_t> genus(const TriangleHalfedgeMesh<T, D, 
 
 } // namespace Geometry
 
-#endif // GEOMETRY_MESH_MESHEULER_HPP
+#endif // GEOMETRY_MESH_MESHGLOBALTOPOLOGY_HPP

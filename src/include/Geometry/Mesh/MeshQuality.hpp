@@ -13,7 +13,7 @@ namespace Geometry
 /**
  * \brief Geometric limits a mesh operation must respect, as angles in radians.
  *
- * Taken by the operations that reshape triangles (edge collapse, vertex removal). The defaults only
+ * Taken by the operations that reshape triangles (edge collapse, vertex decimation). The defaults only
  * reject results that are broken rather than merely coarse: a triangle folded back almost completely
  * onto its neighbour, or one whose corners almost line up. Tighten them to trade decimation freedom
  * for surface quality, e.g. a smaller \c maxCornerAngle keeps thin slivers out.

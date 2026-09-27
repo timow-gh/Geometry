@@ -3,10 +3,10 @@
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
 #include <Geometry/Mesh/MeshEdgeCollapse.hpp>
 #include <Geometry/Mesh/MeshEdgeCollapseChecks.hpp>
-#include <Geometry/Mesh/MeshEuler.hpp>
-#include <Geometry/Mesh/MeshManifold.hpp>
+#include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
 #include <Geometry/Mesh/MeshTopology.hpp>
+#include <Geometry/Mesh/MeshVerify.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
@@ -281,7 +281,7 @@ TEST(MeshEdgeCollapse, CollapsesInteriorVertexIntoBoundaryNeighbour)
   EXPECT_TRUE(mesh.find_halfedge(grid3(2, 1), grid3(0, 0)).is_valid());
   EXPECT_TRUE(mesh.find_halfedge(grid3(2, 1), grid3(0, 1)).is_valid());
   EXPECT_TRUE(mesh.find_halfedge(grid3(2, 1), grid3(1, 2)).is_valid());
-  EXPECT_EQ(boundary_loops(mesh).size(), 1U);
+  EXPECT_EQ(boundary_loop_count(mesh), 1U);
   expect_structurally_valid(mesh);
 }
 
@@ -297,7 +297,7 @@ TEST(MeshEdgeCollapse, CollapsesBoundaryVertexIntoInteriorNeighbour)
   // The interior survivor takes the removed vertex's place on the boundary; the collapsed edge was
   // interior, so the boundary keeps all 8 of its edges.
   EXPECT_TRUE(is_boundary(mesh, grid3(1, 1)));
-  ASSERT_EQ(boundary_loops(mesh).size(), 1U);
+  ASSERT_EQ(boundary_loop_count(mesh), 1U);
   EXPECT_EQ(boundary_loops(mesh).front().size(), 8U);
   expect_structurally_valid(mesh);
 }
@@ -317,7 +317,7 @@ TEST(MeshEdgeCollapse, CollapsesBoundaryEdgeFromEitherSide)
     // A boundary edge has one face: 1 vertex, 2 edges, 1 face go, and the boundary loop shrinks by one.
     EXPECT_EQ(counts_of(mesh), (ElementCounts{before.vertices - 1, before.edges - 2, before.faces - 1}));
     EXPECT_EQ(euler_characteristic(mesh), 1);
-    ASSERT_EQ(boundary_loops(mesh).size(), 1U);
+    ASSERT_EQ(boundary_loop_count(mesh), 1U);
     EXPECT_EQ(boundary_loops(mesh).front().size(), 7U);
     expect_structurally_valid(mesh);
   }
@@ -599,6 +599,6 @@ TEST(MeshEdgeCollapseFuzz, OpenGridStaysValidUntilStuck)
   {
     Mesh mesh = make_grid(6);
     collapse_until_stuck(mesh, seed);
-    EXPECT_EQ(boundary_loops(mesh).size(), 1U) << "seed " << seed;
+    EXPECT_EQ(boundary_loop_count(mesh), 1U) << "seed " << seed;
   }
 }

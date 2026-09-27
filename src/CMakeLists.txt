@@ -12,14 +12,14 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/MeshBuffers.hpp
         include/Geometry/Mesh/MeshNormals.hpp
         include/Geometry/Mesh/MeshTopology.hpp
-        include/Geometry/Mesh/MeshManifold.hpp
-        include/Geometry/Mesh/MeshEuler.hpp
+        include/Geometry/Mesh/MeshVerify.hpp
+        include/Geometry/Mesh/MeshGlobalTopology.hpp
         include/Geometry/Mesh/MeshOrientation.hpp
         include/Geometry/Mesh/MeshQuality.hpp
         include/Geometry/Mesh/MeshEdgeCollapseStatus.hpp
         include/Geometry/Mesh/MeshEdgeCollapseChecks.hpp
         include/Geometry/Mesh/MeshEdgeCollapse.hpp
-        include/Geometry/Mesh/MeshVertexRemoval.hpp
+        include/Geometry/Mesh/MeshVertexDecimation.hpp
         include/Geometry/Mesh/MeshDelete.hpp
         include/Geometry/Mesh/detail/MeshConnectivity.hpp
         include/Geometry/Mesh/detail/MeshResult.hpp

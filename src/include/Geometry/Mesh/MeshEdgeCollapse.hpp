@@ -17,7 +17,7 @@ namespace Geometry
  * which keeps its position.
  *
  * The degree-of-freedom-free Euler operator of incremental decimation (Kobbelt et al. 98): it is
- * both an edge collapse with the merged vertex placed at q and a vertex removal whose hole is
+ * both an edge collapse with the merged vertex placed at q and a vertex decimation whose hole is
  * fan-triangulated from q. Removes 1 vertex, 3 edges and 2 faces (1, 2, 1 on the boundary), so the
  * Euler characteristic is preserved. Removed elements are tombstoned, so every other handle stays
  * valid until \c garbage_collection(). Refuses collapses that would fold the surface, per

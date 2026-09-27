@@ -1005,7 +1005,7 @@ public:
   // One step of the outgoing fan orbit around a vertex: from an outgoing halfedge, cross the twin and
   // take its next to reach the next outgoing halfedge. Single definition of the orbit convention,
   // shared by every fan walk (find_halfedge, find_outgoing_boundary, halfedges_around_vertex,
-  // count_incident_faces, faces_around_vertex, and bounded_single_fan_size in MeshManifold.hpp).
+  // count_incident_faces, faces_around_vertex, and bounded_single_fan_size in MeshVerify.hpp).
   GEO_NODISCARD HalfedgeHandle next_in_outgoing_fan(HalfedgeHandle outgoing) const noexcept
   {
     return get_halfedge(get_halfedge(outgoing).twin).next;
@@ -1109,7 +1109,7 @@ public:
   // topological vertex-manifoldness -- a vertex whose incident halfedges form two separate fans
   // (umbrellas meeting only at the vertex) still passes here because the round-trip only walks the
   // single fan reachable from the stored halfedge. That topological property is a separate concern
-  // checked by verify_vertex_manifold() in MeshManifold.hpp; keep the two distinct. Safe (terminates,
+  // checked by verify_vertex_manifold() in MeshVerify.hpp; keep the two distinct. Safe (terminates,
   // returns false) on corrupt meshes: the fan walks it relies on are bounded by the halfedge count.
   // Tombstoned elements are skipped, but a live element referencing a tombstoned one fails the check.
   GEO_NODISCARD bool has_valid_connectivity() const noexcept

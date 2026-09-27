@@ -1,8 +1,8 @@
 #include <Geometry/Mesh/AddTriangle.hpp>
 #include <Geometry/Mesh/MeshEdgeCollapse.hpp>
 #include <Geometry/Mesh/MeshEdgeCollapseChecks.hpp>
-#include <Geometry/Mesh/MeshEuler.hpp>
-#include <Geometry/Mesh/MeshManifold.hpp>
+#include <Geometry/Mesh/MeshGlobalTopology.hpp>
+#include <Geometry/Mesh/MeshVerify.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 

@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_MESH_MESHVERTEXREMOVAL_HPP
-#define GEOMETRY_MESH_MESHVERTEXREMOVAL_HPP
+#ifndef GEOMETRY_MESH_MESHVERTEXDECIMATION_HPP
+#define GEOMETRY_MESH_MESHVERTEXDECIMATION_HPP
 
 #include "Geometry/Mesh/MeshEdgeCollapseChecks.hpp"
 #include "Geometry/Mesh/MeshEdgeCollapseStatus.hpp"
@@ -26,11 +26,12 @@ namespace Geometry
 {
 
 /**
- * \brief Removes \p vertex by collapsing it into the nearest neighbour that it can legally be merged
+ * \brief Decimates \p vertex by collapsing it into the nearest neighbour that it can legally be merged
  * into without flipping or flattening a face.
  *
- * Vertex removal whose hole is fan-triangulated from the chosen neighbour, i.e. a halfedge collapse
- * (see \c collapse_halfedge) with the target picked here. The shortest edge is the choice: it is
+ * Unlike \c delete_vertex, which leaves a hole, the surface is kept intact: the hole is
+ * fan-triangulated from the chosen neighbour, i.e. a halfedge collapse (see \c collapse_halfedge)
+ * with the target picked here. The shortest edge is the choice: it is
  * cheap, deterministic, and moves the surface least; callers needing another criterion (e.g. a
  * quadric error) should rank the outgoing halfedges themselves and call \c collapse_halfedge.
  * Candidates are rejected by \c check_collapse (the survivor keeps its position); ties go to the first
@@ -39,15 +40,18 @@ namespace Geometry
  *
  * \param limits Geometric limits every candidate must respect; the defaults only reject folded
  * triangles and nearly flat slivers.
- * \return The neighbour that absorbed \p vertex (invalid for a deleted isolated vertex), or the mesh
- * untouched and a status: \c InvalidHandle for a missing or deleted vertex; \c InvertsFaces if some
+ * \return The neighbour that absorbed \p vertex (invalid for a deleted isolated vertex), which a
+ * decimation loop needs to re-rank the affected edges -- hence a \c CollapseResult, where
+ * \c decimate_vertex_by_retriangulation has no single survivor and returns only a status. Otherwise
+ * the mesh untouched and a status: \c InvalidHandle for a missing or deleted vertex; \c InvertsFaces if some
  * collapse was topologically legal but every legal one breaks the geometry; otherwise the
  * topological reason the last candidate in fan order was rejected.
  */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD CollapseResult<typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle>
-remove_vertex(TriangleHalfedgeMesh<T, D, TIndex>& mesh, typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex,
-              const MeshGeometryLimits<T>& limits = {})
+decimate_vertex_by_collapse(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+                            typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex,
+                            const MeshGeometryLimits<T>& limits = {})
 {
   using Mesh = TriangleHalfedgeMesh<T, D, TIndex>;
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;
@@ -102,9 +106,9 @@ remove_vertex(TriangleHalfedgeMesh<T, D, TIndex>& mesh, typename TriangleHalfedg
 }
 
 /**
- * \brief Outcome of \c remove_vertex_retriangulate; every value but \c Ok leaves the mesh untouched.
+ * \brief Outcome of \c decimate_vertex_by_retriangulation; every value but \c Ok leaves the mesh untouched.
  */
-enum class VertexRemovalStatus
+enum class VertexDecimationStatus
 {
   Ok,
   // The vertex is not in the mesh or already deleted.
@@ -122,10 +126,11 @@ enum class VertexRemovalStatus
 };
 
 /**
- * \brief Removes \p vertex and its star, and fills the hole with the best-shaped triangulation of
- * the surrounding polygon.
+ * \brief Decimates \p vertex by removing its star and refilling the hole with the best-shaped
+ * triangulation of the surrounding polygon.
  *
- * The general form of vertex removal: where \c remove_vertex is restricted to fan triangulations
+ * Unlike \c delete_vertex, which leaves a hole, the surface is kept intact. The general form of
+ * vertex decimation: where \c decimate_vertex_by_collapse is restricted to fan triangulations
  * (a collapse into one neighbour), this searches all triangulations of the k-gon by dynamic
  * programming and keeps the one minimizing the summed triangle aspect cost (squared edge lengths
  * over area, smallest for equilateral triangles). Triangles that are degenerate, or face away from
@@ -141,12 +146,14 @@ enum class VertexRemovalStatus
  *
  * \param limits Geometric limits the new triangles must respect; the defaults only reject folded
  * triangles and nearly flat slivers.
- * \return \c VertexRemovalStatus::Ok after removing, otherwise why the mesh was left untouched.
+ * \return \c VertexDecimationStatus::Ok after decimating, otherwise why the mesh was left untouched.
+ * Only a status, since the refilled hole has no single surviving vertex to report.
  */
 template <typename T, std::uint8_t D, typename TIndex>
-GEO_NODISCARD VertexRemovalStatus remove_vertex_retriangulate(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
-                                                              typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex,
-                                                              const MeshGeometryLimits<T>& limits = {})
+GEO_NODISCARD VertexDecimationStatus
+decimate_vertex_by_retriangulation(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+                                   typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex,
+                                   const MeshGeometryLimits<T>& limits = {})
 {
   using Mesh = TriangleHalfedgeMesh<T, D, TIndex>;
   using FaceHandle = typename Mesh::FaceHandle;
@@ -154,12 +161,12 @@ GEO_NODISCARD VertexRemovalStatus remove_vertex_retriangulate(TriangleHalfedgeMe
 
   if (!mesh.is_live(vertex))
   {
-    return VertexRemovalStatus::InvalidHandle;
+    return VertexDecimationStatus::InvalidHandle;
   }
   if (is_isolated(mesh, vertex))
   {
     mesh.connectivity().mark_deleted(vertex);
-    return VertexRemovalStatus::Ok;
+    return VertexDecimationStatus::Ok;
   }
 
   const detail::VertexStar<Mesh> star = detail::collect_vertex_star(mesh, vertex);
@@ -169,10 +176,10 @@ GEO_NODISCARD VertexRemovalStatus remove_vertex_retriangulate(TriangleHalfedgeMe
   {
     if (mesh.is_boundary(mesh.get_halfedge(star.ringHalfedges.front()).twin))
     {
-      return VertexRemovalStatus::IsolatedTriangle;
+      return VertexDecimationStatus::IsolatedTriangle;
     }
     detail::remove_ear_vertex_unchecked(mesh, vertex, star);
-    return VertexRemovalStatus::Ok;
+    return VertexDecimationStatus::Ok;
   }
 
   if (!star.boundary && count == 3)
@@ -187,13 +194,13 @@ GEO_NODISCARD VertexRemovalStatus remove_vertex_retriangulate(TriangleHalfedgeMe
            });
     if (sharedOuterFace)
     {
-      return VertexRemovalStatus::Tetrahedron;
+      return VertexDecimationStatus::Tetrahedron;
     }
   }
 
   if (star.boundary && mesh.find_halfedge(star.ring.back(), star.ring.front()).is_valid())
   {
-    return VertexRemovalStatus::DuplicateEdge;
+    return VertexDecimationStatus::DuplicateEdge;
   }
 
   const auto isDiagonalAllowed = [&](std::size_t from, std::size_t to) {
@@ -262,13 +269,13 @@ GEO_NODISCARD VertexRemovalStatus remove_vertex_retriangulate(TriangleHalfedgeMe
   {
     const auto anyCost = [](std::size_t, std::size_t, std::size_t) noexcept { return T{0}; };
     const bool topologicallyPossible = minimum_cost_triangulation(count, anyCost, scratch, triangles, isDiagonalAllowed);
-    return topologicallyPossible ? VertexRemovalStatus::InvertsFaces : VertexRemovalStatus::DuplicateEdge;
+    return topologicallyPossible ? VertexDecimationStatus::InvertsFaces : VertexDecimationStatus::DuplicateEdge;
   }
 
   detail::retriangulate_star(mesh, vertex, star, triangles);
-  return VertexRemovalStatus::Ok;
+  return VertexDecimationStatus::Ok;
 }
 
 } // namespace Geometry
 
-#endif // GEOMETRY_MESH_MESHVERTEXREMOVAL_HPP
+#endif // GEOMETRY_MESH_MESHVERTEXDECIMATION_HPP

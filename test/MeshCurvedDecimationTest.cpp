@@ -3,12 +3,12 @@
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
 #include <Geometry/Mesh/MeshEdgeCollapse.hpp>
 #include <Geometry/Mesh/MeshEdgeCollapseChecks.hpp>
-#include <Geometry/Mesh/MeshEuler.hpp>
-#include <Geometry/Mesh/MeshManifold.hpp>
+#include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
 #include <Geometry/Mesh/MeshQuality.hpp>
 #include <Geometry/Mesh/MeshTopology.hpp>
-#include <Geometry/Mesh/MeshVertexRemoval.hpp>
+#include <Geometry/Mesh/MeshVerify.hpp>
+#include <Geometry/Mesh/MeshVertexDecimation.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <Geometry/Mesh/detail/FaceGeometry.hpp>
 #include <gtest/gtest.h>
@@ -193,7 +193,7 @@ TEST(MeshCurvedDecimation, HalfedgeCollapseRemovalKeepsHeightField)
   Mesh mesh = make_height_field();
   ASSERT_TRUE(is_valid_height_field(mesh));
   decimate_by_vertex_removal(mesh, [](Mesh& target, VertexHandle vertex) {
-    return remove_vertex(target, vertex, exampleLimits).has_value();
+    return decimate_vertex_by_collapse(target, vertex, exampleLimits).has_value();
   });
   EXPECT_EQ(mesh.vertex_count(), decimatedVertexCount);
 }
@@ -202,7 +202,7 @@ TEST(MeshCurvedDecimation, RetriangulatingRemovalKeepsHeightField)
 {
   Mesh mesh = make_height_field();
   decimate_by_vertex_removal(mesh, [](Mesh& target, VertexHandle vertex) {
-    return remove_vertex_retriangulate(target, vertex, exampleLimits) == VertexRemovalStatus::Ok;
+    return decimate_vertex_by_retriangulation(target, vertex, exampleLimits) == VertexDecimationStatus::Ok;
   });
   EXPECT_EQ(mesh.vertex_count(), decimatedVertexCount);
 }
@@ -270,13 +270,14 @@ void expect_cylinder_decimates_cleanly(TRemove remove)
 
 TEST(MeshCurvedDecimation, CylinderHalfedgeCollapseRemoval)
 {
-  expect_cylinder_decimates_cleanly(
-      [](Mesh& target, VertexHandle vertex) { return remove_vertex(target, vertex, exampleLimits).has_value(); });
+  expect_cylinder_decimates_cleanly([](Mesh& target, VertexHandle vertex) {
+    return decimate_vertex_by_collapse(target, vertex, exampleLimits).has_value();
+  });
 }
 
 TEST(MeshCurvedDecimation, CylinderRetriangulatingRemoval)
 {
   expect_cylinder_decimates_cleanly([](Mesh& target, VertexHandle vertex) {
-    return remove_vertex_retriangulate(target, vertex, exampleLimits) == VertexRemovalStatus::Ok;
+    return decimate_vertex_by_retriangulation(target, vertex, exampleLimits) == VertexDecimationStatus::Ok;
   });
 }

@@ -1,8 +1,8 @@
 #include <Geometry/Mesh/AddTriangle.hpp>
 #include <Geometry/Mesh/MeshBuffers.hpp>
-#include <Geometry/Mesh/MeshEuler.hpp>
-#include <Geometry/Mesh/MeshManifold.hpp>
+#include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
+#include <Geometry/Mesh/MeshVerify.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
@@ -224,8 +224,8 @@ TEST(MeshGarbageCollection, DeletingWholeComponentKeepsMeshValid)
   EXPECT_EQ(mesh.faces().size(), 2U);
   // Two open triangles: chi = 1 each, so the deleted closed tetrahedron (chi = 2) no longer counts.
   EXPECT_EQ(euler_characteristic(mesh), 2);
-  EXPECT_EQ(num_connected_components(mesh), 2U);
-  EXPECT_EQ(boundary_loops(mesh).size(), 2U);
+  EXPECT_EQ(connected_component_count(mesh), 2U);
+  EXPECT_EQ(boundary_loop_count(mesh), 2U);
   expect_structurally_valid(mesh);
 }
 
@@ -326,7 +326,7 @@ TEST(MeshGarbageCollection, AddTriangleWorksWhileGarbageIsPresent)
 
   mesh.garbage_collection();
   EXPECT_EQ(mesh.face_count(), 3U);
-  EXPECT_EQ(num_connected_components(mesh), 2U);
+  EXPECT_EQ(connected_component_count(mesh), 2U);
   expect_structurally_valid(mesh);
 }
 

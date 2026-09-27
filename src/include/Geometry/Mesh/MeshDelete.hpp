@@ -16,7 +16,7 @@ namespace Geometry
 /**
  * \brief Outcome of a face or vertex deletion; every value but \c Ok leaves the mesh untouched.
  */
-enum class MeshDeleteStatus
+enum class DeleteStatus
 {
   Ok,
   // The element is not in the mesh or already deleted.
@@ -147,17 +147,17 @@ GEO_NODISCARD bool wedge_removal_keeps_manifold(const TriangleHalfedgeMesh<T, D,
  * corner's fan into two. The Euler characteristic changes (it is a topological cut, not an Euler
  * operator). O(valence of the corners).
  *
- * \return \c MeshDeleteStatus::Ok after deleting, otherwise why the mesh was left untouched.
+ * \return \c DeleteStatus::Ok after deleting, otherwise why the mesh was left untouched.
  */
 template <typename T, std::uint8_t D, typename TIndex>
-GEO_NODISCARD MeshDeleteStatus delete_face(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+GEO_NODISCARD DeleteStatus delete_face(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
                                            typename TriangleHalfedgeMesh<T, D, TIndex>::FaceHandle face)
 {
   using HalfedgeHandle = typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle;
 
   if (!mesh.is_live(face))
   {
-    return MeshDeleteStatus::InvalidHandle;
+    return DeleteStatus::InvalidHandle;
   }
 
   const std::array<HalfedgeHandle, 3> faceHalfedges = mesh.halfedges_around_face(face);
@@ -167,26 +167,28 @@ GEO_NODISCARD MeshDeleteStatus delete_face(TriangleHalfedgeMesh<T, D, TIndex>& m
     const HalfedgeHandle outgoing = faceHalfedges[(i + 1) % 3];
     if (!detail::wedge_removal_keeps_manifold(mesh, mesh.target_vertex(incoming), incoming, outgoing))
     {
-      return MeshDeleteStatus::NonManifoldVertex;
+      return DeleteStatus::NonManifoldVertex;
     }
   }
 
   detail::delete_face_unchecked(mesh, face);
-  return MeshDeleteStatus::Ok;
+  return DeleteStatus::Ok;
 }
 
 /**
  * \brief Deletes \p vertex together with every face and edge around it, leaving a hole.
  *
- * Neighbours left without edges are deleted too. Rejected when a neighbour is a boundary vertex
- * whose wedge of removed faces does not touch its boundary gap: it would end up with two gaps. The
- * manifoldness of the final state is checked up front, so the faces can then be deleted in any
- * order. An isolated vertex is simply deleted. O(sum of the neighbours' valences).
+ * A topological cut: to remove a vertex while keeping the surface intact, decimate it instead
+ * (\c decimate_vertex_by_collapse, \c decimate_vertex_by_retriangulation). Neighbours left without
+ * edges are deleted too. Rejected when a neighbour is a boundary vertex whose wedge of removed faces
+ * does not touch its boundary gap: it would end up with two gaps. The manifoldness of the final state
+ * is checked up front, so the faces can then be deleted in any order. An isolated vertex is simply
+ * deleted. O(sum of the neighbours' valences).
  *
- * \return \c MeshDeleteStatus::Ok after deleting, otherwise why the mesh was left untouched.
+ * \return \c DeleteStatus::Ok after deleting, otherwise why the mesh was left untouched.
  */
 template <typename T, std::uint8_t D, typename TIndex>
-GEO_NODISCARD MeshDeleteStatus delete_vertex(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+GEO_NODISCARD DeleteStatus delete_vertex(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
                                              typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex)
 {
   using Mesh = TriangleHalfedgeMesh<T, D, TIndex>;
@@ -195,12 +197,12 @@ GEO_NODISCARD MeshDeleteStatus delete_vertex(TriangleHalfedgeMesh<T, D, TIndex>&
 
   if (!mesh.is_live(vertex))
   {
-    return MeshDeleteStatus::InvalidHandle;
+    return DeleteStatus::InvalidHandle;
   }
   if (is_isolated(mesh, vertex))
   {
     mesh.connectivity().mark_deleted(vertex);
-    return MeshDeleteStatus::Ok;
+    return DeleteStatus::Ok;
   }
 
   // The removed faces at a neighbour are the (one or two) faces on its spoke; the wedge they form is
@@ -214,7 +216,7 @@ GEO_NODISCARD MeshDeleteStatus delete_vertex(TriangleHalfedgeMesh<T, D, TIndex>&
     const HalfedgeHandle wedgeEnd = mesh.is_boundary(spokeTwin) ? spokeTwin : mesh.get_halfedge(spokeTwin).prev;
     if (!detail::wedge_removal_keeps_manifold(mesh, mesh.target_vertex(spoke), wedgeStart, wedgeEnd))
     {
-      return MeshDeleteStatus::NonManifoldVertex;
+      return DeleteStatus::NonManifoldVertex;
     }
   }
 
@@ -223,7 +225,7 @@ GEO_NODISCARD MeshDeleteStatus delete_vertex(TriangleHalfedgeMesh<T, D, TIndex>&
     detail::delete_face_unchecked(mesh, face);
   }
   GEO_ASSERT(mesh.is_deleted(vertex));
-  return MeshDeleteStatus::Ok;
+  return DeleteStatus::Ok;
 }
 
 } // namespace Geometry
