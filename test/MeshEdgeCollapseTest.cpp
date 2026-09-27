@@ -1,7 +1,8 @@
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/Mesh/AddTriangle.hpp>
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
-#include <Geometry/Mesh/MeshCollapse.hpp>
+#include <Geometry/Mesh/MeshEdgeCollapse.hpp>
+#include <Geometry/Mesh/MeshEdgeCollapseChecks.hpp>
 #include <Geometry/Mesh/MeshEuler.hpp>
 #include <Geometry/Mesh/MeshManifold.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
@@ -12,6 +13,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <numbers>
 #include <random>
 #include <utility>
 #include <vector>
@@ -21,7 +23,7 @@ using namespace Geometry;
 namespace
 {
 
-// 2D collapses live in MeshCollapse2DTest.cpp: instantiating the library templates for a second mesh
+// 2D collapses live in MeshEdgeCollapse2DTest.cpp: instantiating the library templates for a second mesh
 // type in this file would make their local Mesh/handle aliases hide these ones (MSVC C4459).
 using Mesh = TriangleHalfedgeMesh3d;
 using VertexHandle = Mesh::VertexHandle;
@@ -185,7 +187,7 @@ std::vector<HalfedgeHandle> legal_collapses(const Mesh& mesh)
 
 // --- is_collapse_ok: one test per rejection reason -------------------------------------------
 
-TEST(MeshCollapse, RejectsInvalidAndDeletedHalfedges)
+TEST(MeshEdgeCollapse, RejectsInvalidAndDeletedHalfedges)
 {
   Mesh mesh = make_grid(3);
   EXPECT_EQ(is_collapse_ok(mesh, HalfedgeHandle{}), CollapseStatus::InvalidHandle);
@@ -196,7 +198,7 @@ TEST(MeshCollapse, RejectsInvalidAndDeletedHalfedges)
   EXPECT_EQ(collapse_halfedge(mesh, halfedge), CollapseStatus::InvalidHandle);
 }
 
-TEST(MeshCollapse, RejectsEveryEdgeOfIsolatedTriangle)
+TEST(MeshEdgeCollapse, RejectsEveryEdgeOfIsolatedTriangle)
 {
   const Mesh mesh = make_single_triangle();
   for (const HalfedgeHandle halfedge : mesh.halfedges())
@@ -205,7 +207,7 @@ TEST(MeshCollapse, RejectsEveryEdgeOfIsolatedTriangle)
   }
 }
 
-TEST(MeshCollapse, RejectsInteriorEdgeBetweenBoundaryVertices)
+TEST(MeshEdgeCollapse, RejectsInteriorEdgeBetweenBoundaryVertices)
 {
   // Fig. 7.4 (top): collapsing through the interior would pinch the boundary into one vertex.
   const Mesh twoTriangles = make_two_adjacent_triangles();
@@ -217,7 +219,7 @@ TEST(MeshCollapse, RejectsInteriorEdgeBetweenBoundaryVertices)
   EXPECT_EQ(is_collapse_ok(grid, cellDiagonal), CollapseStatus::InteriorEdgeBetweenBoundaryVertices);
 }
 
-TEST(MeshCollapse, RejectsLinkConditionViolation)
+TEST(MeshEdgeCollapse, RejectsLinkConditionViolation)
 {
   // Fig. 7.4 (bottom): the one-rings of the endpoints share a third, non-opposite vertex.
   const Bipyramid bipyramid = make_bipyramid();
@@ -225,7 +227,7 @@ TEST(MeshCollapse, RejectsLinkConditionViolation)
   EXPECT_EQ(is_collapse_ok(bipyramid.mesh, equatorEdge), CollapseStatus::LinkCondition);
 }
 
-TEST(MeshCollapse, RejectsEveryEdgeOfTetrahedron)
+TEST(MeshEdgeCollapse, RejectsEveryEdgeOfTetrahedron)
 {
   const Mesh mesh = make_tetrahedron();
   for (const HalfedgeHandle halfedge : mesh.halfedges())
@@ -234,7 +236,7 @@ TEST(MeshCollapse, RejectsEveryEdgeOfTetrahedron)
   }
 }
 
-TEST(MeshCollapse, VerdictIsSymmetricInDirection)
+TEST(MeshEdgeCollapse, VerdictIsSymmetricInDirection)
 {
   const std::vector<Mesh> meshes{make_grid(4), make_bipyramid().mesh, make_tetrahedron(),
                                  make_two_adjacent_triangles(), make_closed_cylinder(6)};
@@ -247,7 +249,7 @@ TEST(MeshCollapse, VerdictIsSymmetricInDirection)
   }
 }
 
-TEST(MeshCollapse, RejectedCollapseLeavesMeshUntouched)
+TEST(MeshEdgeCollapse, RejectedCollapseLeavesMeshUntouched)
 {
   Mesh mesh = make_two_adjacent_triangles();
   const HalfedgeHandle diagonal = mesh.find_halfedge(VertexHandle{1}, VertexHandle{2});
@@ -262,7 +264,7 @@ TEST(MeshCollapse, RejectedCollapseLeavesMeshUntouched)
 
 // --- collapse_halfedge: legal configurations --------------------------------------------------
 
-TEST(MeshCollapse, CollapsesInteriorVertexIntoBoundaryNeighbour)
+TEST(MeshEdgeCollapse, CollapsesInteriorVertexIntoBoundaryNeighbour)
 {
   Mesh mesh = make_grid(3);
   const ElementCounts before = counts_of(mesh);
@@ -283,7 +285,7 @@ TEST(MeshCollapse, CollapsesInteriorVertexIntoBoundaryNeighbour)
   expect_structurally_valid(mesh);
 }
 
-TEST(MeshCollapse, CollapsesBoundaryVertexIntoInteriorNeighbour)
+TEST(MeshEdgeCollapse, CollapsesBoundaryVertexIntoInteriorNeighbour)
 {
   // Topologically legal: the connectivity equals the opposite direction's, only the survivor differs.
   Mesh mesh = make_grid(3);
@@ -300,7 +302,7 @@ TEST(MeshCollapse, CollapsesBoundaryVertexIntoInteriorNeighbour)
   expect_structurally_valid(mesh);
 }
 
-TEST(MeshCollapse, CollapsesBoundaryEdgeFromEitherSide)
+TEST(MeshEdgeCollapse, CollapsesBoundaryEdgeFromEitherSide)
 {
   for (const bool fromBoundaryHalfedge : {false, true})
   {
@@ -321,7 +323,7 @@ TEST(MeshCollapse, CollapsesBoundaryEdgeFromEitherSide)
   }
 }
 
-TEST(MeshCollapse, ClosedSurfaceCollapseKeepsItClosed)
+TEST(MeshEdgeCollapse, ClosedSurfaceCollapseKeepsItClosed)
 {
   Bipyramid bipyramid = make_bipyramid();
   Mesh& mesh = bipyramid.mesh;
@@ -339,7 +341,7 @@ TEST(MeshCollapse, ClosedSurfaceCollapseKeepsItClosed)
   }
 }
 
-TEST(MeshCollapse, MergedEdgeKeepsCrease)
+TEST(MeshEdgeCollapse, MergedEdgeKeepsCrease)
 {
   Mesh mesh = make_grid(3);
   // (1,1) -> (2,1) removes edge (1,1)-(1,0) by gluing it onto (2,1)-(1,0).
@@ -358,7 +360,7 @@ TEST(MeshCollapse, MergedEdgeKeepsCrease)
   EXPECT_EQ(creaseCount, 1U);
 }
 
-TEST(MeshCollapse, GarbageCollectionAfterCollapses)
+TEST(MeshEdgeCollapse, GarbageCollectionAfterCollapses)
 {
   Mesh mesh = make_grid(4);
   ASSERT_EQ(collapse_halfedge(mesh, mesh.find_halfedge(VertexHandle{5}, VertexHandle{6})), CollapseStatus::Ok);
@@ -375,7 +377,7 @@ TEST(MeshCollapse, GarbageCollectionAfterCollapses)
 
 // --- collapse_edge ------------------------------------------------------------------------------
 
-TEST(MeshCollapse, CollapseEdgePlacesSurvivorAtPosition)
+TEST(MeshEdgeCollapse, CollapseEdgePlacesSurvivorAtPosition)
 {
   Mesh mesh = make_grid(3);
   const HalfedgeHandle halfedge = mesh.find_halfedge(grid3(1, 1), grid3(2, 1));
@@ -393,7 +395,7 @@ TEST(MeshCollapse, CollapseEdgePlacesSurvivorAtPosition)
   expect_structurally_valid(mesh);
 }
 
-TEST(MeshCollapse, CollapseEdgeReportsRejection)
+TEST(MeshEdgeCollapse, CollapseEdgeReportsRejection)
 {
   Mesh mesh = make_tetrahedron();
   const auto rejected = collapse_edge(mesh, EdgeHandle{0}, Mesh::vec_t{});
@@ -407,7 +409,7 @@ TEST(MeshCollapse, CollapseEdgeReportsRejection)
 
 // --- collapse_inverts_faces -----------------------------------------------------------------------
 
-TEST(MeshCollapse, InversionCheckIn3D)
+TEST(MeshEdgeCollapse, InversionCheckIn3D)
 {
   const Mesh mesh = make_grid(3);
   const HalfedgeHandle halfedge = mesh.find_halfedge(grid3(1, 1), grid3(2, 1));
@@ -420,13 +422,127 @@ TEST(MeshCollapse, InversionCheckIn3D)
   EXPECT_TRUE(collapse_inverts_faces(mesh, halfedge, mesh.get_position(grid3(0, 1))));
 }
 
+// --- collapse_exceeds_geometry_limits -------------------------------------------------------------
+
+namespace
+{
+
+struct FoldingCollapse
+{
+  Mesh mesh;
+  HalfedgeHandle halfedge;
+};
+
+// Face (a, b, p) faces +z; face (b, a, c) hangs down across edge ab, about 101 degrees away. Moving
+// p to q turns the first face by less than 90 degrees -- so it does not count as inverted -- but
+// lays it into the plane of the second one, wound the other way: a complete fold. The returned
+// halfedge is p -> q, whose collapse is topologically legal.
+FoldingCollapse make_folding_collapse()
+{
+  FoldingCollapse result;
+  Mesh& mesh = result.mesh;
+  const VertexHandle cornerA = mesh.add_vertex({0.0, 0.0, 0.0});
+  const VertexHandle cornerB = mesh.add_vertex({1.0, 0.0, 0.0});
+  const VertexHandle cornerC = mesh.add_vertex({0.5, 0.2, -1.0});
+  const VertexHandle removed = mesh.add_vertex({0.5, 1.0, 0.0});
+  const VertexHandle survivor = mesh.add_vertex({0.5, 0.1, -0.5});
+  EXPECT_TRUE(add_triangle(mesh, cornerA, cornerB, removed).is_valid());
+  EXPECT_TRUE(add_triangle(mesh, cornerB, cornerA, cornerC).is_valid());
+  EXPECT_TRUE(add_triangle(mesh, removed, cornerB, survivor).is_valid());
+  EXPECT_TRUE(add_triangle(mesh, cornerA, removed, survivor).is_valid());
+  result.halfedge = mesh.find_halfedge(removed, survivor);
+  return result;
+}
+
+} // namespace
+
+TEST(MeshEdgeCollapse, GeometryLimitsCatchFoldTheInversionCheckMisses)
+{
+  const auto [mesh, halfedge] = make_folding_collapse();
+  const Mesh::vec_t& position = mesh.get_position(mesh.target_vertex(halfedge));
+  ASSERT_EQ(is_collapse_ok(mesh, halfedge), CollapseStatus::Ok);
+
+  EXPECT_FALSE(collapse_inverts_faces(mesh, halfedge, position));
+  EXPECT_TRUE(collapse_exceeds_geometry_limits(mesh, halfedge, position));
+
+  // The fold alone decides: without a corner limit the verdict stands, without a fold limit it goes.
+  const double straightAngle = std::numbers::pi;
+  EXPECT_TRUE(collapse_exceeds_geometry_limits(mesh, halfedge, position,
+                                               MeshGeometryLimits<double>{.maxCornerAngle = straightAngle}));
+  EXPECT_FALSE(collapse_exceeds_geometry_limits(mesh, halfedge, position, MeshGeometryLimits<double>{straightAngle, straightAngle}));
+}
+
+TEST(MeshEdgeCollapse, GeometryLimitsBoundCornerAngles)
+{
+  // Merging the grid center into its right neighbour stretches the face below into (0,0)-(1,0)-(2,1),
+  // whose corner at (1,0) opens to 135 degrees: fine by default, too wide for a 120 degree limit.
+  const Mesh mesh = make_grid(3);
+  const HalfedgeHandle halfedge = mesh.find_halfedge(grid3(1, 1), grid3(2, 1));
+  const Mesh::vec_t& position = mesh.get_position(grid3(2, 1));
+
+  EXPECT_FALSE(collapse_exceeds_geometry_limits(mesh, halfedge, position));
+  EXPECT_TRUE(collapse_exceeds_geometry_limits(mesh, halfedge, position,
+                                               MeshGeometryLimits<double>{.maxCornerAngle = std::numbers::pi * 120.0 / 180.0}));
+}
+
+// --- check_collapse and the safe / topology-only collapses ------------------------------------------
+
+TEST(MeshEdgeCollapse, CheckCollapseReportsTopologyBeforeGeometry)
+{
+  const Mesh tetrahedron = make_tetrahedron();
+  EXPECT_EQ(check_collapse(tetrahedron, tetrahedron.get_edge(EdgeHandle{0}).halfedge, Mesh::vec_t{}),
+            CollapseStatus::Tetrahedron);
+
+  const Mesh grid = make_grid(3);
+  const HalfedgeHandle halfedge = grid.find_halfedge(grid3(1, 1), grid3(2, 1));
+  const Mesh::vec_t& target = grid.get_position(grid3(2, 1));
+  EXPECT_EQ(check_collapse(grid, halfedge, target), CollapseStatus::Ok);
+  EXPECT_EQ(check_collapse(grid, halfedge, Mesh::vec_t{-10.0, -10.0, 0.0}), CollapseStatus::InvertsFaces);
+  EXPECT_EQ(check_collapse(grid, halfedge, target, MeshGeometryLimits<double>{.maxCornerAngle = std::numbers::pi * 120.0 / 180.0}),
+            CollapseStatus::InvertsFaces);
+}
+
+TEST(MeshEdgeCollapse, CollapseHalfedgeRefusesFoldTopologyOnlyPerformsIt)
+{
+  auto [mesh, halfedge] = make_folding_collapse();
+  const ElementCounts before = counts_of(mesh);
+
+  EXPECT_EQ(collapse_halfedge(mesh, halfedge), CollapseStatus::InvertsFaces);
+  EXPECT_EQ(counts_of(mesh), before);
+  EXPECT_FALSE(mesh.has_garbage());
+
+  EXPECT_EQ(collapse_halfedge_topology_only(mesh, halfedge), CollapseStatus::Ok);
+  EXPECT_EQ(counts_of(mesh).vertices, before.vertices - 1);
+  expect_structurally_valid(mesh);
+}
+
+TEST(MeshEdgeCollapse, CollapseEdgeRefusesFoldTopologyOnlyPerformsIt)
+{
+  Mesh mesh = make_grid(3);
+  const EdgeHandle edge = mesh.get_halfedge(mesh.find_halfedge(grid3(1, 1), grid3(2, 1))).edge;
+  const Mesh::vec_t farAway{-10.0, -10.0, 0.0};
+  const ElementCounts before = counts_of(mesh);
+
+  const auto refused = collapse_edge(mesh, edge, farAway);
+  EXPECT_EQ(refused.status, CollapseStatus::InvertsFaces);
+  EXPECT_FALSE(refused.survivor.is_valid());
+  EXPECT_EQ(counts_of(mesh), before);
+  EXPECT_FALSE(mesh.has_garbage());
+
+  const auto forced = collapse_edge_topology_only(mesh, edge, farAway);
+  ASSERT_TRUE(forced.has_value());
+  EXPECT_EQ(mesh.get_position(forced.survivor), farAway);
+  expect_structurally_valid(mesh);
+}
+
 // --- fuzz ---------------------------------------------------------------------------------------
 
 namespace
 {
 
-// Collapses random legal halfedges until none is left, checking the Euler operator's bookkeeping
-// and every structural invariant after each step.
+// Collapses random topologically legal halfedges until none is left, checking the Euler operator's
+// bookkeeping and every structural invariant after each step. Geometry is ignored: collapsing down to
+// a tetrahedron necessarily folds the surface.
 void collapse_until_stuck(Mesh& mesh, std::uint32_t seed)
 {
   std::mt19937 generator(seed);
@@ -443,7 +559,7 @@ void collapse_until_stuck(Mesh& mesh, std::uint32_t seed)
     const auto survivorPosition = mesh.get_position(survivor);
     const ElementCounts before = counts_of(mesh);
 
-    ASSERT_EQ(collapse_halfedge(mesh, halfedge), CollapseStatus::Ok);
+    ASSERT_EQ(collapse_halfedge_topology_only(mesh, halfedge), CollapseStatus::Ok);
 
     const ElementCounts expected = boundaryEdge
                                        ? ElementCounts{before.vertices - 1, before.edges - 2, before.faces - 1}
@@ -466,7 +582,7 @@ void collapse_until_stuck(Mesh& mesh, std::uint32_t seed)
 
 } // namespace
 
-TEST(MeshCollapseFuzz, ClosedSphereCollapsesDownToTetrahedron)
+TEST(MeshEdgeCollapseFuzz, ClosedSphereCollapsesDownToTetrahedron)
 {
   for (std::uint32_t seed = 1; seed <= 5; ++seed)
   {
@@ -477,7 +593,7 @@ TEST(MeshCollapseFuzz, ClosedSphereCollapsesDownToTetrahedron)
   }
 }
 
-TEST(MeshCollapseFuzz, OpenGridStaysValidUntilStuck)
+TEST(MeshEdgeCollapseFuzz, OpenGridStaysValidUntilStuck)
 {
   for (std::uint32_t seed = 1; seed <= 5; ++seed)
   {

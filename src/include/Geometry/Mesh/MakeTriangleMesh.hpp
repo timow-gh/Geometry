@@ -7,7 +7,7 @@
 #include "Geometry/Cylinder.hpp"
 #include "Geometry/Mesh/AddTriangle.hpp"
 #include "Geometry/Mesh/MeshNormals.hpp"
-#include "Geometry/Mesh/MeshResult.hpp"
+#include "Geometry/Mesh/detail/MeshResult.hpp"
 
 #include <cmath>
 #include <concepts>

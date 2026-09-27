@@ -27,7 +27,7 @@ using Mesh = TriangleHalfedgeMesh3d;
 using VertexHandle = Mesh::VertexHandle;
 using FaceHandle = Mesh::FaceHandle;
 
-// n x n grid in the xy-plane as in MeshCollapseTest.cpp; vertex (i, j) has handle value j * n + i.
+// n x n grid in the xy-plane as in MeshEdgeCollapseTest.cpp; vertex (i, j) has handle value j * n + i.
 Mesh make_grid(std::size_t size)
 {
   Mesh mesh;

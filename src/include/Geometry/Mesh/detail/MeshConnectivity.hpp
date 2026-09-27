@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_MESH_MESHCONNECTIVITY_HPP
-#define GEOMETRY_MESH_MESHCONNECTIVITY_HPP
+#ifndef GEOMETRY_MESH_DETAIL_MESHCONNECTIVITY_HPP
+#define GEOMETRY_MESH_DETAIL_MESHCONNECTIVITY_HPP
 
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
@@ -218,4 +218,4 @@ class MeshConnectivityView
 
 } // namespace Geometry
 
-#endif // GEOMETRY_MESH_MESHCONNECTIVITY_HPP
+#endif // GEOMETRY_MESH_DETAIL_MESHCONNECTIVITY_HPP

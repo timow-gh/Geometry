@@ -1,8 +1,8 @@
 #ifndef GEOMETRY_MESH_MESHNORMALS_HPP
 #define GEOMETRY_MESH_MESHNORMALS_HPP
 
-#include "Geometry/Mesh/MeshFaceGeometry.hpp"
-#include "Geometry/Mesh/MeshResult.hpp"
+#include "Geometry/Mesh/detail/FaceGeometry.hpp"
+#include "Geometry/Mesh/detail/MeshResult.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"

@@ -7,17 +7,27 @@ set(geometry_TARGET_HEADER
         include/Geometry/Distance/DistancePlane.hpp
         include/Geometry/Distance/DistanceSphere.hpp
         include/Geometry/Mesh/TriangleHalfedgeMesh.hpp
-        include/Geometry/Mesh/MeshConnectivity.hpp
         include/Geometry/Mesh/AddTriangle.hpp
         include/Geometry/Mesh/MakeTriangleMesh.hpp
         include/Geometry/Mesh/MeshBuffers.hpp
-        include/Geometry/Mesh/MeshResult.hpp
-        include/Geometry/Mesh/MeshFaceGeometry.hpp
         include/Geometry/Mesh/MeshNormals.hpp
+        include/Geometry/Mesh/MeshTopology.hpp
+        include/Geometry/Mesh/MeshManifold.hpp
+        include/Geometry/Mesh/MeshEuler.hpp
         include/Geometry/Mesh/MeshOrientation.hpp
-        include/Geometry/Mesh/MeshCollapse.hpp
+        include/Geometry/Mesh/MeshQuality.hpp
+        include/Geometry/Mesh/MeshEdgeCollapseStatus.hpp
+        include/Geometry/Mesh/MeshEdgeCollapseChecks.hpp
+        include/Geometry/Mesh/MeshEdgeCollapse.hpp
         include/Geometry/Mesh/MeshVertexRemoval.hpp
         include/Geometry/Mesh/MeshDelete.hpp
+        include/Geometry/Mesh/detail/MeshConnectivity.hpp
+        include/Geometry/Mesh/detail/MeshResult.hpp
+        include/Geometry/Mesh/detail/FaceGeometry.hpp
+        include/Geometry/Mesh/detail/EdgeCollapseChecks.hpp
+        include/Geometry/Mesh/detail/EdgeCollapse.hpp
+        include/Geometry/Mesh/detail/VertexStar.hpp
+        include/Geometry/Mesh/detail/PolygonTriangulation.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectAABBHelper.hpp

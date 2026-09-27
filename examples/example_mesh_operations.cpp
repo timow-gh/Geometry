@@ -6,8 +6,12 @@
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/Mesh/AddTriangle.hpp>
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
-#include <Geometry/Mesh/MeshCollapse.hpp>
+#include <Geometry/Mesh/MeshEdgeCollapse.hpp>
+#include <Geometry/Mesh/MeshEdgeCollapseChecks.hpp>
 #include <Geometry/Mesh/MeshDelete.hpp>
+#include <Geometry/Mesh/MeshManifold.hpp>
+#include <Geometry/Mesh/MeshOrientation.hpp>
+#include <Geometry/Mesh/MeshQuality.hpp>
 #include <Geometry/Mesh/MeshTopology.hpp>
 #include <Geometry/Mesh/MeshVertexRemoval.hpp>
 
@@ -17,7 +21,9 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstdio>
 #include <limits>
+#include <numbers>
 #include <optional>
 #include <random>
 #include <thread>
@@ -37,6 +43,11 @@ using FaceHandle = Mesh::FaceHandle;
 constexpr std::size_t surfaceResolution = 11;
 constexpr double surfaceExtent = 4.0;
 constexpr std::size_t decimatedVertexCount = 45;
+
+// The default corner limit only rejects nearly flat triangles. On the wavy surface that still lets
+// the removal operators leave thin slivers standing edge-on across it, so ask for sounder triangles.
+const Geometry::MeshGeometryLimits<double> decimationLimits{
+    .maxCornerAngle = std::numbers::pi * 150.0 / 180.0};
 
 // A wavy height field over [originX, originX + extent] x [originY, originY + extent], lifted above
 // the ground grid. The waves make the fold-over checks work on a genuinely curved surface.
@@ -100,15 +111,15 @@ void decimate_by_edge_collapse(Mesh& mesh, std::size_t targetVertexCount) {
             const auto halfedge = mesh.get_edge(edge).halfedge;
             const double length = linal::length(
                 Mesh::vec_t{mesh.get_position(mesh.target_vertex(halfedge)) - mesh.get_position(mesh.source_vertex(halfedge))});
-            if (length >= shortestLength || Geometry::is_collapse_ok(mesh, halfedge) != Geometry::CollapseStatus::Ok ||
-                Geometry::collapse_inverts_faces(mesh, halfedge, merged_position(mesh, edge)))
+            if (length >= shortestLength ||
+                Geometry::check_collapse(mesh, halfedge, merged_position(mesh, edge), decimationLimits) != Geometry::CollapseStatus::Ok)
                 continue;
             shortest = edge;
             shortestLength = length;
         }
         if (!shortest)
             return;
-        const auto result = Geometry::collapse_edge(mesh, *shortest, merged_position(mesh, *shortest));
+        const auto result = Geometry::collapse_edge(mesh, *shortest, merged_position(mesh, *shortest), decimationLimits);
         if (!result)
             example::fail_example("Collapse edge", static_cast<int>(result.status));
     }
@@ -134,11 +145,36 @@ void decimate_by_vertex_removal(Mesh& mesh, std::size_t targetVertexCount, TRemo
 }
 
 bool remove_by_halfedge_collapse(Mesh& mesh, VertexHandle vertex) {
-    return Geometry::remove_vertex(mesh, vertex).has_value();
+    return Geometry::remove_vertex(mesh, vertex, decimationLimits).has_value();
 }
 
 bool remove_by_retriangulation(Mesh& mesh, VertexHandle vertex) {
-    return Geometry::remove_vertex_retriangulate(mesh, vertex) == Geometry::VertexRemovalStatus::Ok;
+    return Geometry::remove_vertex_retriangulate(mesh, vertex, decimationLimits) == Geometry::VertexRemovalStatus::Ok;
+}
+
+// A bad operator result is reported here, naming the broken property, instead of being left for the
+// viewer to reveal. The topological checks guard the halfedge structure; the geometric ones catch a
+// surface that is structurally sound but turned back on itself.
+void validate(const Mesh& mesh, const char* operation) {
+    const auto require = [operation](bool holds, const char* property) {
+        if (holds) return;
+        std::fprintf(stderr, "%s: %s\n", operation, property);
+        example::fail_example("Validate mesh", 0);
+    };
+    require(mesh.has_valid_connectivity(), "inconsistent connectivity");
+    require(Geometry::verify_manifold(mesh), "not manifold");
+    require(Geometry::is_consistently_oriented(mesh), "inconsistent winding");
+    require(!Geometry::has_degenerate_faces(mesh), "degenerate face");
+    require(!Geometry::has_folded_edges(mesh), "folded edge");
+}
+
+// A closed surface must additionally still enclose its volume with outward-facing normals.
+void validate_closed(const Mesh& mesh, const char* operation) {
+    validate(mesh, operation);
+    if (Geometry::mesh_orientation(mesh) != Geometry::MeshOrientation::Outward) {
+        std::fprintf(stderr, "%s: not a closed, outward-facing surface\n", operation);
+        example::fail_example("Validate mesh", 0);
+    }
 }
 
 // Punches holes: deletes a few interior vertices (each leaves a polygonal hole) and a few single
@@ -221,21 +257,27 @@ int main() {
     std::this_thread::sleep_for(operationDelay);
 
     decimate_by_edge_collapse(edgeCollapsed, decimatedVertexCount);
+    validate(edgeCollapsed, "Edge collapse");
     redraw(edgeCollapsed, edgeCollapsedDrawing, example::orange());
 
     decimate_by_vertex_removal(halfedgeCollapsed, decimatedVertexCount, remove_by_halfedge_collapse);
+    validate(halfedgeCollapsed, "Halfedge collapse");
     redraw(halfedgeCollapsed, halfedgeCollapsedDrawing, example::green());
 
     decimate_by_vertex_removal(retriangulated, decimatedVertexCount, remove_by_retriangulation);
+    validate(retriangulated, "Retriangulation");
     redraw(retriangulated, retriangulatedDrawing, example::magenta());
 
     decimate_by_vertex_removal(collapsedCylinder, cylinderTarget, remove_by_halfedge_collapse);
+    validate_closed(collapsedCylinder, "Cylinder halfedge collapse");
     redraw(collapsedCylinder, collapsedCylinderDrawing, example::green());
 
     decimate_by_vertex_removal(retriangulatedCylinder, cylinderTarget, remove_by_retriangulation);
+    validate_closed(retriangulatedCylinder, "Cylinder retriangulation");
     redraw(retriangulatedCylinder, retriangulatedCylinderDrawing, example::magenta());
 
     punch_holes(holes);
+    validate(holes, "Punch holes");
     redraw(holes, holesDrawing, example::cyan());
 
     example::check_geoqik(geoqik_wait_for_exit_and_cleanup(), "Close visualization");

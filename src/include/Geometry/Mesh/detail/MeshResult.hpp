@@ -1,5 +1,5 @@
-#ifndef GEOMETRY_MESH_MESHRESULT_HPP
-#define GEOMETRY_MESH_MESHRESULT_HPP
+#ifndef GEOMETRY_MESH_DETAIL_MESHRESULT_HPP
+#define GEOMETRY_MESH_DETAIL_MESHRESULT_HPP
 
 #include "Geometry/Utils/Compiler.hpp"
 
@@ -26,4 +26,4 @@ GEO_NODISCARD constexpr bool mesh_result_ok(TStatus status) noexcept
 } // namespace detail
 } // namespace Geometry
 
-#endif // GEOMETRY_MESH_MESHRESULT_HPP
+#endif // GEOMETRY_MESH_DETAIL_MESHRESULT_HPP

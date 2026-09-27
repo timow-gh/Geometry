@@ -1,5 +1,6 @@
 #include <Geometry/Mesh/AddTriangle.hpp>
-#include <Geometry/Mesh/MeshCollapse.hpp>
+#include <Geometry/Mesh/MeshEdgeCollapse.hpp>
+#include <Geometry/Mesh/MeshEdgeCollapseChecks.hpp>
 #include <Geometry/Mesh/MeshEuler.hpp>
 #include <Geometry/Mesh/MeshManifold.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
@@ -18,7 +19,7 @@ using Mesh = TriangleHalfedgeMesh2d;
 using VertexHandle = Mesh::VertexHandle;
 using HalfedgeHandle = Mesh::HalfedgeHandle;
 
-// 3 x 3 planar grid, counter-clockwise; see make_grid in MeshCollapseTest.cpp. Vertex (i, j) has
+// 3 x 3 planar grid, counter-clockwise; see make_grid in MeshEdgeCollapseTest.cpp. Vertex (i, j) has
 // handle value 3 * j + i, so the center (1, 1) is vertex 4 and (2, 1) is vertex 5.
 Mesh make_grid3()
 {
@@ -56,7 +57,7 @@ constexpr VertexHandle rightMiddle{5};
 
 } // namespace
 
-TEST(MeshCollapse2D, InversionCheckUsesSignedArea)
+TEST(MeshEdgeCollapse2D, InversionCheckUsesSignedArea)
 {
   const Mesh mesh = make_grid3();
   const HalfedgeHandle halfedge = mesh.find_halfedge(center, rightMiddle);
@@ -67,7 +68,7 @@ TEST(MeshCollapse2D, InversionCheckUsesSignedArea)
   EXPECT_TRUE(collapse_inverts_faces(mesh, halfedge, mesh.get_position(VertexHandle{3})));
 }
 
-TEST(MeshCollapse2D, CollapsesPlanarMesh)
+TEST(MeshEdgeCollapse2D, CollapsesPlanarMesh)
 {
   Mesh mesh = make_grid3();
 

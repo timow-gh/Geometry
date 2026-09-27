@@ -2,7 +2,7 @@
 #define GEOMETRY_MESH_TRIANGLEHALFEDGEMESH_HPP
 
 #include "Geometry/Handle.hpp"
-#include "Geometry/Mesh/MeshConnectivity.hpp"
+#include "Geometry/Mesh/detail/MeshConnectivity.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include "Geometry/Utils/Constness.hpp"

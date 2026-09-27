@@ -2,7 +2,7 @@
 #define GEOMETRY_MESH_MESHBUFFERS_HPP
 
 #include "Geometry/Mesh/MeshNormals.hpp"
-#include "Geometry/Mesh/MeshResult.hpp"
+#include "Geometry/Mesh/detail/MeshResult.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
 #include "Geometry/Utils/Assert.hpp"
 

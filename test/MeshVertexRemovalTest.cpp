@@ -1,13 +1,15 @@
 #include <Geometry/Cylinder.hpp>
 #include <Geometry/Mesh/AddTriangle.hpp>
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
+#include <Geometry/Mesh/MeshEdgeCollapseChecks.hpp>
 #include <Geometry/Mesh/MeshEuler.hpp>
-#include <Geometry/Mesh/MeshFaceGeometry.hpp>
 #include <Geometry/Mesh/MeshManifold.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
 #include <Geometry/Mesh/MeshTopology.hpp>
 #include <Geometry/Mesh/MeshVertexRemoval.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
+#include <Geometry/Mesh/detail/FaceGeometry.hpp>
+#include <Geometry/Mesh/detail/PolygonTriangulation.hpp>
 #include <gtest/gtest.h>
 
 #include <algorithm>
@@ -29,7 +31,7 @@ using VertexHandle = Mesh::VertexHandle;
 using FaceHandle = Mesh::FaceHandle;
 using Position = Mesh::vec_t;
 
-// n x n grid in the xy-plane as in MeshCollapseTest.cpp; vertex (i, j) has handle value j * n + i.
+// n x n grid in the xy-plane as in MeshEdgeCollapseTest.cpp; vertex (i, j) has handle value j * n + i.
 // Each vertex is displaced by up to +-jitter in x and y; jitter <= 0.1 keeps every triangle
 // counter-clockwise.
 Mesh make_grid(std::size_t size, double jitter = 0.0, std::uint32_t seed = 0)
