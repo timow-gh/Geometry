@@ -65,6 +65,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Line.hpp
         include/Geometry/Plane.hpp
         include/Geometry/PointQueries.hpp
+        include/Geometry/Predicates.hpp
         include/Geometry/PolygonTriangulation.hpp
         include/Geometry/PolygonTriangulationCosts.hpp
         include/Geometry/Sphere.hpp
