@@ -21,12 +21,15 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/MeshEdgeCollapse.hpp
         include/Geometry/Mesh/MeshVertexDecimation.hpp
         include/Geometry/Mesh/MeshDelete.hpp
+        include/Geometry/Mesh/MeshSplit.hpp
+        include/Geometry/Mesh/MeshFlip.hpp
         include/Geometry/Mesh/detail/MeshConnectivity.hpp
         include/Geometry/Mesh/detail/MeshResult.hpp
         include/Geometry/Mesh/detail/FaceGeometry.hpp
         include/Geometry/Mesh/detail/EdgeCollapseChecks.hpp
         include/Geometry/Mesh/detail/EdgeCollapse.hpp
         include/Geometry/Mesh/detail/VertexStar.hpp
+        include/Geometry/Mesh/detail/MeshEditing.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectAABBHelper.hpp
