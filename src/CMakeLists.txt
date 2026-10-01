@@ -50,6 +50,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Utils/GeometryAssert.hpp
         include/Geometry/Utils/Warnings.hpp
         include/Geometry/AABB.hpp
+        include/Geometry/AABBTree.hpp
         include/Geometry/Circle.hpp
         include/Geometry/ClosetPointOnLine.hpp
         include/Geometry/Cone.hpp

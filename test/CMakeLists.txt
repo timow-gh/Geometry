@@ -22,6 +22,7 @@ add_subdirectory(Intersection)
 add_subdirectory(Transformation)
 
 create_geometry_test(AABBTest)
+create_geometry_test(AABBTreeTest)
 create_geometry_test(CircleTest)
 create_geometry_test(SphereTest)
 create_geometry_test(GeomVecOperationsTest)
