@@ -636,9 +636,32 @@ public:
   GEO_NODISCARD VertexHandle add_vertex(const vec_t& position)
   {
     const VertexHandle handle = make_handle<VertexHandle>(m_vertices.size());
-    m_vertices.reserve(m_vertices.size() + 1);
     m_vertices.push_back(Vertex{position, HalfedgeHandle{}});
     return handle;
+  }
+
+  /** \brief Element totals for \c reserve; designated initializers keep the three counts apart. */
+  struct ElementCounts
+  {
+    size_type vertices{0};
+    size_type edges{0};
+    size_type faces{0};
+  };
+
+  /**
+   * \brief Pre-allocates storage for \p counts elements in total (two halfedges per edge), like
+   * \c std::vector::reserve: it never shrinks and changes no element or handle.
+   *
+   * For builders that know the final size, e.g. the \c make_triangle_mesh factories: growing one
+   * element at a time reallocates and copies the storage O(log n) times, which this avoids.
+   * O(current size + \p counts) when it reallocates.
+   */
+  void reserve(const ElementCounts& counts)
+  {
+    m_vertices.reserve(counts.vertices);
+    m_halfedges.reserve(2 * counts.edges);
+    m_edges.reserve(counts.edges);
+    m_faces.reserve(counts.faces);
   }
 
   // Live element counts: deleted (tombstoned) elements are excluded, so V - E + F stays meaningful

@@ -50,6 +50,36 @@ TEST(TriangleHalfedgeMeshTest, addVertexStoresPosition)
   EXPECT_EQ(mesh.get_position(vertex), (linal::double3{1.0, 2.0, 3.0}));
 }
 
+// Capacity is not observable, but its consequence is: up to the reserved counts nothing reallocates,
+// so references to the first elements stay valid while the rest are added.
+TEST(TriangleHalfedgeMeshTest, reserveKeepsStorageInPlaceUpToReservedCounts)
+{
+  Mesh mesh;
+  mesh.reserve({.vertices = 4, .edges = 5, .faces = 2});
+
+  const VertexHandle vertex0 = mesh.add_vertex({0.0, 0.0, 0.0});
+  const VertexHandle vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
+  const VertexHandle vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
+  const Mesh::FaceHandle face = add_triangle(mesh, vertex0, vertex1, vertex2);
+  ASSERT_TRUE(face.is_valid());
+  const Mesh::Vertex* const firstVertex = &mesh.get_vertex(vertex0);
+  const Mesh::Halfedge* const firstHalfedge = &mesh.get_halfedge(mesh.get_face(face).get_halfedgehandle());
+  const Mesh::Edge* const firstEdge = &mesh.get_edge(Mesh::EdgeHandle{0});
+  const Mesh::Face* const firstFace = &mesh.get_face(face);
+
+  const VertexHandle vertex3 = mesh.add_vertex({1.0, 1.0, 0.0});
+  ASSERT_TRUE(add_triangle(mesh, vertex2, vertex1, vertex3).is_valid());
+
+  EXPECT_EQ(mesh.vertex_count(), 4U);
+  EXPECT_EQ(mesh.edge_count(), 5U);
+  EXPECT_EQ(mesh.face_count(), 2U);
+  EXPECT_EQ(&mesh.get_vertex(vertex0), firstVertex);
+  EXPECT_EQ(&mesh.get_halfedge(mesh.get_face(face).get_halfedgehandle()), firstHalfedge);
+  EXPECT_EQ(&mesh.get_edge(Mesh::EdgeHandle{0}), firstEdge);
+  EXPECT_EQ(&mesh.get_face(face), firstFace);
+  EXPECT_TRUE(mesh.has_valid_connectivity());
+}
+
 TEST(TriangleHalfedgeMeshTest, addTriangleCreatesFaceCycle)
 {
   Mesh mesh;
