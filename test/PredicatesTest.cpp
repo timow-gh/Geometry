@@ -83,6 +83,16 @@ TEST(PredicatesTest, orient3d_swap_flips_and_even_permutation_keeps_sign)
   EXPECT_EQ(orient3d(second, first, query, third), reference);
 }
 
+TEST(PredicatesTest, multiply_signs_is_negative_only_for_strict_opposites)
+{
+  EXPECT_EQ(detail::multiply_signs(Orientation::Positive, Orientation::Positive), Orientation::Positive);
+  EXPECT_EQ(detail::multiply_signs(Orientation::Negative, Orientation::Negative), Orientation::Positive);
+  EXPECT_EQ(detail::multiply_signs(Orientation::Positive, Orientation::Negative), Orientation::Negative);
+  EXPECT_EQ(detail::multiply_signs(Orientation::Negative, Orientation::Positive), Orientation::Negative);
+  EXPECT_EQ(detail::multiply_signs(Orientation::Zero, Orientation::Negative), Orientation::Zero);
+  EXPECT_EQ(detail::multiply_signs(Orientation::Positive, Orientation::Zero), Orientation::Zero);
+}
+
 TEST(PredicatesTest, dominant_axis_picks_largest_magnitude)
 {
   EXPECT_EQ(detail::dominant_axis(Vec3{3.0, -1.0, 2.0}), 0);

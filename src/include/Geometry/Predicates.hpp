@@ -50,6 +50,19 @@ GEO_NODISCARD constexpr Orientation orientation_from_determinant(const T determi
   return Orientation::Zero;
 }
 
+/**
+ * \internal
+ * \brief Sign of the product of two signs: \c Negative iff they are strictly opposite, \c Zero if
+ * either is \c Zero.
+ *
+ * Normalizes a side test against a reference orientation, e.g. a projected triangle that may run
+ * clockwise. O(1).
+ */
+GEO_NODISCARD constexpr Orientation multiply_signs(const Orientation lhs, const Orientation rhs) noexcept
+{
+  return static_cast<Orientation>(static_cast<std::int8_t>(lhs) * static_cast<std::int8_t>(rhs));
+}
+
 } // namespace detail
 
 /**

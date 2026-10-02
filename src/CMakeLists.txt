@@ -31,6 +31,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/detail/EdgeCollapse.hpp
         include/Geometry/Mesh/detail/VertexStar.hpp
         include/Geometry/Mesh/detail/MeshEditing.hpp
+        include/Geometry/Mesh/detail/BooleanIntersection.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectAABBHelper.hpp
@@ -48,6 +49,8 @@ set(geometry_TARGET_HEADER
         include/Geometry/Transform/TransformSphere.hpp
         include/Geometry/Transform/TransformAABB.hpp
         include/Geometry/detail/TriangleOrientation.hpp
+        include/Geometry/detail/FixedVector.hpp
+        include/Geometry/detail/ImplicitPoint.hpp
         include/Geometry/Utils/Assert.hpp
         include/Geometry/Utils/Compiler.hpp
         include/Geometry/Utils/DefaultValues.hpp
