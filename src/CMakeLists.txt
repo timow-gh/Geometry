@@ -23,6 +23,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/MeshDelete.hpp
         include/Geometry/Mesh/MeshSplit.hpp
         include/Geometry/Mesh/MeshFlip.hpp
+        include/Geometry/Mesh/MeshFromTriangles.hpp
         include/Geometry/Mesh/detail/MeshConnectivity.hpp
         include/Geometry/Mesh/detail/MeshResult.hpp
         include/Geometry/Mesh/detail/FaceGeometry.hpp
