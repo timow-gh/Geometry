@@ -10,6 +10,7 @@
 #include <linal/vec.hpp>
 
 #include <array>
+#include <cstdint>
 
 namespace example {
 
@@ -110,10 +111,13 @@ inline geoqik_uuid_t draw(const linal::float3& source, const color& color) {
     return result.geometryId;
 }
 
+// A positive segmentDepthLayer lifts the edges off the surface they lie on, which they otherwise
+// depth-fight; 0 keeps geoqik's legacy unbiased edges.
 template <std::floating_point T, typename TIndex>
 inline geoqik_uuid_t draw(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
                           const color& surfaceColor,
-                          float segmentLineWidth = 5.0f) {
+                          float segmentLineWidth = 5.0f,
+                          std::int32_t segmentDepthLayer = 0) {
     // Split vertices along crease edges so each render vertex carries one normal, matching geoqik's
     // one-normal-per-vertex contract. Smooth sectors stay shared; creases produce sharp shading.
     const auto buffers = Geometry::make_render_buffers(mesh);
@@ -131,6 +135,12 @@ inline geoqik_uuid_t draw(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& me
     options.segmentColor = edgeColor.rgba.data();
     options.showSegments = 1;
     options.segmentLineWidth = segmentLineWidth;
+    if (segmentDepthLayer != 0) {
+        options.segmentStyleSet = 1;
+        options.segmentStyle.lineWidth = segmentLineWidth;
+        options.segmentStyle.depthLayer = segmentDepthLayer;
+        options.segmentLineType = GEOQIK_LINE_TYPE_LINES;
+    }
     options.showVertices = 0;
     options.vertexPointSize = 2.0f;
     const auto result = geoqik_add_mesh_opts(buffers.positions.data(), buffers.vertex_count(),
