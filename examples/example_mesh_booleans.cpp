@@ -12,14 +12,26 @@
 
 #include <algorithm>
 #include <array>
+#include <chrono>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <cstdio>
+#include <iterator>
+#include <functional>
 #include <map>
+#include <optional>
 #include <span>
+#include <stop_token>
+#include <thread>
 #include <utility>
 #include <vector>
+
+#ifdef _WIN32
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 
 // Rows of mesh Booleans, each read from left to right:
 //   front row (box A, sphere B): inputs | A u B | A n B | A - B | B - A
@@ -27,7 +39,8 @@
 //     minus a cylinder along z | the same, cut open to show the tunnels
 //   back row (coplanar contact): boxes side by side | their union, one box | block and flush bar |
 //     block - bar, a through-hole | staircase union of three boxes
-// Only crease edges are outlined: the operands' feature edges, and the curves where the Booleans cut.
+// Thick lines outline the crease edges: the operands' feature edges, and the curves where the
+// Booleans cut. Thin lines show every triangle; the space bar toggles them (on Windows).
 namespace {
 
 using Mesh = Geometry::TriangleHalfedgeMesh3d;
@@ -127,31 +140,149 @@ Mesh boolean(const Mesh& meshA, const Mesh& meshB, BooleanOperation operation, c
     return std::move(result.mesh);
 }
 
+// The positions of the render vertices index pairs name, flattened as geoqik's line arrays expect:
+// six coordinates per line.
+std::vector<double> line_endpoints(const Geometry::MeshRenderBuffers& buffers, std::span<const Geometry::BufferIndex> pairs) {
+    std::vector<double> endpoints;
+    endpoints.reserve(3 * pairs.size());
+    for (const Geometry::BufferIndex index : pairs)
+        for (std::size_t axis = 0; axis < 3; ++axis)
+            endpoints.push_back(buffers.positions[3 * index + axis]);
+    return endpoints;
+}
+
+// Every edge of the triangles in buffers, once, as index pairs. Along a crease the two sides use
+// different render vertices, so such an edge appears twice, drawn on top of itself.
+std::vector<Geometry::BufferIndex> triangle_edges(const Geometry::MeshRenderBuffers& buffers) {
+    using Edge = std::array<Geometry::BufferIndex, 2>;
+    std::vector<Edge> edges;
+    edges.reserve(buffers.triangles.size());
+    for (std::size_t first = 0; first + 2 < buffers.triangles.size(); first += 3) {
+        for (std::size_t side = 0; side < 3; ++side) {
+            const Geometry::BufferIndex start = buffers.triangles[first + side];
+            const Geometry::BufferIndex end = buffers.triangles[first + (side + 1) % 3];
+            edges.push_back(Edge{std::min(start, end), std::max(start, end)});
+        }
+    }
+    std::ranges::sort(edges);
+    const auto duplicates = std::ranges::unique(edges);
+    edges.erase(duplicates.begin(), duplicates.end());
+
+    std::vector<Geometry::BufferIndex> indices;
+    indices.reserve(2 * edges.size());
+    for (const Edge& edge : edges)
+        indices.insert(indices.end(), edge.begin(), edge.end());
+    return indices;
+}
+
+// Black lines lifted off the faces they lie on, which they would otherwise depth-fight; a higher
+// depth layer draws over a lower one.
+geoqik_result_t draw_black_lines(const std::vector<double>& endpoints, float lineWidth, std::int32_t depthLayer) {
+    const example::color black = example::black();
+    geoqik_add_line_opts_t options{};
+    options.color = black.rgba.data();
+    options.colorCount = black.rgba.size();
+    options.styleSet = 1;
+    options.style.lineWidth = lineWidth;
+    options.style.depthLayer = depthLayer;
+    options.lineType = GEOQIK_LINE_TYPE_LINES;
+    return geoqik_add_lines_opts(endpoints.data(), endpoints.size(), &options);
+}
+
+// The triangle edges of every drawn mesh as one line geometry, which the space bar removes and adds
+// back. Separate lines rather than the meshes' own segment overlays, because geoqik draws those in
+// white whatever color is asked for.
+class Wireframe {
+public:
+    explicit Wireframe(std::vector<double> endpoints)
+        : m_endpoints(std::move(endpoints)) {}
+
+    geoqik_error_code_t toggle() {
+        if (m_drawing) {
+            const geoqik_error_code_t error = geoqik_remove_line(&*m_drawing);
+            m_drawing.reset();
+            return error;
+        }
+        // Thin, so that a densely triangulated body keeps its color between the lines.
+        constexpr float lineWidth = 0.75f;
+        const geoqik_result_t result = draw_black_lines(m_endpoints, lineWidth, 1);
+        if (result.err == GEOQIK_SUCCESS)
+            m_drawing = result.geometryId;
+        return result.err;
+    }
+
+private:
+    std::vector<double> m_endpoints;
+    std::optional<geoqik_uuid_t> m_drawing;
+};
+
+// Draws mesh moved by (x, y), with its crease edges (operand features and cut curves) as thick lines
+// that stay when the wireframe is toggled off. Returns the endpoints of its triangle edges, for the
+// wireframe.
+//
 // Every scene is built around the origin and only moved into its cell for drawing, so each Boolean
 // runs once, on the coordinates chosen for it.
-void draw_at(const Mesh& mesh, double x, double y, const example::color& color) {
-    constexpr float edgeLineWidth = 2.0f;
-    // Lifts the outlines off the faces they lie on, which they would otherwise depth-fight.
-    constexpr std::int32_t edgeDepthLayer = 1;
+std::vector<double> draw_at(const Mesh& mesh, double x, double y, const example::color& color) {
+    constexpr float creaseLineWidth = 2.5f;
     Mesh moved = mesh;
     const Vec3 offset{x, y, 0.0};
     for (const auto vertex : moved.vertices())
         moved.set_position(vertex, Vec3{moved.get_position(vertex) + offset});
-    example::draw(moved, color, edgeLineWidth, edgeDepthLayer);
+    const auto buffers = Geometry::make_render_buffers(moved);
+    if (!buffers)
+        example::fail_example("Create render buffers", static_cast<int>(buffers.error));
+
+    geoqik_add_mesh_opts_t options{};
+    options.color = color.rgba.data();
+    options.colorCount = color.rgba.size();
+    options.normals = buffers.normals.data();
+    options.normalsCount = buffers.normals.size();
+    const auto result = geoqik_add_mesh_opts(buffers.positions.data(), buffers.vertex_count(), buffers.triangles.data(),
+                                             buffers.triangles.size() / 3, &options);
+    example::check_geoqik(result.err, "Draw mesh");
+    if (!buffers.segments.empty())
+        example::check_geoqik(draw_black_lines(line_endpoints(buffers, buffers.segments), creaseLineWidth, 2).err, "Draw creases");
+
+    return line_endpoints(buffers, triangle_edges(buffers));
 }
+
+#ifdef _WIN32
+// Toggles the wireframe when the space bar goes down while the viewer has the focus. geoqik reports
+// no key events, but its window lives in this process, so a key press counts when the foreground
+// window belongs to it. Polled, since the render thread owns the window's message loop. Once the
+// window is closed no window of this process has the focus, so no call reaches geoqik after it.
+void toggle_wireframe_on_space(std::stop_token stop, Wireframe& wireframe) {
+    constexpr auto pollInterval = std::chrono::milliseconds(20);
+    bool wasDown = false;
+    while (!stop.stop_requested()) {
+        std::this_thread::sleep_for(pollInterval);
+        DWORD foregroundProcess = 0;
+        GetWindowThreadProcessId(GetForegroundWindow(), &foregroundProcess);
+        const bool down = foregroundProcess == GetCurrentProcessId() && (GetAsyncKeyState(VK_SPACE) & 0x8000) != 0;
+        if (down && !wasDown && wireframe.toggle() != GEOQIK_SUCCESS)
+            std::fprintf(stderr, "Toggling the wireframe failed\n");
+        wasDown = down;
+    }
+}
+#endif
 
 // The four Booleans of an axis-aligned box and a sphere over one of its corners. The sphere's center
 // is off the corner, so no sphere vertex lands exactly on a box face or edge.
-void draw_box_and_sphere_row() {
+std::vector<double> draw_box_and_sphere_row() {
+    std::vector<double> wireframe;
+    const auto draw = [&wireframe](const Mesh& mesh, std::size_t column, const example::color& color) {
+        std::ranges::copy(draw_at(mesh, columnX[column], frontRowY, color), std::back_inserter(wireframe));
+    };
     const Mesh box = make_box(Vec3{-1.0, -1.0, 0.0}, Vec3{1.0, 1.0, 2.0});
     const Mesh sphere = make_sphere(Vec3{0.85, 0.8, 1.9}, 1.0, 3);
 
-    draw_at(box, columnX[0], frontRowY, inputColorA);
-    draw_at(sphere, columnX[0], frontRowY, inputColorB);
-    draw_at(boolean(box, sphere, BooleanOperation::Union, "box u sphere"), columnX[1], frontRowY, example::light_cyan());
-    draw_at(boolean(box, sphere, BooleanOperation::Intersection, "box n sphere"), columnX[2], frontRowY, example::light_green());
-    draw_at(boolean(box, sphere, BooleanOperation::Difference, "box - sphere"), columnX[3], frontRowY, inputColorA);
-    draw_at(boolean(sphere, box, BooleanOperation::Difference, "sphere - box"), columnX[4], frontRowY, inputColorB);
+    draw(box, 0, inputColorA);
+    draw(sphere, 0, inputColorB);
+    draw(boolean(box, sphere, BooleanOperation::Union, "box u sphere"), 1, example::light_cyan());
+    draw(boolean(box, sphere, BooleanOperation::Intersection, "box n sphere"), 2, example::light_green());
+    draw(boolean(box, sphere, BooleanOperation::Difference, "box - sphere"), 3, inputColorA);
+    draw(boolean(sphere, box, BooleanOperation::Difference, "sphere - box"), 4, inputColorB);
+    return wireframe;
 }
 
 // A rounded cube drilled along two axes, each step a Boolean on the previous result, then cut open.
@@ -161,7 +292,11 @@ void draw_box_and_sphere_row() {
 // only predicates on the points' definitions decide reliably. The cylinders are chosen to stay clear
 // of them: segment counts that put no edge at 45 degrees, over the cube's face diagonals, and a length
 // of 4, a power of two, so each side quad is planar in floating point too.
-void draw_constructive_solid_geometry_row() {
+std::vector<double> draw_constructive_solid_geometry_row() {
+    std::vector<double> wireframe;
+    const auto draw = [&wireframe](const Mesh& mesh, std::size_t column, const example::color& color) {
+        std::ranges::copy(draw_at(mesh, columnX[column], middleRowY, color), std::back_inserter(wireframe));
+    };
     const Vec3 center{0.0, 0.0, 1.0};
     const Mesh cube = make_box(Vec3{-1.0, -1.0, 0.0}, Vec3{1.0, 1.0, 2.0});
     const Mesh sphere = make_sphere(center, 1.35, 3);
@@ -176,28 +311,33 @@ void draw_constructive_solid_geometry_row() {
     const Mesh backHalf = make_box(Vec3{-2.0, 0.1, -1.0}, Vec3{2.0, 2.0, 3.0});
     const Mesh cutOpen = boolean(drilledXZ, backHalf, BooleanOperation::Intersection, "drilled n back half");
 
-    draw_at(cube, columnX[0], middleRowY, inputColorA);
-    draw_at(sphere, columnX[0], middleRowY, inputColorB);
-    draw_at(rounded, columnX[1], middleRowY, example::light_green());
-    draw_at(drilledX, columnX[2], middleRowY, example::light_yellow());
-    draw_at(drilledXZ, columnX[3], middleRowY, example::light_yellow());
-    draw_at(cutOpen, columnX[4], middleRowY, example::light_yellow());
+    draw(cube, 0, inputColorA);
+    draw(sphere, 0, inputColorB);
+    draw(rounded, 1, example::light_green());
+    draw(drilledX, 2, example::light_yellow());
+    draw(drilledXZ, 3, example::light_yellow());
+    draw(cutOpen, 4, example::light_yellow());
+    return wireframe;
 }
 
 // Where solids share part of a plane, the shared region is kept once or dropped, never doubled: flush
 // sides merge into one face without a seam, and a flush cut opens instead of leaving a skin.
-void draw_coplanar_contact_row() {
+std::vector<double> draw_coplanar_contact_row() {
+    std::vector<double> wireframe;
+    const auto draw = [&wireframe](const Mesh& mesh, std::size_t column, const example::color& color) {
+        std::ranges::copy(draw_at(mesh, columnX[column], backRowY, color), std::back_inserter(wireframe));
+    };
     const Mesh left = make_box(Vec3{-1.0, -1.0, 0.0}, Vec3{0.0, 1.0, 1.5});
     const Mesh right = make_box(Vec3{0.0, -1.0, 0.0}, Vec3{1.0, 1.0, 1.5});
-    draw_at(left, columnX[0], backRowY, inputColorA);
-    draw_at(right, columnX[0], backRowY, inputColorB);
-    draw_at(boolean(left, right, BooleanOperation::Union, "left u right"), columnX[1], backRowY, example::light_cyan());
+    draw(left, 0, inputColorA);
+    draw(right, 0, inputColorB);
+    draw(boolean(left, right, BooleanOperation::Union, "left u right"), 1, example::light_cyan());
 
     const Mesh block = make_box(Vec3{-1.0, -1.0, 0.0}, Vec3{1.0, 1.0, 1.5});
     const Mesh bar = make_box(Vec3{-0.4, -0.6, 0.0}, Vec3{0.4, 0.6, 1.5});
-    draw_at(block, columnX[2], backRowY, inputColorA);
-    draw_at(bar, columnX[2], backRowY, inputColorB);
-    draw_at(boolean(block, bar, BooleanOperation::Difference, "block - bar"), columnX[3], backRowY, inputColorA);
+    draw(block, 2, inputColorA);
+    draw(bar, 2, inputColorB);
+    draw(boolean(block, bar, BooleanOperation::Difference, "block - bar"), 3, inputColorA);
 
     const Mesh bottomStep = make_box(Vec3{-1.0, -1.0, 0.0}, Vec3{1.0, 1.0, 0.5});
     const Mesh middleStep = make_box(Vec3{-0.5, -1.0, 0.5}, Vec3{1.0, 1.0, 1.0});
@@ -206,7 +346,8 @@ void draw_coplanar_contact_row() {
                                    topStep,
                                    BooleanOperation::Union,
                                    "steps u top step");
-    draw_at(staircase, columnX[4], backRowY, example::light_cyan());
+    draw(staircase, 4, example::light_cyan());
+    return wireframe;
 }
 
 } // namespace
@@ -216,11 +357,17 @@ int main() {
     example::draw_default_origin();
     example::draw_default_grid();
 
-    draw_box_and_sphere_row();
-    draw_constructive_solid_geometry_row();
-    draw_coplanar_contact_row();
+    std::vector<double> edges = draw_box_and_sphere_row();
+    std::ranges::copy(draw_constructive_solid_geometry_row(), std::back_inserter(edges));
+    std::ranges::copy(draw_coplanar_contact_row(), std::back_inserter(edges));
+    Wireframe wireframe(std::move(edges));
+    example::check_geoqik(wireframe.toggle(), "Draw wireframe");
 
     example::check_geoqik(geoqik_draw(), "Open visualization");
+#ifdef _WIN32
+    // Space toggles the wireframe; the poller is stopped and joined when main returns.
+    const std::jthread wireframeToggle(toggle_wireframe_on_space, std::ref(wireframe));
+#endif
     example::check_geoqik(geoqik_wait_for_exit_and_cleanup(), "Close visualization");
     return EXIT_SUCCESS;
 }
