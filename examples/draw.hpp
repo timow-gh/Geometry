@@ -133,7 +133,8 @@ inline geoqik_uuid_t draw(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& me
     // Unlike vertexCount and triangleCount, this field counts scalar indices.
     options.segmentIndexCount = buffers.segments.size();
     options.segmentColor = edgeColor.rgba.data();
-    options.showSegments = 1;
+    // Without segments geoqik would outline every triangle; a mesh without creases shows none.
+    options.showSegments = buffers.segments.empty() ? 0 : 1;
     options.segmentLineWidth = segmentLineWidth;
     if (segmentDepthLayer != 0) {
         options.segmentStyleSet = 1;
