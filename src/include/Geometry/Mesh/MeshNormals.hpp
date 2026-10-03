@@ -11,6 +11,7 @@
 #include <cmath>
 #include <concepts>
 #include <cstdint>
+#include <optional>
 #include <vector>
 
 #include <linal/vec.hpp>
@@ -186,6 +187,31 @@ void for_each_sector_corner(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   } while (outgoing != sectorEnd);
 }
 
+/**
+ * \internal
+ * \brief Whether the two faces of the interior edge \p edge meet at a dihedral angle above the
+ * threshold whose cosine is \p cosThreshold, i.e. whether the edge is sharp enough to be a crease.
+ *
+ * \pre \p edge is not a boundary edge.
+ * \return \c std::nullopt when either face is degenerate and has no normal. O(1).
+ */
+template <std::floating_point T, typename TIndex>
+GEO_NODISCARD std::optional<bool> exceeds_crease_angle(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
+                                                       typename TriangleHalfedgeMesh<T, 3, TIndex>::EdgeHandle edge,
+                                                       T cosThreshold) noexcept
+{
+  const auto halfedge = mesh.get_edge(edge).halfedge;
+  const auto twin = mesh.get_halfedge(halfedge).twin;
+  GEO_ASSERT(!mesh.is_boundary(halfedge) && !mesh.is_boundary(twin));
+  const auto normalA = detail::mesh_face_normal(mesh, mesh.get_halfedge(halfedge).face);
+  const auto normalB = detail::mesh_face_normal(mesh, mesh.get_halfedge(twin).face);
+  if (!normalA || !normalB)
+  {
+    return std::nullopt;
+  }
+  return linal::dot(*normalA, *normalB) < cosThreshold;
+}
+
 } // namespace detail
 
 /**
@@ -260,20 +286,15 @@ void mark_creases_by_angle(TriangleHalfedgeMesh<T, 3, TIndex>& mesh, T creaseAng
   const T cosThreshold = std::cos(creaseAngle);
   for (const auto edge: mesh.edges())
   {
-    const auto halfedge = mesh.get_edge(edge).halfedge;
-    const auto twin = mesh.get_halfedge(halfedge).twin;
-    const auto faceA = mesh.get_halfedge(halfedge).face;
-    const auto faceB = mesh.get_halfedge(twin).face;
-    if (!faceA.is_valid() || !faceB.is_valid())
+    if (mesh.is_boundary(edge))
     {
-      mesh.set_crease(edge, true); // boundary edge
+      mesh.set_crease(edge, true);
       continue;
     }
-    const auto normalA = detail::mesh_face_normal(mesh, faceA);
-    const auto normalB = detail::mesh_face_normal(mesh, faceB);
-    if (!normalA || !normalB)
+    const std::optional<bool> sharp = detail::exceeds_crease_angle(mesh, edge, cosThreshold);
+    if (!sharp)
       continue; // degenerate face: leave the edge as-is
-    mesh.set_crease(edge, linal::dot(*normalA, *normalB) < cosThreshold);
+    mesh.set_crease(edge, *sharp);
   }
 }
 
