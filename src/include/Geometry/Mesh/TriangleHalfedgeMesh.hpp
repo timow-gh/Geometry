@@ -1036,7 +1036,8 @@ public:
 
   // Returns the halfedge running from `from` to `to`, or an invalid handle if none exists. Walks the
   // outgoing fan around `from` via the twin/next orbit, comparing each outgoing halfedge's target.
-  // O(degree(from)). Mirrors OpenMesh find_halfedge and replaces a persistent directed-edge map. The
+  // O(degree(from)). Walking the fan replaces a persistent directed-edge map, which every edit would
+  // have to keep in sync. The
   // orbit is bounded by the halfedge count so a non-closing fan on a raw-view-built mesh reports "not
   // found" instead of looping forever (keeps has_valid_connectivity safe on corrupt input).
   GEO_NODISCARD HalfedgeHandle find_halfedge(VertexHandle from, VertexHandle to) const noexcept
