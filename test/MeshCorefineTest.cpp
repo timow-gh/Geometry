@@ -253,6 +253,47 @@ TEST(MeshCorefineTest, refinement_maps_every_key_to_one_vertex_per_mesh)
   EXPECT_EQ(marked(refinementB.isIntersectionEdge), graph.segments.size());
 }
 
+// A tetrahedron with its apex inside the box [0, 2]^3 and its base above it, so that its three side
+// faces cross the box's top face and the diagonal splitting it. Two-decimal coordinates are not
+// representable, so intersection points are rounded.
+Mesh make_piercing_tetrahedron()
+{
+  return make_mesh({Vec3{1.34, 1.24, 1.65}, Vec3{1.61, 1.35, 2.48}, Vec3{0.42, 1.39, 2.30}, Vec3{1.03, 0.30, 2.82}},
+                   {Triangle{0, 2, 1}, Triangle{0, 3, 2}, Triangle{0, 1, 3}, Triangle{1, 2, 3}});
+}
+
+TEST(MeshCorefineTest, collinear_points_split_the_edge_they_lie_on)
+{
+  // A side face of the tetrahedron crosses the box's top face along a line through three points: where
+  // it enters the top face, where it crosses the diagonal, and where it leaves. Once the entry and exit
+  // points are joined by a sub-edge, the diagonal point lies on it, but its rounded position does not.
+  // Only deciding by the points' definitions splits that sub-edge; deciding by rounded positions left a
+  // sliver face.
+  const Vec3 min{0.0, 0.0, 0.0};
+  const Vec3 max{2.0, 2.0, 2.0};
+  Mesh meshA = make_box(min, max);
+  Mesh meshB = make_piercing_tetrahedron();
+  const double volumeB = signed_volume(meshB);
+
+  const Result result = corefine(meshA, meshB);
+  ASSERT_TRUE(result.has_value());
+
+  for (const Mesh* mesh : {&meshA, &meshB})
+  {
+    expect_closed_manifold(*mesh);
+    for (const FaceHandle face : mesh->faces())
+    {
+      EXPECT_GT(linal::length(face_normal(*mesh, face)), 1e-9) << "sliver face " << face.get_value();
+    }
+  }
+  EXPECT_NEAR(signed_volume(meshA), 8.0, tolerance);
+  EXPECT_NEAR(signed_volume(meshB), volumeB, tolerance);
+  expect_faces_on_box(meshA, min, max);
+  expect_matching_curves(meshA, meshB, result);
+  EXPECT_TRUE(forms_closed_loops(meshA, result.intersectionEdgesA));
+  EXPECT_EQ(curve_component_count(meshA, result.intersectionEdgesA), 1U);
+}
+
 TEST(MeshCorefineTest, cylinder_through_box_gets_two_loops)
 {
   // The axis avoids the box diagonals x = y, so no side edge of the cylinder hits one exactly.

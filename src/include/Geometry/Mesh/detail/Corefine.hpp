@@ -9,6 +9,7 @@
 #include "Geometry/Predicates.hpp"
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
+#include "Geometry/detail/FixedVector.hpp"
 #include "Geometry/detail/ImplicitPoint.hpp"
 #include "Geometry/detail/TriangleOrientation.hpp"
 
@@ -19,6 +20,7 @@
 #include <limits>
 #include <linal/vec.hpp>
 #include <numeric>
+#include <optional>
 #include <span>
 #include <utility>
 #include <vector>
@@ -98,6 +100,98 @@ GEO_NODISCARD ImplicitPoint<T> implicit_point_of(const TriangleHalfedgeMesh<T, 3
 
 /**
  * \internal
+ * \brief Input corners of the simplex an intersection point lies on, in one operand: one for a vertex,
+ * two for an edge, three for a face.
+ */
+template <typename T>
+using SimplexCorners = FixedVector<linal::vec3<T>, 3>;
+
+/**
+ * \internal
+ * \brief Whether the input points \p first, \p second and \p third lie on one line.
+ *
+ * Three points are collinear iff their projections onto all three coordinate planes are, so this is
+ * as exact as \c orient2d. O(1).
+ */
+template <typename T>
+GEO_NODISCARD bool are_collinear(const linal::vec3<T>& first, const linal::vec3<T>& second, const linal::vec3<T>& third) noexcept
+{
+  for (std::uint8_t axis = 0; axis < 3; ++axis)
+  {
+    if (orient2d(detail::project_dropping_axis(first, axis), detail::project_dropping_axis(second, axis), detail::project_dropping_axis(third, axis))
+        != Orientation::Zero)
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+/**
+ * \internal
+ * \brief Three of \p points that span a plane, or \c std::nullopt if all lie on one line. O(n).
+ */
+template <typename T>
+GEO_NODISCARD std::optional<std::array<linal::vec3<T>, 3>> find_spanning_triangle(const std::span<const linal::vec3<T>> points) noexcept
+{
+  for (std::size_t i = 1; i < points.size(); ++i)
+  {
+    for (std::size_t j = i + 1; j < points.size(); ++j)
+    {
+      if (!detail::are_collinear(points[0], points[i], points[j]))
+      {
+        return std::array<linal::vec3<T>, 3>{points[0], points[i], points[j]};
+      }
+    }
+  }
+  return std::nullopt;
+}
+
+/**
+ * \internal
+ * \brief The \c SimplexCorners on \p operand of every point of \p graph, by point index.
+ *
+ * Read from the unrefined mesh: refinement keeps every vertex position but reassigns the vertices of
+ * original edges and faces. O(k) for k points.
+ */
+template <typename T, typename TIndex>
+GEO_NODISCARD std::vector<SimplexCorners<T>> make_simplex_corners(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
+                                                                  const IntersectionGraph<T, TIndex>& graph,
+                                                                  const Operand operand)
+{
+  using Mesh = TriangleHalfedgeMesh<T, 3, TIndex>;
+  using VertexHandle = typename Mesh::VertexHandle;
+  using HalfedgeHandle = typename Mesh::HalfedgeHandle;
+  using EdgeHandle = typename Mesh::EdgeHandle;
+  using FaceHandle = typename Mesh::FaceHandle;
+
+  std::vector<SimplexCorners<T>> corners(graph.keys.size());
+  for (std::size_t i = 0; i < graph.keys.size(); ++i)
+  {
+    const MeshSimplex<TIndex> simplex = detail::simplex_on(graph.keys[i], operand);
+    switch (simplex.kind)
+    {
+    case SimplexKind::Vertex: corners[i].push_back(mesh.get_position(VertexHandle{simplex.index})); break;
+    case SimplexKind::Edge:
+    {
+      const HalfedgeHandle halfedge = mesh.get_edge(EdgeHandle{simplex.index}).halfedge;
+      corners[i].push_back(mesh.get_position(mesh.source_vertex(halfedge)));
+      corners[i].push_back(mesh.get_position(mesh.target_vertex(halfedge)));
+      break;
+    }
+    case SimplexKind::Face:
+      for (const VertexHandle vertex : mesh.vertices_around_face(FaceHandle{simplex.index}))
+      {
+        corners[i].push_back(mesh.get_position(vertex));
+      }
+      break;
+    }
+  }
+  return corners;
+}
+
+/**
+ * \internal
  * \brief Refines one operand along an \c IntersectionGraph: inserts every intersection point as a
  * vertex, then makes every intersection segment an edge.
  *
@@ -122,12 +216,17 @@ public:
   using Point = ImplicitPoint<T>;
   using Refinement = OperandRefinement<T, TIndex>;
 
-  /** \pre \p graph was computed with \p mesh as \p operand, and \p mesh has not changed since. */
-  OperandRefiner(Mesh& mesh, const Graph& graph, const Operand operand) noexcept
+  /**
+   * \pre \p graph was computed with \p mesh as \p operand, and \p mesh has not changed since.
+   * \p otherCorners are the \c make_simplex_corners of the other operand.
+   */
+  OperandRefiner(Mesh& mesh, const Graph& graph, const Operand operand, const std::span<const SimplexCorners<T>> otherCorners) noexcept
       : m_mesh(&mesh)
       , m_graph(&graph)
       , m_operand(operand)
+      , m_otherCorners(otherCorners)
   {
+    GEO_ASSERT(otherCorners.size() == graph.points.size());
   }
 
   /**
@@ -168,6 +267,14 @@ private:
     Orientation orientation{Orientation::Zero};
   };
 
+  // A point of an original face, with its graph point index (no_intersection_point for an input vertex
+  // that is none), so that predicates can look at its definition.
+  struct FacePoint
+  {
+    Point point;
+    std::size_t index{no_intersection_point};
+  };
+
   // The points of one original edge, in order from its stored halfedge's source to end.
   struct EdgeRun
   {
@@ -197,6 +304,7 @@ private:
     m_inSubFaces.assign(mesh.face_storage_size(), false);
 
     m_frames.assign(mesh.face_storage_size(), FaceFrame{});
+    m_faceCorners.assign(mesh.face_storage_size(), {});
     for (const FaceHandle face : mesh.faces())
     {
       const std::array<VertexHandle, 3> corners = mesh.vertices_around_face(face);
@@ -208,12 +316,85 @@ private:
                                                detail::project_dropping_axis(second, axis),
                                                detail::project_dropping_axis(third, axis));
       m_frames[face.get_value()] = FaceFrame{axis, orientation};
+      m_faceCorners[face.get_value()] = {first, second, third};
     }
   }
 
   GEO_NODISCARD Point implicit_point(const VertexHandle vertex) const noexcept
   {
     return detail::implicit_point_of(*m_mesh, m_refinement, *m_graph, vertex);
+  }
+
+  /** \brief \p vertex as a \c FacePoint. O(1). */
+  GEO_NODISCARD FacePoint face_point(const VertexHandle vertex) const noexcept
+  {
+    return FacePoint{implicit_point(vertex), m_refinement.pointOfVertex[vertex.get_value()]};
+  }
+
+  /** \brief Graph point \p point as a \c FacePoint. O(1). */
+  GEO_NODISCARD FacePoint face_point_of(const std::size_t point) const noexcept
+  {
+    return FacePoint{m_graph->points[point], point};
+  }
+
+  /**
+   * \brief Whether \p points, three intersection points in original face \p faceValue, lie on one line
+   * by construction, decided from what they lie on rather than from their rounded positions.
+   *
+   * Each intersection point lies on a simplex of the other operand. If the corners of the three
+   * simplices all lie in one plane P, the points lie in P and in the plane of \p faceValue, hence on the
+   * line where the two planes meet, unless \p faceValue lies in P (coplanar contact, where the points
+   * span the plane). If the corners all lie on one line, so do the points.
+   *
+   * This is the common case, not a rare one: where a surface crosses a planar region of the other
+   * operand that is split into several triangles (a box side, a cylinder's side quad), each point where
+   * it crosses an edge inside the region is exactly collinear with the points where it enters and leaves
+   * the region. The rounded positions are not collinear, so \c orient2d on them would place the point
+   * beside the sub-edge it lies on, and the split would leave a sliver face.
+   *
+   * Uses \c orient2d and \c orient3d on input points only, so it is exact once they are. Points
+   * collinear for other reasons, or involving input vertices that are no intersection points, are left
+   * to the rounded predicates. O(1).
+   */
+  GEO_NODISCARD bool are_collinear_by_definition(const std::array<std::size_t, 3>& points, const TIndex faceValue) const noexcept
+  {
+    using Vec3 = linal::vec3<T>;
+
+    if (std::ranges::find(points, no_intersection_point) != points.end())
+    {
+      return false;
+    }
+    FixedVector<Vec3, 9> corners;
+    for (const std::size_t point : points)
+    {
+      for (const Vec3& corner : m_otherCorners[point])
+      {
+        corners.push_back(corner);
+      }
+    }
+    const std::optional<std::array<Vec3, 3>> plane = detail::find_spanning_triangle(corners.span());
+    if (!plane)
+    {
+      // All corners on one line; distinct points never share a single corner.
+      return true;
+    }
+    const auto inPlane = [&plane](const Vec3& corner) {
+      return orient3d((*plane)[0], (*plane)[1], (*plane)[2], corner) == Orientation::Zero;
+    };
+    return std::ranges::all_of(corners, inPlane) && !std::ranges::all_of(m_faceCorners[faceValue], inPlane);
+  }
+
+  /**
+   * \brief \c orient2d of three points of original face \p faceValue in its projection, \c Zero for
+   * points collinear by construction (see \c are_collinear_by_definition). O(1).
+   */
+  GEO_NODISCARD Orientation orient_in_face(const FacePoint& first, const FacePoint& second, const FacePoint& query, const TIndex faceValue) const noexcept
+  {
+    if (are_collinear_by_definition({first.index, second.index, query.index}, faceValue))
+    {
+      return Orientation::Zero;
+    }
+    return orient2d(first.point, second.point, query.point, m_frames[faceValue].axis);
   }
 
   void register_point(const std::size_t point, const VertexHandle vertex) noexcept
@@ -371,22 +552,23 @@ private:
         return;
       }
       collect_sub_faces(FaceHandle{faceValue});
-      inserted = std::ranges::all_of(points, [&](const std::size_t point) { return insert_face_point(point, frame); });
+      inserted = std::ranges::all_of(points, [&](const std::size_t point) { return insert_face_point(point, faceValue); });
       release_sub_faces();
     });
     return inserted;
   }
 
   /**
-   * \brief Locates \p point among the collected parts of its original face and splits the part, or
-   * the inner edge it lies on.
+   * \brief Locates \p point among the collected parts of its original face \p faceValue and splits the
+   * part, or the inner edge it lies on.
    *
    * O(parts of the face).
    */
-  GEO_NODISCARD bool insert_face_point(const std::size_t point, const FaceFrame frame)
+  GEO_NODISCARD bool insert_face_point(const std::size_t point, const TIndex faceValue)
   {
     const Mesh& mesh = *m_mesh;
     const Point& intersection = m_graph->points[point];
+    const FacePoint query = face_point_of(point);
     for (std::size_t i = 0; i < m_subFaces.size(); ++i)
     {
       const FaceHandle subFace = m_subFaces[i];
@@ -394,10 +576,11 @@ private:
       std::array<Orientation, 3> sideOfPoint{};
       for (std::size_t j = 0; j < 3; ++j)
       {
-        // Point location runs on rounded intersection points, so it is only as exact as the
-        // ImplicitPoint predicates (see detail::ImplicitPoint).
-        const Orientation side = orient2d(implicit_point(mesh.source_vertex(sides[j])), implicit_point(mesh.target_vertex(sides[j])), intersection, frame.axis);
-        sideOfPoint[j] = detail::multiply_signs(side, frame.orientation);
+        // Point location runs on rounded intersection points, so beyond collinearity by construction
+        // it is only as exact as the ImplicitPoint predicates (see detail::ImplicitPoint).
+        const Orientation side =
+            orient_in_face(face_point(mesh.source_vertex(sides[j])), face_point(mesh.target_vertex(sides[j])), query, faceValue);
+        sideOfPoint[j] = detail::multiply_signs(side, m_frames[faceValue].orientation);
       }
       if (std::ranges::find(sideOfPoint, Orientation::Negative) != sideOfPoint.end())
       {
@@ -501,7 +684,7 @@ private:
     if (!halfedge.is_valid())
     {
       const FaceFrame frame = m_frames[faceValue];
-      if (frame.orientation == Orientation::Zero || !flip_until_edge(faceValue, first, second, frame))
+      if (frame.orientation == Orientation::Zero || !flip_until_edge(faceValue, first, second))
       {
         return false;
       }
@@ -521,11 +704,11 @@ private:
 
   /**
    * \brief Side of the directed line through \p first and \p second for \p vertex, normalized so that
-   * \c Positive is left in the original face.
+   * \c Positive is left in original face \p faceValue.
    */
-  GEO_NODISCARD Orientation side_of_segment(const Point& first, const Point& second, const VertexHandle vertex, const FaceFrame frame) const noexcept
+  GEO_NODISCARD Orientation side_of_segment(const FacePoint& first, const FacePoint& second, const VertexHandle vertex, const TIndex faceValue) const noexcept
   {
-    return detail::multiply_signs(orient2d(first, second, implicit_point(vertex), frame.axis), frame.orientation);
+    return detail::multiply_signs(orient_in_face(first, second, face_point(vertex), faceValue), m_frames[faceValue].orientation);
   }
 
   /**
@@ -538,11 +721,11 @@ private:
    * \return False if the segment would cross an edge that must stay (along an original edge, or a
    * recovered segment), leave the face, or pass through a vertex.
    */
-  GEO_NODISCARD bool collect_crossing_edges(const TIndex faceValue, const VertexHandle first, const VertexHandle second, const FaceFrame frame)
+  GEO_NODISCARD bool collect_crossing_edges(const TIndex faceValue, const VertexHandle first, const VertexHandle second)
   {
     const Mesh& mesh = *m_mesh;
-    const Point firstPoint = implicit_point(first);
-    const Point secondPoint = implicit_point(second);
+    const FacePoint firstPoint = face_point(first);
+    const FacePoint secondPoint = face_point(second);
     m_crossingEdges.clear();
 
     // The part (first, right, left) the segment leaves through has right strictly right of the segment
@@ -555,8 +738,8 @@ private:
       if (!mesh.is_boundary(outgoing) && m_originalFace[mesh.get_halfedge(outgoing).face.get_value()] == faceValue)
       {
         const HalfedgeHandle opposite = mesh.get_halfedge(outgoing).next;
-        if (side_of_segment(firstPoint, secondPoint, mesh.target_vertex(outgoing), frame) == Orientation::Negative
-            && side_of_segment(firstPoint, secondPoint, mesh.target_vertex(opposite), frame) == Orientation::Positive)
+        if (side_of_segment(firstPoint, secondPoint, mesh.target_vertex(outgoing), faceValue) == Orientation::Negative
+            && side_of_segment(firstPoint, secondPoint, mesh.target_vertex(opposite), faceValue) == Orientation::Positive)
         {
           crossing = opposite;
           break;
@@ -591,7 +774,7 @@ private:
       }
       // The entered part is (left, right, apex): leave through apex -> left if apex is right of the
       // segment, through right -> apex otherwise.
-      const Orientation apexSide = side_of_segment(firstPoint, secondPoint, apex, frame);
+      const Orientation apexSide = side_of_segment(firstPoint, secondPoint, apex, faceValue);
       if (apexSide == Orientation::Zero)
       {
         return false;
@@ -602,22 +785,25 @@ private:
   }
 
   /**
-   * \brief Whether the two faces of \p edge form a strictly convex quad in \p frame's projection, so
-   * that flipping the edge keeps both faces' orientation.
+   * \brief Whether the two faces of \p edge form a strictly convex quad in the projection of original
+   * face \p faceValue, so that flipping the edge keeps both faces' orientation.
    */
-  GEO_NODISCARD bool is_strictly_convex_quad(const EdgeHandle edge, const FaceFrame frame) const noexcept
+  GEO_NODISCARD bool is_strictly_convex_quad(const EdgeHandle edge, const TIndex faceValue) const noexcept
   {
     const Mesh& mesh = *m_mesh;
     const HalfedgeHandle forward = mesh.get_edge(edge).halfedge;
     const HalfedgeHandle backward = mesh.get_halfedge(forward).twin;
-    const Point start = implicit_point(mesh.source_vertex(forward));
-    const Point end = implicit_point(mesh.target_vertex(forward));
-    const Point left = implicit_point(mesh.target_vertex(mesh.get_halfedge(forward).next));
-    const Point right = implicit_point(mesh.target_vertex(mesh.get_halfedge(backward).next));
-    // Flip convexity runs on rounded intersection points, so it is only as exact as the ImplicitPoint
-    // predicates (see detail::ImplicitPoint).
-    return detail::multiply_signs(orient2d(start, end, left, frame.axis), orient2d(start, end, right, frame.axis)) == Orientation::Negative
-           && detail::multiply_signs(orient2d(left, right, start, frame.axis), orient2d(left, right, end, frame.axis)) == Orientation::Negative;
+    const FacePoint start = face_point(mesh.source_vertex(forward));
+    const FacePoint end = face_point(mesh.target_vertex(forward));
+    const FacePoint left = face_point(mesh.target_vertex(mesh.get_halfedge(forward).next));
+    const FacePoint right = face_point(mesh.target_vertex(mesh.get_halfedge(backward).next));
+    // Flip convexity runs on rounded intersection points, so beyond collinearity by construction it is
+    // only as exact as the ImplicitPoint predicates (see detail::ImplicitPoint).
+    const auto opposite = [&](const FacePoint& lineStart, const FacePoint& lineEnd, const FacePoint& first, const FacePoint& second) {
+      return detail::multiply_signs(orient_in_face(lineStart, lineEnd, first, faceValue), orient_in_face(lineStart, lineEnd, second, faceValue))
+             == Orientation::Negative;
+    };
+    return opposite(start, end, left, right) && opposite(left, right, start, end);
   }
 
   /**
@@ -628,15 +814,15 @@ private:
    * one edge and the loop ends; with contradicting ones a pass without a flip, or a flip budget of
    * n^2 + n for n crossings, ends it with a failure instead of looping. O(n^2) flips.
    */
-  GEO_NODISCARD bool flip_until_edge(const TIndex faceValue, const VertexHandle first, const VertexHandle second, const FaceFrame frame)
+  GEO_NODISCARD bool flip_until_edge(const TIndex faceValue, const VertexHandle first, const VertexHandle second)
   {
     Mesh& mesh = *m_mesh;
-    if (!collect_crossing_edges(faceValue, first, second, frame))
+    if (!collect_crossing_edges(faceValue, first, second))
     {
       return false;
     }
-    const Point firstPoint = implicit_point(first);
-    const Point secondPoint = implicit_point(second);
+    const FacePoint firstPoint = face_point(first);
+    const FacePoint secondPoint = face_point(second);
     const std::size_t crossingCount = m_crossingEdges.size();
     std::size_t flipBudget = crossingCount * crossingCount + crossingCount;
 
@@ -647,7 +833,7 @@ private:
       for (std::size_t i = 0; i < m_crossingEdges.size(); ++i)
       {
         const EdgeHandle edge = m_crossingEdges[i];
-        if (flipBudget == 0 || !is_strictly_convex_quad(edge, frame) || is_flip_ok(mesh, edge) != FlipStatus::Ok)
+        if (flipBudget == 0 || !is_strictly_convex_quad(edge, faceValue) || is_flip_ok(mesh, edge) != FlipStatus::Ok)
         {
           m_crossingEdges[kept++] = edge;
           continue;
@@ -660,7 +846,7 @@ private:
         const VertexHandle end = mesh.target_vertex(forward);
         const bool touchesSegment = start == first || start == second || end == first || end == second;
         if (!touchesSegment
-            && detail::multiply_signs(side_of_segment(firstPoint, secondPoint, start, frame), side_of_segment(firstPoint, secondPoint, end, frame))
+            && detail::multiply_signs(side_of_segment(firstPoint, secondPoint, start, faceValue), side_of_segment(firstPoint, secondPoint, end, faceValue))
                    == Orientation::Negative)
         {
           m_crossingEdges[kept++] = edge;
@@ -733,10 +919,14 @@ private:
   Mesh* m_mesh;
   const Graph* m_graph;
   Operand m_operand;
+  // By point index: the corners of the other operand's simplex the point lies on.
+  std::span<const SimplexCorners<T>> m_otherCorners;
   Refinement m_refinement;
 
   // By original face storage index.
   std::vector<FaceFrame> m_frames;
+  // By original face storage index: the face's corners before refinement.
+  std::vector<std::array<linal::vec3<T>, 3>> m_faceCorners;
   // By face storage index: the original face each face lies in.
   std::vector<TIndex> m_originalFace;
   // By edge storage index: whether the edge is (a piece of) an original edge. Those edges are never
@@ -857,8 +1047,11 @@ GEO_NODISCARD CorefinementResult<T, TIndex> corefine_in_place(TriangleHalfedgeMe
     return Result{{}, CorefineStatus::DegenerateIntersection};
   }
 
-  Refiner refinerA(meshA, graphResult.graph, Operand::A);
-  Refiner refinerB(meshB, graphResult.graph, Operand::B);
+  // Both before either mesh is refined: refinement reassigns the vertices of original edges and faces.
+  const std::vector<SimplexCorners<T>> cornersOnA = detail::make_simplex_corners(meshA, graphResult.graph, Operand::A);
+  const std::vector<SimplexCorners<T>> cornersOnB = detail::make_simplex_corners(meshB, graphResult.graph, Operand::B);
+  Refiner refinerA(meshA, graphResult.graph, Operand::A, std::span<const SimplexCorners<T>>{cornersOnB});
+  Refiner refinerB(meshB, graphResult.graph, Operand::B, std::span<const SimplexCorners<T>>{cornersOnA});
   if (refinerA.refine() != CorefineStatus::Ok || refinerB.refine() != CorefineStatus::Ok)
   {
     return Result{{}, CorefineStatus::DegenerateIntersection};

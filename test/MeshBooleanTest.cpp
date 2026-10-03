@@ -281,6 +281,28 @@ TEST(MeshBooleanTest, identical_boxes)
   expect_empty(mesh_difference(box, box));
 }
 
+TEST(MeshBooleanTest, tetrahedron_through_box_face)
+{
+  // Its side faces cross the box's top face along lines through three collinear intersection points
+  // each (see MeshCorefineTest.collinear_points_split_the_edge_they_lie_on); deciding by rounded
+  // positions left a sliver that the classification read as coplanar contact.
+  const Mesh box = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{2.0, 2.0, 2.0});
+  const Mesh tetrahedron = make_mesh({Vec3{1.34, 1.24, 1.65}, Vec3{1.61, 1.35, 2.48}, Vec3{0.42, 1.39, 2.30}, Vec3{1.03, 0.30, 2.82}},
+                                     {Triangle{0, 2, 1}, Triangle{0, 3, 2}, Triangle{0, 1, 3}, Triangle{1, 2, 3}});
+  const double volume = signed_volume(tetrahedron);
+
+  const Result common = mesh_intersection(box, tetrahedron);
+  ASSERT_TRUE(common.has_value());
+  const double commonVolume = signed_volume(common.mesh);
+  EXPECT_GT(commonVolume, 0.0);
+  EXPECT_LT(commonVolume, volume);
+  expect_solid(common, 1, 2, commonVolume);
+  expect_solid(mesh_union(box, tetrahedron), 1, 2, 8.0 + volume - commonVolume);
+  // A pocket opening in the top face.
+  expect_solid(mesh_difference(box, tetrahedron), 1, 2, 8.0 - commonVolume);
+  expect_solid(mesh_difference(tetrahedron, box), 1, 2, volume - commonVolume);
+}
+
 TEST(MeshBooleanTest, cylinder_through_box)
 {
   // The axis avoids the box diagonals x = y, so no side edge of the cylinder hits one exactly.
