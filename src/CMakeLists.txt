@@ -24,6 +24,8 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/MeshSplit.hpp
         include/Geometry/Mesh/MeshFlip.hpp
         include/Geometry/Mesh/MeshFromTriangles.hpp
+        include/Geometry/Mesh/MeshCorefineStatus.hpp
+        include/Geometry/Mesh/MeshCorefine.hpp
         include/Geometry/Mesh/detail/MeshConnectivity.hpp
         include/Geometry/Mesh/detail/MeshResult.hpp
         include/Geometry/Mesh/detail/FaceGeometry.hpp
@@ -32,6 +34,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/detail/VertexStar.hpp
         include/Geometry/Mesh/detail/MeshEditing.hpp
         include/Geometry/Mesh/detail/BooleanIntersection.hpp
+        include/Geometry/Mesh/detail/Corefine.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectAABBHelper.hpp

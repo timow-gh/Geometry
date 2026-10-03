@@ -701,6 +701,26 @@ public:
     return std::span<const std::size_t>{m_items}.subspan(offset, count);
   }
 
+  /**
+   * \brief Calls \p callback(element, items) once per element that has items, in increasing element
+   * order. O(n).
+   */
+  template <typename TCallback>
+  void for_each_group(TCallback&& callback) const
+  {
+    std::size_t begin = 0;
+    while (begin < m_elements.size())
+    {
+      std::size_t end = begin + 1;
+      while (end < m_elements.size() && m_elements[end] == m_elements[begin])
+      {
+        ++end;
+      }
+      callback(m_elements[begin], std::span<const std::size_t>{m_items}.subspan(begin, end - begin));
+      begin = end;
+    }
+  }
+
   /** \brief Number of (element, item) entries. */
   GEO_NODISCARD std::size_t size() const noexcept { return m_items.size(); }
 
