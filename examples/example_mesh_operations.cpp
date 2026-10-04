@@ -46,7 +46,10 @@ constexpr std::size_t decimatedVertexCount = 45;
 
 // The default corner limit only rejects nearly flat triangles. On the wavy surface that still lets
 // the removal operators leave thin slivers standing edge-on across it, so ask for sounder triangles.
+// The default fold limit likewise lets a collapse turn a triangle over until it faces down, folded
+// 136 degrees against its neighbours; 120 still clears the cylinder's 90 degree creases.
 const Geometry::MeshGeometryLimits<double> decimationLimits{
+    .maxFoldAngle = std::numbers::pi * 120.0 / 180.0,
     .maxCornerAngle = std::numbers::pi * 150.0 / 180.0};
 
 // A wavy height field over [originX, originX + extent] x [originY, originY + extent], lifted above

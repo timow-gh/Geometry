@@ -40,8 +40,11 @@ constexpr std::size_t decimatedVertexCount = 45;
 
 // The limits the example decimates with. The default corner limit only rejects nearly flat
 // triangles; on this surface the operators then still leave slivers standing edge-on across it
-// (160 degrees still let one through), so the example demands 150.
-const MeshGeometryLimits<double> exampleLimits{.maxCornerAngle = std::numbers::pi * 150.0 / 180.0};
+// (160 degrees still let one through), so the example demands 150. The default fold limit lets a
+// collapse turn a triangle over until it faces down (136 degrees against its neighbours, with
+// libstdc++'s shuffle order); the cylinder's 90 degree creases still need room above 100.
+const MeshGeometryLimits<double> exampleLimits{.maxFoldAngle = std::numbers::pi * 120.0 / 180.0,
+                                               .maxCornerAngle = std::numbers::pi * 150.0 / 180.0};
 
 // The wavy height field of examples/example_mesh_operations.cpp, built in the same order, so these
 // tests replay the example's decimation exactly. Planar grids cannot expose fold-overs: in the plane a
