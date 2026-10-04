@@ -219,8 +219,11 @@ TEST(MeshBufferGarbageTest, IndexBuffersAddressCompactedVertexBuffer) {
     const auto expect_position = [&](BufferIndex index, TriangleHalfedgeMesh3d::VertexHandle vertex) {
         ASSERT_LT(index, mesh.vertex_count());
         const auto& expected = mesh.get_vertex(vertex).position;
+        const std::size_t offset = 3 * std::size_t{index};
+        // linal's size_type is signed, so the coordinate needs an explicit cast to index the buffer.
         for (linal::vec3<double>::size_type coordinate = 0; coordinate < 3; ++coordinate)
-            EXPECT_EQ(positions.values[3 * index + coordinate], static_cast<float>(expected[coordinate]));
+            EXPECT_EQ(positions.values[offset + static_cast<std::size_t>(coordinate)],
+                      static_cast<float>(expected[coordinate]));
     };
     std::size_t slot = 0;
     for (const auto face: mesh.faces())
