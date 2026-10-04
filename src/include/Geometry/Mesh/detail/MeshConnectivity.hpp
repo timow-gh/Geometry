@@ -1,15 +1,39 @@
-#ifndef GEOMETRY_MESH_MESHCONNECTIVITY_HPP
-#define GEOMETRY_MESH_MESHCONNECTIVITY_HPP
+#ifndef GEOMETRY_MESH_DETAIL_MESHCONNECTIVITY_HPP
+#define GEOMETRY_MESH_DETAIL_MESHCONNECTIVITY_HPP
 
 #include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include "Geometry/Utils/Constness.hpp"
+#include <algorithm>
 #include <array>
 #include <type_traits>
 #include <vector>
 
 namespace Geometry
 {
+
+namespace detail
+{
+
+/**
+ * \internal
+ * \brief Ensures \p storage can take \p additional appends without reallocating.
+ *
+ * Grows geometrically rather than to the exact size: the mesh operators reserve once per call, and
+ * a decimation pass calls them once per element, so exact-size reserves would reallocate and copy
+ * all storage on every call. Amortized O(additional).
+ */
+template <typename TElement>
+void reserve_additional(std::vector<TElement>& storage, typename std::vector<TElement>::size_type additional)
+{
+  const auto required = storage.size() + additional;
+  if (required > storage.capacity())
+  {
+    storage.reserve(std::max(required, 2 * storage.capacity()));
+  }
+}
+
+} // namespace detail
 
 /**
  * \brief Low-level connectivity kernel view for \c TriangleHalfedgeMesh -- the "unchecked" tier of
@@ -62,11 +86,13 @@ class MeshConnectivityView
         requires(is_const(C) && !is_const(Other))
         : m_mesh(other.m_mesh) {}
 
-    // --- element counts -----------------------------------------------------------------
-    GEO_NODISCARD size_type vertex_count() const noexcept { return m_mesh->m_vertices.size(); }
-    GEO_NODISCARD size_type halfedge_count() const noexcept { return m_mesh->m_halfedges.size(); }
-    GEO_NODISCARD size_type face_count() const noexcept { return m_mesh->m_faces.size(); }
-    GEO_NODISCARD size_type edge_count() const noexcept { return m_mesh->m_edges.size(); }
+    // --- storage sizes --------------------------------------------------------------------
+    // Raw storage sizes, tombstoned elements included: the next handle value new_* will hand out, and
+    // the truncation point resize_* rolls back to.
+    GEO_NODISCARD size_type vertex_storage_size() const noexcept { return m_mesh->m_vertices.size(); }
+    GEO_NODISCARD size_type halfedge_storage_size() const noexcept { return m_mesh->m_halfedges.size(); }
+    GEO_NODISCARD size_type face_storage_size() const noexcept { return m_mesh->m_faces.size(); }
+    GEO_NODISCARD size_type edge_storage_size() const noexcept { return m_mesh->m_edges.size(); }
 
     // --- raw element access -------------------------------------------------------------
     GEO_NODISCARD VertexRef vertex(VertexHandle handle) const noexcept { return m_mesh->get_vertex(handle); }
@@ -76,6 +102,18 @@ class MeshConnectivityView
 
     GEO_NODISCARD bool contains(HalfedgeHandle handle) const noexcept { return m_mesh->contains(handle); }
     GEO_NODISCARD bool contains(VertexHandle handle) const noexcept { return m_mesh->contains(handle); }
+    GEO_NODISCARD bool contains(FaceHandle handle) const noexcept { return m_mesh->contains(handle); }
+    GEO_NODISCARD bool contains(EdgeHandle handle) const noexcept { return m_mesh->contains(handle); }
+
+    GEO_NODISCARD bool is_deleted(VertexHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
+    GEO_NODISCARD bool is_deleted(HalfedgeHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
+    GEO_NODISCARD bool is_deleted(FaceHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
+    GEO_NODISCARD bool is_deleted(EdgeHandle handle) const noexcept { return m_mesh->is_deleted(handle); }
+
+    GEO_NODISCARD bool is_live(VertexHandle handle) const noexcept { return m_mesh->is_live(handle); }
+    GEO_NODISCARD bool is_live(HalfedgeHandle handle) const noexcept { return m_mesh->is_live(handle); }
+    GEO_NODISCARD bool is_live(FaceHandle handle) const noexcept { return m_mesh->is_live(handle); }
+    GEO_NODISCARD bool is_live(EdgeHandle handle) const noexcept { return m_mesh->is_live(handle); }
 
     // --- connectivity lookup ------------------------------------------------------------
     /**
@@ -125,12 +163,53 @@ class MeshConnectivityView
       return handle;
     }
 
+    /**
+     * \brief Tombstones an element: sets its deleted flag and updates the live counts.
+     *
+     * Nothing is relinked -- the caller must first detach the element so that no live element still
+     * references it, or \c has_valid_connectivity() fails and \c garbage_collection() asserts.
+     * Deleting an edge deletes both of its halfedges. Precondition: not already deleted.
+     */
+    void mark_deleted(VertexHandle handle) const noexcept requires(!is_const(C)) { m_mesh->mark_deleted(handle); }
+    void mark_deleted(EdgeHandle handle) const noexcept requires(!is_const(C)) { m_mesh->mark_deleted(handle); }
+    void mark_deleted(FaceHandle handle) const noexcept requires(!is_const(C)) { m_mesh->mark_deleted(handle); }
+
+    /**
+     * \brief Makes \p next follow \p prev in a halfedge cycle, setting both directions of the link.
+     *
+     * The one place the next/prev reciprocity invariant is written, so removal operators cannot
+     * update one side and forget the other.
+     */
+    void link(HalfedgeHandle prev, HalfedgeHandle next) const noexcept requires(!is_const(C))
+    {
+      m_mesh->get_halfedge(prev).next = next;
+      m_mesh->get_halfedge(next).prev = prev;
+    }
+
+    /**
+     * \brief Re-establishes the boundary representative rule for \p vertex after its fan changed: a
+     * boundary vertex must store a boundary outgoing halfedge.
+     *
+     * Removal operators call this for every vertex whose fan they edited. Precondition: the stored
+     * halfedge is a live outgoing halfedge of \p vertex. O(valence).
+     */
+    void restore_boundary_representative(VertexHandle vertex) const noexcept requires(!is_const(C))
+    {
+      HalfedgeHandle& stored = m_mesh->get_vertex(vertex).halfedge;
+      GEO_ASSERT(stored.is_valid() && !m_mesh->is_deleted(stored));
+      const HalfedgeHandle boundary = m_mesh->find_outgoing_boundary(stored);
+      if (boundary.is_valid())
+      {
+        stored = boundary;
+      }
+    }
+
     // --- reserve / resize support for transactional rollback ----------------------------
     // reserve_* pre-grows storage so a transaction's appends never reallocate mid-way; resize_*
     // truncates back to a prior element count to undo the appends on rollback.
-    void reserve_faces(size_type additional) const requires(!is_const(C)) { m_mesh->m_faces.reserve(m_mesh->m_faces.size() + additional); }
-    void reserve_halfedges(size_type additional) const requires(!is_const(C)) { m_mesh->m_halfedges.reserve(m_mesh->m_halfedges.size() + additional); }
-    void reserve_edges(size_type additional) const requires(!is_const(C)) { m_mesh->m_edges.reserve(m_mesh->m_edges.size() + additional); }
+    void reserve_faces(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_faces, additional); }
+    void reserve_halfedges(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_halfedges, additional); }
+    void reserve_edges(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_edges, additional); }
 
     void resize_faces(size_type count) const requires(!is_const(C)) { m_mesh->m_faces.resize(count); }
     void resize_halfedges(size_type count) const requires(!is_const(C)) { m_mesh->m_halfedges.resize(count); }
@@ -139,4 +218,4 @@ class MeshConnectivityView
 
 } // namespace Geometry
 
-#endif // GEOMETRY_MESH_MESHCONNECTIVITY_HPP
+#endif // GEOMETRY_MESH_DETAIL_MESHCONNECTIVITY_HPP

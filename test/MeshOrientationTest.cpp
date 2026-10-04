@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 
 #include <array>
+#include <numbers>
 
 using namespace Geometry;
 
@@ -112,29 +113,4 @@ TEST(MeshOrientationTest, openOrEmptyMeshIsUndefined)
   const Mesh empty;
   EXPECT_EQ(mesh_orientation(empty), MeshOrientation::Undefined);
   EXPECT_EQ(is_outward_oriented(empty), std::nullopt);
-}
-
-// --- Degenerate faces -----------------------------------------------------------------------
-
-TEST(MeshOrientationTest, degenerateFaceDetected)
-{
-  Mesh mesh;
-  const VertexHandle vertex0 = mesh.add_vertex({0.0, 0.0, 0.0});
-  const VertexHandle vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
-  const VertexHandle vertex2 = mesh.add_vertex({2.0, 0.0, 0.0}); // collinear with the other two
-  const FaceHandle face = add_triangle(mesh, vertex0, vertex1, vertex2);
-  ASSERT_TRUE(face.is_valid());
-
-  EXPECT_TRUE(is_degenerate(mesh, face));
-  EXPECT_TRUE(has_degenerate_faces(mesh));
-}
-
-TEST(MeshOrientationTest, validMeshHasNoDegenerateFaces)
-{
-  const Mesh tetrahedron = make_tetrahedron();
-  EXPECT_FALSE(has_degenerate_faces(tetrahedron));
-  for (const FaceHandle face : tetrahedron.faces())
-  {
-    EXPECT_FALSE(is_degenerate(tetrahedron, face));
-  }
 }

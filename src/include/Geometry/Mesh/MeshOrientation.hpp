@@ -1,8 +1,7 @@
 #ifndef GEOMETRY_MESH_MESHORIENTATION_HPP
 #define GEOMETRY_MESH_MESHORIENTATION_HPP
 
-#include "Geometry/Mesh/MeshFaceGeometry.hpp"
-#include "Geometry/Mesh/MeshManifold.hpp"
+#include "Geometry/Mesh/MeshVerify.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 
@@ -52,9 +51,12 @@ GEO_NODISCARD bool is_consistently_oriented(const TriangleHalfedgeMesh<T, D, TIn
 
 /** \brief Global winding of a closed surface relative to its enclosed volume. */
 enum class MeshOrientation : std::uint8_t {
-  Outward,   ///< Face normals point away from the enclosed volume (positive signed volume).
-  Inward,    ///< Face normals point into the enclosed volume; flip every winding to correct.
-  Undefined  ///< Not a closed volume (open or empty), so "outward" has no meaning.
+  // Face normals point away from the enclosed volume (positive signed volume).
+  Outward,
+  // Face normals point into the enclosed volume; flip every winding to correct.
+  Inward,
+  // Not a closed volume (open or empty), so "outward" has no meaning.
+  Undefined
 };
 
 /**
@@ -120,40 +122,6 @@ GEO_NODISCARD std::optional<bool> is_outward_oriented(const TriangleHalfedgeMesh
     break;
   }
   return std::nullopt;
-}
-
-/**
- * \brief Whether a single face is geometrically degenerate -- zero area / collinear vertices, so it
- * has no well-defined normal or orientation.
- *
- * \return \c true if \p face has zero area.
- */
-template <typename T, typename TIndex>
-GEO_NODISCARD bool is_degenerate(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
-                                 typename TriangleHalfedgeMesh<T, 3, TIndex>::FaceHandle face)
-{
-  return detail::mesh_face_is_degenerate(mesh, face);
-}
-
-/**
- * \brief Whether any face of the mesh is degenerate.
- *
- * Run before normal- or orientation-dependent work: a single zero-area triangle leaves those
- * computations meaningless. O(F).
- *
- * \return \c true if at least one face has zero area.
- */
-template <typename T, typename TIndex>
-GEO_NODISCARD bool has_degenerate_faces(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh)
-{
-  for (const auto face : mesh.faces())
-  {
-    if (detail::mesh_face_is_degenerate(mesh, face))
-    {
-      return true;
-    }
-  }
-  return false;
 }
 
 } // namespace Geometry

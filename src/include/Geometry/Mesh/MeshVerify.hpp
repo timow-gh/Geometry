@@ -1,6 +1,7 @@
-#ifndef GEOMETRY_MESH_MESHMANIFOLD_HPP
-#define GEOMETRY_MESH_MESHMANIFOLD_HPP
+#ifndef GEOMETRY_MESH_MESHVERIFY_HPP
+#define GEOMETRY_MESH_MESHVERIFY_HPP
 
+#include "Geometry/Mesh/MeshTopology.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 #include <cstddef>
@@ -66,7 +67,7 @@ bounded_single_fan_size(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
     return std::size_t{0};
   }
 
-  const std::size_t limit = mesh.halfedge_count();
+  const std::size_t limit = mesh.halfedge_storage_size();
   std::size_t count = 0;
   HalfedgeHandle current = start;
   do
@@ -81,6 +82,31 @@ bounded_single_fan_size(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   return count;
 }
 
+/**
+ * \internal
+ * \brief Whether \p vertex has at most one outgoing boundary halfedge, i.e. at most one gap in its fan.
+ *
+ * Complements the orbit count: removal operators splice boundary loops locally, which can chain two
+ * fans meeting at a vertex (a bow-tie) into one twin.next orbit that reaches every outgoing halfedge,
+ * so only the number of boundary gaps exposes it. Precondition: the orbit closes. O(valence).
+ */
+template <typename T, std::uint8_t D, typename TIndex>
+GEO_NODISCARD bool has_single_boundary_gap(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+                                           typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex)
+{
+  using HalfedgeHandle = typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle;
+
+  const HalfedgeHandle start = mesh.get_vertex(vertex).halfedge;
+  std::size_t gapCount = 0;
+  HalfedgeHandle current = start;
+  do
+  {
+    gapCount += mesh.is_boundary(current) ? 1U : 0U;
+    current = mesh.next_in_outgoing_fan(current);
+  } while (current != start);
+  return gapCount <= 1;
+}
+
 } // namespace detail
 
 /**
@@ -89,7 +115,8 @@ bounded_single_fan_size(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
  *
  * Expensive, explicit check for one suspect vertex; use the whole-mesh overload to
  * check every vertex. It compares the single-fan orbit against an independent count of
- * halfedges sourced at the vertex, so an unreachable second fan is detected. O(H).
+ * halfedges sourced at the vertex, so an unreachable second fan is detected, and requires at
+ * most one boundary gap, so two fans chained into one orbit through the boundary are too. O(H).
  *
  * \return \c true if \p vertex is vertex-manifold.
  */
@@ -120,7 +147,7 @@ GEO_NODISCARD bool verify_vertex_manifold(const TriangleHalfedgeMesh<T, D, TInde
     }
   }
 
-  return *singleFanCount == incidentOutgoing;
+  return *singleFanCount == incidentOutgoing && detail::has_single_boundary_gap(mesh, vertex);
 }
 
 /**
@@ -138,7 +165,7 @@ GEO_NODISCARD bool verify_vertex_manifold(const TriangleHalfedgeMesh<T, D, TInde
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;
   using VertexHandle = typename Mesh::VertexHandle;
 
-  std::vector<std::size_t> outgoingCount(mesh.vertex_count(), 0);
+  std::vector<std::size_t> outgoingCount(mesh.vertex_storage_size(), 0);
   for (const HalfedgeHandle halfedge : mesh.halfedges())
   {
     ++outgoingCount[mesh.source_vertex(halfedge).get_value()];
@@ -151,7 +178,8 @@ GEO_NODISCARD bool verify_vertex_manifold(const TriangleHalfedgeMesh<T, D, TInde
       continue;
     }
     const std::optional<std::size_t> singleFanCount = detail::bounded_single_fan_size(mesh, vertex);
-    if (!singleFanCount || *singleFanCount != outgoingCount[vertex.get_value()])
+    if (!singleFanCount || *singleFanCount != outgoingCount[vertex.get_value()]
+        || !detail::has_single_boundary_gap(mesh, vertex))
     {
       return false;
     }
@@ -200,4 +228,4 @@ GEO_NODISCARD bool verify_closed(const TriangleHalfedgeMesh<T, D, TIndex>& mesh)
 
 } // namespace Geometry
 
-#endif // GEOMETRY_MESH_MESHMANIFOLD_HPP
+#endif // GEOMETRY_MESH_MESHVERIFY_HPP

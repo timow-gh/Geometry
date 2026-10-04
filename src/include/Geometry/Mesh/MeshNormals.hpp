@@ -1,14 +1,16 @@
 #ifndef GEOMETRY_MESH_MESHNORMALS_HPP
 #define GEOMETRY_MESH_MESHNORMALS_HPP
 
-#include "Geometry/Mesh/MeshFaceGeometry.hpp"
-#include "Geometry/Mesh/MeshResult.hpp"
+#include "Geometry/Mesh/detail/FaceGeometry.hpp"
+#include "Geometry/Mesh/detail/MeshResult.hpp"
 #include "Geometry/Mesh/TriangleHalfedgeMesh.hpp"
+#include "Geometry/Utils/Assert.hpp"
 #include "Geometry/Utils/Compiler.hpp"
 
 #include <algorithm>
 #include <cmath>
 #include <concepts>
+#include <cstdint>
 #include <vector>
 
 #include <linal/vec.hpp>
@@ -34,7 +36,8 @@ enum class MeshNormalStatus {
  */
 template <std::floating_point T>
 struct HalfedgeNormals {
-    std::vector<linal::vec3<T>> values; ///< One normal per halfedge; zero for boundary halfedges
+    // One normal per halfedge; zero for boundary halfedges.
+    std::vector<linal::vec3<T>> values;
     MeshNormalStatus error = MeshNormalStatus::Ok;
 
     GEO_NODISCARD bool has_value() const noexcept { return detail::mesh_result_ok(error); }
@@ -72,15 +75,126 @@ GEO_NODISCARD T mesh_corner_angle(const TriangleHalfedgeMesh<T, 3, TIndex>& mesh
   return std::acos(cosine);
 }
 
+/**
+ * \internal
+ * \brief Whether crossing \p outgoing's edge leaves the smooth sector around its source vertex.
+ *
+ * Crease and boundary edges bound sectors; a boundary outgoing halfedge lies on a boundary edge, so
+ * it always counts as a break and never sits inside a sector.
+ */
+template <typename T, std::uint8_t D, typename TIndex>
+GEO_NODISCARD bool is_sector_break(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+                                   typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle outgoing) noexcept
+{
+  const auto edge = mesh.get_halfedge(outgoing).edge;
+  return mesh.is_crease(edge) || mesh.is_boundary(edge);
+}
+
+/**
+ * \internal
+ * \brief An outgoing halfedge of \p vertex at which a smooth sector begins, or an invalid handle for
+ * an isolated vertex.
+ *
+ * Starting every walk at a sector boundary lets one pass around the fan see each sector whole,
+ * instead of wrapping one sector across the walk's start. A fan without breaks is a single closed
+ * sector, and any outgoing halfedge starts it. O(valence).
+ */
+template <typename T, std::uint8_t D, typename TIndex>
+GEO_NODISCARD typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle
+sector_walk_start(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+                  typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex) noexcept
+{
+  using HalfedgeHandle = typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle;
+
+  const HalfedgeHandle stored = mesh.get_vertex(vertex).halfedge;
+  if (!stored.is_valid())
+  {
+    return stored;
+  }
+  HalfedgeHandle outgoing = stored;
+  do
+  {
+    if (is_sector_break(mesh, outgoing))
+    {
+      return mesh.next_in_outgoing_fan(outgoing);
+    }
+    outgoing = mesh.next_in_outgoing_fan(outgoing);
+  } while (outgoing != stored);
+  return stored;
+}
+
+/**
+ * \internal
+ * \brief Calls \p onSector(begin, end) for each crease-bounded smooth sector around \p vertex that
+ * holds at least one face.
+ *
+ * A sector is the outgoing halfedges from \c begin up to (excluding) \c end in fan order;
+ * \c begin == \c end denotes a whole closed fan. Visit its corners with \c for_each_sector_corner.
+ * Every consumer of per-sector data walks sectors through this one definition, so they agree on
+ * which corners share a sector. O(valence).
+ */
+template <typename T, std::uint8_t D, typename TIndex, typename TOnSector>
+void for_each_smooth_sector(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+                            typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle vertex,
+                            TOnSector&& onSector)
+{
+  using HalfedgeHandle = typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle;
+
+  const HalfedgeHandle start = sector_walk_start(mesh, vertex);
+  if (!start.is_valid())
+  {
+    return;
+  }
+  HalfedgeHandle sectorBegin = start;
+  HalfedgeHandle outgoing = start;
+  do
+  {
+    const HalfedgeHandle following = mesh.next_in_outgoing_fan(outgoing);
+    if (is_sector_break(mesh, outgoing) || following == start)
+    {
+      // A sector opening on a boundary halfedge is that halfedge alone: the gap of an open fan.
+      if (!mesh.is_boundary(sectorBegin))
+      {
+        onSector(sectorBegin, following);
+      }
+      sectorBegin = following;
+    }
+    outgoing = following;
+  } while (outgoing != start);
+}
+
+/**
+ * \internal
+ * \brief Calls \p onCorner(corner) for each corner of the sector [\p sectorBegin, \p sectorEnd)
+ * reported by \c for_each_smooth_sector.
+ *
+ * A corner is the interior halfedge pointing into the sector's vertex, which is how per-corner
+ * data (normals, render ids) is indexed.
+ */
+template <typename T, std::uint8_t D, typename TIndex, typename TOnCorner>
+void for_each_sector_corner(const TriangleHalfedgeMesh<T, D, TIndex>& mesh,
+                            typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle sectorBegin,
+                            typename TriangleHalfedgeMesh<T, D, TIndex>::HalfedgeHandle sectorEnd,
+                            TOnCorner&& onCorner)
+{
+  auto outgoing = sectorBegin;
+  do
+  {
+    GEO_ASSERT(!mesh.is_boundary(outgoing));
+    onCorner(mesh.get_halfedge(outgoing).prev);
+    outgoing = mesh.next_in_outgoing_fan(outgoing);
+  } while (outgoing != sectorEnd);
+}
+
 } // namespace detail
 
 /**
  * \brief Angle-weighted per-corner shading normals for a triangle mesh, respecting crease edges.
  *
  * Call before building render buffers or otherwise shading a surface; mark creases first (e.g. with
- * \c mark_creases_by_angle) so sharp features stay sharp. Each corner averages the face normals of
- * its crease-bounded smooth sector, weighted by corner angle. O(H) with a bounded fan walk per
- * corner.
+ * \c mark_creases_by_angle) so sharp features stay sharp. Each crease-bounded smooth sector gets one
+ * normal, the corner-angle-weighted average of its face normals, computed once and shared by all of
+ * its corners -- so corners in a sector are bitwise identical and a renderer can weld them. O(H).
  *
  * \return Populated \c HalfedgeNormals, or an empty result whose \c error is \c DegenerateGeometry
  * when any face has zero area.
@@ -90,73 +204,41 @@ GEO_NODISCARD HalfedgeNormals<T> compute_halfedge_normals(const TriangleHalfedge
 {
   using Mesh = TriangleHalfedgeMesh<T, 3, TIndex>;
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;
-  using FaceHandle = typename Mesh::FaceHandle;
-  using size_type = typename Mesh::size_type;
+  using VertexHandle = typename Mesh::VertexHandle;
 
   HalfedgeNormals<T> result;
-  result.values.assign(mesh.halfedge_count(), linal::vec3<T>{});
+  result.values.assign(mesh.halfedge_storage_size(), linal::vec3<T>{});
 
-  // Precompute each face's flat normal once; corner accumulation reuses them.
-  std::vector<linal::vec3<T>> faceNormals(mesh.face_count(), linal::vec3<T>{});
-  for (const auto face: mesh.faces())
-    if (!detail::mesh_face_normal(mesh, face, faceNormals[static_cast<std::size_t>(face.get_value())]))
-      return {{}, MeshNormalStatus::DegenerateGeometry};
-
-  // For each corner (interior halfedge pointing into its vertex), sum angle-weighted face normals
-  // over the crease-bounded sector of faces around that vertex. The sector is walked through the
-  // outgoing fan around the vertex, stopping at crease edges and boundaries.
-  const size_type faceLimit = mesh.face_count();
+  // Precompute each face's flat normal once; every sector sum reuses them.
+  std::vector<linal::vec3<T>> faceNormals(mesh.face_storage_size(), linal::vec3<T>{});
   for (const auto face: mesh.faces())
   {
-    const auto corners = mesh.halfedges_around_face(face);
-    for (const HalfedgeHandle corner: corners)
-    {
-      const auto vertex = mesh.target_vertex(corner);
+    const auto normal = detail::mesh_face_normal(mesh, face);
+    if (!normal)
+      return {{}, MeshNormalStatus::DegenerateGeometry};
+    faceNormals[static_cast<std::size_t>(face.get_value())] = *normal;
+  }
+  const auto face_normal_of = [&](HalfedgeHandle corner) -> const linal::vec3<T>& {
+    return faceNormals[static_cast<std::size_t>(mesh.get_halfedge(corner).face.get_value())];
+  };
+
+  for (const VertexHandle vertex: mesh.vertices())
+  {
+    detail::for_each_smooth_sector(mesh, vertex, [&](HalfedgeHandle sectorBegin, HalfedgeHandle sectorEnd) {
       linal::vec3<T> accumulated{};
+      detail::for_each_sector_corner(mesh, sectorBegin, sectorEnd, [&](HalfedgeHandle corner) {
+        const T weight = detail::mesh_corner_angle(mesh, mesh.get_halfedge(corner).face, vertex);
+        accumulated = linal::vec3<T>{accumulated + weight * face_normal_of(corner)};
+      });
 
-      // Accumulate one face's weighted contribution.
-      const auto add_face = [&](FaceHandle here) {
-        const T weight = detail::mesh_corner_angle(mesh, here, vertex);
-        accumulated =
-            linal::vec3<T>{accumulated + weight * faceNormals[static_cast<std::size_t>(here.get_value())]};
-      };
-
-      add_face(face);
-
-      // Walk one direction around `vertex` until a crease/boundary stops us or we loop back to the
-      // start face (closed smooth fan). Forward crosses the outgoing edge next(current); backward
-      // crosses the incoming edge current. The neighbour's interior halfedge pointing into `vertex`
-      // becomes the new `current`. Returns true if the walk closed the fan back to the start.
-      const auto walk = [&](bool forward) {
-        HalfedgeHandle current = corner;
-        for (size_type step = 0; step < faceLimit; ++step)
-        {
-          const HalfedgeHandle bridge = forward ? mesh.get_halfedge(current).next // outgoing edge
-                                                : current;                        // incoming edge
-          if (mesh.is_crease(mesh.get_halfedge(bridge).edge))
-            return false;
-          const HalfedgeHandle twin = mesh.get_halfedge(bridge).twin;
-          const FaceHandle neighbor = mesh.get_halfedge(twin).face;
-          if (!neighbor.is_valid())
-            return false; // boundary
-          current = (mesh.target_vertex(twin) == vertex) ? twin : mesh.get_halfedge(twin).prev;
-          if (current == corner)
-            return true; // closed fan, every face already counted
-          add_face(neighbor);
-        }
-        return false;
-      };
-
-      // Backward only when the forward sweep did not already close the fan, else faces double-count.
-      if (!walk(true))
-        walk(false);
-
+      // Opposing faces can cancel to zero; each corner then keeps its own flat normal.
       const T length = linal::length(accumulated);
-      const auto index = static_cast<std::size_t>(corner.get_value());
-      result.values[index] = length == T{0}
-                                 ? faceNormals[static_cast<std::size_t>(face.get_value())]
-                                 : linal::vec3<T>{accumulated / length};
-    }
+      const linal::vec3<T> sectorNormal{accumulated / (length == T{0} ? T{1} : length)};
+      detail::for_each_sector_corner(mesh, sectorBegin, sectorEnd, [&](HalfedgeHandle corner) {
+        result.values[static_cast<std::size_t>(corner.get_value())] =
+            length == T{0} ? face_normal_of(corner) : sectorNormal;
+      });
+    });
   }
 
   return result;
@@ -187,10 +269,11 @@ void mark_creases_by_angle(TriangleHalfedgeMesh<T, 3, TIndex>& mesh, T creaseAng
       mesh.set_crease(edge, true); // boundary edge
       continue;
     }
-    linal::vec3<T> normalA{}, normalB{};
-    if (!detail::mesh_face_normal(mesh, faceA, normalA) || !detail::mesh_face_normal(mesh, faceB, normalB))
+    const auto normalA = detail::mesh_face_normal(mesh, faceA);
+    const auto normalB = detail::mesh_face_normal(mesh, faceB);
+    if (!normalA || !normalB)
       continue; // degenerate face: leave the edge as-is
-    mesh.set_crease(edge, linal::dot(normalA, normalB) < cosThreshold);
+    mesh.set_crease(edge, linal::dot(*normalA, *normalB) < cosThreshold);
   }
 }
 

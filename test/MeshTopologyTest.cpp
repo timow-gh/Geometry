@@ -1,7 +1,7 @@
 #include <Geometry/Mesh/AddTriangle.hpp>
-#include <Geometry/Mesh/MeshEuler.hpp>
-#include <Geometry/Mesh/MeshManifold.hpp>
+#include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshTopology.hpp>
+#include <Geometry/Mesh/MeshVerify.hpp>
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
@@ -123,9 +123,9 @@ TEST(MeshTopologyTest, tetrahedronValenceInterior)
   }
 }
 
-// --- MeshManifold ---------------------------------------------------------------------------
+// --- MeshVerify ----------------------------------------------------------------------------
 
-TEST(MeshManifoldTest, singleTriangleIsOpenManifold)
+TEST(MeshVerifyTest, singleTriangleIsOpenManifold)
 {
   const Mesh mesh = make_single_triangle();
   EXPECT_TRUE(verify_edge_manifold(mesh));
@@ -134,14 +134,14 @@ TEST(MeshManifoldTest, singleTriangleIsOpenManifold)
   EXPECT_FALSE(verify_closed(mesh));
 }
 
-TEST(MeshManifoldTest, tetrahedronIsClosedManifold)
+TEST(MeshVerifyTest, tetrahedronIsClosedManifold)
 {
   const Mesh mesh = make_tetrahedron();
   EXPECT_TRUE(verify_manifold(mesh));
   EXPECT_TRUE(verify_closed(mesh));
 }
 
-TEST(MeshManifoldTest, nonManifoldVertexRejectedAtConstruction)
+TEST(MeshVerifyTest, nonManifoldVertexRejectedAtConstruction)
 {
   Mesh mesh;
   const VertexHandle shared = mesh.add_vertex({0.0, 0.0, 0.0});
@@ -166,7 +166,7 @@ TEST(MeshManifoldTest, nonManifoldVertexRejectedAtConstruction)
 
 // The whole-mesh verify_vertex_manifold overload uses a single O(V+H) pass rather than calling the
 // per-vertex verifier V times; assert the two agree on every API-built fixture.
-TEST(MeshManifoldTest, wholeMeshVerifyMatchesPerVertex)
+TEST(MeshVerifyTest, wholeMeshVerifyMatchesPerVertex)
 {
   const std::array<Mesh, 4> meshes = {make_single_triangle(),
                                       make_two_adjacent_triangles(),
@@ -187,7 +187,7 @@ TEST(MeshManifoldTest, wholeMeshVerifyMatchesPerVertex)
 // verify_vertex_manifold must terminate on a malformed fan whose twin.next chain never closes (only
 // reachable by hand-building through the raw connectivity view). Corrupt a halfedge's twin to create
 // such a chain and assert the verifier returns rather than looping forever.
-TEST(MeshManifoldTest, brokenFanDoesNotHang)
+TEST(MeshVerifyTest, brokenFanDoesNotHang)
 {
   Mesh mesh = make_two_adjacent_triangles();
   ASSERT_TRUE(mesh.has_valid_connectivity());
@@ -206,14 +206,14 @@ TEST(MeshManifoldTest, brokenFanDoesNotHang)
   EXPECT_FALSE(mesh.has_valid_connectivity());
 }
 
-// --- MeshEuler ------------------------------------------------------------------------------
+// --- MeshGlobalTopology --------------------------------------------------------------------
 
-TEST(MeshEulerTest, singleTriangleCharacteristic)
+TEST(MeshGlobalTopologyTest, singleTriangleCharacteristic)
 {
   const Mesh mesh = make_single_triangle();
   EXPECT_EQ(euler_characteristic(mesh), 1);
-  EXPECT_EQ(boundary_loops(mesh).size(), 1U);
-  EXPECT_EQ(num_connected_components(mesh), 1U);
+  EXPECT_EQ(boundary_loop_count(mesh), 1U);
+  EXPECT_EQ(connected_component_count(mesh), 1U);
   // A single triangle is a disc: connected, manifold, one boundary loop, chi = 1, so the genus
   // formula g = (2 - b - chi) / 2 yields 0. Genus counts handles and is defined for surfaces with
   // boundary, not only closed ones.
@@ -222,11 +222,11 @@ TEST(MeshEulerTest, singleTriangleCharacteristic)
   EXPECT_EQ(*surfaceGenus, 0U);
 }
 
-TEST(MeshEulerTest, twoAdjacentTrianglesCharacteristic)
+TEST(MeshGlobalTopologyTest, twoAdjacentTrianglesCharacteristic)
 {
   const Mesh mesh = make_two_adjacent_triangles();
   EXPECT_EQ(euler_characteristic(mesh), 1);
-  EXPECT_EQ(boundary_loops(mesh).size(), 1U);
+  EXPECT_EQ(boundary_loop_count(mesh), 1U);
 
   // The single boundary loop visits all four outer boundary halfedges.
   const auto loops = boundary_loops(mesh);
@@ -234,12 +234,12 @@ TEST(MeshEulerTest, twoAdjacentTrianglesCharacteristic)
   EXPECT_EQ(loops.front().size(), 4U);
 }
 
-TEST(MeshEulerTest, tetrahedronIsGenusZeroSphere)
+TEST(MeshGlobalTopologyTest, tetrahedronIsGenusZeroSphere)
 {
   const Mesh mesh = make_tetrahedron();
   EXPECT_EQ(euler_characteristic(mesh), 2);
-  EXPECT_TRUE(boundary_loops(mesh).empty());
-  EXPECT_EQ(num_connected_components(mesh), 1U);
+  EXPECT_EQ(boundary_loop_count(mesh), 0U);
+  EXPECT_EQ(connected_component_count(mesh), 1U);
 
   const auto surfaceGenus = genus(mesh);
   ASSERT_TRUE(surfaceGenus.has_value());
@@ -247,14 +247,14 @@ TEST(MeshEulerTest, tetrahedronIsGenusZeroSphere)
 }
 
 // An isolated vertex is manifold-legal (add_vertex creates one before it is wired into a face) and is
-// ignored by num_connected_components and verify_manifold; genus must ignore it too rather than let
+// ignored by connected_component_count and verify_manifold; genus must ignore it too rather than let
 // it inflate the Euler characteristic and skew the result.
-TEST(MeshEulerTest, genusIgnoresIsolatedVertex)
+TEST(MeshGlobalTopologyTest, genusIgnoresIsolatedVertex)
 {
   Mesh mesh = make_tetrahedron();
   (void)mesh.add_vertex({9.0, 9.0, 9.0}); // isolated, unused vertex
 
-  EXPECT_EQ(num_connected_components(mesh), 1U);
+  EXPECT_EQ(connected_component_count(mesh), 1U);
   EXPECT_TRUE(verify_manifold(mesh));
 
   const auto surfaceGenus = genus(mesh);
@@ -262,12 +262,22 @@ TEST(MeshEulerTest, genusIgnoresIsolatedVertex)
   EXPECT_EQ(*surfaceGenus, 0U);
 }
 
-TEST(MeshEulerTest, disjointTrianglesHaveTwoComponents)
+TEST(MeshGlobalTopologyTest, disjointTrianglesHaveTwoComponents)
 {
   const Mesh mesh = make_two_disjoint_triangles();
   ASSERT_TRUE(mesh.has_valid_connectivity());
-  EXPECT_EQ(num_connected_components(mesh), 2U);
-  EXPECT_EQ(boundary_loops(mesh).size(), 2U);
+  EXPECT_EQ(connected_component_count(mesh), 2U);
+  EXPECT_EQ(boundary_loop_count(mesh), 2U);
   // genus assumes a connected mesh as a precondition and no longer guards against a disconnected one,
-  // so the user must gate on num_connected_components themselves; genus is not called here.
+  // so the user must gate on connected_component_count themselves; genus is not called here.
+}
+
+// boundary_loop_count shares its walk with boundary_loops but stores nothing; both must agree.
+TEST(MeshGlobalTopologyTest, boundaryLoopCountMatchesEnumeratedLoops)
+{
+  for (const Mesh& mesh : {make_single_triangle(), make_two_adjacent_triangles(), make_tetrahedron(),
+                           make_two_disjoint_triangles()})
+  {
+    EXPECT_EQ(boundary_loop_count(mesh), boundary_loops(mesh).size());
+  }
 }
