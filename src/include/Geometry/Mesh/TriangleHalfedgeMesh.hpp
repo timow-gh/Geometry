@@ -636,7 +636,9 @@ public:
   GEO_NODISCARD VertexHandle add_vertex(const vec_t& position)
   {
     const VertexHandle handle = make_handle<VertexHandle>(m_vertices.size());
-    m_vertices.push_back(Vertex{position, HalfedgeHandle{}});
+    // Constructed in place: pushing a temporary makes GCC 13 at -O3 report a bogus
+    // -Wstringop-overflow on the copy into the grown buffer.
+    m_vertices.emplace_back(position, HalfedgeHandle{});
     return handle;
   }
 
