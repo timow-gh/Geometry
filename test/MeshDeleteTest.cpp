@@ -39,15 +39,15 @@ Mesh make_grid(std::size_t size)
       vertices.push_back(mesh.add_vertex({static_cast<double>(i), static_cast<double>(j), 0.0}));
     }
   }
-  const auto at = [&](std::size_t i, std::size_t j) { return vertices[j * size + i]; };
+  const auto vertexAt = [&](std::size_t column, std::size_t row) { return vertices[row * size + column]; };
   // Every triangle must attach along an existing edge (add_triangle refuses a second fan at a
   // corner): row 0 grows through each cell's upper triangle first, later rows through the lower.
   for (std::size_t j = 0; j + 1 < size; ++j)
   {
     for (std::size_t i = 0; i + 1 < size; ++i)
     {
-      const std::array<VertexHandle, 3> lower{at(i, j), at(i + 1, j), at(i + 1, j + 1)};
-      const std::array<VertexHandle, 3> upper{at(i, j), at(i + 1, j + 1), at(i, j + 1)};
+      const std::array<VertexHandle, 3> lower{vertexAt(i, j), vertexAt(i + 1, j), vertexAt(i + 1, j + 1)};
+      const std::array<VertexHandle, 3> upper{vertexAt(i, j), vertexAt(i + 1, j + 1), vertexAt(i, j + 1)};
       for (const auto& triangle : j == 0 ? std::array{upper, lower} : std::array{lower, upper})
       {
         EXPECT_TRUE(add_triangle(mesh, triangle).is_valid());
@@ -57,9 +57,9 @@ Mesh make_grid(std::size_t size)
   return mesh;
 }
 
-VertexHandle grid_vertex(std::size_t size, std::uint32_t i, std::uint32_t j)
+VertexHandle grid_vertex(std::size_t size, std::uint32_t column, std::uint32_t row)
 {
-  return VertexHandle{static_cast<std::uint32_t>(j * size + i)};
+  return VertexHandle{static_cast<std::uint32_t>(row * size + column)};
 }
 
 FaceHandle face_with(const Mesh& mesh, VertexHandle first, VertexHandle second, VertexHandle third)

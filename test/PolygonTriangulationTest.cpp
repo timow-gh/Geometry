@@ -84,7 +84,7 @@ std::vector<Vec2> regular_polygon(std::size_t cornerCount)
   for (std::size_t i = 0; i < cornerCount; ++i)
   {
     const double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(cornerCount);
-    corners.push_back(Vec2{std::cos(angle), std::sin(angle)});
+    corners.emplace_back(std::cos(angle), std::sin(angle));
   }
   return corners;
 }
@@ -137,7 +137,7 @@ TEST(PolygonTriangulation, RespectsForbiddenDiagonals)
   std::array<PolygonTriangle, triangulation_triangle_count(7)> triangles{};
   const auto uniform = [](std::size_t, std::size_t, std::size_t) { return 1.0; };
 
-  const auto forbidZeroTwo = [](std::size_t first, std::size_t last) { return !(first == 0 && last == 2); };
+  const auto forbidZeroTwo = [](std::size_t first, std::size_t last) { return first != 0 || last != 2; };
   ASSERT_TRUE(minimum_cost_triangulation(4, uniform, scratch, triangles, forbidZeroTwo));
   const std::span<const PolygonTriangle> quad{triangles.data(), 2};
   expect_valid_triangulation(4, quad);
@@ -259,7 +259,7 @@ TEST(PolygonTriangulation, AreaCostFillsNonPlanarHole)
   for (std::size_t i = 0; i < cornerCount; ++i)
   {
     const double angle = 2.0 * std::numbers::pi * static_cast<double>(i) / static_cast<double>(cornerCount);
-    corners.push_back(Vec3{std::cos(angle), std::sin(angle), i % 2 == 0 ? 0.4 : -0.4});
+    corners.emplace_back(std::cos(angle), std::sin(angle), i % 2 == 0 ? 0.4 : -0.4);
   }
   std::array<TriangulationCell<double>, triangulation_scratch_size(cornerCount)> scratch{};
   std::array<PolygonTriangle, triangulation_triangle_count(cornerCount)> triangles{};

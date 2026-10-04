@@ -130,8 +130,9 @@ TEST(MeshNormalsTest, SmoothSectorCornersAreBitwiseEqualAndWeld) {
     auto result = make_triangle_mesh(Cylinder<double>{Segment3d{{0, 0, 0}, {0, 0, 3}}, 1}, 17);
     ASSERT_TRUE(result);
     auto& mesh = result.mesh;
-    for (const auto edge: mesh.edges())
+    for (const auto edge: mesh.edges()) {
         mesh.set_crease(edge, false);
+    }
 
     const auto normals = compute_halfedge_normals(mesh);
     ASSERT_TRUE(normals);
@@ -146,8 +147,9 @@ TEST(MeshNormalsTest, SmoothSectorCornersAreBitwiseEqualAndWeld) {
                 seen[slot] = true;
                 continue;
             }
-            for (typename linal::vec3<double>::size_type coordinate = 0; coordinate < 3; ++coordinate)
+            for (linal::vec3<double>::size_type coordinate = 0; coordinate < 3; ++coordinate) {
                 EXPECT_EQ(normal[coordinate], firstSeen[slot][coordinate]);
+            }
         }
     }
 

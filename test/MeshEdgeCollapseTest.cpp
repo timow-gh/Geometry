@@ -45,7 +45,7 @@ Mesh make_grid(std::size_t size)
       vertices.push_back(mesh.add_vertex({static_cast<double>(i), static_cast<double>(j), 0.0}));
     }
   }
-  const auto at = [&](std::size_t i, std::size_t j) { return vertices[j * size + i]; };
+  const auto vertexAt = [&](std::size_t column, std::size_t row) { return vertices[row * size + column]; };
   // add_triangle rejects a triangle touching the mesh at a used corner through two new edges (a
   // second fan), so every triangle must attach along an existing edge. Row 0 grows through each
   // cell's upper triangle first (it shares the previous cell's right edge); later rows grow through
@@ -54,8 +54,8 @@ Mesh make_grid(std::size_t size)
   {
     for (std::size_t i = 0; i + 1 < size; ++i)
     {
-      const std::array<VertexHandle, 3> lower{at(i, j), at(i + 1, j), at(i + 1, j + 1)};
-      const std::array<VertexHandle, 3> upper{at(i, j), at(i + 1, j + 1), at(i, j + 1)};
+      const std::array<VertexHandle, 3> lower{vertexAt(i, j), vertexAt(i + 1, j), vertexAt(i + 1, j + 1)};
+      const std::array<VertexHandle, 3> upper{vertexAt(i, j), vertexAt(i + 1, j + 1), vertexAt(i, j + 1)};
       for (const auto& triangle : j == 0 ? std::array{upper, lower} : std::array{lower, upper})
       {
         EXPECT_TRUE(add_triangle(mesh, triangle).is_valid());
@@ -65,10 +65,10 @@ Mesh make_grid(std::size_t size)
   return mesh;
 }
 
-// Handle of grid vertex (i, j) in a 3 x 3 grid.
-constexpr VertexHandle grid3(std::uint32_t i, std::uint32_t j)
+// Handle of grid vertex (column, row) in a 3 x 3 grid.
+constexpr VertexHandle grid3(std::uint32_t column, std::uint32_t row)
 {
-  return VertexHandle{j * 3 + i};
+  return VertexHandle{row * 3 + column};
 }
 
 Mesh make_single_triangle()
@@ -114,11 +114,11 @@ Mesh make_tetrahedron()
 struct Bipyramid
 {
   Mesh mesh;
-  VertexHandle ringA{};
-  VertexHandle ringB{};
-  VertexHandle ringC{};
-  VertexHandle north{};
-  VertexHandle south{};
+  VertexHandle ringA;
+  VertexHandle ringB;
+  VertexHandle ringC;
+  VertexHandle north;
+  VertexHandle south;
 };
 
 Bipyramid make_bipyramid()

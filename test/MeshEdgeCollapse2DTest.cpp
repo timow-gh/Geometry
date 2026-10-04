@@ -32,7 +32,7 @@ Mesh make_grid3()
       vertices.push_back(mesh.add_vertex({static_cast<double>(i), static_cast<double>(j)}));
     }
   }
-  const auto at = [&](std::size_t i, std::size_t j) { return vertices[j * 3 + i]; };
+  const auto vertexAt = [&](std::size_t column, std::size_t row) { return vertices[row * 3 + column]; };
   // add_triangle rejects a triangle touching the mesh at a used corner through two new edges (a
   // second fan), so every triangle must attach along an existing edge. Row 0 grows through each
   // cell's upper triangle first (it shares the previous cell's right edge); later rows grow through
@@ -41,8 +41,8 @@ Mesh make_grid3()
   {
     for (std::size_t i = 0; i + 1 < 3; ++i)
     {
-      const std::array<VertexHandle, 3> lower{at(i, j), at(i + 1, j), at(i + 1, j + 1)};
-      const std::array<VertexHandle, 3> upper{at(i, j), at(i + 1, j + 1), at(i, j + 1)};
+      const std::array<VertexHandle, 3> lower{vertexAt(i, j), vertexAt(i + 1, j), vertexAt(i + 1, j + 1)};
+      const std::array<VertexHandle, 3> upper{vertexAt(i, j), vertexAt(i + 1, j + 1), vertexAt(i, j + 1)};
       for (const auto& triangle : j == 0 ? std::array{upper, lower} : std::array{lower, upper})
       {
         EXPECT_TRUE(add_triangle(mesh, triangle).is_valid());

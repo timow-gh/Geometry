@@ -58,18 +58,18 @@ Mesh make_height_field()
   {
     for (std::size_t i = 0; i < surfaceResolution; ++i)
     {
-      const double u = static_cast<double>(i) * step;
-      const double v = static_cast<double>(j) * step;
-      vertices.push_back(mesh.add_vertex({u, v, 1.0 + 0.35 * std::sin(1.6 * u) * std::cos(1.3 * v)}));
+      const double planeX = static_cast<double>(i) * step;
+      const double planeY = static_cast<double>(j) * step;
+      vertices.push_back(mesh.add_vertex({planeX, planeY, 1.0 + 0.35 * std::sin(1.6 * planeX) * std::cos(1.3 * planeY)}));
     }
   }
-  const auto at = [&](std::size_t i, std::size_t j) { return vertices[j * surfaceResolution + i]; };
+  const auto vertexAt = [&](std::size_t column, std::size_t row) { return vertices[row * surfaceResolution + column]; };
   for (std::size_t j = 0; j + 1 < surfaceResolution; ++j)
   {
     for (std::size_t i = 0; i + 1 < surfaceResolution; ++i)
     {
-      const std::array<VertexHandle, 3> lower{at(i, j), at(i + 1, j), at(i + 1, j + 1)};
-      const std::array<VertexHandle, 3> upper{at(i, j), at(i + 1, j + 1), at(i, j + 1)};
+      const std::array<VertexHandle, 3> lower{vertexAt(i, j), vertexAt(i + 1, j), vertexAt(i + 1, j + 1)};
+      const std::array<VertexHandle, 3> upper{vertexAt(i, j), vertexAt(i + 1, j + 1), vertexAt(i, j + 1)};
       for (const auto& triangle : j == 0 ? std::array{upper, lower} : std::array{lower, upper})
       {
         EXPECT_TRUE(add_triangle(mesh, triangle).is_valid());

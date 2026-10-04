@@ -11,6 +11,7 @@
 #include <Geometry/Mesh/detail/FaceGeometry.hpp>
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
@@ -42,20 +43,20 @@ Mesh make_grid(std::size_t size, double jitter = 0.0, std::uint32_t seed = 0)
   {
     for (std::size_t i = 0; i < size; ++i)
     {
-      const double x = static_cast<double>(i) + offset(generator);
-      const double y = static_cast<double>(j) + offset(generator);
-      vertices.push_back(mesh.add_vertex({x, y, 0.0}));
+      const double jitteredX = static_cast<double>(i) + offset(generator);
+      const double jitteredY = static_cast<double>(j) + offset(generator);
+      vertices.push_back(mesh.add_vertex({jitteredX, jitteredY, 0.0}));
     }
   }
-  const auto at = [&](std::size_t i, std::size_t j) { return vertices[j * size + i]; };
+  const auto vertexAt = [&](std::size_t column, std::size_t row) { return vertices[row * size + column]; };
   // Every triangle must attach along an existing edge (add_triangle refuses a second fan at a
   // corner): row 0 grows through each cell's upper triangle first, later rows through the lower.
   for (std::size_t j = 0; j + 1 < size; ++j)
   {
     for (std::size_t i = 0; i + 1 < size; ++i)
     {
-      const std::array<VertexHandle, 3> lower{at(i, j), at(i + 1, j), at(i + 1, j + 1)};
-      const std::array<VertexHandle, 3> upper{at(i, j), at(i + 1, j + 1), at(i, j + 1)};
+      const std::array<VertexHandle, 3> lower{vertexAt(i, j), vertexAt(i + 1, j), vertexAt(i + 1, j + 1)};
+      const std::array<VertexHandle, 3> upper{vertexAt(i, j), vertexAt(i + 1, j + 1), vertexAt(i, j + 1)};
       for (const auto& triangle : j == 0 ? std::array{upper, lower} : std::array{lower, upper})
       {
         EXPECT_TRUE(add_triangle(mesh, triangle).is_valid());
@@ -72,6 +73,7 @@ Mesh make_fan(const std::vector<Position>& ring)
   Mesh mesh;
   const VertexHandle center = mesh.add_vertex({0.0, 0.0, 0.0});
   std::vector<VertexHandle> ringVertices;
+  ringVertices.reserve(ring.size());
   for (const Position& position : ring)
   {
     ringVertices.push_back(mesh.add_vertex(position));
@@ -117,14 +119,7 @@ void expect_structurally_valid(const Mesh& mesh)
 // For meshes in the xy-plane: every face still faces +z, i.e. nothing folded over or flattened.
 bool all_faces_face_up(const Mesh& mesh)
 {
-  for (const FaceHandle face : mesh.faces())
-  {
-    if (detail::mesh_face_area_vector(mesh, face)[2] <= 0.0)
-    {
-      return false;
-    }
-  }
-  return true;
+  return std::ranges::all_of(mesh.faces(), [&](FaceHandle face) { return detail::mesh_face_area_vector(mesh, face)[2] > 0.0; });
 }
 
 Mesh make_tetrahedron()

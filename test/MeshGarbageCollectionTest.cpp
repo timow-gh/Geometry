@@ -164,6 +164,7 @@ TEST(MeshGarbageCollection, IteratorsSkipLeadingAndTrailingDeletedElements)
 {
   Mesh mesh;
   std::vector<VertexHandle> vertices;
+  vertices.reserve(5);
   for (int i = 0; i < 5; ++i)
   {
     vertices.push_back(mesh.add_vertex({static_cast<double>(i), 0.0, 0.0}));
