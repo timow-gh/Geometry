@@ -54,9 +54,10 @@ Mesh make_mesh(const std::vector<Vec3>& positions, const std::vector<Triangle>& 
 Mesh make_box(const Vec3& min, const Vec3& max)
 {
   std::vector<Vec3> corners;
+  corners.reserve(8);
   for (std::uint32_t i = 0; i < 8; ++i)
   {
-    corners.push_back(Vec3{(i & 1U) != 0 ? max[0] : min[0], (i & 2U) != 0 ? max[1] : min[1], (i & 4U) != 0 ? max[2] : min[2]});
+    corners.emplace_back((i & 1U) != 0 ? max[0] : min[0], (i & 2U) != 0 ? max[1] : min[1], (i & 4U) != 0 ? max[2] : min[2]);
   }
   return make_mesh(corners,
                    {Triangle{0, 4, 6}, Triangle{0, 6, 2}, Triangle{1, 3, 7}, Triangle{1, 7, 5}, Triangle{0, 1, 5}, Triangle{0, 5, 4},
@@ -102,9 +103,9 @@ void expect_empty(const Result& result)
 
 // --- Classification building blocks -----------------------------------------------------------
 
-Point explicit_point(const double x, const double y, const double z)
+Point explicit_point(const double xCoordinate, const double yCoordinate, const double zCoordinate)
 {
-  return Point::create_explicit(Vec3{x, y, z});
+  return Point::create_explicit(Vec3{xCoordinate, yCoordinate, zCoordinate});
 }
 
 TEST(MeshBooleanClassificationTest, convex_wedge_contains_only_what_is_inside_both_faces)
@@ -205,6 +206,7 @@ TEST(MeshBooleanTest, overlapping_boxes)
   expect_solid(mesh_union(meshA, meshB), 1, 2, 16.0 - common);
   expect_solid(mesh_intersection(meshA, meshB), 1, 2, common);
   expect_solid(mesh_difference(meshA, meshB), 1, 2, 8.0 - common);
+  // NOLINTNEXTLINE(readability-suspicious-call-argument): B - A on purpose
   expect_solid(mesh_difference(meshB, meshA), 1, 2, 8.0 - common);
 }
 
@@ -254,6 +256,7 @@ TEST(MeshBooleanTest, boxes_in_shifted_coplanar_contact)
   expect_solid(mesh_union(meshA, meshB), 1, 2, 2.0);
   expect_empty(mesh_intersection(meshA, meshB));
   expect_solid(mesh_difference(meshA, meshB), 1, 2, 1.0);
+  // NOLINTNEXTLINE(readability-suspicious-call-argument): B - A on purpose
   expect_solid(mesh_difference(meshB, meshA), 1, 2, 1.0);
 }
 
@@ -267,6 +270,7 @@ TEST(MeshBooleanTest, flush_difference_cuts_a_through_hole)
   expect_solid(mesh_difference(meshA, meshB), 1, 0, 6.0);
   expect_solid(mesh_union(meshA, meshB), 1, 2, 8.0);
   expect_solid(mesh_intersection(meshA, meshB), 1, 2, 2.0);
+  // NOLINTNEXTLINE(readability-suspicious-call-argument): B - A on purpose
   expect_empty(mesh_difference(meshB, meshA));
 }
 
@@ -449,7 +453,7 @@ TEST(MeshBooleanTest, creases_follow_the_options)
     EXPECT_TRUE(!transferredFlags[i] || sharp[i]) << "edge " << i;
   }
 
-  const Result none = mesh_union(meshA, meshB, MeshBooleanOptions<double>{.transferCreases = false});
+  const Result none = mesh_union(meshA, meshB, MeshBooleanOptions<double>{.transferCreases = false, .intersectionCreaseAngle = std::nullopt});
   ASSERT_TRUE(none.has_value());
   EXPECT_EQ(crease_count(none.mesh), 0U);
 }

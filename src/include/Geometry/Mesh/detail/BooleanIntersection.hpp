@@ -585,9 +585,9 @@ GEO_NODISCARD FaceIntersection<T, TIndex> intersect_coplanar_faces(const FaceSim
     for (std::uint8_t edgeB = 0; edgeB < 3; ++edgeB)
     {
       if (!detail::is_proper_crossing(projectedA.corners[edgeA],
-                                      projectedA.corners[(edgeA + 1) % 3],
+                                      projectedA.corners[(edgeA + 1U) % 3U],
                                       projectedB.corners[edgeB],
-                                      projectedB.corners[(edgeB + 1) % 3]))
+                                      projectedB.corners[(edgeB + 1U) % 3U]))
       {
         continue;
       }

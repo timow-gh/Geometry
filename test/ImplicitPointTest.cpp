@@ -116,6 +116,7 @@ TEST(ImplicitPointTest, orient2d_projects_by_dropping_the_axis)
   const Point query = Point::create_explicit(Vec3{1.0, 7.0, 0.0});
   EXPECT_EQ(orient2d(first, second, query, 1), orient2d(Vec2{0.0, 0.0}, Vec2{1.0, 0.0}, Vec2{0.0, 1.0}));
   EXPECT_EQ(orient2d(first, second, query, 1), Orientation::Positive);
+  // NOLINTNEXTLINE(readability-suspicious-call-argument): swapped on purpose to flip the orientation
   EXPECT_EQ(orient2d(second, first, query, 1), Orientation::Negative);
 
   // An intersection point on the line through first and second.

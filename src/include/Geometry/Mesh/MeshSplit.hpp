@@ -37,7 +37,6 @@ split_edge(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   using Mesh = TriangleHalfedgeMesh<T, D, TIndex>;
   using VertexHandle = typename Mesh::VertexHandle;
   using HalfedgeHandle = typename Mesh::HalfedgeHandle;
-  using FaceHandle = typename Mesh::FaceHandle;
 
   if (!mesh.is_live(edge))
   {

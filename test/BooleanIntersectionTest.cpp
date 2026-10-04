@@ -50,9 +50,10 @@ Mesh make_triangle(const Vec3& first, const Vec3& second, const Vec3& third)
 Mesh make_box(const Vec3& min, const Vec3& max)
 {
   std::vector<Vec3> corners;
+  corners.reserve(8);
   for (std::uint32_t i = 0; i < 8; ++i)
   {
-    corners.push_back(Vec3{(i & 1U) != 0 ? max[0] : min[0], (i & 2U) != 0 ? max[1] : min[1], (i & 4U) != 0 ? max[2] : min[2]});
+    corners.emplace_back((i & 1U) != 0 ? max[0] : min[0], (i & 2U) != 0 ? max[1] : min[1], (i & 4U) != 0 ? max[2] : min[2]);
   }
   return make_mesh(corners,
                    {Triangle{0, 4, 6}, Triangle{0, 6, 2}, Triangle{1, 3, 7}, Triangle{1, 7, 5}, Triangle{0, 1, 5}, Triangle{0, 5, 4},
@@ -237,20 +238,20 @@ TEST(BooleanIntersectionTest, coplanar_overlap_reports_polygon_corners_and_clipp
   const Intersection intersection = intersect(meshA, meshB);
 
   const Key inside{face(0), vertex(0)};
-  const Key first{edge(meshA, 1, 2), edge(meshB, 0, 1)};
-  const Key second{edge(meshA, 1, 2), edge(meshB, 2, 0)};
+  const Key crossingB01{edge(meshA, 1, 2), edge(meshB, 0, 1)};
+  const Key crossingB20{edge(meshA, 1, 2), edge(meshB, 2, 0)};
   EXPECT_TRUE(intersection.consistent);
   EXPECT_TRUE(intersection.coplanar);
-  EXPECT_EQ(sorted_keys(intersection), sorted({inside, first, second}));
-  EXPECT_EQ(point_of(intersection, first).kind(), detail::ImplicitPointKind::EdgeEdge);
-  expect_near(point_of(intersection, first).position(), Vec3{3.0, 1.0, 0.0});
-  expect_near(point_of(intersection, second).position(), Vec3{1.0, 3.0, 0.0});
+  EXPECT_EQ(sorted_keys(intersection), sorted({inside, crossingB01, crossingB20}));
+  EXPECT_EQ(point_of(intersection, crossingB01).kind(), detail::ImplicitPointKind::EdgeEdge);
+  expect_near(point_of(intersection, crossingB01).position(), Vec3{3.0, 1.0, 0.0});
+  expect_near(point_of(intersection, crossingB20).position(), Vec3{1.0, 3.0, 0.0});
 
   // A's edge 1-2 clipped to B, and B's edges 0-1 and 2-0 clipped to A.
   EXPECT_EQ(intersection.segments.size(), 3U);
-  EXPECT_TRUE(has_segment(intersection, first, second));
-  EXPECT_TRUE(has_segment(intersection, inside, first));
-  EXPECT_TRUE(has_segment(intersection, inside, second));
+  EXPECT_TRUE(has_segment(intersection, crossingB01, crossingB20));
+  EXPECT_TRUE(has_segment(intersection, inside, crossingB01));
+  EXPECT_TRUE(has_segment(intersection, inside, crossingB20));
 }
 
 TEST(BooleanIntersectionTest, coplanar_star_has_six_crossings)

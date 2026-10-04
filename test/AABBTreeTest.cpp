@@ -288,6 +288,7 @@ TEST(AABBTreeTest, pairs_match_brute_force_on_continuous_boxes)
   EXPECT_EQ(tree_pairs(firstTree, secondTree), brute_force_pairs(firstBoxes, secondBoxes));
 
   // Swapping the trees swaps every pair.
+  // NOLINTNEXTLINE(readability-suspicious-call-argument): the swap is what this checks
   std::vector<IndexPair> swapped = tree_pairs(secondTree, firstTree);
   for (IndexPair& pair : swapped)
   {

@@ -104,10 +104,10 @@ TriangleSoup make_grid_soup(std::uint32_t size, std::optional<std::array<std::ui
   {
     for (std::uint32_t i = 0; i < size; ++i)
     {
-      soup.positions.push_back({static_cast<double>(i), static_cast<double>(j), 0.0});
+      soup.positions.emplace_back(static_cast<double>(i), static_cast<double>(j), 0.0);
     }
   }
-  const auto at = [size](std::uint32_t i, std::uint32_t j) { return j * size + i; };
+  const auto indexAt = [size](std::uint32_t column, std::uint32_t row) { return row * size + column; };
   for (std::uint32_t j = 0; j + 1 < size; ++j)
   {
     for (std::uint32_t i = 0; i + 1 < size; ++i)
@@ -116,8 +116,8 @@ TriangleSoup make_grid_soup(std::uint32_t size, std::optional<std::array<std::ui
       {
         continue;
       }
-      soup.triangles.push_back({at(i, j), at(i + 1, j), at(i + 1, j + 1)});
-      soup.triangles.push_back({at(i, j), at(i + 1, j + 1), at(i, j + 1)});
+      soup.triangles.push_back({indexAt(i, j), indexAt(i + 1, j), indexAt(i + 1, j + 1)});
+      soup.triangles.push_back({indexAt(i, j), indexAt(i + 1, j + 1), indexAt(i, j + 1)});
     }
   }
   return soup;
@@ -127,9 +127,10 @@ TriangleSoup make_grid_soup(std::uint32_t size, std::optional<std::array<std::ui
 std::vector<Vec3> make_positions(std::size_t count)
 {
   std::vector<Vec3> positions;
+  positions.reserve(count);
   for (std::size_t i = 0; i < count; ++i)
   {
-    positions.push_back({static_cast<double>(i), static_cast<double>(i * i), 1.0});
+    positions.emplace_back(static_cast<double>(i), static_cast<double>(i * i), 1.0);
   }
   return positions;
 }
@@ -287,7 +288,7 @@ TEST(MeshFromTrianglesTest, RebuildsMeshFromRenderBuffers)
   std::vector<Vec3F> positions;
   for (std::size_t i = 0; i < vertexBuffer.values.size(); i += 3)
   {
-    positions.push_back({vertexBuffer.values[i], vertexBuffer.values[i + 1], vertexBuffer.values[i + 2]});
+    positions.emplace_back(vertexBuffer.values[i], vertexBuffer.values[i + 1], vertexBuffer.values[i + 2]);
   }
   std::vector<Triangle> triangles;
   for (std::size_t i = 0; i < indexBuffer.values.size(); i += 3)
@@ -318,9 +319,9 @@ TEST(MeshFromTrianglesTest, ShuffledOpenGridGetsOneBoundaryLoop)
   // Only the center vertices (1, 1), (2, 1), (1, 2), (2, 2) are interior.
   for (const VertexHandle vertex : mesh.vertices())
   {
-    const std::uint32_t i = vertex.get_value() % 4;
-    const std::uint32_t j = vertex.get_value() / 4;
-    const bool isInterior = i > 0 && i < 3 && j > 0 && j < 3;
+    const std::uint32_t column = vertex.get_value() % 4;
+    const std::uint32_t row = vertex.get_value() / 4;
+    const bool isInterior = column > 0 && column < 3 && row > 0 && row < 3;
     EXPECT_EQ(is_boundary(mesh, vertex), !isInterior);
   }
 }

@@ -48,9 +48,10 @@ Mesh make_mesh(const std::vector<Vec3>& positions, const std::vector<Triangle>& 
 Mesh make_box(const Vec3& min, const Vec3& max)
 {
   std::vector<Vec3> corners;
+  corners.reserve(8);
   for (std::uint32_t i = 0; i < 8; ++i)
   {
-    corners.push_back(Vec3{(i & 1U) != 0 ? max[0] : min[0], (i & 2U) != 0 ? max[1] : min[1], (i & 4U) != 0 ? max[2] : min[2]});
+    corners.emplace_back((i & 1U) != 0 ? max[0] : min[0], (i & 2U) != 0 ? max[1] : min[1], (i & 4U) != 0 ? max[2] : min[2]);
   }
   return make_mesh(corners,
                    {Triangle{0, 4, 6}, Triangle{0, 6, 2}, Triangle{1, 3, 7}, Triangle{1, 7, 5}, Triangle{0, 1, 5}, Triangle{0, 5, 4},
@@ -143,7 +144,7 @@ std::size_t curve_component_count(const Mesh& mesh, const std::vector<EdgeHandle
   std::size_t count = 0;
   for (std::size_t vertex = 0; vertex < parent.size(); ++vertex)
   {
-    count += degrees[vertex] > 0 && findRoot(vertex) == vertex ? 1 : 0;
+    count += degrees[vertex] > 0 && findRoot(vertex) == vertex ? 1U : 0U;
   }
   return count;
 }

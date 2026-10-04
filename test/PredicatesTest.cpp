@@ -35,11 +35,14 @@ TEST(PredicatesTest, orient2d_swap_flips_and_rotation_keeps_sign)
   const Orientation reference = orient2d(first, second, third);
   ASSERT_EQ(reference, Orientation::Positive);
 
+  // The permuted arguments are what this test checks.
+  // NOLINTBEGIN(readability-suspicious-call-argument)
   EXPECT_EQ(orient2d(second, first, third), Orientation::Negative);
   EXPECT_EQ(orient2d(first, third, second), Orientation::Negative);
   EXPECT_EQ(orient2d(third, second, first), Orientation::Negative);
   EXPECT_EQ(orient2d(second, third, first), reference);
   EXPECT_EQ(orient2d(third, first, second), reference);
+  // NOLINTEND(readability-suspicious-call-argument)
 }
 
 TEST(PredicatesTest, orient3d_normal_side_is_positive)
@@ -75,12 +78,15 @@ TEST(PredicatesTest, orient3d_swap_flips_and_even_permutation_keeps_sign)
   ASSERT_NE(reference, Orientation::Zero);
   const auto opposite = static_cast<Orientation>(-static_cast<std::int8_t>(reference));
 
+  // The permuted arguments are what this test checks.
+  // NOLINTBEGIN(readability-suspicious-call-argument)
   EXPECT_EQ(orient3d(second, first, third, query), opposite);
   EXPECT_EQ(orient3d(first, third, second, query), opposite);
   EXPECT_EQ(orient3d(first, second, query, third), opposite);
   EXPECT_EQ(orient3d(query, second, third, first), opposite);
   EXPECT_EQ(orient3d(second, third, first, query), reference);
   EXPECT_EQ(orient3d(second, first, query, third), reference);
+  // NOLINTEND(readability-suspicious-call-argument)
 }
 
 TEST(PredicatesTest, multiply_signs_is_negative_only_for_strict_opposites)
