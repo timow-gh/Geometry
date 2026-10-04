@@ -44,8 +44,10 @@ function(add_geoqik_example_run_target target)
 endfunction()
 
 set(geometry_examples
+    example_aabb_tree
     example_line_intersections
     example_mesh
+    example_mesh_booleans
     example_mesh_operations
     example_minkowski_sum)
 

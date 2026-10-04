@@ -21,12 +21,20 @@ set(geometry_TARGET_HEADER
         include/Geometry/Mesh/MeshEdgeCollapse.hpp
         include/Geometry/Mesh/MeshVertexDecimation.hpp
         include/Geometry/Mesh/MeshDelete.hpp
+        include/Geometry/Mesh/MeshSplit.hpp
+        include/Geometry/Mesh/MeshFlip.hpp
+        include/Geometry/Mesh/MeshFromTriangles.hpp
+        include/Geometry/Mesh/MeshCorefineStatus.hpp
+        include/Geometry/Mesh/MeshCorefine.hpp
         include/Geometry/Mesh/detail/MeshConnectivity.hpp
         include/Geometry/Mesh/detail/MeshResult.hpp
         include/Geometry/Mesh/detail/FaceGeometry.hpp
         include/Geometry/Mesh/detail/EdgeCollapseChecks.hpp
         include/Geometry/Mesh/detail/EdgeCollapse.hpp
         include/Geometry/Mesh/detail/VertexStar.hpp
+        include/Geometry/Mesh/detail/MeshEditing.hpp
+        include/Geometry/Mesh/detail/BooleanIntersection.hpp
+        include/Geometry/Mesh/detail/Corefine.hpp
         include/Geometry/Intersect/BentleyOttmann.hpp
         include/Geometry/Intersect/IntersectAABB.hpp
         include/Geometry/Intersect/IntersectAABBHelper.hpp
@@ -44,12 +52,15 @@ set(geometry_TARGET_HEADER
         include/Geometry/Transform/TransformSphere.hpp
         include/Geometry/Transform/TransformAABB.hpp
         include/Geometry/detail/TriangleOrientation.hpp
+        include/Geometry/detail/FixedVector.hpp
+        include/Geometry/detail/ImplicitPoint.hpp
         include/Geometry/Utils/Assert.hpp
         include/Geometry/Utils/Compiler.hpp
         include/Geometry/Utils/DefaultValues.hpp
         include/Geometry/Utils/GeometryAssert.hpp
         include/Geometry/Utils/Warnings.hpp
         include/Geometry/AABB.hpp
+        include/Geometry/AABBTree.hpp
         include/Geometry/Circle.hpp
         include/Geometry/ClosetPointOnLine.hpp
         include/Geometry/Cone.hpp
@@ -65,6 +76,7 @@ set(geometry_TARGET_HEADER
         include/Geometry/Line.hpp
         include/Geometry/Plane.hpp
         include/Geometry/PointQueries.hpp
+        include/Geometry/Predicates.hpp
         include/Geometry/PolygonTriangulation.hpp
         include/Geometry/PolygonTriangulationCosts.hpp
         include/Geometry/Sphere.hpp

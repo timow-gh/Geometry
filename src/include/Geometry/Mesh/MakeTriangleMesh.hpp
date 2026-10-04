@@ -150,6 +150,10 @@ MeshCreationResult<T, TIndex> make_round_triangle_mesh(const Segment3<T>& segmen
     }
 
     Mesh mesh;
+    // Closed surface: the cap faces plus two (cylinder) or one (cone) side faces per segment, and
+    // E = 3F / 2.
+    const std::size_t faceCount = (IsCylinder ? 4 : 2) * segments;
+    mesh.reserve({.vertices = (IsCylinder ? 2 : 1) * segments + 2, .edges = 3 * faceCount / 2, .faces = faceCount});
     std::vector<VertexHandle> lower, upper;
     lower.reserve(segments);
     if constexpr (IsCylinder)
@@ -226,6 +230,7 @@ GEO_NODISCARD MeshCreationResult<T, TIndex> make_triangle_mesh(const Cuboid<T>& 
         if (!detail::mesh_position_is_finite(position))
             return failure(MeshCreationStatus::NonFiniteGeometry);
     Mesh mesh;
+    mesh.reserve({.vertices = 8, .edges = 18, .faces = 12});
     std::array<typename Mesh::VertexHandle, 8> vertices;
     for (std::size_t i = 0; i < 8; ++i)
         vertices[i] = mesh.add_vertex(positions[i]);

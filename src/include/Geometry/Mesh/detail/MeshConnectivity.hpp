@@ -207,6 +207,7 @@ class MeshConnectivityView
     // --- reserve / resize support for transactional rollback ----------------------------
     // reserve_* pre-grows storage so a transaction's appends never reallocate mid-way; resize_*
     // truncates back to a prior element count to undo the appends on rollback.
+    void reserve_vertices(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_vertices, additional); }
     void reserve_faces(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_faces, additional); }
     void reserve_halfedges(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_halfedges, additional); }
     void reserve_edges(size_type additional) const requires(!is_const(C)) { detail::reserve_additional(m_mesh->m_edges, additional); }
