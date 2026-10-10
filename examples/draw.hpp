@@ -9,8 +9,12 @@
 
 #include <linal/vec.hpp>
 
+#include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
+#include <span>
+#include <vector>
 
 namespace example {
 
@@ -148,6 +152,82 @@ inline geoqik_uuid_t draw(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& me
                                              buffers.triangles.data(), buffers.triangles.size() / 3, &options);
     check_geoqik(result.err, "Draw mesh");
     return result.geometryId;
+}
+
+// The positions of the render vertices index pairs name, flattened as geoqik's line arrays expect:
+// six coordinates per line.
+inline std::vector<double> line_endpoints(const Geometry::MeshRenderBuffers& buffers,
+                                          std::span<const Geometry::BufferIndex> pairs) {
+    std::vector<double> endpoints;
+    endpoints.reserve(3 * pairs.size());
+    for (const Geometry::BufferIndex index : pairs)
+        for (std::size_t axis = 0; axis < 3; ++axis)
+            endpoints.push_back(buffers.positions[3 * index + axis]);
+    return endpoints;
+}
+
+// Every edge of the triangles in buffers, once, as index pairs. Along a crease the two sides use
+// different render vertices, so such an edge appears twice, drawn on top of itself.
+inline std::vector<Geometry::BufferIndex> triangle_edges(const Geometry::MeshRenderBuffers& buffers) {
+    using Edge = std::array<Geometry::BufferIndex, 2>;
+    std::vector<Edge> edges;
+    edges.reserve(buffers.triangles.size());
+    for (std::size_t first = 0; first + 2 < buffers.triangles.size(); first += 3) {
+        for (std::size_t side = 0; side < 3; ++side) {
+            const Geometry::BufferIndex start = buffers.triangles[first + side];
+            const Geometry::BufferIndex end = buffers.triangles[first + (side + 1) % 3];
+            edges.push_back(Edge{std::min(start, end), std::max(start, end)});
+        }
+    }
+    std::ranges::sort(edges);
+    const auto duplicates = std::ranges::unique(edges);
+    edges.erase(duplicates.begin(), duplicates.end());
+
+    std::vector<Geometry::BufferIndex> indices;
+    indices.reserve(2 * edges.size());
+    for (const Edge& edge : edges)
+        indices.insert(indices.end(), edge.begin(), edge.end());
+    return indices;
+}
+
+// Lines lifted off the faces they lie on, which they would otherwise depth-fight; a higher depth
+// layer draws over a lower one.
+inline geoqik_result_t draw_lines(const std::vector<double>& endpoints,
+                                  const color& color,
+                                  float lineWidth,
+                                  std::int32_t depthLayer) {
+    geoqik_add_line_opts_t options{};
+    options.color = color.rgba.data();
+    options.colorCount = color.rgba.size();
+    options.styleSet = 1;
+    options.style.lineWidth = lineWidth;
+    options.style.depthLayer = depthLayer;
+    options.lineType = GEOQIK_LINE_TYPE_LINES;
+    return geoqik_add_lines_opts(endpoints.data(), endpoints.size(), &options);
+}
+
+// Draws mesh's faces in surfaceColor and every triangle edge as a thin black line on top. Separate
+// lines rather than the mesh's own segment overlay, because geoqik draws that overlay in white
+// whatever color is asked for. Returns the render buffers, so that a caller can outline more edges.
+template <std::floating_point T, typename TIndex>
+inline Geometry::MeshRenderBuffers draw_wireframe_mesh(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
+                                                       const color& surfaceColor) {
+    // Thin, so that a densely triangulated body keeps its color between the lines.
+    constexpr float wireframeLineWidth = 0.75f;
+    auto buffers = Geometry::make_render_buffers(mesh);
+    if (!buffers) fail_example("Create render buffers", static_cast<int>(buffers.error));
+
+    geoqik_add_mesh_opts_t options{};
+    options.color = surfaceColor.rgba.data();
+    options.colorCount = surfaceColor.rgba.size();
+    options.normals = buffers.normals.data();
+    options.normalsCount = buffers.normals.size();
+    const auto result = geoqik_add_mesh_opts(buffers.positions.data(), buffers.vertex_count(),
+                                             buffers.triangles.data(), buffers.triangles.size() / 3, &options);
+    check_geoqik(result.err, "Draw mesh");
+    check_geoqik(draw_lines(line_endpoints(buffers, triangle_edges(buffers)), black(), wireframeLineWidth, 1).err,
+                 "Draw triangle edges");
+    return buffers;
 }
 
 template <typename TGeomIter, typename TOutputIterator>

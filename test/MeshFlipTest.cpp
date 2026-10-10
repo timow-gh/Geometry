@@ -4,6 +4,7 @@
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
 #include <Geometry/Mesh/MeshDelete.hpp>
 #include <Geometry/Mesh/MeshFlip.hpp>
+#include <Geometry/Mesh/MeshFromTriangles.hpp>
 #include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
 #include <Geometry/Mesh/MeshSplit.hpp>
@@ -17,6 +18,8 @@
 #include <cstddef>
 #include <cstdint>
 #include <random>
+#include <span>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -31,6 +34,8 @@ using HalfedgeHandle = Mesh::HalfedgeHandle;
 using EdgeHandle = Mesh::EdgeHandle;
 using FaceHandle = Mesh::FaceHandle;
 using Vec3 = Mesh::vec_t;
+using Index = Mesh::handle_value_type;
+using Triangle = std::array<Index, 3>;
 
 // n x n grid in the xy-plane as in MeshEdgeCollapseTest.cpp; vertex (i, j) has handle value j * n + i.
 // Each cell is split along its (i, j)-(i+1, j+1) diagonal.
@@ -69,6 +74,28 @@ constexpr VertexHandle grid3(std::uint32_t column, std::uint32_t row)
   return VertexHandle{row * 3 + column};
 }
 
+// A 4 x 4 grid with its interior face (1,1), (2,1), (2,2) deleted. add_triangle stores the face side
+// of a new boundary edge, so only a deletion leaves edges whose stored halfedge is on the boundary.
+Mesh make_grid_with_hole()
+{
+  Mesh mesh = make_grid(4);
+  const HalfedgeHandle halfedge = mesh.find_halfedge(VertexHandle{5}, VertexHandle{6});
+  EXPECT_EQ(delete_face(mesh, mesh.get_halfedge(halfedge).face), DeleteStatus::Ok);
+  return mesh;
+}
+
+// Two triangles over the same three vertices, wound oppositely: a closed surface whose two faces share
+// their apex across every edge. add_triangle refuses the second triangle; make_mesh_from_triangles
+// accepts it.
+Mesh make_pillow()
+{
+  const std::array<Vec3, 3> positions{Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 0.0, 0.0}, Vec3{0.0, 1.0, 0.0}};
+  const std::array<Triangle, 2> triangles{Triangle{0, 1, 2}, Triangle{1, 0, 2}};
+  auto creation = make_mesh_from_triangles(std::span<const Vec3>{positions}, std::span<const Triangle>{triangles});
+  EXPECT_TRUE(creation.has_value());
+  return std::move(creation.mesh);
+}
+
 Mesh make_tetrahedron()
 {
   Mesh mesh;
@@ -102,6 +129,58 @@ EdgeHandle edge_between(const Mesh& mesh, VertexHandle first, VertexHandle secon
   const HalfedgeHandle halfedge = mesh.find_halfedge(first, second);
   EXPECT_TRUE(halfedge.is_valid());
   return halfedge.is_valid() ? mesh.get_halfedge(halfedge).edge : EdgeHandle{};
+}
+
+// Whether face has exactly the expected corners, in the same cyclic order.
+bool has_corners(const Mesh& mesh, FaceHandle face, const std::array<VertexHandle, 3>& expected)
+{
+  const auto corners = mesh.vertices_around_face(face);
+  for (std::size_t shift = 0; shift < 3; ++shift)
+  {
+    if (corners[shift] == expected[0] && corners[(shift + 1) % 3] == expected[1] && corners[(shift + 2) % 3] == expected[2])
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Every link and flag of the connectivity, in storage order, so that a test can show a rejected
+// operation left the mesh exactly as it was rather than merely valid.
+struct ConnectivityRecords
+{
+  std::vector<std::tuple<VertexHandle, HalfedgeHandle, HalfedgeHandle, HalfedgeHandle, FaceHandle, EdgeHandle>> halfedges;
+  std::vector<std::tuple<HalfedgeHandle, bool, bool>> edges;
+  std::vector<std::tuple<HalfedgeHandle, bool>> vertices;
+  std::vector<std::tuple<HalfedgeHandle, bool>> faces;
+
+  bool operator==(const ConnectivityRecords&) const = default;
+};
+
+ConnectivityRecords connectivity_records(const Mesh& mesh)
+{
+  ConnectivityRecords records;
+  for (Index i = 0; i < mesh.halfedge_storage_size(); ++i)
+  {
+    const auto& halfedge = mesh.get_halfedge(HalfedgeHandle{i});
+    records.halfedges.emplace_back(halfedge.targetVertex, halfedge.twin, halfedge.next, halfedge.prev, halfedge.face, halfedge.edge);
+  }
+  for (Index i = 0; i < mesh.edge_storage_size(); ++i)
+  {
+    const auto& edge = mesh.get_edge(EdgeHandle{i});
+    records.edges.emplace_back(edge.halfedge, edge.crease, edge.deleted);
+  }
+  for (Index i = 0; i < mesh.vertex_storage_size(); ++i)
+  {
+    const auto& vertex = mesh.get_vertex(VertexHandle{i});
+    records.vertices.emplace_back(vertex.halfedge, vertex.deleted);
+  }
+  for (Index i = 0; i < mesh.face_storage_size(); ++i)
+  {
+    const auto& face = mesh.get_face(FaceHandle{i});
+    records.faces.emplace_back(face.get_halfedgehandle(), face.is_deleted());
+  }
+  return records;
 }
 
 // Sum of origin tetrahedra.
@@ -143,8 +222,13 @@ TEST(MeshFlip, FlipsInteriorDiagonal)
   Mesh mesh = make_grid(3);
   const EdgeHandle edge = edge_between(mesh, grid3(0, 0), grid3(1, 1));
   const HalfedgeHandle forward = mesh.get_edge(edge).halfedge;
+  const HalfedgeHandle backward = mesh.get_halfedge(forward).twin;
+  const VertexHandle start = mesh.source_vertex(forward);
+  const VertexHandle end = mesh.target_vertex(forward);
+  const VertexHandle leftApex = mesh.target_vertex(mesh.get_halfedge(forward).next);
+  const VertexHandle rightApex = mesh.target_vertex(mesh.get_halfedge(backward).next);
   const FaceHandle leftFace = mesh.get_halfedge(forward).face;
-  const FaceHandle rightFace = mesh.get_halfedge(mesh.get_halfedge(forward).twin).face;
+  const FaceHandle rightFace = mesh.get_halfedge(backward).face;
   const std::size_t faceCount = mesh.face_count();
   const std::size_t edgeCount = mesh.edge_count();
 
@@ -154,6 +238,14 @@ TEST(MeshFlip, FlipsInteriorDiagonal)
   const HalfedgeHandle flipped = mesh.find_halfedge(grid3(1, 0), grid3(0, 1));
   ASSERT_TRUE(flipped.is_valid());
   EXPECT_EQ(mesh.get_halfedge(flipped).edge, edge);
+  // The edge keeps its stored halfedge, now running from the right apex to the left one; the face on
+  // its side keeps the start vertex, the other face the end vertex.
+  EXPECT_EQ(mesh.get_edge(edge).halfedge, forward);
+  EXPECT_EQ(mesh.find_halfedge(rightApex, leftApex), forward);
+  EXPECT_EQ(mesh.get_halfedge(forward).face, leftFace);
+  EXPECT_EQ(mesh.get_halfedge(backward).face, rightFace);
+  EXPECT_TRUE(has_corners(mesh, leftFace, {leftApex, start, rightApex}));
+  EXPECT_TRUE(has_corners(mesh, rightFace, {rightApex, end, leftApex}));
   EXPECT_EQ(mesh.face_count(), faceCount);
   EXPECT_EQ(mesh.edge_count(), edgeCount);
   EXPECT_FALSE(mesh.has_garbage());
@@ -173,6 +265,9 @@ TEST(MeshFlip, FlippingTwiceRejoinsOriginalEndpoints)
 {
   Mesh mesh = make_grid(3);
   const EdgeHandle edge = edge_between(mesh, grid3(1, 1), grid3(2, 2));
+  const HalfedgeHandle forward = mesh.get_edge(edge).halfedge;
+  const VertexHandle start = mesh.source_vertex(forward);
+  const VertexHandle end = mesh.target_vertex(forward);
 
   ASSERT_EQ(flip_edge(mesh, edge), FlipStatus::Ok);
   ASSERT_EQ(flip_edge(mesh, edge), FlipStatus::Ok);
@@ -180,6 +275,9 @@ TEST(MeshFlip, FlippingTwiceRejoinsOriginalEndpoints)
   const HalfedgeHandle restored = mesh.find_halfedge(grid3(1, 1), grid3(2, 2));
   ASSERT_TRUE(restored.is_valid());
   EXPECT_EQ(mesh.get_halfedge(restored).edge, edge);
+  // Each flip runs the stored halfedge from the right apex to the left one, so after two it is reversed.
+  EXPECT_EQ(mesh.get_edge(edge).halfedge, forward);
+  EXPECT_EQ(mesh.find_halfedge(end, start), forward);
   EXPECT_TRUE(all_faces_counter_clockwise(mesh));
   expect_structurally_valid(mesh);
 }
@@ -188,9 +286,15 @@ TEST(MeshFlip, FlippingAnyInteriorGridEdgeKeepsMeshValid)
 {
   const Mesh original = make_grid(4);
   std::size_t flipped = 0;
+  std::size_t representativeReplaced = 0;
   for (const EdgeHandle edge : original.edges())
   {
     Mesh mesh = original;
+    const HalfedgeHandle forward = mesh.get_edge(edge).halfedge;
+    const HalfedgeHandle backward = mesh.get_halfedge(forward).twin;
+    // An endpoint represented by the flipped edge's halfedge needs a new representative.
+    const bool replacesRepresentative = mesh.get_vertex(mesh.source_vertex(forward)).halfedge == forward
+                                        || mesh.get_vertex(mesh.target_vertex(forward)).halfedge == backward;
     const FlipStatus status = flip_edge(mesh, edge);
     if (mesh.is_boundary(edge))
     {
@@ -199,12 +303,44 @@ TEST(MeshFlip, FlippingAnyInteriorGridEdgeKeepsMeshValid)
     }
     ASSERT_EQ(status, FlipStatus::Ok);
     ++flipped;
+    representativeReplaced += replacesRepresentative ? 1U : 0U;
     EXPECT_EQ(euler_characteristic(mesh), euler_characteristic(original));
     EXPECT_EQ(boundary_loop_count(mesh), 1U);
     expect_structurally_valid(mesh);
   }
   // 33 edges, 12 of them on the boundary.
   EXPECT_EQ(flipped, 21U);
+  EXPECT_GT(representativeReplaced, 0U);
+}
+
+// Deleting a face leaves a tombstone in storage and edges whose stored halfedge lies on the new hole;
+// those edges must be rejected like any boundary edge, and the rest flip as without the hole.
+TEST(MeshFlip, FlippingAnyEdgeOfGridWithHoleKeepsMeshValid)
+{
+  const Mesh original = make_grid_with_hole();
+  const ConnectivityRecords records = connectivity_records(original);
+  std::size_t flipped = 0;
+  std::size_t storedOnBoundary = 0;
+  for (const EdgeHandle edge : original.edges())
+  {
+    Mesh mesh = original;
+    const FlipStatus status = flip_edge(mesh, edge);
+    if (original.is_boundary(edge))
+    {
+      EXPECT_EQ(status, FlipStatus::BoundaryEdge);
+      EXPECT_TRUE(connectivity_records(mesh) == records);
+      storedOnBoundary += original.is_boundary(original.get_edge(edge).halfedge) ? 1U : 0U;
+      continue;
+    }
+    ASSERT_EQ(status, FlipStatus::Ok);
+    ++flipped;
+    EXPECT_EQ(euler_characteristic(mesh), euler_characteristic(original));
+    EXPECT_EQ(boundary_loop_count(mesh), 2U);
+    expect_structurally_valid(mesh);
+  }
+  EXPECT_GT(storedOnBoundary, 0U);
+  // The hole turns three of the 21 interior edges into boundary edges.
+  EXPECT_EQ(flipped, 18U);
 }
 
 TEST(MeshFlip, FlippingCubeFaceDiagonalsKeepsSolid)
@@ -246,22 +382,36 @@ TEST(MeshFlip, RejectsBoundaryEdge)
 {
   Mesh mesh = make_grid(3);
   const EdgeHandle edge = edge_between(mesh, grid3(0, 0), grid3(1, 0));
+  const ConnectivityRecords records = connectivity_records(mesh);
 
   EXPECT_EQ(is_flip_ok(mesh, edge), FlipStatus::BoundaryEdge);
   EXPECT_EQ(flip_edge(mesh, edge), FlipStatus::BoundaryEdge);
-  EXPECT_TRUE(mesh.find_halfedge(grid3(0, 0), grid3(1, 0)).is_valid());
-  expect_structurally_valid(mesh);
+  EXPECT_TRUE(connectivity_records(mesh) == records);
 }
 
 TEST(MeshFlip, RejectsEveryEdgeOfTetrahedron)
 {
   // Every pair of vertices is already joined, so every flip would duplicate an edge.
   Mesh mesh = make_tetrahedron();
+  const ConnectivityRecords records = connectivity_records(mesh);
   for (const EdgeHandle edge : mesh.edges())
   {
     EXPECT_EQ(flip_edge(mesh, edge), FlipStatus::DiagonalExists);
+    EXPECT_TRUE(connectivity_records(mesh) == records);
   }
-  expect_structurally_valid(mesh);
+}
+
+// Both faces of a pillow edge have the same apex, so the flipped edge would join that apex to itself.
+TEST(MeshFlip, RejectsEdgeWithSharedApex)
+{
+  Mesh mesh = make_pillow();
+  ASSERT_EQ(mesh.face_count(), 2U);
+  const ConnectivityRecords records = connectivity_records(mesh);
+  for (const EdgeHandle edge : mesh.edges())
+  {
+    EXPECT_EQ(flip_edge(mesh, edge), FlipStatus::DiagonalExists);
+    EXPECT_TRUE(connectivity_records(mesh) == records);
+  }
 }
 
 TEST(MeshFlip, RejectsEdgeAtInteriorValenceThreeVertex)
@@ -274,19 +424,21 @@ TEST(MeshFlip, RejectsEdgeAtInteriorValenceThreeVertex)
   const Vec3 centroid = (mesh.get_position(corners[0]) + mesh.get_position(corners[1]) + mesh.get_position(corners[2])) / 3.0;
   const VertexHandle center = split_face(mesh, face, centroid);
   ASSERT_TRUE(center.is_valid());
+  const ConnectivityRecords records = connectivity_records(mesh);
 
   for (const VertexHandle corner : corners)
   {
     EXPECT_EQ(flip_edge(mesh, edge_between(mesh, center, corner)), FlipStatus::DiagonalExists);
+    EXPECT_TRUE(connectivity_records(mesh) == records);
   }
-  EXPECT_EQ(valence(mesh, center), 3U);
-  expect_structurally_valid(mesh);
 }
 
 TEST(MeshFlip, RejectsInvalidAndDeletedEdge)
 {
   Mesh mesh = make_grid(3);
+  const ConnectivityRecords intactRecords = connectivity_records(mesh);
   EXPECT_EQ(flip_edge(mesh, EdgeHandle{}), FlipStatus::InvalidHandle);
+  EXPECT_TRUE(connectivity_records(mesh) == intactRecords);
 
   // Deleting the corner face (1,0), (2,0), (2,1) drops its two boundary edges.
   const HalfedgeHandle cornerEdge = mesh.find_halfedge(grid3(1, 0), grid3(2, 0));
@@ -294,8 +446,32 @@ TEST(MeshFlip, RejectsInvalidAndDeletedEdge)
   const EdgeHandle deleted = mesh.get_halfedge(cornerEdge).edge;
   ASSERT_EQ(delete_face(mesh, mesh.get_halfedge(cornerEdge).face), DeleteStatus::Ok);
   ASSERT_TRUE(mesh.is_deleted(deleted));
+  const ConnectivityRecords records = connectivity_records(mesh);
 
   EXPECT_EQ(flip_edge(mesh, deleted), FlipStatus::InvalidHandle);
+  EXPECT_TRUE(connectivity_records(mesh) == records);
+}
+
+// The quad around the edge has a reflex corner at the edge's start, so the other diagonal runs outside
+// it. The flip is still legal topologically and folds the surface: only the caller can tell.
+TEST(MeshFlip, AcceptsNonConvexQuadTopologically)
+{
+  Mesh mesh;
+  const VertexHandle start = mesh.add_vertex({0.0, 0.0, 0.0});
+  const VertexHandle end = mesh.add_vertex({2.0, 0.0, 0.0});
+  const VertexHandle leftApex = mesh.add_vertex({1.0, 1.0, 0.0});
+  const VertexHandle rightApex = mesh.add_vertex({-1.0, -0.5, 0.0});
+  ASSERT_TRUE(add_triangle(mesh, start, end, leftApex).is_valid());
+  ASSERT_TRUE(add_triangle(mesh, end, start, rightApex).is_valid());
+  ASSERT_TRUE(all_faces_counter_clockwise(mesh));
+  const EdgeHandle edge = edge_between(mesh, start, end);
+
+  EXPECT_EQ(is_flip_ok(mesh, edge), FlipStatus::Ok);
+  ASSERT_EQ(flip_edge(mesh, edge), FlipStatus::Ok);
+
+  EXPECT_TRUE(mesh.find_halfedge(rightApex, leftApex).is_valid());
+  expect_structurally_valid(mesh);
+  EXPECT_FALSE(all_faces_counter_clockwise(mesh));
 }
 
 // Constraint recovery in corefinement flips repeatedly in a region that splits have refined, so
