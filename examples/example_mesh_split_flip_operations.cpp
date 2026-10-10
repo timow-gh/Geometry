@@ -283,18 +283,7 @@ Mesh placed(const Mesh& mesh, double x, double y) {
 
 // Thick lines along edges, over the thin triangle edges of the wireframe.
 void draw_edges(const Mesh& mesh, std::span<const EdgeHandle> edges, const example::color& color) {
-    if (edges.empty())
-        return;
-    std::vector<double> endpoints;
-    endpoints.reserve(6 * edges.size());
-    for (const EdgeHandle edge : edges) {
-        const HalfedgeHandle halfedge = mesh.get_edge(edge).halfedge;
-        for (const VertexHandle vertex : {mesh.source_vertex(halfedge), mesh.target_vertex(halfedge)}) {
-            const Vec3& position = mesh.get_position(vertex);
-            endpoints.insert(endpoints.end(), {position[0], position[1], position[2]});
-        }
-    }
-    example::check_geoqik(example::draw_lines(endpoints, color, highlightLineWidth, 2).err, "Draw edges");
+    example::draw_mesh_edges(mesh, edges, color, highlightLineWidth);
 }
 
 // What an operation changed, highlighted in the panel after it.

@@ -48,6 +48,7 @@ set(geometry_examples
     example_line_intersections
     example_mesh
     example_mesh_booleans
+    example_mesh_corefine
     example_mesh_operations
     example_mesh_split_flip_operations
     example_minkowski_sum)

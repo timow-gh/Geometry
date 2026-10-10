@@ -206,6 +206,46 @@ inline geoqik_result_t draw_lines(const std::vector<double>& endpoints,
     return geoqik_add_lines_opts(endpoints.data(), endpoints.size(), &options);
 }
 
+// Thick lines along edges of mesh, over the thin triangle edges of draw_wireframe_mesh.
+template <std::floating_point T, typename TIndex>
+inline void draw_mesh_edges(const Geometry::TriangleHalfedgeMesh<T, 3, TIndex>& mesh,
+                            std::span<const typename Geometry::TriangleHalfedgeMesh<T, 3, TIndex>::EdgeHandle> edges,
+                            const color& color,
+                            float lineWidth) {
+    using Mesh = Geometry::TriangleHalfedgeMesh<T, 3, TIndex>;
+    using VertexHandle = typename Mesh::VertexHandle;
+    using HalfedgeHandle = typename Mesh::HalfedgeHandle;
+    using EdgeHandle = typename Mesh::EdgeHandle;
+
+    if (edges.empty())
+        return;
+    std::vector<double> endpoints;
+    endpoints.reserve(6 * edges.size());
+    for (const EdgeHandle edge : edges) {
+        const HalfedgeHandle halfedge = mesh.get_edge(edge).halfedge;
+        for (const VertexHandle vertex : {mesh.source_vertex(halfedge), mesh.target_vertex(halfedge)}) {
+            const auto& position = mesh.get_position(vertex);
+            endpoints.insert(endpoints.end(), {static_cast<double>(position[0]), static_cast<double>(position[1]),
+                                               static_cast<double>(position[2])});
+        }
+    }
+    check_geoqik(draw_lines(endpoints, color, lineWidth, 2).err, "Draw edges");
+}
+
+// Points as spheres of a fixed size on screen, so that they stay visible at any zoom; coordinates
+// holds three per point.
+inline void draw_points(const std::vector<double>& coordinates, const color& color, float diameterInPixels) {
+    if (coordinates.empty())
+        return;
+    geoqik_add_points_options_t options{};
+    options.color = color.rgba.data();
+    options.colorCount = color.rgba.size();
+    options.radii = &diameterInPixels;
+    options.radiusCount = 1;
+    options.sizeSpace = GEOQIK_SPHERE_SIZE_SPACE_SCREEN;
+    check_geoqik(geoqik_add_points_opts(coordinates.data(), coordinates.size(), &options).err, "Draw points");
+}
+
 // Draws mesh's faces in surfaceColor and every triangle edge as a thin black line on top. Separate
 // lines rather than the mesh's own segment overlay, because geoqik draws that overlay in white
 // whatever color is asked for. Returns the render buffers, so that a caller can outline more edges.

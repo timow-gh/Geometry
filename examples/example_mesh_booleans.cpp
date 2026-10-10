@@ -114,8 +114,8 @@ Mesh make_sphere(const Vec3& center, double radius, std::size_t subdivisions) {
 
 // A failed Boolean is reported here, naming the operation, instead of leaving an empty spot in the
 // scene. The result checks repeat what mesh_boolean guarantees, as a safeguard for the demo.
-Mesh boolean(const Mesh& meshA, const Mesh& meshB, BooleanOperation operation, const char* name) {
-    auto result = Geometry::mesh_boolean(meshA, meshB, operation, booleanOptions);
+Mesh boolean(Mesh&& meshA, Mesh&& meshB, BooleanOperation operation, const char* name) {
+    auto result = Geometry::mesh_boolean(std::move(meshA), std::move(meshB), operation, booleanOptions);
     if (!result) {
         std::fprintf(stderr, "%s: mesh Boolean failed\n", name);
         example::fail_example("Mesh Boolean", static_cast<int>(result.error));
@@ -157,10 +157,10 @@ void draw_box_and_sphere_row() {
 
     draw(box, 0, inputColorA);
     draw(sphere, 0, inputColorB);
-    draw(boolean(box, sphere, BooleanOperation::Union, "box u sphere"), 1, example::light_cyan());
-    draw(boolean(box, sphere, BooleanOperation::Intersection, "box n sphere"), 2, example::light_green());
-    draw(boolean(box, sphere, BooleanOperation::Difference, "box - sphere"), 3, inputColorA);
-    draw(boolean(sphere, box, BooleanOperation::Difference, "sphere - box"), 4, inputColorB);
+    draw(boolean(Mesh{box}, Mesh{sphere}, BooleanOperation::Union, "box u sphere"), 1, example::light_cyan());
+    draw(boolean(Mesh{box}, Mesh{sphere}, BooleanOperation::Intersection, "box n sphere"), 2, example::light_green());
+    draw(boolean(Mesh{box}, Mesh{sphere}, BooleanOperation::Difference, "box - sphere"), 3, inputColorA);
+    draw(boolean(Mesh{sphere}, Mesh{box}, BooleanOperation::Difference, "sphere - box"), 4, inputColorB);
 }
 
 // A rounded cube drilled along two axes, each step a Boolean on the previous result, then cut open.
@@ -177,16 +177,16 @@ void draw_constructive_solid_geometry_row() {
     const Vec3 center{0.0, 0.0, 1.0};
     const Mesh cube = make_box(Vec3{-1.0, -1.0, 0.0}, Vec3{1.0, 1.0, 2.0});
     const Mesh sphere = make_sphere(center, 1.35, 3);
-    const Mesh rounded = boolean(cube, sphere, BooleanOperation::Intersection, "cube n sphere");
+    const Mesh rounded = boolean(Mesh{cube}, Mesh{sphere}, BooleanOperation::Intersection, "cube n sphere");
 
-    const Mesh alongX = make_cylinder(Vec3{center - Vec3{2.0, 0.0, 0.0}}, Vec3{center + Vec3{2.0, 0.0, 0.0}}, 0.55, 20);
-    const Mesh alongZ = make_cylinder(Vec3{center - Vec3{0.0, 0.0, 2.0}}, Vec3{center + Vec3{0.0, 0.0, 2.0}}, 0.45, 18);
-    const Mesh drilledX = boolean(rounded, alongX, BooleanOperation::Difference, "rounded cube - cylinder x");
-    const Mesh drilledXZ = boolean(drilledX, alongZ, BooleanOperation::Difference, "drilled - cylinder z");
+    Mesh alongX = make_cylinder(Vec3{center - Vec3{2.0, 0.0, 0.0}}, Vec3{center + Vec3{2.0, 0.0, 0.0}}, 0.55, 20);
+    Mesh alongZ = make_cylinder(Vec3{center - Vec3{0.0, 0.0, 2.0}}, Vec3{center + Vec3{0.0, 0.0, 2.0}}, 0.45, 18);
+    const Mesh drilledX = boolean(Mesh{rounded}, std::move(alongX), BooleanOperation::Difference, "rounded cube - cylinder x");
+    const Mesh drilledXZ = boolean(Mesh{drilledX}, std::move(alongZ), BooleanOperation::Difference, "drilled - cylinder z");
 
     // Keeping the back half opens the part towards the front; the cut plane avoids the cylinder axes.
-    const Mesh backHalf = make_box(Vec3{-2.0, 0.1, -1.0}, Vec3{2.0, 2.0, 3.0});
-    const Mesh cutOpen = boolean(drilledXZ, backHalf, BooleanOperation::Intersection, "drilled n back half");
+    Mesh backHalf = make_box(Vec3{-2.0, 0.1, -1.0}, Vec3{2.0, 2.0, 3.0});
+    const Mesh cutOpen = boolean(Mesh{drilledXZ}, std::move(backHalf), BooleanOperation::Intersection, "drilled n back half");
 
     draw(cube, 0, inputColorA);
     draw(sphere, 0, inputColorB);
@@ -206,19 +206,19 @@ void draw_coplanar_contact_row() {
     const Mesh right = make_box(Vec3{0.0, -1.0, 0.0}, Vec3{1.0, 1.0, 1.5});
     draw(left, 0, inputColorA);
     draw(right, 0, inputColorB);
-    draw(boolean(left, right, BooleanOperation::Union, "left u right"), 1, example::light_cyan());
+    draw(boolean(Mesh{left}, Mesh{right}, BooleanOperation::Union, "left u right"), 1, example::light_cyan());
 
     const Mesh block = make_box(Vec3{-1.0, -1.0, 0.0}, Vec3{1.0, 1.0, 1.5});
     const Mesh bar = make_box(Vec3{-0.4, -0.6, 0.0}, Vec3{0.4, 0.6, 1.5});
     draw(block, 2, inputColorA);
     draw(bar, 2, inputColorB);
-    draw(boolean(block, bar, BooleanOperation::Difference, "block - bar"), 3, inputColorA);
+    draw(boolean(Mesh{block}, Mesh{bar}, BooleanOperation::Difference, "block - bar"), 3, inputColorA);
 
-    const Mesh bottomStep = make_box(Vec3{-1.0, -1.0, 0.0}, Vec3{1.0, 1.0, 0.5});
-    const Mesh middleStep = make_box(Vec3{-0.5, -1.0, 0.5}, Vec3{1.0, 1.0, 1.0});
-    const Mesh topStep = make_box(Vec3{0.0, -1.0, 1.0}, Vec3{1.0, 1.0, 1.5});
-    const Mesh staircase = boolean(boolean(bottomStep, middleStep, BooleanOperation::Union, "bottom u middle step"),
-                                   topStep,
+    Mesh bottomStep = make_box(Vec3{-1.0, -1.0, 0.0}, Vec3{1.0, 1.0, 0.5});
+    Mesh middleStep = make_box(Vec3{-0.5, -1.0, 0.5}, Vec3{1.0, 1.0, 1.0});
+    Mesh topStep = make_box(Vec3{0.0, -1.0, 1.0}, Vec3{1.0, 1.0, 1.5});
+    const Mesh staircase = boolean(boolean(std::move(bottomStep), std::move(middleStep), BooleanOperation::Union, "bottom u middle step"),
+                                   std::move(topStep),
                                    BooleanOperation::Union,
                                    "steps u top step");
     draw(staircase, 4, example::light_cyan());

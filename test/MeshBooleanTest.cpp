@@ -196,6 +196,20 @@ TEST(MeshBooleanClassificationTest, selection_keeps_each_coplanar_region_once)
 
 // --- Booleans ---------------------------------------------------------------------------------
 
+// Whether the Booleans accept lvalues; they must not, so that every copy is visible at the call site.
+// A concept, so that the ill-formed call yields false instead of a compile error.
+template <typename TMesh>
+concept BooleansTakeLvalues = requires(TMesh& first, TMesh& second) {
+  mesh_boolean(first, second, BooleanOperation::Union);
+} || requires(TMesh& first, TMesh& second) { mesh_union(first, second); };
+template <typename TMesh>
+concept BooleansTakeRvalues = requires(TMesh&& first, TMesh&& second) {
+  mesh_boolean(std::move(first), std::move(second), BooleanOperation::Union);
+  mesh_union(std::move(first), std::move(second));
+};
+static_assert(!BooleansTakeLvalues<Mesh>);
+static_assert(BooleansTakeRvalues<Mesh>);
+
 TEST(MeshBooleanTest, overlapping_boxes)
 {
   // Dyadic offsets keep every intersection point exactly representable and avoid coplanar faces.
@@ -203,11 +217,11 @@ TEST(MeshBooleanTest, overlapping_boxes)
   const Mesh meshB = make_box(Vec3{1.0, 0.5, 0.25}, Vec3{3.0, 2.5, 2.25});
   const double common = 1.0 * 1.5 * 1.75;
 
-  expect_solid(mesh_union(meshA, meshB), 1, 2, 16.0 - common);
-  expect_solid(mesh_intersection(meshA, meshB), 1, 2, common);
-  expect_solid(mesh_difference(meshA, meshB), 1, 2, 8.0 - common);
+  expect_solid(mesh_union(Mesh{meshA}, Mesh{meshB}), 1, 2, 16.0 - common);
+  expect_solid(mesh_intersection(Mesh{meshA}, Mesh{meshB}), 1, 2, common);
+  expect_solid(mesh_difference(Mesh{meshA}, Mesh{meshB}), 1, 2, 8.0 - common);
   // NOLINTNEXTLINE(readability-suspicious-call-argument): B - A on purpose
-  expect_solid(mesh_difference(meshB, meshA), 1, 2, 8.0 - common);
+  expect_solid(mesh_difference(Mesh{meshB}, Mesh{meshA}), 1, 2, 8.0 - common);
 }
 
 TEST(MeshBooleanTest, box_inside_box)
@@ -216,11 +230,11 @@ TEST(MeshBooleanTest, box_inside_box)
   const Mesh outer = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{4.0, 4.0, 4.0});
   const Mesh inner = make_box(Vec3{1.0, 1.0, 1.0}, Vec3{2.0, 2.0, 2.0});
 
-  expect_solid(mesh_union(outer, inner), 1, 2, 64.0);
-  expect_solid(mesh_intersection(outer, inner), 1, 2, 1.0);
+  expect_solid(mesh_union(Mesh{outer}, Mesh{inner}), 1, 2, 64.0);
+  expect_solid(mesh_intersection(Mesh{outer}, Mesh{inner}), 1, 2, 1.0);
   // A cavity: the inner box becomes an inward shell.
-  expect_solid(mesh_difference(outer, inner), 2, 4, 63.0);
-  expect_empty(mesh_difference(inner, outer));
+  expect_solid(mesh_difference(Mesh{outer}, Mesh{inner}), 2, 4, 63.0);
+  expect_empty(mesh_difference(Mesh{inner}, Mesh{outer}));
 }
 
 TEST(MeshBooleanTest, disjoint_boxes)
@@ -228,9 +242,9 @@ TEST(MeshBooleanTest, disjoint_boxes)
   const Mesh meshA = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
   const Mesh meshB = make_box(Vec3{2.0, 0.0, 0.0}, Vec3{3.0, 1.0, 1.0});
 
-  expect_solid(mesh_union(meshA, meshB), 2, 4, 2.0);
-  expect_empty(mesh_intersection(meshA, meshB));
-  expect_solid(mesh_difference(meshA, meshB), 1, 2, 1.0);
+  expect_solid(mesh_union(Mesh{meshA}, Mesh{meshB}), 2, 4, 2.0);
+  expect_empty(mesh_intersection(Mesh{meshA}, Mesh{meshB}));
+  expect_solid(mesh_difference(Mesh{meshA}, Mesh{meshB}), 1, 2, 1.0);
 }
 
 TEST(MeshBooleanTest, boxes_sharing_a_face_merge_without_an_inner_wall)
@@ -238,12 +252,12 @@ TEST(MeshBooleanTest, boxes_sharing_a_face_merge_without_an_inner_wall)
   const Mesh meshA = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
   const Mesh meshB = make_box(Vec3{1.0, 0.0, 0.0}, Vec3{2.0, 1.0, 1.0});
 
-  const Result united = mesh_union(meshA, meshB);
+  const Result united = mesh_union(Mesh{meshA}, Mesh{meshB});
   expect_solid(united, 1, 2, 2.0);
   // The shared square is gone; only its rim remains, inside the merged sides.
   EXPECT_EQ(united.mesh.face_count(), 20U);
-  expect_empty(mesh_intersection(meshA, meshB));
-  expect_solid(mesh_difference(meshA, meshB), 1, 2, 1.0);
+  expect_empty(mesh_intersection(Mesh{meshA}, Mesh{meshB}));
+  expect_solid(mesh_difference(Mesh{meshA}, Mesh{meshB}), 1, 2, 1.0);
 }
 
 TEST(MeshBooleanTest, boxes_in_shifted_coplanar_contact)
@@ -253,11 +267,11 @@ TEST(MeshBooleanTest, boxes_in_shifted_coplanar_contact)
   const Mesh meshA = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
   const Mesh meshB = make_box(Vec3{1.0, 0.5, 0.25}, Vec3{2.0, 1.5, 1.25});
 
-  expect_solid(mesh_union(meshA, meshB), 1, 2, 2.0);
-  expect_empty(mesh_intersection(meshA, meshB));
-  expect_solid(mesh_difference(meshA, meshB), 1, 2, 1.0);
+  expect_solid(mesh_union(Mesh{meshA}, Mesh{meshB}), 1, 2, 2.0);
+  expect_empty(mesh_intersection(Mesh{meshA}, Mesh{meshB}));
+  expect_solid(mesh_difference(Mesh{meshA}, Mesh{meshB}), 1, 2, 1.0);
   // NOLINTNEXTLINE(readability-suspicious-call-argument): B - A on purpose
-  expect_solid(mesh_difference(meshB, meshA), 1, 2, 1.0);
+  expect_solid(mesh_difference(Mesh{meshB}, Mesh{meshA}), 1, 2, 1.0);
 }
 
 TEST(MeshBooleanTest, flush_difference_cuts_a_through_hole)
@@ -267,22 +281,22 @@ TEST(MeshBooleanTest, flush_difference_cuts_a_through_hole)
   const Mesh meshB = make_box(Vec3{0.5, 0.5, 0.0}, Vec3{1.5, 1.5, 2.0});
 
   // Genus 1: Euler characteristic 0.
-  expect_solid(mesh_difference(meshA, meshB), 1, 0, 6.0);
-  expect_solid(mesh_union(meshA, meshB), 1, 2, 8.0);
-  expect_solid(mesh_intersection(meshA, meshB), 1, 2, 2.0);
+  expect_solid(mesh_difference(Mesh{meshA}, Mesh{meshB}), 1, 0, 6.0);
+  expect_solid(mesh_union(Mesh{meshA}, Mesh{meshB}), 1, 2, 8.0);
+  expect_solid(mesh_intersection(Mesh{meshA}, Mesh{meshB}), 1, 2, 2.0);
   // NOLINTNEXTLINE(readability-suspicious-call-argument): B - A on purpose
-  expect_empty(mesh_difference(meshB, meshA));
+  expect_empty(mesh_difference(Mesh{meshB}, Mesh{meshA}));
 }
 
 TEST(MeshBooleanTest, identical_boxes)
 {
   const Mesh box = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
 
-  const Result united = mesh_union(box, box);
+  const Result united = mesh_union(Mesh{box}, Mesh{box});
   expect_solid(united, 1, 2, 1.0);
   EXPECT_EQ(united.mesh.face_count(), 12U);
-  expect_solid(mesh_intersection(box, box), 1, 2, 1.0);
-  expect_empty(mesh_difference(box, box));
+  expect_solid(mesh_intersection(Mesh{box}, Mesh{box}), 1, 2, 1.0);
+  expect_empty(mesh_difference(Mesh{box}, Mesh{box}));
 }
 
 TEST(MeshBooleanTest, tetrahedron_through_box_face)
@@ -295,16 +309,16 @@ TEST(MeshBooleanTest, tetrahedron_through_box_face)
                                      {Triangle{0, 2, 1}, Triangle{0, 3, 2}, Triangle{0, 1, 3}, Triangle{1, 2, 3}});
   const double volume = signed_volume(tetrahedron);
 
-  const Result common = mesh_intersection(box, tetrahedron);
+  const Result common = mesh_intersection(Mesh{box}, Mesh{tetrahedron});
   ASSERT_TRUE(common.has_value());
   const double commonVolume = signed_volume(common.mesh);
   EXPECT_GT(commonVolume, 0.0);
   EXPECT_LT(commonVolume, volume);
   expect_solid(common, 1, 2, commonVolume);
-  expect_solid(mesh_union(box, tetrahedron), 1, 2, 8.0 + volume - commonVolume);
+  expect_solid(mesh_union(Mesh{box}, Mesh{tetrahedron}), 1, 2, 8.0 + volume - commonVolume);
   // A pocket opening in the top face.
-  expect_solid(mesh_difference(box, tetrahedron), 1, 2, 8.0 - commonVolume);
-  expect_solid(mesh_difference(tetrahedron, box), 1, 2, volume - commonVolume);
+  expect_solid(mesh_difference(Mesh{box}, Mesh{tetrahedron}), 1, 2, 8.0 - commonVolume);
+  expect_solid(mesh_difference(Mesh{tetrahedron}, Mesh{box}), 1, 2, volume - commonVolume);
 }
 
 TEST(MeshBooleanTest, cylinder_through_box)
@@ -317,12 +331,12 @@ TEST(MeshBooleanTest, cylinder_through_box)
   ASSERT_TRUE(cylinder.has_value());
   const double crossSection = 0.5 * static_cast<double>(segments) * radius * radius * std::sin(2.0 * std::numbers::pi / static_cast<double>(segments));
 
-  expect_solid(mesh_union(box, cylinder.mesh), 1, 2, 8.0 + 2.0 * crossSection);
-  expect_solid(mesh_intersection(box, cylinder.mesh), 1, 2, 2.0 * crossSection);
+  expect_solid(mesh_union(Mesh{box}, Mesh{cylinder.mesh}), 1, 2, 8.0 + 2.0 * crossSection);
+  expect_solid(mesh_intersection(Mesh{box}, Mesh{cylinder.mesh}), 1, 2, 2.0 * crossSection);
   // A drilled hole: genus 1.
-  expect_solid(mesh_difference(box, cylinder.mesh), 1, 0, 8.0 - 2.0 * crossSection);
+  expect_solid(mesh_difference(Mesh{box}, Mesh{cylinder.mesh}), 1, 0, 8.0 - 2.0 * crossSection);
   // The two ends sticking out of the box.
-  expect_solid(mesh_difference(cylinder.mesh, box), 2, 4, 2.0 * crossSection);
+  expect_solid(mesh_difference(Mesh{cylinder.mesh}, Mesh{box}), 2, 4, 2.0 * crossSection);
 }
 
 TEST(MeshBooleanTest, boxes_touching_along_an_edge)
@@ -330,11 +344,11 @@ TEST(MeshBooleanTest, boxes_touching_along_an_edge)
   const Mesh meshA = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
   const Mesh meshB = make_box(Vec3{1.0, 1.0, 0.0}, Vec3{2.0, 2.0, 1.0});
 
-  const Result united = mesh_union(meshA, meshB);
+  const Result united = mesh_union(Mesh{meshA}, Mesh{meshB});
   EXPECT_EQ(united.error, BooleanStatus::NonManifoldResult);
   EXPECT_EQ(united.mesh.face_count(), 0U);
-  expect_empty(mesh_intersection(meshA, meshB));
-  expect_solid(mesh_difference(meshA, meshB), 1, 2, 1.0);
+  expect_empty(mesh_intersection(Mesh{meshA}, Mesh{meshB}));
+  expect_solid(mesh_difference(Mesh{meshA}, Mesh{meshB}), 1, 2, 1.0);
 }
 
 TEST(MeshBooleanTest, solids_touching_at_a_vertex)
@@ -344,14 +358,14 @@ TEST(MeshBooleanTest, solids_touching_at_a_vertex)
   const Mesh tetrahedron = make_mesh({Vec3{1.0, 0.5, 2.0}, Vec3{0.0, 0.0, 3.0}, Vec3{2.0, 0.0, 3.0}, Vec3{1.0, 2.0, 3.0}},
                                      {Triangle{0, 2, 1}, Triangle{0, 3, 2}, Triangle{0, 1, 3}, Triangle{1, 2, 3}});
 
-  EXPECT_EQ(mesh_union(box, tetrahedron).error, BooleanStatus::NonManifoldResult);
-  expect_empty(mesh_intersection(box, tetrahedron));
-  expect_solid(mesh_difference(box, tetrahedron), 1, 2, 8.0);
-  expect_solid(mesh_difference(tetrahedron, box), 1, 2, signed_volume(tetrahedron));
+  EXPECT_EQ(mesh_union(Mesh{box}, Mesh{tetrahedron}).error, BooleanStatus::NonManifoldResult);
+  expect_empty(mesh_intersection(Mesh{box}, Mesh{tetrahedron}));
+  expect_solid(mesh_difference(Mesh{box}, Mesh{tetrahedron}), 1, 2, 8.0);
+  expect_solid(mesh_difference(Mesh{tetrahedron}, Mesh{box}), 1, 2, signed_volume(tetrahedron));
 
   // Corner to corner.
   const Mesh corner = make_box(Vec3{2.0, 2.0, 2.0}, Vec3{3.0, 3.0, 3.0});
-  EXPECT_EQ(mesh_union(box, corner).error, BooleanStatus::NonManifoldResult);
+  EXPECT_EQ(mesh_union(Mesh{box}, Mesh{corner}).error, BooleanStatus::NonManifoldResult);
 }
 
 TEST(MeshBooleanTest, empty_operand_is_the_empty_solid)
@@ -359,19 +373,19 @@ TEST(MeshBooleanTest, empty_operand_is_the_empty_solid)
   const Mesh box = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
   const Mesh empty;
 
-  expect_solid(mesh_union(box, empty), 1, 2, 1.0);
-  expect_solid(mesh_union(empty, box), 1, 2, 1.0);
-  expect_empty(mesh_intersection(box, empty));
-  expect_solid(mesh_difference(box, empty), 1, 2, 1.0);
-  expect_empty(mesh_difference(empty, box));
+  expect_solid(mesh_union(Mesh{box}, Mesh{empty}), 1, 2, 1.0);
+  expect_solid(mesh_union(Mesh{empty}, Mesh{box}), 1, 2, 1.0);
+  expect_empty(mesh_intersection(Mesh{box}, Mesh{empty}));
+  expect_solid(mesh_difference(Mesh{box}, Mesh{empty}), 1, 2, 1.0);
+  expect_empty(mesh_difference(Mesh{empty}, Mesh{box}));
 }
 
 TEST(MeshBooleanTest, invalid_operands_are_reported)
 {
   const Mesh box = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
   const auto statusWith = [&box](const Mesh& operand) {
-    const Result asB = mesh_union(box, operand);
-    const Result asA = mesh_union(operand, box);
+    const Result asB = mesh_union(Mesh{box}, Mesh{operand});
+    const Result asA = mesh_union(Mesh{operand}, Mesh{box});
     EXPECT_EQ(asA.error, asB.error);
     EXPECT_EQ(asB.mesh.face_count(), 0U);
     return asB.error;
@@ -435,14 +449,14 @@ TEST(MeshBooleanTest, creases_follow_the_options)
   const double creaseAngle = default_crease_angle<double>;
 
   // Operand creases and the curve by angle: the box edges and the curve, exactly the sharp edges.
-  const Result withCurve = mesh_union(meshA, meshB, MeshBooleanOptions<double>{.transferCreases = true, .intersectionCreaseAngle = creaseAngle});
+  const Result withCurve = mesh_union(Mesh{meshA}, Mesh{meshB}, MeshBooleanOptions<double>{.transferCreases = true, .intersectionCreaseAngle = creaseAngle});
   ASSERT_TRUE(withCurve.has_value());
   Mesh byAngle = withCurve.mesh;
   mark_creases_by_angle(byAngle, creaseAngle);
   EXPECT_EQ(crease_flags(withCurve.mesh), crease_flags(byAngle));
 
   // By default the curve, sharp as it is, stays smooth; every transferred crease is a sharp edge.
-  const Result transferred = mesh_union(meshA, meshB);
+  const Result transferred = mesh_union(Mesh{meshA}, Mesh{meshB});
   ASSERT_TRUE(transferred.has_value());
   EXPECT_LT(crease_count(transferred.mesh), crease_count(withCurve.mesh));
   EXPECT_GT(crease_count(transferred.mesh), 0U);
@@ -453,7 +467,7 @@ TEST(MeshBooleanTest, creases_follow_the_options)
     EXPECT_TRUE(!transferredFlags[i] || sharp[i]) << "edge " << i;
   }
 
-  const Result none = mesh_union(meshA, meshB, MeshBooleanOptions<double>{.transferCreases = false, .intersectionCreaseAngle = std::nullopt});
+  const Result none = mesh_union(Mesh{meshA}, Mesh{meshB}, MeshBooleanOptions<double>{.transferCreases = false, .intersectionCreaseAngle = std::nullopt});
   ASSERT_TRUE(none.has_value());
   EXPECT_EQ(crease_count(none.mesh), 0U);
 }
@@ -464,7 +478,7 @@ TEST(MeshBooleanTest, crease_on_a_merged_rim_is_dropped)
   const Mesh meshA = make_creased_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
   const Mesh meshB = make_creased_box(Vec3{1.0, 0.0, 0.0}, Vec3{2.0, 1.0, 1.0});
 
-  const Result united = mesh_union(meshA, meshB, MeshBooleanOptions<double>{.intersectionCreaseAngle = default_crease_angle<double>});
+  const Result united = mesh_union(Mesh{meshA}, Mesh{meshB}, MeshBooleanOptions<double>{.intersectionCreaseAngle = default_crease_angle<double>});
   ASSERT_TRUE(united.has_value());
   // The 12 edges of the merged box, the four along x split in two where the rim was.
   EXPECT_EQ(crease_count(united.mesh), 16U);
@@ -480,7 +494,7 @@ TEST(MeshBooleanTest, float_coordinates)
   auto boxB = make_triangle_mesh(AABB<float, 3>{FloatVec{1.0F, 0.5F, 0.25F}, FloatVec{3.0F, 2.5F, 2.25F}});
   ASSERT_TRUE(boxA.has_value() && boxB.has_value());
 
-  const MeshBooleanResult<float, std::uint32_t> result = mesh_intersection(boxA.mesh, boxB.mesh);
+  const MeshBooleanResult<float, std::uint32_t> result = mesh_intersection(std::move(boxA.mesh), std::move(boxB.mesh));
   ASSERT_TRUE(result.has_value());
   EXPECT_TRUE(verify_closed(result.mesh));
   EXPECT_TRUE(verify_manifold(result.mesh));
@@ -503,7 +517,7 @@ TEST(MeshBooleanTest, DISABLED_intersection_points_closer_than_rounding)
                                {Triangle{0, 1, 2}, Triangle{0, 3, 1}, Triangle{0, 2, 3}, Triangle{1, 3, 2}});
   ASSERT_EQ(is_outward_oriented(wedge), std::optional<bool>{true});
 
-  const Result united = mesh_union(box, wedge);
+  const Result united = mesh_union(Mesh{box}, Mesh{wedge});
   ASSERT_TRUE(united.has_value()) << "status " << static_cast<int>(united.error);
   EXPECT_TRUE(verify_manifold(united.mesh));
   EXPECT_TRUE(verify_closed(united.mesh));

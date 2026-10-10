@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <array>
+#include <bit>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -182,14 +183,16 @@ TEST(MeshCorefineTest, shifted_boxes_get_matching_closed_loops)
   const Vec3 maxA{2.0, 2.0, 2.0};
   const Vec3 minB{1.0, 0.5, 0.25};
   const Vec3 maxB{3.0, 2.5, 2.25};
-  Mesh meshA = make_box(minA, maxA);
-  Mesh meshB = make_box(minB, maxB);
-  const double volumeA = signed_volume(meshA);
-  const double volumeB = signed_volume(meshB);
+  Mesh boxA = make_box(minA, maxA);
+  Mesh boxB = make_box(minB, maxB);
+  const double volumeA = signed_volume(boxA);
+  const double volumeB = signed_volume(boxB);
 
-  const Result result = corefine(meshA, meshB);
+  const Result result = corefine(std::move(boxA), std::move(boxB));
   ASSERT_TRUE(result.has_value());
   ASSERT_FALSE(result.intersectionEdgesA.empty());
+  const Mesh& meshA = result.meshA;
+  const Mesh& meshB = result.meshB;
 
   for (const Mesh* mesh : {&meshA, &meshB})
   {
@@ -272,12 +275,13 @@ TEST(MeshCorefineTest, collinear_points_split_the_edge_they_lie_on)
   // sliver face.
   const Vec3 min{0.0, 0.0, 0.0};
   const Vec3 max{2.0, 2.0, 2.0};
-  Mesh meshA = make_box(min, max);
-  Mesh meshB = make_piercing_tetrahedron();
-  const double volumeB = signed_volume(meshB);
+  Mesh tetrahedron = make_piercing_tetrahedron();
+  const double volumeB = signed_volume(tetrahedron);
 
-  const Result result = corefine(meshA, meshB);
+  const Result result = corefine(make_box(min, max), std::move(tetrahedron));
   ASSERT_TRUE(result.has_value());
+  const Mesh& meshA = result.meshA;
+  const Mesh& meshB = result.meshB;
 
   for (const Mesh* mesh : {&meshA, &meshB})
   {
@@ -300,15 +304,16 @@ TEST(MeshCorefineTest, cylinder_through_box_gets_two_loops)
   // The axis avoids the box diagonals x = y, so no side edge of the cylinder hits one exactly.
   const Vec3 minA{0.0, 0.0, 0.0};
   const Vec3 maxA{2.0, 2.0, 2.0};
-  Mesh meshA = make_box(minA, maxA);
+  Mesh box = make_box(minA, maxA);
   auto cylinder = make_triangle_mesh(Cylinder<double>{Segment3<double>{Vec3{0.7, 1.2, -1.0}, Vec3{0.7, 1.2, 3.0}}, 0.45}, 16);
   ASSERT_TRUE(cylinder.has_value());
-  Mesh meshB = std::move(cylinder.mesh);
-  const double volumeA = signed_volume(meshA);
-  const double volumeB = signed_volume(meshB);
+  const double volumeA = signed_volume(box);
+  const double volumeB = signed_volume(cylinder.mesh);
 
-  const Result result = corefine(meshA, meshB);
+  const Result result = corefine(std::move(box), std::move(cylinder.mesh));
   ASSERT_TRUE(result.has_value());
+  const Mesh& meshA = result.meshA;
+  const Mesh& meshB = result.meshB;
 
   for (const Mesh* mesh : {&meshA, &meshB})
   {
@@ -333,12 +338,12 @@ TEST(MeshCorefineTest, coplanar_contact_refines_the_shared_plane)
   const Vec3 maxA{1.0, 1.0, 1.0};
   const Vec3 minB{1.0, 0.5, 0.25};
   const Vec3 maxB{2.0, 1.5, 1.25};
-  Mesh meshA = make_box(minA, maxA);
-  Mesh meshB = make_box(minB, maxB);
 
-  const Result result = corefine(meshA, meshB);
+  const Result result = corefine(make_box(minA, maxA), make_box(minB, maxB));
   ASSERT_TRUE(result.has_value());
   ASSERT_FALSE(result.intersectionEdgesA.empty());
+  const Mesh& meshA = result.meshA;
+  const Mesh& meshB = result.meshB;
 
   for (const Mesh* mesh : {&meshA, &meshB})
   {
@@ -371,27 +376,24 @@ TEST(MeshCorefineTest, coplanar_contact_refines_the_shared_plane)
 
 TEST(MeshCorefineTest, boxes_sharing_a_face_mark_its_edges_without_new_vertices)
 {
-  Mesh meshA = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
-  Mesh meshB = make_box(Vec3{1.0, 0.0, 0.0}, Vec3{2.0, 1.0, 1.0});
-
-  const Result result = corefine(meshA, meshB);
+  const Result result = corefine(make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0}), make_box(Vec3{1.0, 0.0, 0.0}, Vec3{2.0, 1.0, 1.0}));
   ASSERT_TRUE(result.has_value());
-  EXPECT_EQ(meshA.vertex_count(), 8U);
-  EXPECT_EQ(meshB.vertex_count(), 8U);
+  EXPECT_EQ(result.meshA.vertex_count(), 8U);
+  EXPECT_EQ(result.meshB.vertex_count(), 8U);
   // The four sides of the shared square and its diagonal.
   EXPECT_EQ(result.intersectionEdgesA.size(), 5U);
-  expect_matching_curves(meshA, meshB, result);
+  expect_matching_curves(result.meshA, result.meshB, result);
 }
 
 TEST(MeshCorefineTest, triangle_pierced_by_box_recovers_the_loop_by_flips)
 {
   // The box pierces the triangle's interior: its four vertical edges and four side diagonals cross
   // the plane z = 0, so eight points inside one face must be joined into an octagon.
-  Mesh meshA = make_mesh({Vec3{-4.0, -4.0, 0.0}, Vec3{8.0, -4.0, 0.0}, Vec3{-4.0, 8.0, 0.0}}, {Triangle{0, 1, 2}});
-  Mesh meshB = make_box(Vec3{0.0, 0.0, -1.0}, Vec3{1.0, 1.0, 1.0});
-
-  const Result result = corefine(meshA, meshB);
+  const Result result = corefine(make_mesh({Vec3{-4.0, -4.0, 0.0}, Vec3{8.0, -4.0, 0.0}, Vec3{-4.0, 8.0, 0.0}}, {Triangle{0, 1, 2}}),
+                                 make_box(Vec3{0.0, 0.0, -1.0}, Vec3{1.0, 1.0, 1.0}));
   ASSERT_TRUE(result.has_value());
+  const Mesh& meshA = result.meshA;
+  const Mesh& meshB = result.meshB;
 
   EXPECT_TRUE(meshA.has_valid_connectivity());
   EXPECT_TRUE(verify_manifold(meshA));
@@ -414,68 +416,136 @@ TEST(MeshCorefineTest, triangle_pierced_by_box_recovers_the_loop_by_flips)
 TEST(MeshCorefineTest, isolated_touch_point_becomes_a_vertex_without_edges)
 {
   // A tetrahedron stands on its apex inside the interior of a box's top face.
-  Mesh meshA = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{2.0, 2.0, 2.0});
-  Mesh meshB = make_mesh({Vec3{1.0, 0.5, 2.0}, Vec3{0.0, 0.0, 3.0}, Vec3{2.0, 0.0, 3.0}, Vec3{1.0, 2.0, 3.0}},
-                         {Triangle{0, 2, 1}, Triangle{0, 3, 2}, Triangle{0, 1, 3}, Triangle{1, 2, 3}});
-
-  const Result result = corefine(meshA, meshB);
+  const Result result = corefine(make_box(Vec3{0.0, 0.0, 0.0}, Vec3{2.0, 2.0, 2.0}),
+                                 make_mesh({Vec3{1.0, 0.5, 2.0}, Vec3{0.0, 0.0, 3.0}, Vec3{2.0, 0.0, 3.0}, Vec3{1.0, 2.0, 3.0}},
+                                           {Triangle{0, 2, 1}, Triangle{0, 3, 2}, Triangle{0, 1, 3}, Triangle{1, 2, 3}}));
   ASSERT_TRUE(result.has_value());
   EXPECT_TRUE(result.intersectionEdgesA.empty());
-  EXPECT_EQ(meshA.vertex_count(), 9U);
-  EXPECT_EQ(meshA.face_count(), 14U);
-  EXPECT_EQ(meshB.vertex_count(), 4U);
-  expect_closed_manifold(meshA);
+  EXPECT_EQ(result.meshA.vertex_count(), 9U);
+  EXPECT_EQ(result.meshA.face_count(), 14U);
+  EXPECT_EQ(result.meshB.vertex_count(), 4U);
+  expect_closed_manifold(result.meshA);
 }
 
 TEST(MeshCorefineTest, disjoint_boxes_stay_unchanged)
 {
-  Mesh meshA = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
-  Mesh meshB = make_box(Vec3{2.0, 0.0, 0.0}, Vec3{3.0, 1.0, 1.0});
-
-  const Result result = corefine(meshA, meshB);
+  const Result result = corefine(make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0}), make_box(Vec3{2.0, 0.0, 0.0}, Vec3{3.0, 1.0, 1.0}));
   ASSERT_TRUE(result.has_value());
   EXPECT_TRUE(result.intersectionEdgesA.empty());
   EXPECT_TRUE(result.intersectionEdgesB.empty());
-  EXPECT_EQ(meshA.face_count(), 12U);
-  EXPECT_EQ(meshB.face_count(), 12U);
+  EXPECT_EQ(result.meshA.face_count(), 12U);
+  EXPECT_EQ(result.meshB.face_count(), 12U);
 }
 
 TEST(MeshCorefineTest, corefining_again_changes_nothing)
 {
-  Mesh meshA = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{2.0, 2.0, 2.0});
-  Mesh meshB = make_box(Vec3{1.0, 0.5, 0.25}, Vec3{3.0, 2.5, 2.25});
-  const Result first = corefine(meshA, meshB);
+  Result first = corefine(make_box(Vec3{0.0, 0.0, 0.0}, Vec3{2.0, 2.0, 2.0}), make_box(Vec3{1.0, 0.5, 0.25}, Vec3{3.0, 2.5, 2.25}));
   ASSERT_TRUE(first.has_value());
-  const std::size_t vertexCountA = meshA.vertex_count();
-  const std::size_t faceCountB = meshB.face_count();
+  const std::size_t vertexCountA = first.meshA.vertex_count();
+  const std::size_t faceCountB = first.meshB.face_count();
 
   // The curve already runs along edges of both meshes, so it consists of vertices and edges only.
-  const Result second = corefine(meshA, meshB);
+  const Result second = corefine(std::move(first.meshA), std::move(first.meshB));
   ASSERT_TRUE(second.has_value());
-  EXPECT_EQ(meshA.vertex_count(), vertexCountA);
-  EXPECT_EQ(meshB.face_count(), faceCountB);
+  EXPECT_EQ(second.meshA.vertex_count(), vertexCountA);
+  EXPECT_EQ(second.meshB.face_count(), faceCountB);
   EXPECT_EQ(second.intersectionEdgesA.size(), first.intersectionEdgesA.size());
 }
 
-TEST(MeshCorefineTest, failures_leave_both_meshes_untouched)
+// Positions by vertex handle and corners by face handle: equal for two meshes iff they are the same
+// mesh, handle for handle. Positions are kept as bits, so that a NaN coordinate equals itself.
+struct MeshGeometry
+{
+  std::vector<std::array<std::uint64_t, 3>> positionBits;
+  std::vector<std::array<std::uint32_t, 3>> faceCorners;
+
+  bool operator==(const MeshGeometry&) const = default;
+};
+
+MeshGeometry geometry_of(const Mesh& mesh)
+{
+  MeshGeometry geometry;
+  for (const VertexHandle vertex : mesh.vertices())
+  {
+    const Vec3& position = mesh.get_position(vertex);
+    geometry.positionBits.push_back(
+        {std::bit_cast<std::uint64_t>(position[0]), std::bit_cast<std::uint64_t>(position[1]), std::bit_cast<std::uint64_t>(position[2])});
+  }
+  for (const FaceHandle face : mesh.faces())
+  {
+    const auto corners = mesh.vertices_around_face(face);
+    geometry.faceCorners.push_back({corners[0].get_value(), corners[1].get_value(), corners[2].get_value()});
+  }
+  return geometry;
+}
+
+// Corefines copies of meshA and meshB, expects the failure, and expects both meshes back unchanged.
+void expect_failure_hands_back_the_meshes(const Mesh& meshA, const Mesh& meshB, const CorefineStatus expected)
+{
+  const Result result = corefine(Mesh{meshA}, Mesh{meshB});
+  EXPECT_EQ(result.error, expected);
+  EXPECT_FALSE(result.has_value());
+  EXPECT_TRUE(result.intersectionEdgesA.empty());
+  EXPECT_TRUE(result.intersectionEdgesB.empty());
+  EXPECT_TRUE(geometry_of(result.meshA) == geometry_of(meshA));
+  EXPECT_TRUE(geometry_of(result.meshB) == geometry_of(meshB));
+}
+
+TEST(MeshCorefineTest, failures_hand_back_the_meshes)
 {
   const Mesh box = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 1.0, 1.0});
   const double nan = std::numeric_limits<double>::quiet_NaN();
+  const double infinity = std::numeric_limits<double>::infinity();
 
-  Mesh meshA = box;
-  Mesh nonFinite = make_mesh({Vec3{0.5, 0.5, 0.5}, Vec3{nan, 0.0, 0.0}, Vec3{0.0, 2.0, 0.0}}, {Triangle{0, 1, 2}});
-  const Result nonFiniteResult = corefine(meshA, nonFinite);
-  EXPECT_EQ(nonFiniteResult.error, CorefineStatus::NonFiniteCoordinates);
-  EXPECT_TRUE(nonFiniteResult.intersectionEdgesA.empty());
-  EXPECT_EQ(meshA.vertex_count(), box.vertex_count());
-  EXPECT_EQ(meshA.face_count(), box.face_count());
+  const Mesh withNan = make_mesh({Vec3{0.5, 0.5, 0.5}, Vec3{nan, 0.0, 0.0}, Vec3{0.0, 2.0, 0.0}}, {Triangle{0, 1, 2}});
+  expect_failure_hands_back_the_meshes(box, withNan, CorefineStatus::NonFiniteCoordinates);
+  const Mesh withInfinity = make_mesh({Vec3{0.5, 0.5, 0.5}, Vec3{infinity, 0.0, 0.0}, Vec3{0.0, 2.0, 0.0}}, {Triangle{0, 1, 2}});
+  expect_failure_hands_back_the_meshes(withInfinity, box, CorefineStatus::NonFiniteCoordinates);
 
   // A collinear triangle through the box: zero area, so it has no plane.
-  Mesh collinear = make_mesh({Vec3{-1.0, 0.5, 0.5}, Vec3{0.5, 0.5, 0.5}, Vec3{2.0, 0.5, 0.5}}, {Triangle{0, 1, 2}});
-  const Result collinearResult = corefine(meshA, collinear);
-  EXPECT_EQ(collinearResult.error, CorefineStatus::DegenerateFace);
-  EXPECT_EQ(meshA.vertex_count(), box.vertex_count());
-  EXPECT_EQ(collinear.vertex_count(), 3U);
+  const Mesh collinear = make_mesh({Vec3{-1.0, 0.5, 0.5}, Vec3{0.5, 0.5, 0.5}, Vec3{2.0, 0.5, 0.5}}, {Triangle{0, 1, 2}});
+  expect_failure_hands_back_the_meshes(box, collinear, CorefineStatus::DegenerateFace);
+  expect_failure_hands_back_the_meshes(collinear, box, CorefineStatus::DegenerateFace);
+  // Rejected even far away from the other mesh.
+  const Mesh farCollinear = make_mesh({Vec3{9.0, 0.5, 0.5}, Vec3{10.0, 0.5, 0.5}, Vec3{11.0, 0.5, 0.5}}, {Triangle{0, 1, 2}});
+  expect_failure_hands_back_the_meshes(box, farCollinear, CorefineStatus::DegenerateFace);
 }
+
+TEST(MeshCorefineTest, coincident_points_are_a_degenerate_intersection)
+{
+  // Near 2^20 doubles are 2^-32 apart. A tetrahedron's apex lies one such step above the box's top
+  // face, so its three side edges cross the face within a fraction of a step of the apex, and all
+  // three crossings round to one position.
+  const double center = 1048576.0;
+  const double step = std::ldexp(1.0, -32);
+  ASSERT_EQ(std::nextafter(center, 2.0 * center), center + step);
+  const Mesh box = make_box(Vec3{center - 1.0, center - 1.0, center - 1.0}, Vec3{center + 1.0, center + 1.0, center});
+  // The apex stays off the top face's diagonal x = y.
+  const Mesh tetrahedron = make_mesh({Vec3{center + 0.25, center - 0.25, center + step},
+                                      Vec3{center + 0.05, center - 0.45, center - 0.9},
+                                      Vec3{center + 0.45, center - 0.35, center - 0.9},
+                                      Vec3{center + 0.2, center - 0.05, center - 0.9}},
+                                     {Triangle{0, 1, 2}, Triangle{0, 2, 3}, Triangle{0, 3, 1}, Triangle{1, 3, 2}});
+  expect_failure_hands_back_the_meshes(box, tetrahedron, CorefineStatus::DegenerateIntersection);
+}
+
+TEST(MeshCorefineTest, explicit_copy_keeps_the_operand)
+{
+  const Mesh kept = make_box(Vec3{0.0, 0.0, 0.0}, Vec3{2.0, 2.0, 2.0});
+  const MeshGeometry before = geometry_of(kept);
+  const Result result = corefine(Mesh{kept}, make_box(Vec3{1.0, 0.5, 0.25}, Vec3{3.0, 2.5, 2.25}));
+  ASSERT_TRUE(result.has_value());
+  EXPECT_GT(result.meshA.vertex_count(), kept.vertex_count());
+  EXPECT_TRUE(geometry_of(kept) == before);
+}
+
+// Whether corefine accepts lvalues; it must not, so that every copy is visible at the call site. A
+// concept, so that the ill-formed call yields false instead of a compile error.
+template <typename TMesh>
+concept CorefinesLvalues = requires(TMesh& first, TMesh& second) { corefine(first, second); };
+template <typename TMesh>
+concept CorefinesRvalues = requires(TMesh&& first, TMesh&& second) { corefine(std::move(first), std::move(second)); };
+static_assert(!CorefinesLvalues<Mesh>);
+static_assert(CorefinesRvalues<Mesh>);
 
 } // namespace MeshCorefineTesting
