@@ -376,6 +376,10 @@ void mark_result_creases(TriangleHalfedgeMesh<T, 3, TIndex>& mesh, const std::sp
  * Operands are validated, except for self-intersections, which they must not have. An operand
  * without faces is the empty solid.
  *
+ * The operands are consumed, on success and on failure, so that no mesh is copied unless the caller
+ * asks for it: move a mesh in when it is no longer needed, or pass an explicit copy (\c Mesh{mesh})
+ * to keep it.
+ *
  * \p options controls crease flags: by default, operand creases away from the intersection curve are
  * kept and no curve edge is a crease.
  *
@@ -390,8 +394,8 @@ void mark_result_creases(TriangleHalfedgeMesh<T, 3, TIndex>& mesh, const std::sp
  * an edge or at a vertex; \c IndexCapacityExceeded when the result does not fit \p TIndex.
  */
 template <typename T, typename TIndex>
-GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_boolean(const TriangleHalfedgeMesh<T, 3, TIndex>& meshA,
-                                                        const TriangleHalfedgeMesh<T, 3, TIndex>& meshB,
+GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_boolean(TriangleHalfedgeMesh<T, 3, TIndex>&& meshA,
+                                                        TriangleHalfedgeMesh<T, 3, TIndex>&& meshB,
                                                         const BooleanOperation operation,
                                                         const MeshBooleanOptions<T>& options = {})
 {
@@ -399,8 +403,12 @@ GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_boolean(const TriangleHalfedgeMe
   using Result = MeshBooleanResult<T, TIndex>;
   using Classes = std::vector<detail::PatchClass>;
 
+  GEO_ASSERT(&meshA != &meshB);
+  // Moved from on every path, so the caller never has to guess whether an operand is still intact.
+  Mesh refinedA = std::move(meshA);
+  Mesh refinedB = std::move(meshB);
   const auto failure = [](const BooleanStatus error) { return Result{Mesh{}, error}; };
-  for (const Mesh* operand : {&meshA, &meshB})
+  for (const Mesh* operand : {&refinedA, &refinedB})
   {
     if (const BooleanStatus error = detail::validate_operand(*operand); error != BooleanStatus::Ok)
     {
@@ -408,8 +416,6 @@ GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_boolean(const TriangleHalfedgeMe
     }
   }
 
-  Mesh refinedA = meshA;
-  Mesh refinedB = meshB;
   const detail::CorefinementResult<T, TIndex> corefined = detail::corefine_in_place(refinedA, refinedB);
   if (!corefined.has_value())
   {
@@ -453,29 +459,29 @@ GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_boolean(const TriangleHalfedgeMe
 
 /** \brief \c mesh_boolean with \c BooleanOperation::Union. */
 template <typename T, typename TIndex>
-GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_union(const TriangleHalfedgeMesh<T, 3, TIndex>& meshA,
-                                                      const TriangleHalfedgeMesh<T, 3, TIndex>& meshB,
+GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_union(TriangleHalfedgeMesh<T, 3, TIndex>&& meshA,
+                                                      TriangleHalfedgeMesh<T, 3, TIndex>&& meshB,
                                                       const MeshBooleanOptions<T>& options = {})
 {
-  return mesh_boolean(meshA, meshB, BooleanOperation::Union, options);
+  return mesh_boolean(std::move(meshA), std::move(meshB), BooleanOperation::Union, options);
 }
 
 /** \brief \c mesh_boolean with \c BooleanOperation::Intersection. */
 template <typename T, typename TIndex>
-GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_intersection(const TriangleHalfedgeMesh<T, 3, TIndex>& meshA,
-                                                             const TriangleHalfedgeMesh<T, 3, TIndex>& meshB,
+GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_intersection(TriangleHalfedgeMesh<T, 3, TIndex>&& meshA,
+                                                             TriangleHalfedgeMesh<T, 3, TIndex>&& meshB,
                                                              const MeshBooleanOptions<T>& options = {})
 {
-  return mesh_boolean(meshA, meshB, BooleanOperation::Intersection, options);
+  return mesh_boolean(std::move(meshA), std::move(meshB), BooleanOperation::Intersection, options);
 }
 
 /** \brief \c mesh_boolean with \c BooleanOperation::Difference: A - B. */
 template <typename T, typename TIndex>
-GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_difference(const TriangleHalfedgeMesh<T, 3, TIndex>& meshA,
-                                                           const TriangleHalfedgeMesh<T, 3, TIndex>& meshB,
+GEO_NODISCARD MeshBooleanResult<T, TIndex> mesh_difference(TriangleHalfedgeMesh<T, 3, TIndex>&& meshA,
+                                                           TriangleHalfedgeMesh<T, 3, TIndex>&& meshB,
                                                            const MeshBooleanOptions<T>& options = {})
 {
-  return mesh_boolean(meshA, meshB, BooleanOperation::Difference, options);
+  return mesh_boolean(std::move(meshA), std::move(meshB), BooleanOperation::Difference, options);
 }
 
 } // namespace Geometry
