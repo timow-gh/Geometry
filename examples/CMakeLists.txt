@@ -49,6 +49,7 @@ set(geometry_examples
     example_mesh
     example_mesh_booleans
     example_mesh_operations
+    example_mesh_split_flip_operations
     example_minkowski_sum)
 
 foreach(example IN LISTS geometry_examples)

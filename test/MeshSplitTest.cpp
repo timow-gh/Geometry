@@ -3,6 +3,7 @@
 #include <Geometry/Mesh/AddTriangle.hpp>
 #include <Geometry/Mesh/MakeTriangleMesh.hpp>
 #include <Geometry/Mesh/MeshDelete.hpp>
+#include <Geometry/Mesh/MeshFromTriangles.hpp>
 #include <Geometry/Mesh/MeshGlobalTopology.hpp>
 #include <Geometry/Mesh/MeshOrientation.hpp>
 #include <Geometry/Mesh/MeshSplit.hpp>
@@ -11,10 +12,13 @@
 #include <Geometry/Mesh/TriangleHalfedgeMesh.hpp>
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <array>
 #include <cstddef>
 #include <cstdint>
 #include <random>
+#include <span>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -29,6 +33,8 @@ using HalfedgeHandle = Mesh::HalfedgeHandle;
 using EdgeHandle = Mesh::EdgeHandle;
 using FaceHandle = Mesh::FaceHandle;
 using Vec3 = Mesh::vec_t;
+using Index = Mesh::handle_value_type;
+using Triangle = std::array<Index, 3>;
 
 // n x n grid in the xy-plane as in MeshEdgeCollapseTest.cpp; vertex (i, j) has handle value j * n + i.
 Mesh make_grid(std::size_t size)
@@ -60,6 +66,39 @@ Mesh make_grid(std::size_t size)
   return mesh;
 }
 
+// A 4 x 4 grid with its interior face (1,1), (2,1), (2,2) deleted. add_triangle stores the face side
+// of a new boundary edge, so only a deletion leaves edges whose stored halfedge is on the boundary.
+Mesh make_grid_with_hole()
+{
+  Mesh mesh = make_grid(4);
+  const HalfedgeHandle halfedge = mesh.find_halfedge(VertexHandle{5}, VertexHandle{6});
+  EXPECT_EQ(delete_face(mesh, mesh.get_halfedge(halfedge).face), DeleteStatus::Ok);
+  return mesh;
+}
+
+// A single triangle: all three sides are boundary edges, on one boundary loop of length 3.
+Mesh make_isolated_triangle()
+{
+  Mesh mesh;
+  const VertexHandle vertex0 = mesh.add_vertex({0.0, 0.0, 0.0});
+  const VertexHandle vertex1 = mesh.add_vertex({1.0, 0.0, 0.0});
+  const VertexHandle vertex2 = mesh.add_vertex({0.0, 1.0, 0.0});
+  EXPECT_TRUE(add_triangle(mesh, vertex0, vertex1, vertex2).is_valid());
+  return mesh;
+}
+
+// Two triangles over the same three vertices, wound oppositely: a closed surface whose two faces share
+// their apex across every edge. add_triangle refuses the second triangle; make_mesh_from_triangles
+// accepts it.
+Mesh make_pillow()
+{
+  const std::array<Vec3, 3> positions{Vec3{0.0, 0.0, 0.0}, Vec3{1.0, 0.0, 0.0}, Vec3{0.0, 1.0, 0.0}};
+  const std::array<Triangle, 2> triangles{Triangle{0, 1, 2}, Triangle{1, 0, 2}};
+  auto creation = make_mesh_from_triangles(std::span<const Vec3>{positions}, std::span<const Triangle>{triangles});
+  EXPECT_TRUE(creation.has_value());
+  return std::move(creation.mesh);
+}
+
 Mesh make_cube()
 {
   auto creation = make_triangle_mesh(Cuboid<double>{{1.0, 1.0, 1.0}});
@@ -86,6 +125,74 @@ struct ElementCounts
 ElementCounts counts_of(const Mesh& mesh)
 {
   return {mesh.vertex_count(), mesh.edge_count(), mesh.face_count()};
+}
+
+struct StorageSizes
+{
+  std::size_t vertices{};
+  std::size_t edges{};
+  std::size_t halfedges{};
+  std::size_t faces{};
+
+  bool operator==(const StorageSizes&) const = default;
+};
+
+StorageSizes storage_sizes_of(const Mesh& mesh)
+{
+  return {mesh.vertex_storage_size(), mesh.edge_storage_size(), mesh.halfedge_storage_size(), mesh.face_storage_size()};
+}
+
+// Whether every element in the first storageSize slots of original is still at its handle in mesh, live
+// or deleted as before.
+template <typename THandle>
+bool keeps_handles(const Mesh& original, const Mesh& mesh, std::size_t storageSize)
+{
+  for (Index i = 0; i < storageSize; ++i)
+  {
+    if (mesh.is_live(THandle{i}) != original.is_live(THandle{i}))
+    {
+      return false;
+    }
+  }
+  return true;
+}
+
+// Every link and flag of the connectivity, in storage order, so that a test can show a rejected
+// operation left the mesh exactly as it was rather than merely valid.
+struct ConnectivityRecords
+{
+  std::vector<std::tuple<VertexHandle, HalfedgeHandle, HalfedgeHandle, HalfedgeHandle, FaceHandle, EdgeHandle>> halfedges;
+  std::vector<std::tuple<HalfedgeHandle, bool, bool>> edges;
+  std::vector<std::tuple<HalfedgeHandle, bool>> vertices;
+  std::vector<std::tuple<HalfedgeHandle, bool>> faces;
+
+  bool operator==(const ConnectivityRecords&) const = default;
+};
+
+ConnectivityRecords connectivity_records(const Mesh& mesh)
+{
+  ConnectivityRecords records;
+  for (Index i = 0; i < mesh.halfedge_storage_size(); ++i)
+  {
+    const auto& halfedge = mesh.get_halfedge(HalfedgeHandle{i});
+    records.halfedges.emplace_back(halfedge.targetVertex, halfedge.twin, halfedge.next, halfedge.prev, halfedge.face, halfedge.edge);
+  }
+  for (Index i = 0; i < mesh.edge_storage_size(); ++i)
+  {
+    const auto& edge = mesh.get_edge(EdgeHandle{i});
+    records.edges.emplace_back(edge.halfedge, edge.crease, edge.deleted);
+  }
+  for (Index i = 0; i < mesh.vertex_storage_size(); ++i)
+  {
+    const auto& vertex = mesh.get_vertex(VertexHandle{i});
+    records.vertices.emplace_back(vertex.halfedge, vertex.deleted);
+  }
+  for (Index i = 0; i < mesh.face_storage_size(); ++i)
+  {
+    const auto& face = mesh.get_face(FaceHandle{i});
+    records.faces.emplace_back(face.get_halfedgehandle(), face.is_deleted());
+  }
+  return records;
 }
 
 // Sum of origin tetrahedra; unchanged by a split at a point on the split edge or face.
@@ -192,14 +299,88 @@ TEST(MeshSplit, SplitsBoundaryEdgeIntoTwoFaces)
   expect_structurally_valid(mesh);
 }
 
-// A 4 x 4 grid with its interior face (1,1), (2,1), (2,2) deleted. add_triangle stores the face side
-// of a new boundary edge, so only a deletion leaves edges whose stored halfedge is on the boundary.
-Mesh make_grid_with_hole()
+// On a boundary edge only one face is split, and the side the edge stores its halfedge on decides
+// whether that face lies left or right of it; either way the same elements keep their handles.
+TEST(MeshSplit, SplitEdgeKeepsHandlesOnBoundaryEdge)
 {
-  Mesh mesh = make_grid(4);
-  const HalfedgeHandle halfedge = mesh.find_halfedge(VertexHandle{5}, VertexHandle{6});
-  EXPECT_EQ(delete_face(mesh, mesh.get_halfedge(halfedge).face), DeleteStatus::Ok);
-  return mesh;
+  std::size_t storedOnFaceSide = 0;
+  std::size_t storedOnBoundary = 0;
+  for (const Mesh& original : {make_grid(3), make_grid_with_hole()})
+  {
+    for (const EdgeHandle edge : original.edges())
+    {
+      if (!original.is_boundary(edge))
+      {
+        continue;
+      }
+      Mesh mesh = original;
+      const HalfedgeHandle forward = mesh.get_edge(edge).halfedge;
+      const HalfedgeHandle backward = mesh.get_halfedge(forward).twin;
+      const VertexHandle start = mesh.source_vertex(forward);
+      const VertexHandle end = mesh.target_vertex(forward);
+      const bool faceOnForward = !mesh.is_boundary(forward);
+      ++(faceOnForward ? storedOnFaceSide : storedOnBoundary);
+      const FaceHandle face = mesh.get_halfedge(faceOnForward ? forward : backward).face;
+      const FaceHandle newFace{static_cast<Index>(mesh.face_storage_size())};
+
+      const VertexHandle middle = split_edge(mesh, edge, edge_midpoint(mesh, edge));
+
+      ASSERT_TRUE(middle.is_valid());
+      // The edge keeps its stored halfedge, on the same side, now ending at the new vertex.
+      EXPECT_EQ(mesh.get_edge(edge).halfedge, forward);
+      EXPECT_EQ(mesh.find_halfedge(start, middle), forward);
+      EXPECT_EQ(mesh.is_boundary(forward), !faceOnForward);
+      // The split face keeps the half at the start vertex; the new face holds the half at the end.
+      EXPECT_TRUE(face_has_corner(mesh, face, start) && face_has_corner(mesh, face, middle));
+      EXPECT_FALSE(face_has_corner(mesh, face, end));
+      ASSERT_TRUE(mesh.is_live(newFace));
+      EXPECT_TRUE(face_has_corner(mesh, newFace, middle) && face_has_corner(mesh, newFace, end));
+      EXPECT_FALSE(face_has_corner(mesh, newFace, start));
+      // The new vertex is on the boundary, so it is represented by its outgoing boundary halfedge.
+      EXPECT_TRUE(mesh.is_boundary(mesh.get_vertex(middle).halfedge));
+      expect_structurally_valid(mesh);
+    }
+  }
+  EXPECT_GT(storedOnFaceSide, 0U);
+  EXPECT_GT(storedOnBoundary, 0U);
+}
+
+TEST(MeshSplit, SplitsEdgeOfIsolatedTriangle)
+{
+  const Mesh original = make_isolated_triangle();
+  for (const EdgeHandle edge : original.edges())
+  {
+    Mesh mesh = original;
+
+    const VertexHandle middle = split_edge(mesh, edge, edge_midpoint(mesh, edge));
+
+    ASSERT_TRUE(middle.is_valid());
+    EXPECT_EQ(counts_of(mesh), (ElementCounts{4, 5, 2}));
+    EXPECT_EQ(euler_characteristic(mesh), 1);
+    EXPECT_EQ(valence(mesh, middle), 3U);
+    const auto loops = boundary_loops(mesh);
+    ASSERT_EQ(loops.size(), 1U);
+    EXPECT_EQ(loops.front().size(), 4U);
+    expect_structurally_valid(mesh);
+  }
+}
+
+// Both faces of a pillow edge have the same apex, so a split would join the new vertex to that apex by
+// two edges.
+TEST(MeshSplit, SplitEdgeRejectsEdgeWithSharedApex)
+{
+  const Mesh original = make_pillow();
+  ASSERT_EQ(original.face_count(), 2U);
+  const ConnectivityRecords records = connectivity_records(original);
+  for (const EdgeHandle edge : original.edges())
+  {
+    Mesh mesh = original;
+
+    EXPECT_FALSE(split_edge(mesh, edge, edge_midpoint(mesh, edge)).is_valid());
+
+    EXPECT_TRUE(connectivity_records(mesh) == records);
+    EXPECT_EQ(mesh.vertex_storage_size(), original.vertex_storage_size());
+  }
 }
 
 // Covers every edge configuration a split has to handle: interior, and boundary with the stored
@@ -208,14 +389,19 @@ TEST(MeshSplit, SplittingAnyEdgeKeepsMeshValid)
 {
   std::size_t storedOnBoundary = 0;
   std::size_t twinOnBoundary = 0;
+  std::size_t endRepresentativeReplaced = 0;
   for (const Mesh& original : {make_grid(3), make_grid(4), make_grid_with_hole(), make_cube()})
   {
     for (const EdgeHandle edge : original.edges())
     {
       Mesh mesh = original;
       const bool boundary = mesh.is_boundary(edge);
-      storedOnBoundary += mesh.is_boundary(mesh.get_edge(edge).halfedge) ? 1U : 0U;
-      twinOnBoundary += boundary && !mesh.is_boundary(mesh.get_edge(edge).halfedge) ? 1U : 0U;
+      const HalfedgeHandle forward = mesh.get_edge(edge).halfedge;
+      const HalfedgeHandle backward = mesh.get_halfedge(forward).twin;
+      storedOnBoundary += mesh.is_boundary(forward) ? 1U : 0U;
+      twinOnBoundary += boundary && !mesh.is_boundary(forward) ? 1U : 0U;
+      // The end vertex no longer starts backward after the split, so it needs a new representative.
+      endRepresentativeReplaced += mesh.get_vertex(mesh.target_vertex(forward)).halfedge == backward ? 1U : 0U;
       const ElementCounts before = counts_of(mesh);
 
       ASSERT_TRUE(split_edge(mesh, edge, edge_midpoint(mesh, edge)).is_valid());
@@ -229,23 +415,13 @@ TEST(MeshSplit, SplittingAnyEdgeKeepsMeshValid)
   }
   EXPECT_GT(storedOnBoundary, 0U);
   EXPECT_GT(twinOnBoundary, 0U);
+  EXPECT_GT(endRepresentativeReplaced, 0U);
 }
 
 TEST(MeshSplit, SplitEdgeKeepsCreaseOnBothHalves)
 {
-  for (const bool crease : {true, false})
-  {
-    Mesh mesh = make_cube();
-    EdgeHandle edge{};
-    for (const EdgeHandle candidate : mesh.edges())
-    {
-      if (mesh.is_crease(candidate) == crease)
-      {
-        edge = candidate;
-        break;
-      }
-    }
-    ASSERT_TRUE(edge.is_valid());
+  const auto expect_crease_on_both_halves = [](Mesh& mesh, EdgeHandle edge) {
+    const bool crease = mesh.is_crease(edge);
     const HalfedgeHandle forward = mesh.get_edge(edge).halfedge;
     const VertexHandle end = mesh.target_vertex(forward);
 
@@ -254,7 +430,7 @@ TEST(MeshSplit, SplitEdgeKeepsCreaseOnBothHalves)
     ASSERT_TRUE(middle.is_valid());
     EXPECT_EQ(mesh.is_crease(edge), crease);
     EXPECT_EQ(mesh.is_crease(mesh.get_halfedge(mesh.find_halfedge(middle, end)).edge), crease);
-    // The new edges to the two apexes are not feature lines.
+    // The new edges to the apexes are not feature lines.
     for (auto outgoing = std::as_const(mesh).outgoing_halfedges(middle).circulator(); outgoing.is_valid(); ++outgoing)
     {
       const VertexHandle neighbour = mesh.target_vertex(outgoing.get_halfedgehandle());
@@ -262,6 +438,54 @@ TEST(MeshSplit, SplitEdgeKeepsCreaseOnBothHalves)
       {
         EXPECT_FALSE(mesh.is_crease(mesh.get_halfedge(outgoing.get_halfedgehandle()).edge));
       }
+    }
+  };
+
+  for (const bool crease : {true, false})
+  {
+    Mesh cube = make_cube();
+    const auto cubeEdges = cube.edges();
+    const auto edge = std::ranges::find_if(cubeEdges, [&](EdgeHandle candidate) { return cube.is_crease(candidate) == crease; });
+    ASSERT_NE(edge, cubeEdges.end());
+    expect_crease_on_both_halves(cube, *edge);
+
+    // A boundary edge has a single apex.
+    Mesh grid = make_grid(3);
+    const HalfedgeHandle bottom = grid.find_halfedge(VertexHandle{0}, VertexHandle{1});
+    ASSERT_TRUE(bottom.is_valid());
+    grid.set_crease(grid.get_halfedge(bottom).edge, crease);
+    expect_crease_on_both_halves(grid, grid.get_halfedge(bottom).edge);
+  }
+}
+
+// Corefinement keeps side arrays indexed by storage, which stay aligned only because a split appends
+// its new elements and leaves every earlier one at its handle.
+TEST(MeshSplit, SplitsOnlyAppendElements)
+{
+  const auto expect_appended = [](const Mesh& original, const Mesh& mesh, const StorageSizes& added) {
+    const StorageSizes before = storage_sizes_of(original);
+    EXPECT_EQ(storage_sizes_of(mesh),
+              (StorageSizes{before.vertices + added.vertices, before.edges + added.edges,
+                            before.halfedges + added.halfedges, before.faces + added.faces}));
+    EXPECT_TRUE(keeps_handles<VertexHandle>(original, mesh, before.vertices));
+    EXPECT_TRUE(keeps_handles<EdgeHandle>(original, mesh, before.edges));
+    EXPECT_TRUE(keeps_handles<HalfedgeHandle>(original, mesh, before.halfedges));
+    EXPECT_TRUE(keeps_handles<FaceHandle>(original, mesh, before.faces));
+  };
+
+  for (const Mesh& original : {make_grid_with_hole(), make_cube()})
+  {
+    for (const EdgeHandle edge : original.edges())
+    {
+      Mesh mesh = original;
+      ASSERT_TRUE(split_edge(mesh, edge, edge_midpoint(mesh, edge)).is_valid());
+      expect_appended(original, mesh, original.is_boundary(edge) ? StorageSizes{1, 2, 4, 1} : StorageSizes{1, 3, 6, 2});
+    }
+    for (const FaceHandle face : original.faces())
+    {
+      Mesh mesh = original;
+      ASSERT_TRUE(split_face(mesh, face, face_centroid(mesh, face)).is_valid());
+      expect_appended(original, mesh, StorageSizes{1, 3, 6, 2});
     }
   }
 }
@@ -319,7 +543,7 @@ TEST(MeshSplit, SplitsFaceIntoThree)
 
 TEST(MeshSplit, SplittingAnyFaceKeepsMeshValid)
 {
-  for (const Mesh& original : {make_grid(3), make_cube()})
+  for (const Mesh& original : {make_grid(3), make_grid_with_hole(), make_cube()})
   {
     for (const FaceHandle face : original.faces())
     {
@@ -334,6 +558,70 @@ TEST(MeshSplit, SplittingAnyFaceKeepsMeshValid)
       expect_structurally_valid(mesh);
     }
   }
+}
+
+TEST(MeshSplit, SplitsIsolatedTriangle)
+{
+  Mesh mesh = make_isolated_triangle();
+  const FaceHandle face = *mesh.faces().begin();
+
+  const VertexHandle center = split_face(mesh, face, face_centroid(mesh, face));
+
+  ASSERT_TRUE(center.is_valid());
+  EXPECT_EQ(counts_of(mesh), (ElementCounts{4, 6, 3}));
+  EXPECT_EQ(euler_characteristic(mesh), 1);
+  EXPECT_FALSE(is_boundary(mesh, center));
+  EXPECT_EQ(valence(mesh, center), 3U);
+  const auto loops = boundary_loops(mesh);
+  ASSERT_EQ(loops.size(), 1U);
+  EXPECT_EQ(loops.front().size(), 3U);
+  expect_structurally_valid(mesh);
+}
+
+// A cube face has two crease sides on the cube's edges and a smooth one on its diagonal, so both flags
+// must survive the split.
+TEST(MeshSplit, SplitFaceKeepsSideCreases)
+{
+  Mesh mesh = make_cube();
+  const FaceHandle face = *mesh.faces().begin();
+  const auto sides = mesh.halfedges_around_face(face);
+  const auto corners = mesh.vertices_around_face(face);
+  std::array<bool, 3> creases{};
+  for (std::size_t i = 0; i < 3; ++i)
+  {
+    creases[i] = mesh.is_crease(mesh.get_halfedge(sides[i]).edge);
+  }
+  ASSERT_EQ(std::ranges::count(creases, true), 2);
+
+  const VertexHandle center = split_face(mesh, face, face_centroid(mesh, face));
+
+  ASSERT_TRUE(center.is_valid());
+  for (std::size_t i = 0; i < 3; ++i)
+  {
+    EXPECT_EQ(mesh.is_crease(mesh.get_halfedge(sides[i]).edge), creases[i]);
+  }
+  for (const VertexHandle corner : corners)
+  {
+    EXPECT_FALSE(mesh.is_crease(mesh.get_halfedge(mesh.find_halfedge(center, corner)).edge));
+  }
+}
+
+// A pillow's edges cannot be split, but its faces can: the result has a tetrahedron's connectivity, a
+// closed surface again.
+TEST(MeshSplit, SplitsPillowFace)
+{
+  Mesh mesh = make_pillow();
+  ASSERT_EQ(mesh.face_count(), 2U);
+  const FaceHandle face = *mesh.faces().begin();
+
+  const VertexHandle center = split_face(mesh, face, face_centroid(mesh, face));
+
+  ASSERT_TRUE(center.is_valid());
+  EXPECT_EQ(counts_of(mesh), (ElementCounts{4, 6, 4}));
+  EXPECT_EQ(euler_characteristic(mesh), 2);
+  EXPECT_EQ(valence(mesh, center), 3U);
+  EXPECT_TRUE(verify_closed(mesh));
+  expect_structurally_valid(mesh);
 }
 
 TEST(MeshSplit, SplitFaceRejectsInvalidAndDeletedFace)

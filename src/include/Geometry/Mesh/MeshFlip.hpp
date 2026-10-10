@@ -93,6 +93,8 @@ void flip_edge_unchecked(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   const HalfedgeHandle backwardPrev = connectivity.halfedge(backward).prev; // d -> b
   const VertexHandle start = connectivity.halfedge(backward).targetVertex;
   const VertexHandle end = connectivity.halfedge(forward).targetVertex;
+  const VertexHandle leftApex = connectivity.halfedge(forwardNext).targetVertex;   // c
+  const VertexHandle rightApex = connectivity.halfedge(backwardNext).targetVertex; // d
 
   // a and b lose the flipped edge; the next halfedge around each in its old face is still outgoing
   // and interior, so a boundary representative is never replaced.
@@ -105,11 +107,12 @@ void flip_edge_unchecked(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
     connectivity.vertex(end).halfedge = forwardNext;
   }
 
-  connectivity.halfedge(forward).targetVertex = connectivity.halfedge(forwardNext).targetVertex;
-  connectivity.halfedge(backward).targetVertex = connectivity.halfedge(backwardNext).targetVertex;
+  connectivity.halfedge(forward).targetVertex = leftApex;
+  connectivity.halfedge(backward).targetVertex = rightApex;
   detail::link_triangle(mesh, connectivity.halfedge(forward).face, forward, forwardPrev, backwardNext);
   detail::link_triangle(mesh, connectivity.halfedge(backward).face, backward, backwardPrev, forwardNext);
   connectivity.edge(edge).crease = false;
+  GEO_ASSERT(mesh.find_halfedge(rightApex, leftApex) == forward);
 }
 
 } // namespace detail

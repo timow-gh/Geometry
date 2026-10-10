@@ -128,85 +128,22 @@ Mesh boolean(const Mesh& meshA, const Mesh& meshB, BooleanOperation operation, c
     return std::move(result.mesh);
 }
 
-// The positions of the render vertices index pairs name, flattened as geoqik's line arrays expect:
-// six coordinates per line.
-std::vector<double> line_endpoints(const Geometry::MeshRenderBuffers& buffers, std::span<const Geometry::BufferIndex> pairs) {
-    std::vector<double> endpoints;
-    endpoints.reserve(3 * pairs.size());
-    for (const Geometry::BufferIndex index : pairs)
-        for (std::size_t axis = 0; axis < 3; ++axis)
-            endpoints.push_back(buffers.positions[3 * index + axis]);
-    return endpoints;
-}
-
-// Every edge of the triangles in buffers, once, as index pairs. Along a crease the two sides use
-// different render vertices, so such an edge appears twice, drawn on top of itself.
-std::vector<Geometry::BufferIndex> triangle_edges(const Geometry::MeshRenderBuffers& buffers) {
-    using Edge = std::array<Geometry::BufferIndex, 2>;
-    std::vector<Edge> edges;
-    edges.reserve(buffers.triangles.size());
-    for (std::size_t first = 0; first + 2 < buffers.triangles.size(); first += 3) {
-        for (std::size_t side = 0; side < 3; ++side) {
-            const Geometry::BufferIndex start = buffers.triangles[first + side];
-            const Geometry::BufferIndex end = buffers.triangles[first + (side + 1) % 3];
-            edges.push_back(Edge{std::min(start, end), std::max(start, end)});
-        }
-    }
-    std::ranges::sort(edges);
-    const auto duplicates = std::ranges::unique(edges);
-    edges.erase(duplicates.begin(), duplicates.end());
-
-    std::vector<Geometry::BufferIndex> indices;
-    indices.reserve(2 * edges.size());
-    for (const Edge& edge : edges)
-        indices.insert(indices.end(), edge.begin(), edge.end());
-    return indices;
-}
-
-// Black lines lifted off the faces they lie on, which they would otherwise depth-fight; a higher
-// depth layer draws over a lower one.
-geoqik_result_t draw_black_lines(const std::vector<double>& endpoints, float lineWidth, std::int32_t depthLayer) {
-    const example::color black = example::black();
-    geoqik_add_line_opts_t options{};
-    options.color = black.rgba.data();
-    options.colorCount = black.rgba.size();
-    options.styleSet = 1;
-    options.style.lineWidth = lineWidth;
-    options.style.depthLayer = depthLayer;
-    options.lineType = GEOQIK_LINE_TYPE_LINES;
-    return geoqik_add_lines_opts(endpoints.data(), endpoints.size(), &options);
-}
-
 // Draws mesh moved by (x, y): its triangles as thin black lines, and its crease edges (operand
-// features and cut curves) as thick ones on top. Separate lines rather than the mesh's own segment
-// overlay, because geoqik draws that overlay in white whatever color is asked for.
+// features and cut curves) as thick ones on top.
 //
 // Every scene is built around the origin and only moved into its cell for drawing, so each Boolean
 // runs once, on the coordinates chosen for it.
 void draw_at(const Mesh& mesh, double x, double y, const example::color& color) {
-    // Thin, so that a densely triangulated body keeps its color between the lines.
-    constexpr float wireframeLineWidth = 0.75f;
     constexpr float creaseLineWidth = 2.5f;
     Mesh moved = mesh;
     const Vec3 offset{x, y, 0.0};
     for (const auto vertex : moved.vertices())
         moved.set_position(vertex, Vec3{moved.get_position(vertex) + offset});
-    const auto buffers = Geometry::make_render_buffers(moved);
-    if (!buffers)
-        example::fail_example("Create render buffers", static_cast<int>(buffers.error));
-
-    geoqik_add_mesh_opts_t options{};
-    options.color = color.rgba.data();
-    options.colorCount = color.rgba.size();
-    options.normals = buffers.normals.data();
-    options.normalsCount = buffers.normals.size();
-    const auto result = geoqik_add_mesh_opts(buffers.positions.data(), buffers.vertex_count(), buffers.triangles.data(),
-                                             buffers.triangles.size() / 3, &options);
-    example::check_geoqik(result.err, "Draw mesh");
-    example::check_geoqik(draw_black_lines(line_endpoints(buffers, triangle_edges(buffers)), wireframeLineWidth, 1).err,
-                          "Draw triangle edges");
+    const auto buffers = example::draw_wireframe_mesh(moved, color);
     if (!buffers.segments.empty())
-        example::check_geoqik(draw_black_lines(line_endpoints(buffers, buffers.segments), creaseLineWidth, 2).err, "Draw creases");
+        example::check_geoqik(
+            example::draw_lines(example::line_endpoints(buffers, buffers.segments), example::black(), creaseLineWidth, 2).err,
+            "Draw creases");
 }
 
 // The four Booleans of an axis-aligned box and a sphere over one of its corners. The sphere's center

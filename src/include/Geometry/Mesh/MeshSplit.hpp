@@ -17,16 +17,24 @@ namespace Geometry
  * of each incident face.
  *
  * Each incident face becomes two, so an interior edge's two faces become four and a boundary edge's
- * one face becomes two. Adds 1 vertex, 3 edges and 2 faces (1, 2, 1 on the boundary), preserving the
- * Euler characteristic. Every existing handle stays valid and new elements are only appended, so side
- * arrays indexed by storage just grow. For a refinement that tracks where each element came from, what
- * keeps which handle is fixed: with a -> b the stored halfedge of \p edge, \p edge then joins a to
- * the new vertex and keeps that halfedge; a new edge joins the new vertex to b and inherits the crease
- * flag, so a feature line stays marked along both halves; each incident face keeps its handle for the
- * half at a. The edges to the apexes are not creases. Topology only: \p position is not checked, and
- * a point off the edge can fold the surface. O(1) amortized.
+ * one face becomes two. Adds 1 vertex, 3 edges and 2 faces on an interior edge, and 1 vertex, 2 edges
+ * and 1 face on a boundary edge, preserving the Euler characteristic.
  *
- * \return The new vertex, or an invalid handle if \p edge is not live (the mesh is left untouched).
+ * Every existing handle stays valid and new elements are only appended, so side arrays indexed by
+ * storage just grow.
+ *
+ * For a refinement that tracks where each element came from, what keeps which handle is fixed. With
+ * a -> b the stored halfedge of \p edge, \p edge then joins a to the new vertex and keeps that
+ * halfedge, and each incident face keeps its handle for the half at a. A new edge joins the new vertex
+ * to b and inherits the crease flag, so a feature line stays marked along both halves; the edges to
+ * the apexes are not creases.
+ *
+ * Topology only: \p position is not checked, and a point off the edge can fold the surface.
+ * O(1) amortized.
+ *
+ * \return The new vertex, or an invalid handle if \p edge is not live, or if both of its faces share
+ * their apex (a closed two-triangle component), whose split would duplicate an edge; the mesh is left
+ * untouched.
  */
 template <typename T, std::uint8_t D, typename TIndex>
 GEO_NODISCARD typename TriangleHalfedgeMesh<T, D, TIndex>::VertexHandle
@@ -46,9 +54,21 @@ split_edge(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   const auto connectivity = mesh.connectivity();
   const HalfedgeHandle forward = connectivity.edge(edge).halfedge; // a -> b
   const HalfedgeHandle backward = connectivity.halfedge(forward).twin; // b -> a
+  const HalfedgeHandle forwardNext = connectivity.halfedge(forward).next;
+  const HalfedgeHandle forwardPrev = connectivity.halfedge(forward).prev;
+  const HalfedgeHandle backwardNext = connectivity.halfedge(backward).next;
+  const HalfedgeHandle backwardPrev = connectivity.halfedge(backward).prev;
   const bool hasLeftFace = !mesh.is_boundary(forward);
   const bool hasRightFace = !mesh.is_boundary(backward);
   GEO_ASSERT(hasLeftFace || hasRightFace);
+  const VertexHandle leftApex = hasLeftFace ? connectivity.halfedge(forwardNext).targetVertex : VertexHandle{};
+  const VertexHandle rightApex = hasRightFace ? connectivity.halfedge(backwardNext).targetVertex : VertexHandle{};
+
+  // Both new edges to the apexes would join the new vertex to the same vertex.
+  if (hasLeftFace && hasRightFace && leftApex == rightApex)
+  {
+    return VertexHandle{};
+  }
 
   // Reserving everything up front means nothing below can throw, so the mesh is never half-split.
   const std::size_t splitFaceCount = (hasLeftFace ? 1U : 0U) + (hasRightFace ? 1U : 0U);
@@ -59,10 +79,6 @@ split_edge(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
 
   [[maybe_unused]] const VertexHandle start = mesh.source_vertex(forward);
   const VertexHandle end = mesh.target_vertex(forward);
-  const HalfedgeHandle forwardNext = connectivity.halfedge(forward).next;
-  const HalfedgeHandle forwardPrev = connectivity.halfedge(forward).prev;
-  const HalfedgeHandle backwardNext = connectivity.halfedge(backward).next;
-  const HalfedgeHandle backwardPrev = connectivity.halfedge(backward).prev;
 
   const VertexHandle middle = connectivity.new_vertex(position);
   const HalfedgeHandle middleToEnd = detail::new_edge_between(mesh, middle, end);
@@ -76,8 +92,7 @@ split_edge(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   if (hasLeftFace)
   {
     // (a, b, apex) becomes (a, middle, apex) and (middle, b, apex).
-    const VertexHandle apex = connectivity.halfedge(forwardNext).targetVertex;
-    const HalfedgeHandle middleToApex = detail::new_edge_between(mesh, middle, apex);
+    const HalfedgeHandle middleToApex = detail::new_edge_between(mesh, middle, leftApex);
     const HalfedgeHandle apexToMiddle = connectivity.halfedge(middleToApex).twin;
     detail::link_triangle(mesh, connectivity.halfedge(forward).face, forward, middleToApex, forwardPrev);
     detail::link_triangle(mesh, connectivity.new_face(), middleToEnd, forwardNext, apexToMiddle);
@@ -91,8 +106,7 @@ split_edge(TriangleHalfedgeMesh<T, D, TIndex>& mesh,
   if (hasRightFace)
   {
     // (b, a, apex) becomes (middle, a, apex) and (b, middle, apex).
-    const VertexHandle apex = connectivity.halfedge(backwardNext).targetVertex;
-    const HalfedgeHandle apexToMiddle = detail::new_edge_between(mesh, apex, middle);
+    const HalfedgeHandle apexToMiddle = detail::new_edge_between(mesh, rightApex, middle);
     const HalfedgeHandle middleToApex = connectivity.halfedge(apexToMiddle).twin;
     detail::link_triangle(mesh, connectivity.halfedge(backward).face, backward, backwardNext, apexToMiddle);
     detail::link_triangle(mesh, connectivity.new_face(), endToMiddle, middleToApex, backwardPrev);
